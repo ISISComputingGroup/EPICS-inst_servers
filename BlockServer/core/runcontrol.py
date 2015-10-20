@@ -101,9 +101,9 @@ class RunControlManager(object):
             if blk.save_rc_settings:
                 settings = dict()
                 if blk.rc_enabled:
-                    settings["ENABLE"] = "YES"
+                    settings["ENABLE"] = 1
                 else:
-                    settings["ENABLE"] = "NO"
+                    settings["ENABLE"] = 0
                 if blk.rc_lowlimit is not None:
                     settings["LOW"] = blk.rc_lowlimit
                 if blk.rc_highlimit is not None:
