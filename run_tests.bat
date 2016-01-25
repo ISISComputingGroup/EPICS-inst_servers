@@ -1,7 +1,8 @@
 set PYTHON_EXE=c:\Python27\python.exe
 set EPICS_KIT_ROOT=C:\Instrument\Apps\EPICS
 set MYPVPREFIX=TEST
-
+set ICPCONFIGROOT=C:\TestConfigs
+set ICPVARDIR=C:\Instrument\Var
  
 REM Run the blockserver tests
 cd .\BlockServer
