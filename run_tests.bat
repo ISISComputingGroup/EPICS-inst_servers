@@ -11,3 +11,4 @@ cd .\BlockServer
 REM Run the databaseServer tests
 cd ..\DatabaseServer
 %PYTHON_EXE% run_tests.py -o ..\..\..\test-reports
+
