@@ -1,5 +1,6 @@
 set PYTHON_EXE=c:\Python27\python.exe
 set MYPVPREFIX=TEST
+
  
 REM Run the blockserver tests
 cd .\BlockServer
