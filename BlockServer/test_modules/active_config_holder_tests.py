@@ -29,7 +29,6 @@ def quick_block_to_json(name, pv, group, local=True):
     data = {'name': name, 'pv': pv, 'group': group, 'local': local}
     return data
 
-	
 
 def add_block(cs, data):
     cs.add_block(data)
