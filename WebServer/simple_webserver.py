@@ -1,5 +1,5 @@
 from BaseHTTPServer import BaseHTTPRequestHandler,HTTPServer
-HOST, PORT = '', 8888
+HOST, PORT = '', 8880
 
 class myHandler(BaseHTTPRequestHandler):
 
@@ -7,7 +7,10 @@ class myHandler(BaseHTTPRequestHandler):
         self.send_response(200)
         self.send_header('Content-type','text/html')
         self.end_headers()
-        self.wfile.write("Hello World!")
+        if self.path == "/test1":
+            self.wfile.write("Hello!")
+        else:
+            self.wfile.write("Hello World!")
 
 
 server=HTTPServer(('',PORT), myHandler)
