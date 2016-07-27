@@ -7,10 +7,20 @@ class myHandler(BaseHTTPRequestHandler):
         self.send_response(200)
         self.send_header('Content-type','text/html')
         self.end_headers()
-        if self.path == "/test1":
-            self.wfile.write("Hello!")
-        else:
+        path = self.path
+        if path == "/test1":
             self.wfile.write("Hello World!")
+        elif path != "/test1" and path != "/favicon.ico":
+            path = path.split('/')
+            if path[2] == 'add':
+                answer = int(path[1]) + int(path[3])
+            elif path[2] == 'subtract':
+                answer = int(path[1]) - int(path[3])
+            elif path[2] == 'multiply':
+                answer = int(path[1]) * int(path[3])
+            elif path[2] == 'divide':
+                answer = int(path[1]) / int(path[3])
+            self.wfile.write(answer)
 
 
 server=HTTPServer(('',PORT), myHandler)
