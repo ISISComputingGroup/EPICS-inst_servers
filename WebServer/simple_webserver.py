@@ -12,7 +12,10 @@ class myHandler(BaseHTTPRequestHandler):
             self.wfile.write("Hello World!")
         elif path != "/test1" and path != "/favicon.ico":
             path = path.split('/')
-            if path[2] == 'add':
+            if len(path) < 4:
+                answer = "Please type calculation into URL"
+                self.send_response(404)
+            elif path[2] == 'add':
                 answer = int(path[1]) + int(path[3])
             elif path[2] == 'subtract':
                 answer = int(path[1]) - int(path[3])
@@ -20,6 +23,9 @@ class myHandler(BaseHTTPRequestHandler):
                 answer = int(path[1]) * int(path[3])
             elif path[2] == 'divide':
                 answer = int(path[1]) / int(path[3])
+            else:
+                answer = "Please type calculation into URL"
+                self.send_response(404)
             self.wfile.write(answer)
 
 
