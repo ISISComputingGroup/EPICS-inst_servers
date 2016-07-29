@@ -2,17 +2,40 @@ from BaseHTTPServer import BaseHTTPRequestHandler,HTTPServer
 from threading import Thread
 from time import sleep
 HOST, PORT = '', 8008
+place = 0
 
-
-_response = ""
+_response = {}
 
 class myHandler(BaseHTTPRequestHandler):
     def do_GET(self):
         self.send_response(200)
         self.send_header('Content-type','text/html')
         self.end_headers()
-        global _response
-        self.wfile.write(_response)
+        if self.path == "/RAW":
+            self.wfile.write(_response)
+        elif self.path == "/human_readable":
+            self.wfile.write('<html><head><meta http-equiv="refresh" content="10"></head>')
+            global _response
+            title = '<h1><b>' + _response['name'] + '</h1></b>'
+            self.wfile.write(title)
+            self.wfile.write('<br>')
+            description = '<h3>' + _response['description'] + '<h3>'
+            self.wfile.write(description)
+            self.wfile.write('<br>')
+            self.wfile.write('<h2><b> Blocks </h2></b>')
+            blocks = _response['blocks']
+            #names=str(block).split(':')
+            for block in blocks:
+                #place += 11
+                self.wfile.write(block['name'])
+                self.wfile.write('<br>')
+                #place += 13
+            self.wfile.write('<br>')
+            self.wfile.write('<h2><b> IOCs </h2></b>')
+#            ioc = _response['iocs']
+#            self.wfile.write(ioc)
+
+
 
 class Server(Thread):
 
@@ -21,14 +44,14 @@ class Server(Thread):
         print "Serving HTTP on port %s ..." % PORT
         self.server.serve_forever()
 
-    def set_text(self,set_text_to):
+    def set_config(self,set_config_to):
         global _response
-        _response = set_text_to
+        _response = set_config_to
 
 
 if __name__ == '__main__':
     server = Server()
     server.start()
-    server.set_text("TEST")
+    server.set_config("TEST")
     sleep(10)
-    server.set_text("NOT TEST")
+    server.set_config("NOT TEST")
