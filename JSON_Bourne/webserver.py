@@ -1,10 +1,13 @@
 from BaseHTTPServer import BaseHTTPRequestHandler,HTTPServer
-from threading import Thread
+from threading import Thread, Lock
+from time import sleep
 import re
 from get_webpage import scrape_webpage
 import json
 HOST, PORT = '', 60000
 
+_scraped_data = scrape_webpage()
+_lock = Lock()
 
 class MyHandler(BaseHTTPRequestHandler):
 
@@ -23,7 +26,8 @@ class MyHandler(BaseHTTPRequestHandler):
         result = re.search('/?callback=(\w+)&_', self.path)
         if len(result.groups()) > 0:
             callback = result.groups()[0]
-            ans = "%s(%s)" % (callback, json.dumps(scrape_webpage()))
+            with _lock:
+                ans = "%s(%s)" % (callback, json.dumps(_scraped_data))
             self.wfile.write(ans)
 
     def log_message(self, format, *args):
@@ -33,11 +37,15 @@ class MyHandler(BaseHTTPRequestHandler):
 
 
 class Server(Thread):
-
     def run(self):
         server = HTTPServer(('', PORT), MyHandler)
         server.serve_forever()
 
+        while True:
+            with _lock:
+                global _scraped_data
+                _scraped_data = scrape_webpage()
+                sleep(1)
 
 if __name__ == '__main__':
     try:
