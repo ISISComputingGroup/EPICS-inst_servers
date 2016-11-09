@@ -430,12 +430,8 @@ class BlockServer(Driver):
             full_init (bool, optional): whether this requires a full initialisation, e.g. on loading a new
                 configuration
         """
-        # First stop all IOCS, then start the ones for the config
-        # TODO: Should we stop all configs?
-        iocs_to_start, iocs_to_restart = self._active_configserver.iocs_changed()
+        self._stop_non_config_iocs()
 
-        if len(iocs_to_start) > 0 or len(iocs_to_restart) > 0:
-            self._stop_iocs_and_start_config_iocs(iocs_to_start, iocs_to_restart)
         # Set up the gateway
         if init_gateway:
             self._gateway.set_new_aliases(self._active_configserver.get_block_details())
@@ -452,6 +448,8 @@ class BlockServer(Driver):
         for h in self.on_the_fly_handlers:
             h.initialise(full_init)
 
+        self._start_config_iocs()
+
         # Update Web Server text
         self.server.set_config(convert_to_json(self._active_configserver.get_config_details()))
 
@@ -460,13 +458,10 @@ class BlockServer(Driver):
             print_and_log("Restarting block cache...")
             self._block_cache.restart()
 
-    def _stop_iocs_and_start_config_iocs(self, iocs_to_start, iocs_to_restart):
-        """ Stop all IOCs and start the IOCs that are part of the configuration."""
-        # iocs_to_start, iocs_to_restart are not used at the moment, but longer term they could be used
-        # for only restarting IOCs for which the setting have changed.
+    def _stop_non_config_iocs(self):
+        """ Stop all non-config IOCs."""
         non_conf_iocs = [x for x in self._get_iocs() if x not in self._active_configserver.get_ioc_names()]
         self._ioc_control.stop_iocs(non_conf_iocs)
-        self._start_config_iocs()
 
     def _start_config_iocs(self):
         # Start the IOCs, if they are available and if they are flagged for autostart
