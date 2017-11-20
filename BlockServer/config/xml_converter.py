@@ -14,6 +14,7 @@
 # https://www.eclipse.org/org/documents/epl-v10.php or
 # http://opensource.org/licenses/eclipse-1.0.php
 
+from __future__ import absolute_import
 from xml.dom import minidom
 
 from server_common.utilities import *
@@ -23,6 +24,7 @@ from BlockServer.config.block import Block
 from BlockServer.config.ioc import IOC
 from BlockServer.core.constants import *
 from BlockServer.core.macros import PVPREFIX_MACRO
+import six
 
 
 KEY_NONE = GRP_NONE.lower()
@@ -70,7 +72,7 @@ class ConfigurationXmlConverter(object):
         root.attrib["xmlns"] = SCHEMA_PATH + BLOCK_SCHEMA
         root.attrib["xmlns:blk"] = SCHEMA_PATH + BLOCK_SCHEMA
         root.attrib["xmlns:xi"] = "http://www.w3.org/2001/XInclude"
-        for name, block in blocks.iteritems():
+        for name, block in six.iteritems(blocks):
             # Don't save if in component
             if block.component is None or block.component is False:
                 ConfigurationXmlConverter._block_to_xml(root, block, macros)
@@ -92,13 +94,13 @@ class ConfigurationXmlConverter(object):
         root.attrib["xmlns"] = SCHEMA_PATH + GROUP_SCHEMA
         root.attrib["xmlns:grp"] = SCHEMA_PATH + GROUP_SCHEMA
         root.attrib["xmlns:xi"] = "http://www.w3.org/2001/XInclude"
-        for name, group in groups.iteritems():
+        for name, group in six.iteritems(groups):
             # Don't generate xml if in NONE or if it is empty
             if name != KEY_NONE and group.blocks is not None:
                 ConfigurationXmlConverter._group_to_xml(root, group)
 
         # If we are adding the None group it should go at the end
-        if include_none and KEY_NONE in groups.keys():
+        if include_none and KEY_NONE in list(groups.keys()):
             ConfigurationXmlConverter._group_to_xml(root, groups[KEY_NONE])
         return minidom.parseString(ElementTree.tostring(root)).toprettyxml()
 
@@ -136,7 +138,7 @@ class ConfigurationXmlConverter(object):
         root.attrib["xmlns"] = SCHEMA_PATH + COMPONENT_SCHEMA
         root.attrib["xmlns:comp"] = SCHEMA_PATH + COMPONENT_SCHEMA
         root.attrib["xmlns:xi"] = "http://www.w3.org/2001/XInclude"
-        for name, case_sensitve_name in comps.iteritems():
+        for name, case_sensitve_name in six.iteritems(comps):
             ConfigurationXmlConverter._component_to_xml(root, case_sensitve_name)
         return minidom.parseString(ElementTree.tostring(root)).toprettyxml()
 
@@ -329,7 +331,7 @@ class ConfigurationXmlConverter(object):
             gname_low = gname.lower()
 
             # Add the group to the dict unless it already exists (i.e. the group is defined twice)
-            if gname_low not in groups.keys():
+            if gname_low not in list(groups.keys()):
                 groups[gname_low] = Group(gname, gcomp)
 
             blks = ConfigurationXmlConverter._find_all_nodes(g, NS_TAG_GROUP, TAG_BLOCK)
@@ -340,7 +342,7 @@ class ConfigurationXmlConverter(object):
                 # Check block is not already in the group. Unlikely, but may be a config was edited by hand...
                 if name not in groups[gname_low].blocks:
                     groups[gname_low].blocks.append(name)
-                if name.lower() in blocks.keys():
+                if name.lower() in list(blocks.keys()):
                     blocks[name.lower()].group = gname
 
                 # Remove the block from the NONE group
@@ -362,7 +364,7 @@ class ConfigurationXmlConverter(object):
             if n is not None and n != "":
                 iocs[n.upper()] = IOC(n.upper())
 
-                options = i.keys()
+                options = list(i.keys())
                 if TAG_AUTOSTART in options:
                     iocs[n.upper()].autostart = parse_boolean(i.attrib[TAG_AUTOSTART])
                 if TAG_RESTART in options:

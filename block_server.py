@@ -15,8 +15,11 @@
 # http://opensource.org/licenses/eclipse-1.0.php
 
 # Add root path for access to server_commons and path for version control module
+from __future__ import absolute_import
+from __future__ import print_function
 import os
 import sys
+import six
 
 sys.path.insert(0, os.path.abspath(os.environ["MYDIRBLOCK"]))
 
@@ -319,7 +322,7 @@ class BlockServer(Driver):
             elif reason == BlockserverPVNames.BANNER_DESCRIPTION:
                 value = compress_and_hex(self.banner.get_description())
             elif reason == BlockserverPVNames.ALL_COMPONENT_DETAILS:
-                value = compress_and_hex(convert_to_json(self._config_list.all_components.values()))
+                value = compress_and_hex(convert_to_json(list(self._config_list.all_components.values())))
             else:
                 # Check to see if it is a on-the-fly PV
                 for handler in self.on_the_fly_handlers:
@@ -487,7 +490,7 @@ class BlockServer(Driver):
         # Start the IOCs, if they are available and if they are flagged for autostart
         # Note: autostart means the IOC is started when the config is loaded,
         # restart means the IOC should automatically restart if it stops for some reason (e.g. it crashes)
-        for n, ioc in self._active_configserver.get_all_ioc_details().iteritems():
+        for n, ioc in six.iteritems(self._active_configserver.get_all_ioc_details()):
             try:
                 # IOCs are restarted if and only if auto start is True. Note that auto restart instructs proc serv to
                 # restart an IOC if it terminates unexpectedly and does not apply here.
@@ -505,7 +508,7 @@ class BlockServer(Driver):
 
         # Give it time to start as IOC has to be running to be able to set restart property
         sleep(2)
-        for n, ioc in self._active_configserver.get_all_ioc_details().iteritems():
+        for n, ioc in six.iteritems(self._active_configserver.get_all_ioc_details()):
             if ioc.autostart:
                 # Set the restart property
                 print_and_log("Setting IOC %s's auto-restart to %s" % (n, ioc.restart))
@@ -726,7 +729,7 @@ class BlockServer(Driver):
         for i in iocs:
             if i in conf_iocs and conf_iocs[i].restart:
                 # Give it time to start as IOC has to be running to be able to set restart property
-                print "Re-applying auto-restart setting to %s" % i
+                print("Re-applying auto-restart setting to %s" % i)
                 self._ioc_control.waitfor_running(i)
                 self._ioc_control.set_autorestart(i, True)
 

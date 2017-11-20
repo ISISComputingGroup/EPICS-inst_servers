@@ -15,6 +15,7 @@
 # http://opensource.org/licenses/eclipse-1.0.php
 
 """ Contains all the code for defining a configuration or component"""
+from __future__ import absolute_import
 from collections import OrderedDict
 
 from BlockServer.config.group import Group
@@ -23,6 +24,7 @@ from BlockServer.config.ioc import IOC
 from BlockServer.config.metadata import MetaData
 from BlockServer.core.constants import GRP_NONE
 from BlockServer.core.macros import PVPREFIX_MACRO
+import six
 
 
 class Configuration(object):
@@ -63,7 +65,7 @@ class Configuration(object):
             kwargs (dict): Keyword arguments for the other parameters
         """
         # Check block name is unique
-        if name.lower() in self.blocks.keys():
+        if name.lower() in list(self.blocks.keys()):
             raise Exception("Failed to add block as name is not unique")
 
         if local:
@@ -73,7 +75,7 @@ class Configuration(object):
 
         if group is not None:
             # If group does not exists then add it
-            if not group.lower() in self.groups.keys():
+            if not group.lower() in list(self.groups.keys()):
                 self.groups[group.lower()] = Group(group)
             self.groups[group.lower()].blocks.append(name)
 
@@ -93,7 +95,7 @@ class Configuration(object):
 
         """
         # Only add it if it has not been added before
-        if not name.upper() in self.iocs.keys():
+        if not name.upper() in list(self.iocs.keys()):
             self.iocs[name.upper()] = IOC(name, autostart, restart, component, macros, pvs, pvsets, simlevel)
 
     def update_runcontrol_settings_for_saving(self, rc_data):
@@ -103,9 +105,9 @@ class Configuration(object):
             rc_data (dict): A dictionary containing all the run-control settings
         """
         # Only do it for blocks that are not in a component
-        for bn, blk in self.blocks.iteritems():
+        for bn, blk in six.iteritems(self.blocks):
             if blk.component is None:
-                if blk.name in rc_data.keys():
+                if blk.name in list(rc_data.keys()):
                     blk.rc_enabled = rc_data[blk.name]['ENABLE']
                     blk.rc_lowlimit = rc_data[blk.name]['LOW']
                     blk.rc_highlimit = rc_data[blk.name]['HIGH']

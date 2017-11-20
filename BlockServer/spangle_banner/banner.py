@@ -14,15 +14,18 @@
 # https://www.eclipse.org/org/documents/epl-v10.php or
 # http://opensource.org/licenses/eclipse-1.0.php
 
+from __future__ import absolute_import
+from __future__ import print_function
 import json
-from bool_str import BoolStr
+from .bool_str import BoolStr
+
 
 class Banner:
     """ A class for holding and returning the state of the banner in the form of a list of items it contains."""
 
     def __init__(self, prefix):
         self.items = list()
-        print prefix
+        print(prefix)
 
         """Temporary workaround for LARMOR until loading banner description from file is implemented.
         Remove prefix arg from this constructor and from tests when no longer needed.

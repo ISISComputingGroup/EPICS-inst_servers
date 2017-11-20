@@ -14,6 +14,7 @@
 # https://www.eclipse.org/org/documents/epl-v10.php or
 # http://opensource.org/licenses/eclipse-1.0.php
 
+from __future__ import absolute_import
 import os
 import datetime
 import time
@@ -22,7 +23,7 @@ from subprocess import Popen
 import xml.etree.ElementTree as eTree
 from xml.dom import minidom
 from server_common.utilities import print_and_log
-from archiver_wrapper import ArchiverWrapper
+from .archiver_wrapper import ArchiverWrapper
 
 
 class ArchiverManager(object):

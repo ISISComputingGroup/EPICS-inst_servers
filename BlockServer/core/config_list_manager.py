@@ -14,6 +14,8 @@
 # https://www.eclipse.org/org/documents/epl-v10.php or
 # http://opensource.org/licenses/eclipse-1.0.php
 
+from __future__ import absolute_import
+from __future__ import print_function
 import os
 import json
 from threading import RLock
@@ -25,18 +27,24 @@ from server_common.utilities import print_and_log, compress_and_hex, create_pv_n
 from server_common.common_exceptions import MaxAttemptsExceededException
 from BlockServer.core.constants import DEFAULT_COMPONENT
 from BlockServer.core.pv_names import BlockserverPVNames
-from config_list_manager_exceptions import InvalidDeleteException
+from .config_list_manager_exceptions import InvalidDeleteException
+from ConfigVersionControl.version_control_exceptions import AddToVersionControlException, \
+    CommitToVersionControlException, UpdateFromVersionControlException, RemoveFromVersionControlException
+from BlockServer.alarm.load_alarm_config import AlarmConfigLoader
+import six
 
 
 class ConfigListManager(object):
-    """ Class to handle data on all available configurations and manage their associated PVs.
+    """
+    Class to handle data on all available configurations and manage their associated PVs.
 
     Attributes:
         active_config_name (string): The name of the active configuration
         active_components (list): The names of the components in the active configuration
     """
     def __init__(self, block_server, schema_folder, file_manager):
-        """Constructor.
+        """
+        Constructor.
 
         Args:
             block_server (block_server.BlockServer): A reference to the BlockServer itself
@@ -84,7 +92,8 @@ class ConfigListManager(object):
         return self.file_manager.get_files_in_directory(path)
 
     def get_configs(self):
-        """Returns all of the valid configurations, made up of those found on startup and those subsequently created.
+        """
+        Returns all of the valid configurations, made up of those found on startup and those subsequently created.
 
         Returns:
             list : A list of available configurations
@@ -95,13 +104,14 @@ class ConfigListManager(object):
         return configs_string
 
     def get_components(self):
-        """Returns all of the valid components, made up of those found on startup and those subsequently created.
+        """
+        Returns all of the valid components, made up of those found on startup and those subsequently created.
 
         Returns:
             list : A list of available components
         """
         comps = list()
-        for cn, cv in self._component_metas.iteritems():
+        for cn, cv in six.iteritems(self._component_metas):
             if cn.lower() != DEFAULT_COMPONENT.lower():
                 comps.append(cv.to_dict())
         return comps
@@ -134,7 +144,8 @@ class ConfigListManager(object):
                 print_and_log("Error in loading config: %s" % err, "MINOR")
 
     def load_config(self, name, is_component=False):
-        """Loads an inactive configuration or component.
+        """
+        Loads an inactive configuration or component.
 
         Args:
             name (string): The name of the configuration to load
@@ -150,9 +161,9 @@ class ConfigListManager(object):
     def _update_component_dependencies_pv(self, name):
         # Updates PV with list of configs that depend on a component
         configs = []
-        if name in self._comp_dependencies.keys():
+        if name in list(self._comp_dependencies.keys()):
             configs = self._comp_dependencies[name]
-        if name in self._component_metas.keys():
+        if name in list(self._component_metas.keys()):
             # Check just in case component failed to load
             pv_name = BlockserverPVNames.get_dependencies_pv(self._component_metas[name].pv)
             self._update_pv_value(pv_name, compress_and_hex(json.dumps(configs)))
@@ -168,7 +179,8 @@ class ConfigListManager(object):
         self._update_pv_value(pv_name, compress_and_hex(json.dumps(data)))
 
     def update(self, config, is_component=False):
-        """Updates the PVs associated with a configuration
+        """
+        Updates the PVs associated with a configuration
 
         Args:
             config (ConfigHolder): The configuration holder
@@ -191,7 +203,8 @@ class ConfigListManager(object):
                                   src="FILEWTCHR")
 
     def update_a_config_in_list(self, config, is_component=False):
-        """Takes a ConfigServerManager object and updates the list of meta data and the individual PVs.
+        """
+        Takes a ConfigServerManager object and updates the list of meta data and the individual PVs.
 
         Args:
             config (ConfigHolder): The configuration holder
@@ -215,7 +228,7 @@ class ConfigListManager(object):
                 self._update_component_dependencies_pv(name_lower)
                 self.all_components[name_lower] = config.get_config_details()
         else:
-            if name_lower in self._config_metas.keys():
+            if name_lower in list(self._config_metas.keys()):
                 # Config already exists
                 self._remove_config_from_dependencies(name)
 
@@ -234,13 +247,15 @@ class ConfigListManager(object):
 
     def _remove_config_from_dependencies(self, config):
         # Remove old config from dependencies list
-        for comp, confs in self._comp_dependencies.iteritems():
+        for comp, confs in six.iteritems(self._comp_dependencies):
             if config in confs:
                 self._comp_dependencies[comp.lower()].remove(config)
                 self._update_component_dependencies_pv(comp.lower())
 
     def _get_pv_name(self, config_name, is_component=False):
-        """Returns the name of the pv corresponding to config_name, this name is generated if not already created."""
+        """
+        Returns the name of the pv corresponding to config_name, this name is generated if not already created.
+        """
         if not is_component:
             if config_name in self._config_metas:
                 pv_name = self._config_metas[config_name].pv
@@ -256,7 +271,8 @@ class ConfigListManager(object):
         return pv_name
 
     def delete(self, delete_list, are_comps=False):
-        """Takes a list of configurations and removes them from the file system and any relevant PVs.
+        """
+        Takes a list of configurations and removes them from the file system and any relevant PVs.
 
         Args:
             delete_list (list): The configurations/components to delete
@@ -269,7 +285,7 @@ class ConfigListManager(object):
             if not are_comps:
                 if self.active_config_name.lower() in lower_delete_list:
                     raise InvalidDeleteException("Cannot delete currently active configuration")
-                if not lower_delete_list.issubset(self._config_metas.keys()):
+                if not lower_delete_list.issubset(list(self._config_metas.keys())):
                     raise InvalidDeleteException("Delete list contains unknown configurations")
                 for config in delete_list:
                     try:
@@ -290,7 +306,7 @@ class ConfigListManager(object):
                     if self._comp_dependencies.get(comp):
                         raise InvalidDeleteException(comp + " is in use in: "
                                                      + ', '.join(self._comp_dependencies[comp]))
-                if not lower_delete_list.issubset(self._component_metas.keys()):
+                if not lower_delete_list.issubset(list(self._component_metas.keys())):
                     raise InvalidDeleteException("Delete list contains unknown components")
                 for comp in lower_delete_list:
                     try:
@@ -307,7 +323,8 @@ class ConfigListManager(object):
             self.update_monitors()
 
     def get_dependencies(self, comp_name):
-        """Get the names of any configurations that depend on this component.
+        """
+        Get the names of any configurations that depend on this component.
 
         Args:
             comp_name (string): The name of the component
@@ -323,7 +340,6 @@ class ConfigListManager(object):
                 return dependencies
 
     def update_monitors(self):
-
         with self._bs.monitor_lock:
             print_and_log("UPDATING CONFIG LIST MONITORS")
             # Set the available configs
@@ -332,6 +348,6 @@ class ConfigListManager(object):
             self._bs.setParam(BlockserverPVNames.COMPS, compress_and_hex(convert_to_json(self.get_components())))
             # Set the available component details
             self._bs.setParam(BlockserverPVNames.ALL_COMPONENT_DETAILS,
-                              compress_and_hex(convert_to_json(self.all_components.values())))
+                              compress_and_hex(convert_to_json(list(self.all_components.values()))))
             # Update them
             self._bs.updatePVs()

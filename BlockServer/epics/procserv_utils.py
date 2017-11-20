@@ -14,6 +14,7 @@
 # https://www.eclipse.org/org/documents/epl-v10.php or
 # http://opensource.org/licenses/eclipse-1.0.php
 
+from __future__ import absolute_import
 from server_common.channel_access import ChannelAccess
 from server_common.utilities import print_and_log, ioc_restart_pending
 

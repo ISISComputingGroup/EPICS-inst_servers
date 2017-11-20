@@ -14,12 +14,14 @@
 # https://www.eclipse.org/org/documents/epl-v10.php or
 # http://opensource.org/licenses/eclipse-1.0.php
 
+from __future__ import absolute_import
 import os
 
 from server_common.utilities import print_and_log
 from BlockServer.core.macros import BLOCK_PREFIX, MACROS
 from BlockServer.core.config_holder import ConfigHolder
 from BlockServer.core.file_path_manager import FILEPATH_MANAGER
+import six
 
 
 class ActiveConfigHolder(ConfigHolder):
@@ -68,7 +70,7 @@ class ActiveConfigHolder(ConfigHolder):
         """ Update the archiver configuration.
         """
         self._archive_manager.update_archiver(MACROS["$(MYPVPREFIX)"] + BLOCK_PREFIX,
-                                              super(ActiveConfigHolder, self).get_block_details().values())
+                                              list(super(ActiveConfigHolder, self).get_block_details().values()))
 
     def set_last_config(self, config):
         """ Save the last configuration used to file.
@@ -127,21 +129,21 @@ class ActiveConfigHolder(ConfigHolder):
 
         # Check to see if any macros, pvs, pvsets etc. have changed
         for n in self._config.iocs.keys():
-            if n not in self._cached_config.iocs.keys():
+            if n not in list(self._cached_config.iocs.keys()):
                 # If not in previously then add it to start
                 iocs_to_start.add(n)
                 continue
 
             cached_ioc = self._cached_config.iocs[n]
             current_ioc = self._config.iocs[n]
-            if n in self._cached_config.iocs.keys():
+            if n in list(self._cached_config.iocs.keys()):
                 for attr in {'macros', 'pvs', 'pvsets', 'simlevel', 'restart'}:
                     if cmp(getattr(cached_ioc, attr),getattr(current_ioc, attr)) != 0:
                         iocs_to_restart.add(n)
                         break
 
         # Look for any new components
-        for cn, cv in self._components.iteritems():
+        for cn, cv in six.iteritems(self._components):
             if cn not in self._cached_components:
                 for n in cv.iocs.keys():
                     iocs_to_start.add(n)

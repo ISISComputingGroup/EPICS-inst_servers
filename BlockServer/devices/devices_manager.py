@@ -14,6 +14,8 @@
 # https://www.eclipse.org/org/documents/epl-v10.php or
 # http://opensource.org/licenses/eclipse-1.0.php
 
+from __future__ import absolute_import
+from __future__ import print_function
 import os
 from server_common.common_exceptions import MaxAttemptsExceededException
 from server_common.utilities import print_and_log, compress_and_hex
@@ -78,7 +80,7 @@ class DevicesManager(OnTheFlyPvInterface):
     def update_monitors(self):
         """ Writes new device screens data to PVs """
         with self._bs.monitor_lock:
-            print "UPDATING DEVICES MONITORS"
+            print("UPDATING DEVICES MONITORS")
             self._bs.setParam(GET_SCHEMA, compress_and_hex(self.get_devices_schema()))
             self._bs.setParam(GET_SCREENS, compress_and_hex(self._data))
             self._bs.updatePVs()

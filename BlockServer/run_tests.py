@@ -73,7 +73,7 @@ if __name__ == '__main__':
     runcontrol_suite = unittest.TestLoader().loadTestsFromTestCase(TestRunControlSequence)
     group_rules_suite = unittest.TestLoader().loadTestsFromTestCase(TestGroupRulesSequence)
 
-    print "\n\n------ BEGINNING BLOCKSERVER UNIT TESTS ------"
+    print("\n\n------ BEGINNING BLOCKSERVER UNIT TESTS ------")
 
     ret_vals = list()
     ret_vals.append(xmlrunner.XMLTestRunner(output=xml_dir).run(configuration_suite).wasSuccessful())
@@ -95,6 +95,6 @@ if __name__ == '__main__':
     ret_vals.append(xmlrunner.XMLTestRunner(output=xml_dir).run(runcontrol_suite).wasSuccessful())
     ret_vals.append(xmlrunner.XMLTestRunner(output=xml_dir).run(group_rules_suite).wasSuccessful())
 
-    print "------ BLOCKSERVER UNIT TESTS COMPLETE ------\n\n"
+    print("------ BLOCKSERVER UNIT TESTS COMPLETE ------\n\n")
     # Return failure exit code if a test failed
     sys.exit(False in ret_vals)

@@ -15,6 +15,7 @@
 # http://opensource.org/licenses/eclipse-1.0.php
 
 """Contains string constants used by the modules of the config package"""
+from __future__ import absolute_import
 import os
 
 GRP_NONE = "NONE"

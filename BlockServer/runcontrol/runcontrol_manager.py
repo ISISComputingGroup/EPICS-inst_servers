@@ -16,6 +16,8 @@
 # https://www.eclipse.org/org/documents/epl-v10.php or
 # http://opensource.org/licenses/eclipse-1.0.php
 
+from __future__ import absolute_import
+from __future__ import print_function
 import os
 from datetime import datetime
 from time import sleep
@@ -27,6 +29,8 @@ from server_common.utilities import print_and_log, compress_and_hex, \
     convert_to_json, ioc_restart_pending
 from server_common.channel_access import ChannelAccess
 from BlockServer.core.pv_names import BlockserverPVNames
+import six
+from six.moves import range
 
 TAG_RC_DICT = {"LOW": TAG_RC_LOW, "HIGH": TAG_RC_HIGH, "ENABLE": TAG_RC_ENABLE}
 RC_IOC_PREFIX = "CS:PS:RUNCTRL_01"
@@ -43,7 +47,9 @@ MAX_LOOPS_TO_WAIT_FOR_START = 60  # roughly 2 minutes at standard time
 
 
 class RunControlManager(OnTheFlyPvInterface):
-    """A class for taking care of setting up run-control."""
+    """
+    A class for taking care of setting up run-control.
+    """
 
     def __init__(self, prefix, config_dir, var_dir, ioc_control,
                  active_configholder, block_server,
@@ -171,7 +177,7 @@ class RunControlManager(OnTheFlyPvInterface):
         f = None
         try:
             f = open(self._settings_file, 'w')
-            for bn, blk in blocks.iteritems():
+            for bn, blk in six.iteritems(blocks):
                 f.write('dbLoadRecords("$(RUNCONTROL)/db/runcontrol.db",'
                         '"P=$(MYPVPREFIX),PV=$(MYPVPREFIX)CS:SB:%s")\n'
                         % blk.name)
@@ -216,7 +222,7 @@ class RunControlManager(OnTheFlyPvInterface):
         """
         blocks = self._active_configholder.get_block_details()
         settings = dict()
-        for bn, blk in blocks.iteritems():
+        for bn, blk in six.iteritems(blocks):
             low = self._channel_access.caget(self._block_prefix
                                              + blk.name + TAG_RC_LOW)
             high = self._channel_access.caget(self._block_prefix +
@@ -237,7 +243,7 @@ class RunControlManager(OnTheFlyPvInterface):
         Args:
             blocks (OrderedDict): The blocks for the configuration
         """
-        for n, blk in blocks.iteritems():
+        for n, blk in six.iteritems(blocks):
             settings = dict()
             if blk.rc_enabled:
                 settings["ENABLE"] = True
@@ -257,13 +263,13 @@ class RunControlManager(OnTheFlyPvInterface):
             data (dict): The new run-control settings to set (dictionary of
                 dictionaries)
         """
-        for bn, settings in data.iteritems():
+        for bn, settings in six.iteritems(data):
             if settings is not None:
                 self._set_rc_values(bn, settings)
 
     def _set_rc_values(self, bn, settings):
-        for key, value in settings.iteritems():
-            if key.upper() in TAG_RC_DICT.keys():
+        for key, value in six.iteritems(settings):
+            if key.upper() in list(TAG_RC_DICT.keys()):
                 try:
                     self._channel_access.caput(self._block_prefix + bn + TAG_RC_DICT[key.upper()], value)
                 except Exception as err:

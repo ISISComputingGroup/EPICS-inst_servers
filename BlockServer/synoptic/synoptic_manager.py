@@ -14,6 +14,8 @@
 # https://www.eclipse.org/org/documents/epl-v10.php or
 # http://opensource.org/licenses/eclipse-1.0.php
 
+from __future__ import absolute_import
+from __future__ import print_function
 import os
 from BlockServer.core.config_list_manager import InvalidDeleteException
 from BlockServer.core.file_path_manager import FILEPATH_MANAGER
@@ -23,7 +25,10 @@ from lxml import etree
 from server_common.common_exceptions import MaxAttemptsExceededException
 from server_common.utilities import print_and_log, compress_and_hex, create_pv_name, \
     convert_to_json, convert_from_json
-from synoptic_file_io import SynopticFileIO
+from .synoptic_file_io import SynopticFileIO
+from ConfigVersionControl.version_control_exceptions import VersionControlException, AddToVersionControlException, \
+    CommitToVersionControlException, RemoveFromVersionControlException, UpdateFromVersionControlException
+import six
 
 
 # Synoptics PVs are of the form IN:DEMO:SYNOPTICS:XXXXX (no BLOCKSERVER in the name)
@@ -41,9 +46,13 @@ SYNOPTIC_SCHEMA_FILE = "synoptic.xsd"
 
 
 class SynopticManager(OnTheFlyPvInterface):
-    """Class for managing the PVs associated with synoptics"""
+    """
+    Class for managing the PVs associated with synoptics
+    """
+
     def __init__(self, block_server, schema_folder, active_configholder, file_io=SynopticFileIO()):
-        """Constructor.
+        """
+        Constructor.
 
         Args:
             block_server (BlockServer): A reference to the BlockServer instance
@@ -115,7 +124,9 @@ class SynopticManager(OnTheFlyPvInterface):
         self.update_pv_value(SYNOPTIC_PRE + SYNOPTIC_SCHEMA, compress_and_hex(self.get_synoptic_schema()))
 
     def _load_initial(self):
-        """Create the PVs for all the synoptics found in the synoptics directory."""
+        """
+        Create the PVs for all the synoptics found in the synoptics directory.
+        """
         for f in self._file_io.get_list_synoptic_files(self._directory):
             # Load the data, checking the schema
             try:
@@ -131,7 +142,8 @@ class SynopticManager(OnTheFlyPvInterface):
                 print_and_log("Error creating synoptic PV: {error}".format(error=err), "MAJOR")
 
     def _create_pv(self, data):
-        """Creates a single PV based on a name and data. Adds this PV to the dictionary returned on get_synoptic_list
+        """
+        Creates a single PV based on a name and data. Adds this PV to the dictionary returned on get_synoptic_list
 
         Args:
             data (string): Starting data for the pv, the pv name is derived from the name tag of this
@@ -142,7 +154,7 @@ class SynopticManager(OnTheFlyPvInterface):
             for key in self._synoptic_pvs.keys():
                 if name.lower() == key.lower():
                     self._synoptic_pvs.pop(key)
-            pv = create_pv_name(name, self._synoptic_pvs.values(), "SYNOPTIC")
+            pv = create_pv_name(name, list(self._synoptic_pvs.values()), "SYNOPTIC")
             self._synoptic_pvs[name] = pv
 
         # Create the PV
@@ -151,7 +163,8 @@ class SynopticManager(OnTheFlyPvInterface):
         self.update_pv_value(SYNOPTIC_PRE + self._synoptic_pvs[name] + SYNOPTIC_GET, compress_and_hex(data))
 
     def update_pv_value(self, name, data):
-        """ Updates value of a PV holding synoptic information with new data
+        """
+        Updates value of a PV holding synoptic information with new data
 
         Args:
             name (string): The name of the edited synoptic
@@ -161,14 +174,15 @@ class SynopticManager(OnTheFlyPvInterface):
         self._bs.updatePVs()
 
     def get_synoptic_list(self):
-        """Gets the names and associated pvs of the synoptic files in the synoptics directory.
+        """
+        Gets the names and associated pvs of the synoptic files in the synoptics directory.
 
         Returns:
             list : Alphabetical list of synoptics files on the server, along with their associated pvs
         """
         syn_list = list()
         default_is_none_synoptic = True
-        for k, v in self._synoptic_pvs.iteritems():
+        for k, v in six.iteritems(self._synoptic_pvs):
             if "<name>" + k + "</name>" in self._default_syn_xml:
                 syn_list.append({"name": k + " (recommended)", "pv": v, "is_default": True})
                 default_is_none_synoptic = False
@@ -180,7 +194,8 @@ class SynopticManager(OnTheFlyPvInterface):
         return ans
 
     def set_default_synoptic(self, name):
-        """Sets the default synoptic.
+        """
+        Sets the default synoptic.
 
         Args:
             name (string): the name of the synoptic to load
@@ -201,7 +216,8 @@ class SynopticManager(OnTheFlyPvInterface):
             self._default_syn_xml = ""
 
     def get_default_synoptic_xml(self):
-        """Gets the XML for the default synoptic.
+        """
+        Gets the XML for the default synoptic.
 
         Returns:
             string : The XML for the synoptic
@@ -219,7 +235,8 @@ class SynopticManager(OnTheFlyPvInterface):
         return name
 
     def save_synoptic_xml(self, xml_data):
-        """Saves the xml under the filename taken from the xml name tag.
+        """
+        Saves the xml under the filename taken from the xml name tag.
 
         Args:
             xml_data (string): The XML to be saved
@@ -244,14 +261,15 @@ class SynopticManager(OnTheFlyPvInterface):
         print_and_log("Synoptic saved: " + name)
 
     def delete(self, delete_list):
-        """Takes a list of synoptics and removes them from the file system and any relevant PVs.
+        """
+        Takes a list of synoptics and removes them from the file system and any relevant PVs.
 
         Args:
             delete_list (list): The synoptics to delete
         """
         print_and_log("Deleting: " + ', '.join(list(delete_list)), "INFO")
         delete_list = set(delete_list)
-        if not delete_list.issubset(self._synoptic_pvs.keys()):
+        if not delete_list.issubset(list(self._synoptic_pvs.keys())):
             raise InvalidDeleteException("Delete list contains unknown configurations")
         for synoptic in delete_list:
             try:
@@ -266,14 +284,16 @@ class SynopticManager(OnTheFlyPvInterface):
             del self._synoptic_pvs[synoptic]
 
     def update(self, xml_data):
-        """Updates the synoptic list when modifications are made via the filesystem.
+        """
+        Updates the synoptic list when modifications are made via the filesystem.
 
         Args:
             xml_data (string): The xml data to update the PV with
 
         """
         name = self._get_synoptic_name_from_xml(xml_data)
-        names = self._synoptic_pvs.keys()
+        names = list(self._synoptic_pvs.keys())
+
         if name in names:
             self.update_pv_value(SYNOPTIC_PRE + self._synoptic_pvs[name] + SYNOPTIC_GET, compress_and_hex(xml_data))
         else:
@@ -282,7 +302,8 @@ class SynopticManager(OnTheFlyPvInterface):
         self.update_monitors()
 
     def get_synoptic_schema(self):
-        """Gets the XSD data for the synoptic.
+        """
+        Gets the XSD data for the synoptic.
 
         Returns:
             string : The XML for the synoptic schema
@@ -293,7 +314,8 @@ class SynopticManager(OnTheFlyPvInterface):
         return schema
 
     def get_blank_synoptic(self):
-        """Gets a blank synoptic.
+        """
+        Gets a blank synoptic.
 
         Returns:
             string : The XML for the blank synoptic
@@ -304,5 +326,4 @@ class SynopticManager(OnTheFlyPvInterface):
     def load_synoptic(self, path):
         with open(path, 'r') as synfile:
             xml_data = synfile.read()
-
         return xml_data

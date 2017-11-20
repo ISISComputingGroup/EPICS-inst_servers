@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 import os
 from server_common.common_exceptions import MaxAttemptsExceededException
 from server_common.utilities import retry

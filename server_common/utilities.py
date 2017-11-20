@@ -19,8 +19,7 @@ import zlib
 import re
 import json
 from xml.etree import ElementTree
-
-from loggers.logger import Logger
+from server_common.loggers.logger import Logger
 from common_exceptions import  MaxAttemptsExceededException
 
 
@@ -35,7 +34,8 @@ class SEVERITY(object):
 
 
 def set_logger(logger):
-    """Sets the logger used by the print_and_log function.
+    """
+    Sets the logger used by the print_and_log function.
 
     Args:
         logger (Logger): The logger to use. Must inherit from Logger.
@@ -45,7 +45,8 @@ def set_logger(logger):
 
 
 def print_and_log(message, severity="INFO", src="BLOCKSVR"):
-    """Prints the specified message to the console and writes it to the log.
+    """
+    Prints the specified message to the console and writes it to the log.
 
     Args:
         severity (string, optional): Gives the severity of the message. Expected serverities are MAJOR, MINOR and INFO.
@@ -53,12 +54,13 @@ def print_and_log(message, severity="INFO", src="BLOCKSVR"):
         src (string, optional): Gives the source of the message. Default source is BLOCKSVR.
     """
     print_message = "[{}] {}: {}".format(time.time(), severity, message)
-    print print_message
+    print(print_message)
     LOGGER.write_to_log(print_message, severity, src)
 
 
 def compress_and_hex(value):
-    """Compresses the inputted string and encodes it as hex.
+    """
+    Compresses the inputted string and encodes it as hex.
 
     Args:
         value (string): The string to be compressed
@@ -70,7 +72,8 @@ def compress_and_hex(value):
 
 
 def dehex_and_decompress(value):
-    """Decompresses the inputted string, assuming it is in hex encoding.
+    """
+    Decompresses the inputted string, assuming it is in hex encoding.
 
     Args:
         value (string): The string to be decompressed, encoded in hex
@@ -82,7 +85,8 @@ def dehex_and_decompress(value):
 
 
 def convert_to_json(value):
-    """Converts the inputted object to JSON format.
+    """
+    Converts the inputted object to JSON format.
 
     Args:
         value (obj): The object to be converted
@@ -96,7 +100,8 @@ def convert_to_json(value):
 
 
 def convert_from_json(value):
-    """Converts the inputted string into a JSON object.
+    """
+    Converts the inputted string into a JSON object.
 
     Args:
         value (string): The JSON representation of an object
@@ -108,7 +113,8 @@ def convert_from_json(value):
 
 
 def parse_boolean(string):
-    """Parses an xml true/false value to boolean
+    """
+    Parses an xml true/false value to boolean
 
     Args:
         string (string): String containing the xml representation of true/false
@@ -128,7 +134,8 @@ def parse_boolean(string):
 
 
 def value_list_to_xml(list, grp, group_tag, item_tag):
-    """Converts a list of values to corresponding xml.
+    """
+    Converts a list of values to corresponding xml.
 
     Args:
         list (list): The list of values given in the format of [name, {parameter : value, parameter : value}]
@@ -146,7 +153,8 @@ def value_list_to_xml(list, grp, group_tag, item_tag):
 
 
 def check_pv_name_valid(name):
-    """Checks that text conforms to the ISIS PV naming standard
+    """
+    Checks that text conforms to the ISIS PV naming standard
 
     Args:
         name (string): The text to be checked
@@ -160,7 +168,8 @@ def check_pv_name_valid(name):
 
 
 def create_pv_name(name, current_pvs, default_pv, limit=6):
-    """Uses the given name as a basis for a valid PV.
+    """
+    Uses the given name as a basis for a valid PV.
 
     Args:
         name (string): The basis for the PV
@@ -196,7 +205,8 @@ def create_pv_name(name, current_pvs, default_pv, limit=6):
 
 
 def parse_xml_removing_namespace(file_path):
-    """Creates an Element object from a given xml file, removing the namespace.
+    """
+    Creates an Element object from a given xml file, removing the namespace.
 
     Args:
         file_path (string): The location of the xml file
@@ -221,7 +231,8 @@ def waveform_to_string(data):
 
 
 def ioc_restart_pending(ioc_pv, channel_access):
-    """Check if a particular IOC is restarting. Assumes it has suitable restart PV
+    """
+    Check if a particular IOC is restarting. Assumes it has suitable restart PV
 
     Args:
         ioc_pv: The base PV for the IOC with instrument PV prefix

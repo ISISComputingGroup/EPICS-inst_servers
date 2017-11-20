@@ -14,7 +14,9 @@
 # https://www.eclipse.org/org/documents/epl-v10.php or
 # http://opensource.org/licenses/eclipse-1.0.php
 
+from __future__ import absolute_import
 import copy
+import six
 
 
 class IOC(object):
@@ -82,7 +84,7 @@ class IOC(object):
             list : The newly created list
         """
         out_list = []
-        for k, v in in_dict.iteritems():
+        for k, v in six.iteritems(in_dict):
             # Take a copy as we do not want to modify the original
             c = copy.deepcopy(v)
             c['name'] = k

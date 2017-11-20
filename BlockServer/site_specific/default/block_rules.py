@@ -13,6 +13,7 @@
 # along with this program; if not, you can obtain a copy from
 # https://www.eclipse.org/org/documents/epl-v10.php or
 # http://opensource.org/licenses/eclipse-1.0.php
+from __future__ import absolute_import
 from BlockServer.site_specific.default.general_rules import REGEX_PV_NAME_LIKE, REGEX_ERROR_TEMPLATE_PV_NAME
 from server_common.utilities import compress_and_hex
 from BlockServer.core.pv_names import BlockserverPVNames

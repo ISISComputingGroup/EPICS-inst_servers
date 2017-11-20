@@ -13,14 +13,15 @@
 # along with this program; if not, you can obtain a copy from
 # https://www.eclipse.org/org/documents/epl-v10.php or
 # http://opensource.org/licenses/eclipse-1.0.php
+from __future__ import absolute_import
 from abc import ABCMeta, abstractmethod
+import six
 
 
-class OnTheFlyPvInterface(object):
+class OnTheFlyPvInterface(six.with_metaclass(ABCMeta, object)):
     """ This is essentially an abstract base class to ensure that any class that needs to handle on-the-fly PVs
     implements all the correct methods.
     """
-    __metaclass__ = ABCMeta
 
     @abstractmethod
     def read_pv_exists(self, pv):

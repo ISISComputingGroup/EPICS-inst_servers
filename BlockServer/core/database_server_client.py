@@ -14,6 +14,7 @@
 # https://www.eclipse.org/org/documents/epl-v10.php or
 # http://opensource.org/licenses/eclipse-1.0.php
 
+from __future__ import absolute_import
 from server_common.utilities import dehex_and_decompress
 import json
 from server_common.channel_access import ChannelAccess
@@ -38,6 +39,6 @@ class DatabaseServerClient(object):
         """
         try:
             rawjson = dehex_and_decompress(ChannelAccess.caget(self._blockserver_prefix + "IOCS"))
-            return json.loads(rawjson).keys()
+            return list(json.loads(rawjson).keys())
         except:
             return list()

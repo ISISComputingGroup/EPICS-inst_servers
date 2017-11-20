@@ -14,10 +14,13 @@
 #https://www.eclipse.org/org/documents/epl-v10.php or 
 #http://opensource.org/licenses/eclipse-1.0.php
 
+from __future__ import absolute_import
+from __future__ import print_function
 import time
 import re
 from server_common.channel_access import ChannelAccess
 from server_common.utilities import print_and_log
+import six
 
 
 ALIAS_HEADER = """\
@@ -31,10 +34,13 @@ EVALUATION ORDER ALLOW, DENY
 """
 
 class Gateway(object):
-    """A class for interacting with the EPICS gateway that creates the aliases used for implementing blocks"""
+    """
+    A class for interacting with the EPICS gateway that creates the aliases used for implementing blocks
+    """
 
     def __init__(self, prefix, block_prefix, pvlist_file, pv_prefix):
-        """Constructor.
+        """
+        Constructor.
 
         Args:
             prefix (string): The prefix for the gateway
@@ -48,7 +54,8 @@ class Gateway(object):
         self._pv_prefix = pv_prefix
 
     def exists(self):
-        """Checks the gateway exists by querying on of the PVs.
+        """
+        Checks the gateway exists by querying on of the PVs.
 
         Returns:
             bool : Whether the gateway is running and is accessible
@@ -86,6 +93,7 @@ class Gateway(object):
 
     def _generate_alias(self, blockname, pv, local):
         print_and_log("Creating block: {} for {}".format(blockname, pv))
+
         lines = list()
         if pv.endswith(".VAL"):
             # Strip off the .VAL
@@ -153,7 +161,8 @@ class Gateway(object):
         return lines
 
     def set_new_aliases(self, blocks):
-        """Creates the aliases for the blocks and restarts the gateway.
+        """
+        Creates the aliases for the blocks and restarts the gateway.
 
         Args:
             blocks (OrderedDict): The blocks that belong to the configuration

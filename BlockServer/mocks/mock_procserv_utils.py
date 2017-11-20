@@ -47,7 +47,7 @@ class MockProcServWrapper(object):
         self.ps_status[ioc.lower()] = "RUNNING"
 
     def get_ioc_status(self, prefix, ioc):
-        if not ioc.lower() in self.ps_status.keys():
+        if not ioc.lower() in list(self.ps_status.keys()):
             raise Exception("Could not find IOC (%s)" % self.generate_prefix(prefix, ioc))
         else:
             return self.ps_status[ioc.lower()]

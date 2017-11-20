@@ -25,9 +25,9 @@ import unittest
 import xmlrunner
 import argparse
 
-from test_modules.options_holder_tests import TestOptionsHolderSequence
-from test_modules.exp_data_test import TestExpData
-from test_modules.database_server_test_mysql import TestDatabaseServer
+from BlockServer.test_modules import TestOptionsHolderSequence
+from BlockServer.test_modules import TestExpData
+from BlockServer.test_modules import TestDatabaseServer
 
 DEFAULT_DIRECTORY = os.path.join('..','..','..','..','test-reports')
 

@@ -13,6 +13,8 @@
 # along with this program; if not, you can obtain a copy from
 # https://www.eclipse.org/org/documents/epl-v10.php or
 # http://opensource.org/licenses/eclipse-1.0.php
+from __future__ import absolute_import
+from __future__ import print_function
 import time
 from utilities import print_and_log
 import threading
@@ -37,7 +39,7 @@ class ChannelAccess(object):
             return CaChannelWrapper.get_pv_value(name, as_string)
         except Exception as err:
             # Probably has timed out
-            print err
+            print(err)
             return None
 
     @staticmethod

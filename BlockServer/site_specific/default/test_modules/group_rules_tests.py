@@ -14,6 +14,7 @@
 # https://www.eclipse.org/org/documents/epl-v10.php or
 # http://opensource.org/licenses/eclipse-1.0.php
 
+from __future__ import absolute_import
 from BlockServer.mocks.mock_block_server import MockBlockServer
 from BlockServer.site_specific.default.general_rules import GroupRules
 from BlockServer.core.pv_names import BlockserverPVNames

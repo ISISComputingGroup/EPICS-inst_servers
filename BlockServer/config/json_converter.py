@@ -14,6 +14,7 @@
 # https://www.eclipse.org/org/documents/epl-v10.php or
 # http://opensource.org/licenses/eclipse-1.0.php
 
+from __future__ import absolute_import
 import json
 from collections import OrderedDict
 
@@ -36,7 +37,7 @@ class ConfigurationJsonConverter(object):
                     grps.append({"name": group.name, "component": group.component, "blocks": group.blocks})
 
             # Add NONE group at end
-            if GRP_NONE.lower() in groups.keys():
+            if GRP_NONE.lower() in list(groups.keys()):
                 grps.append({"name": GRP_NONE, "component": None, "blocks": groups[GRP_NONE.lower()].blocks})
         return grps
 

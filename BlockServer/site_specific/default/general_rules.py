@@ -18,6 +18,7 @@
 Set of shared utilities and constants for rules
 """
 
+from __future__ import absolute_import
 from server_common.utilities import compress_and_hex
 from BlockServer.core.pv_names import BlockserverPVNames
 import json
