@@ -14,6 +14,8 @@
 # https://www.eclipse.org/org/documents/epl-v10.php or
 # http://opensource.org/licenses/eclipse-1.0.php
 
+from __future__ import absolute_import
+from __future__ import print_function
 import time
 import zlib
 import re
@@ -21,6 +23,7 @@ import json
 from xml.etree import ElementTree
 from server_common.loggers.logger import Logger
 from .common_exceptions import  MaxAttemptsExceededException
+import six
 
 
 # Default to base class - does not actually log anything
@@ -145,10 +148,10 @@ def value_list_to_xml(list, grp, group_tag, item_tag):
     """
     xml_list = ElementTree.SubElement(grp, group_tag)
     if len(list) > 0:
-        for n, c in list.iteritems():
+        for n, c in six.iteritems(list):
             xml_item = ElementTree.SubElement(xml_list, item_tag)
             xml_item.set("name", n)
-            for cn, cv in c.iteritems():
+            for cn, cv in six.iteritems(c):
                 xml_item.set(str(cn), str(cv))
 
 

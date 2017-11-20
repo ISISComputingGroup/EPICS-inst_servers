@@ -17,6 +17,7 @@
 Module for reading data from the ioc database.
 """
 
+from __future__ import absolute_import
 from threading import RLock
 
 from server_common.mysql_abstraction_layer import SQLAbstraction

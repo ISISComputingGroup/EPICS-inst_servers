@@ -14,6 +14,7 @@
 # https://www.eclipse.org/org/documents/epl-v10.php or
 # http://opensource.org/licenses/eclipse-1.0.php
 
+from __future__ import absolute_import
 import unittest
 
 from hamcrest import *
@@ -21,13 +22,14 @@ from mock import Mock
 
 from server_common.ioc_data import IocDataSource
 from server_common.mysql_abstraction_layer import DatabaseError
+import six
 
 
 class SQLAbstractionStubForIOC(object):
 
     def __init__(self, query_return):
         self.query_return = []
-        for ioc, values in query_return.iteritems():
+        for ioc, values in six.iteritems(query_return):
             for value in values:
                 pv_info = [ioc]
                 pv_info.extend(value)
