@@ -16,7 +16,7 @@
 from __future__ import absolute_import
 from __future__ import print_function
 import time
-from utilities import print_and_log
+from .utilities import print_and_log
 import threading
 
 

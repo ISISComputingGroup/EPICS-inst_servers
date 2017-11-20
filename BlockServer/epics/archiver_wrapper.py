@@ -15,14 +15,18 @@
 # http://opensource.org/licenses/eclipse-1.0.php
 
 from __future__ import absolute_import
-import urllib2
+try:
+    import urllib2 as urllib
+except:
+    # Use Python3 library
+    import urllib.request as urllib
 
 
 class ArchiverWrapper(object):
     def restart_archiver(self):
         # Set to ignore proxy for localhost
-        proxy_handler = urllib2.ProxyHandler({})
-        opener = urllib2.build_opener(proxy_handler)
-        urllib2.install_opener(opener)
-        res = urllib2.urlopen("http://localhost:4813/restart")
+        proxy_handler = urllib.ProxyHandler({})
+        opener = urllib.build_opener(proxy_handler)
+        urllib.install_opener(opener)
+        res = urllib.urlopen("http://localhost:4813/restart")
         d = res.read()

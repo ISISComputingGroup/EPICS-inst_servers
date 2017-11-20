@@ -49,7 +49,7 @@ class TestConfigurationSequence(unittest.TestCase):
         block_name = block_args['name']
         # act
         cf.add_block(**block_args)
-        blocks = cf.blocks.keys()
+        blocks = list(cf.blocks.keys())
         # assert
         self.assertEqual(len(blocks), 1)
         self.assertEqual(blocks[0], block_name.lower())

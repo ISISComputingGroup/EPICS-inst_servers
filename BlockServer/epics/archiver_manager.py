@@ -18,7 +18,6 @@ from __future__ import absolute_import
 import os
 import datetime
 import time
-import urllib2
 from subprocess import Popen
 import xml.etree.ElementTree as eTree
 from xml.dom import minidom

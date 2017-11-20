@@ -20,7 +20,7 @@ import re
 import json
 from xml.etree import ElementTree
 from server_common.loggers.logger import Logger
-from common_exceptions import  MaxAttemptsExceededException
+from .common_exceptions import  MaxAttemptsExceededException
 
 
 # Default to base class - does not actually log anything
