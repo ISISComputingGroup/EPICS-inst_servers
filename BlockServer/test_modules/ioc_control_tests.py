@@ -14,6 +14,7 @@
 # https://www.eclipse.org/org/documents/epl-v10.php or
 # http://opensource.org/licenses/eclipse-1.0.php
 
+from __future__ import absolute_import
 import unittest
 from BlockServer.core.ioc_control import IocControl
 from BlockServer.mocks.mock_procserv_utils import MockProcServWrapper

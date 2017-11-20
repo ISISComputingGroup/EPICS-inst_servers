@@ -14,6 +14,7 @@
 # https://www.eclipse.org/org/documents/epl-v10.php or
 # http://opensource.org/licenses/eclipse-1.0.php
 
+from __future__ import absolute_import
 import os
 import re
 import unittest
@@ -27,6 +28,8 @@ from BlockServer.config.ioc import IOC
 from BlockServer.config.metadata import MetaData
 from BlockServer.config.xml_converter import ConfigurationXmlConverter
 from BlockServer.core.macros import MACROS
+import six
+from six.moves import range
 
 
 BLOCKS_XML = u"""
@@ -290,7 +293,7 @@ class TestConfigurationXmlConverterSequence(unittest.TestCase):
 
         # Assert
         self.assertEqual(len(blocks), len(expected_blocks))
-        for key, value in blocks.iteritems():
+        for key, value in six.iteritems(blocks):
             self.assertTrue(key in expected_blocks)
             expected = expected_blocks[key]
             self.assertEqual(value.name, expected.name)
@@ -329,7 +332,7 @@ class TestConfigurationXmlConverterSequence(unittest.TestCase):
 
         # Assert
         self.assertEqual(len(groups), len(expected_groups))
-        for key, value in expected_groups.iteritems():
+        for key, value in six.iteritems(expected_groups):
             self.assertTrue(key in groups)
             grp = groups[key]
             self.assertEqual(value.name, grp.name)
@@ -348,7 +351,7 @@ class TestConfigurationXmlConverterSequence(unittest.TestCase):
 
         # Assert
         self.assertEqual(len(iocs), len(expected_iocs))
-        for n, ioc in iocs.iteritems():
+        for n, ioc in six.iteritems(iocs):
             self.assertTrue(n in expected_iocs)
 
             self.assertEqual(ioc.autostart, True)
@@ -408,7 +411,7 @@ class TestConfigurationXmlConverterSequence(unittest.TestCase):
 
         # Assert
         self.assertEqual(len(blocks), len(expected_blocks))
-        for key, value in blocks.iteritems():
+        for key, value in six.iteritems(blocks):
             self.assertTrue(key in expected_blocks)
             expected = expected_blocks[key]
             self.assertEqual(value.name, expected.name)
@@ -433,7 +436,7 @@ class TestConfigurationXmlConverterSequence(unittest.TestCase):
 
         # Assert
         self.assertEqual(len(iocs), len(expected_iocs))
-        for n, ioc in iocs.iteritems():
+        for n, ioc in six.iteritems(iocs):
             self.assertTrue(n in expected_iocs)
 
             self.assertEqual(ioc.autostart, True)
@@ -464,7 +467,7 @@ class TestConfigurationXmlConverterSequence(unittest.TestCase):
 
         # Assert
         self.assertEqual(len(groups), len(expected_groups))
-        for key, value in groups.iteritems():
+        for key, value in six.iteritems(groups):
             self.assertTrue(key in expected_groups)
             expected = expected_groups[key]
             self.assertEqual(value.name, expected.name)
@@ -499,7 +502,7 @@ class TestConfigurationXmlConverterSequence(unittest.TestCase):
 
         # Assert
         self.assertEqual(len(blocks), len(initial_blocks))
-        for key, value in blocks.iteritems():
+        for key, value in six.iteritems(blocks):
             self.assertTrue(key in initial_blocks)
             expected = initial_blocks[key]
             self.assertEqual(value.name, expected.name)
@@ -526,7 +529,7 @@ class TestConfigurationXmlConverterSequence(unittest.TestCase):
 
         # Assert
         self.assertEqual(len(groups), len(initial_groups))
-        for key, value in groups.iteritems():
+        for key, value in six.iteritems(groups):
             self.assertTrue(key in initial_groups)
             expected = initial_groups[key]
             self.assertEqual(value.name, expected.name)
@@ -546,7 +549,7 @@ class TestConfigurationXmlConverterSequence(unittest.TestCase):
 
         # Assert
         self.assertEqual(len(iocs), len(initial_iocs))
-        for n, ioc in iocs.iteritems():
+        for n, ioc in six.iteritems(iocs):
             self.assertTrue(n in initial_iocs)
 
             self.assertEqual(ioc.autostart, True)

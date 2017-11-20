@@ -14,6 +14,7 @@
 # https://www.eclipse.org/org/documents/epl-v10.php or
 # http://opensource.org/licenses/eclipse-1.0.php
 
+from __future__ import absolute_import
 import unittest
 import json
 
@@ -24,6 +25,7 @@ from BlockServer.epics.archiver_manager import ArchiverManager
 from BlockServer.core.macros import MACROS
 from BlockServer.mocks.mock_file_manager import MockConfigurationFileManager
 from BlockServer.mocks.mock_ioc import MockIoc
+import six
 
 
 CONFIG_PATH = "./test_configs/"
@@ -52,7 +54,7 @@ def get_groups_and_blocks(jsondata):
 
 def create_grouping(groups):
     struct = []
-    for grp, blocks in groups.iteritems():
+    for grp, blocks in six.iteritems(groups):
         d = dict()
         d["name"] = grp
         d["blocks"] = blocks
@@ -244,10 +246,10 @@ class TestActiveConfigHolderSequence(unittest.TestCase):
         details = ch.get_config_details()
 
         initial_ioc = MockIoc()
-        for key, value in initial_attrs.iteritems():
+        for key, value in six.iteritems(initial_attrs):
             setattr(initial_ioc, key, value)
         final_ioc = MockIoc()
-        for key, value in final_attrs.iteritems():
+        for key, value in six.iteritems(final_attrs):
             setattr(final_ioc, key, value)
 
         details['iocs'].append(initial_ioc)

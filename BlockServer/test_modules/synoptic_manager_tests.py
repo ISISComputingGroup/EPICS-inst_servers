@@ -14,6 +14,8 @@
 # https://www.eclipse.org/org/documents/epl-v10.php or
 # http://opensource.org/licenses/eclipse-1.0.php
 
+from __future__ import absolute_import
+from __future__ import print_function
 import unittest
 import os
 
@@ -52,7 +54,7 @@ class MockSynopticFileIO(SynopticFileIO):
         return self.syns[fullname.lower()]
 
     def get_list_synoptic_files(self, directory):
-        return self.syns.keys()
+        return list(self.syns.keys())
 
     def delete_synoptic(self, directory, fullname):
         del self.syns[fullname]
@@ -88,7 +90,7 @@ class TestSynopticManagerSequence(unittest.TestCase):
         # Assert
         self.assertTrue(len(s) > 0)
         n = [x['name'] for x in s]
-        print n
+        print(n)
         self.assertEqual("-- NONE --", n[0])
         self.assertEqual(SYNOPTIC_1, n[1])
         self.assertEqual(SYNOPTIC_2, n[2])
