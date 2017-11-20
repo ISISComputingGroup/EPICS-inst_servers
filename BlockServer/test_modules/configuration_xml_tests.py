@@ -219,67 +219,6 @@ class TestConfigurationXmlConverterSequence(unittest.TestCase):
     def tearDown(self):
         pass
 
-    def test_blocks_to_xml_converts_correctly(self):
-        # Arrange
-        xc = self.xml_converter
-        blocks = make_blocks()
-
-        # Act
-        blocks_xml = xc.blocks_to_xml(blocks, MACROS)
-        blocks_xml = strip_out_whitespace(blocks_xml)
-
-        # Assert
-        self.assertEqual(blocks_xml, BLOCKS_XML)
-
-    def test_groups_to_xml_converts_correctly(self):
-        # Arrange
-        xc = self.xml_converter
-        groups = make_groups()
-
-        # Act
-        groups_xml = xc.groups_to_xml(groups)
-        groups_xml = strip_out_whitespace(groups_xml)
-
-        # Assert
-        self.assertEqual(groups_xml, GROUPS_XML)
-
-    def test_iocs_to_xml_converts_correctly(self):
-        # Arrange
-        xc = self.xml_converter
-        iocs = make_iocs()
-
-        # Act
-        iocs_xml = xc.iocs_to_xml(iocs)
-        iocs_xml = strip_out_whitespace(iocs_xml)
-
-        # Assert
-        self.maxDiff = None
-        self.assertEqual(iocs_xml.strip(), IOCS_XML.strip())
-
-    def test_meta_to_xml_converts_correctly(self):
-        # Arrange
-        xc = self.xml_converter
-        meta = make_meta()
-
-        # Act
-        meta_xml = xc.meta_to_xml(meta)
-        meta_xml = strip_out_whitespace(meta_xml)
-
-        # Assert
-        self.assertEqual(meta_xml.strip(), META_XML.strip())
-
-    def test_comps_to_xml_converts_correctly(self):
-        # Arrange
-        xc = self.xml_converter
-        comps = make_comps()
-
-        # Act
-        comp_xml = xc.components_to_xml(comps)
-        comp_xml = strip_out_whitespace(comp_xml)
-
-        # Assert
-        self.assertEqual(comp_xml.strip(), COMP_XML.strip())
-
     def test_xml_to_blocks_converts_correctly(self):
         # Arrange
         xc = self.xml_converter
