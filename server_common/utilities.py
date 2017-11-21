@@ -71,6 +71,10 @@ def compress_and_hex(value):
     Returns:
         string : A compressed and hexed version of the inputted string
     """
+    if six.PY2:
+        compr = zlib.compress(value)
+        return compr.encode('hex')
+
     compr = zlib.compress(bytearray(value, 'utf-8'))
     return codecs.encode(compr, 'hex_codec')
 
@@ -85,6 +89,9 @@ def dehex_and_decompress(value):
     Returns:
         string : A decompressed version of the inputted string
     """
+    if six.PY2:
+        return zlib.decompress(value.decode('hex'))
+
     try:
         # If it comes as bytes then cast to string
         value = value.decode('utf-8')
