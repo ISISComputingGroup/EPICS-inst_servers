@@ -117,7 +117,7 @@ class ActiveConfigHolder(ConfigHolder):
         self.load_active(current_config_name)
 
     def iocs_changed(self):
-        """Checks to see if the IOCs have changed on saving."
+        """Checks to see if the IOCs have changed on saving.
 
         It checks for: IOCs added; IOCs removed; and, macros, pvs or pvsets changed.
 
@@ -137,10 +137,9 @@ class ActiveConfigHolder(ConfigHolder):
             cached_ioc = self._cached_config.iocs[n]
             current_ioc = self._config.iocs[n]
             if n in list(self._cached_config.iocs.keys()):
-                for attr in {'macros', 'pvs', 'pvsets', 'simlevel', 'restart'}:
-                    if cmp(getattr(cached_ioc, attr),getattr(current_ioc, attr)) != 0:
-                        iocs_to_restart.add(n)
-                        break
+                if self._ioc_needs_restarting(cached_ioc, current_ioc):
+                    iocs_to_restart.add(n)
+                    break
 
         # Look for any new components
         for cn, cv in six.iteritems(self._components):
@@ -149,3 +148,27 @@ class ActiveConfigHolder(ConfigHolder):
                     iocs_to_start.add(n)
 
         return iocs_to_start, iocs_to_restart
+
+    def _ioc_needs_restarting(self, first, second):
+        """
+        Check whether IOC settings have changes and, thus, whether the IOC should be restarted.
+
+        Args:
+            first (IOC): The first IOC to compare.
+            second (IOC): The second IOC to compare.
+
+        Returns:
+            True if the settings have changed.
+        """
+        if first.macros != second.macros:
+            return True
+        if first.pvs != second.pvs:
+            return True
+        if first.pvsets != second.pvsets:
+            return True
+        if first.simlevel != second.simlevel:
+            return True
+        if first.restart != second.restart:
+            return True
+
+        return False

@@ -83,7 +83,7 @@ class SQLAbstraction(object):
         try:
             return mysql.connector.connect(pool_name=self._pool_name)
         except Exception as err:
-            raise Exception("Unable to get connection from pool: %s" % err.message)
+            raise Exception("Unable to get connection from pool: {}".format(err))
 
     def _execute_command(self, command, is_query, bound_variables):
         """Executes a command on the database, and returns all values

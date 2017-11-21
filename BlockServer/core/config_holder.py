@@ -168,7 +168,7 @@ class ConfigHolder(object):
                             used_blocks.append(bn)
 
         # If any groups are empty now we've filled in from the components, get rid of them
-        for key in groups:
+        for key in list(groups.keys()):
             if len(groups[key].blocks) == 0:
                 del groups[key]
 

@@ -20,7 +20,8 @@ import six
 
 
 class IOC(object):
-    """ Represents an IOC.
+    """
+    Represents an IOC.
 
     Attributes:
         name (string): The name of the IOC
@@ -34,7 +35,8 @@ class IOC(object):
     """
     def __init__(self, name, autostart=True, restart=True, component=None, macros=None, pvs=None, pvsets=None,
                  simlevel=None):
-        """ Constructor.
+        """
+        Constructor.
 
         Args:
             name (string): The name of the IOC
@@ -58,22 +60,23 @@ class IOC(object):
             self.simlevel = simlevel.lower()
 
         if macros is None:
-            self.macros = dict()
+            self.macros = {}
         else:
             self.macros = macros
 
         if pvs is None:
-            self.pvs = dict()
+            self.pvs = {}
         else:
             self.pvs = pvs
 
         if pvsets is None:
-            self.pvsets = dict()
+            self.pvsets = {}
         else:
             self.pvsets = pvsets
 
     def _dict_to_list(self, in_dict):
-        """ Converts into a format better for the GUI to parse, namely a list.
+        """
+        Converts into a format better for the GUI to parse, namely a list.
 
         It's messy but it's what the GUI wants.
 
@@ -96,7 +99,8 @@ class IOC(object):
         return data
 
     def to_dict(self):
-        """ Puts the IOC's details into a dictionary.
+        """
+        Puts the IOC's details into a dictionary.
 
         Returns:
             dict : The IOC's details

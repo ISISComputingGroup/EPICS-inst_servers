@@ -141,7 +141,7 @@ class TestDevicesManagerSequence(unittest.TestCase):
 
         # Assert
         # Should stay as blank (i.e. the previous value)
-        self.assertEquals(self.dm.get_blank_devices(), dehex_and_decompress(self.bs.pvs[GET_SCREENS]))
+        self.assertEquals(self.dm.get_blank_devices(), dehex_and_decompress(self.bs.pvs[GET_SCREENS]).decode('utf-8'))
 
     def test_given_valid_devices_data_when_device_xml_saved_then_saved(self):
         # Arrange:
@@ -152,4 +152,4 @@ class TestDevicesManagerSequence(unittest.TestCase):
 
         # Assert:
         # Device screens in blockserver should have been updated with value written to device manager
-        self.assertEquals(EXAMPLE_DEVICES, dehex_and_decompress(self.bs.pvs[GET_SCREENS]))
+        self.assertEquals(EXAMPLE_DEVICES, dehex_and_decompress(self.bs.pvs[GET_SCREENS]).decode('utf-8'))

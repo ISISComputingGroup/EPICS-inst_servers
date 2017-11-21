@@ -24,6 +24,7 @@ from xml.etree import ElementTree
 from server_common.loggers.logger import Logger
 from .common_exceptions import  MaxAttemptsExceededException
 import six
+import codecs
 
 
 # Default to base class - does not actually log anything
@@ -70,8 +71,8 @@ def compress_and_hex(value):
     Returns:
         string : A compressed and hexed version of the inputted string
     """
-    compr = zlib.compress(value)
-    return compr.encode('hex')
+    compr = zlib.compress(bytearray(value, 'utf-8'))
+    return codecs.encode(compr, 'hex_codec')
 
 
 def dehex_and_decompress(value):
@@ -84,7 +85,13 @@ def dehex_and_decompress(value):
     Returns:
         string : A decompressed version of the inputted string
     """
-    return zlib.decompress(value.decode("hex"))
+    try:
+        # If it comes as bytes then cast to string
+        value = value.decode('utf-8')
+    except AttributeError:
+        pass
+
+    return zlib.decompress(bytes.fromhex(value))
 
 
 def convert_to_json(value):
@@ -97,9 +104,8 @@ def convert_to_json(value):
     Returns:
         string : The JSON representation of the inputted object
     """
-# TODO: we may want to use 'utf-8' here in future, not needed 
-#       this time as functionality previously duplicated in exp_data.py
-    return json.dumps(value).encode('ascii', 'replace')
+    # Need to encode then decode to get a string as encode returns a byte literal not str
+    return bytes.decode(json.dumps(value).encode('ascii', 'replace'))
 
 
 def convert_from_json(value):
@@ -190,7 +196,7 @@ def create_pv_name(name, current_pvs, default_pv, limit=6):
         pv_text = default_pv
 
     # Ensure PVs aren't too long for the 60 character limit
-    if pv_text > limit:
+    if len(pv_text) > limit:
         pv_text = pv_text[0:limit]
 
     # Make sure PVs are unique

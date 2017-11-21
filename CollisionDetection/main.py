@@ -111,7 +111,7 @@ def auto_seek(start_step_size, start_values, end_value, geometries, moves, axis_
     # print "Found limits for axis %d using step size of %f" % (axis_index, step_size)
 
     if limit is None:
-        print "Null limit"
+        print("Null limit")
 
     return limit
 

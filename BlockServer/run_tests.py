@@ -67,8 +67,8 @@ if __name__ == '__main__':
     ioc_control_suite = unittest.TestLoader().loadTestsFromTestCase(TestIocControlSequence)
     file_path_manager_suite = unittest.TestLoader().loadTestsFromTestCase(TestFilePathManagerSequence)
     banner_suite = unittest.TestLoader().loadTestsFromTestCase(TestBannerSequence)
-
-    # Site specific tests
+    #
+    # # Site specific tests
     block_rules_suite = unittest.TestLoader().loadTestsFromTestCase(TestBlockRulesSequence)
     runcontrol_suite = unittest.TestLoader().loadTestsFromTestCase(TestRunControlSequence)
     group_rules_suite = unittest.TestLoader().loadTestsFromTestCase(TestGroupRulesSequence)
@@ -85,12 +85,12 @@ if __name__ == '__main__':
     ret_vals.append(xmlrunner.XMLTestRunner(output=xml_dir).run(inactive_config_suite).wasSuccessful())
     ret_vals.append(xmlrunner.XMLTestRunner(output=xml_dir).run(schema_checker_event_suite).wasSuccessful())
     ret_vals.append(xmlrunner.XMLTestRunner(output=xml_dir).run(synoptic_manager_suite).wasSuccessful())
+    ret_vals.append(xmlrunner.XMLTestRunner(output=xml_dir).run(devices_manager_suite).wasSuccessful())
     ret_vals.append(xmlrunner.XMLTestRunner(output=xml_dir).run(ioc_control_suite).wasSuccessful())
     ret_vals.append(xmlrunner.XMLTestRunner(output=xml_dir).run(file_path_manager_suite).wasSuccessful())
-    ret_vals.append(xmlrunner.XMLTestRunner(output=xml_dir).run(devices_manager_suite).wasSuccessful())
     ret_vals.append(xmlrunner.XMLTestRunner(output=xml_dir).run(banner_suite).wasSuccessful())
-
-    # Site specific tests
+    #
+    # # Site specific tests
     ret_vals.append(xmlrunner.XMLTestRunner(output=xml_dir).run(block_rules_suite).wasSuccessful())
     ret_vals.append(xmlrunner.XMLTestRunner(output=xml_dir).run(runcontrol_suite).wasSuccessful())
     ret_vals.append(xmlrunner.XMLTestRunner(output=xml_dir).run(group_rules_suite).wasSuccessful())

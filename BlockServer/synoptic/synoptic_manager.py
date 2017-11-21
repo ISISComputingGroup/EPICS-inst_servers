@@ -226,7 +226,7 @@ class SynopticManager(OnTheFlyPvInterface):
 
     def _get_synoptic_name_from_xml(self, xml_data):
         name = None
-        root = etree.fromstring(xml_data)
+        root = etree.fromstring(ConfigurationSchemaChecker.encode_xml_string_as_bytes(xml_data))
         for child in root:
             if child.tag.split('}', 1)[1] == "name":
                 name = child.text

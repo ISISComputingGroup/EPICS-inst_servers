@@ -16,7 +16,6 @@
 
 from __future__ import absolute_import
 import os
-import string
 
 from lxml import etree
 
@@ -46,13 +45,15 @@ class ConfigurationFileBlank(Exception):
 
 
 class ConfigurationSchemaChecker(object):
-    """ The ConfigurationSchemaChecker class
+    """
+    The ConfigurationSchemaChecker class.
 
     Contains utilities to check configurations against xml schema.
     """
     @staticmethod
     def check_xml_data_matches_schema(schema_filepath, xml_data):
-        """ This method takes xml data and checks it against a given schema.
+        """
+        This method takes xml data and checks it against a given schema.
 
         A ConfigurationInvalidUnderSchema error is raised if the file is incorrect.
 
@@ -63,14 +64,28 @@ class ConfigurationSchemaChecker(object):
         if len(xml_data) == 0:
             raise ConfigurationFileBlank("Invalid XML: File is blank.")
 
-        folder, file_name = string.rsplit(schema_filepath, os.sep, 1)
+        folder, file_name = str.rsplit(schema_filepath, os.sep, 1)
         schema = ConfigurationSchemaChecker._get_schema(folder, file_name)
 
         try:
-            doc = etree.fromstring(xml_data)
+            # parser = etree.XMLParser(ns_clean=True, recover=True, encoding='utf-8')
+            doc = etree.fromstring(ConfigurationSchemaChecker.encode_xml_string_as_bytes(xml_data))
             schema.assertValid(doc)
         except etree.DocumentInvalid as err:
-            raise ConfigurationInvalidUnderSchema(err.message)
+            raise ConfigurationInvalidUnderSchema("{}".format(err))
+
+    @staticmethod
+    def encode_xml_string_as_bytes(xml_data):
+        """
+        Prepare an XML string to the format expected by ElementTree.
+
+        Args:
+            xml_data (str): input XML.
+
+        Returns:
+            Correctly encoded byte string.
+        """
+        return bytes(bytearray(xml_data, encoding='utf-8'))
 
     @staticmethod
     def check_xml_matches_schema(schema_filepath, screen_xml_data, object_type):
@@ -78,11 +93,12 @@ class ConfigurationSchemaChecker(object):
             ConfigurationSchemaChecker.check_xml_data_matches_schema(schema_filepath, screen_xml_data)
         except ConfigurationInvalidUnderSchema as err:
             raise ConfigurationInvalidUnderSchema(
-                "{object_type} incorrectly formatted: {err}".format(object_type=object_type, err=err.message))
+                "{} incorrectly formatted: {}".format(object_type, err))
 
     @staticmethod
     def _check_file_against_schema(xml_file, schema_folder, schema_file):
-        """ This method takes an xml file and checks it against a given schema.
+        """
+        This method takes an xml file and checks it against a given schema.
 
         Args:
             xml_file (string): The XML file to check
@@ -98,12 +114,13 @@ class ConfigurationSchemaChecker(object):
         with open(xml_file, 'r') as f:
             xml = f.read()
 
-        doc = etree.fromstring(xml)
+        doc = etree.fromstring(ConfigurationSchemaChecker.encode_xml_string_as_bytes(xml))
         schema.assertValid(doc)
 
     @staticmethod
     def _get_schema(schema_folder, schema_file):
-        """ This method generates an xml schemaq object for later use in validation.
+        """
+        This method generates an xml schemaq object for later use in validation.
 
         Args:
             schema_folder (string): The directory for schema files
@@ -113,7 +130,7 @@ class ConfigurationSchemaChecker(object):
         cur = os.getcwd()
         os.chdir(schema_folder)
         with open(schema_file, 'r') as f:
-            schema_raw = etree.XML(f.read())
+            schema_raw = etree.XML(f.read().encode())
 
         schema = etree.XMLSchema(schema_raw)
         os.chdir(cur)

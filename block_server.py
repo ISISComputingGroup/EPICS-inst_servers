@@ -693,7 +693,7 @@ class BlockServer(Driver):
                         cmd()
                 except Exception as err:
                     print_and_log(
-                        "Error executing write queue command %s for state %s: %s" % (cmd.__name__, state, err.message),
+                        "Error executing write queue command {} for state {}: {}".format(cmd.__name__, state, err),
                         "MAJOR")
                 self.update_server_status("")
             sleep(1)
