@@ -54,124 +54,128 @@ from BlockServer.spangle_banner.banner import Banner
 from BlockServer.fileIO.file_manager import ConfigurationFileManager
 from WebServer.simple_webserver import Server
 
+manager_lock = RLock()
+
 # For documentation on these commands see the wiki
-PVDB = {
-    BlockserverPVNames.BLOCKNAMES: {
-        'type': 'char',
-        'count': 16000,
-        'value': [0],
-    },
-    BlockserverPVNames.BLOCK_DETAILS: {
-        'type': 'char',
-        'count': 16000,
-        'value': [0],
-    },
-    BlockserverPVNames.GROUPS: {
-        'type': 'char',
-        'count': 16000,
-        'value': [0],
-    },
-    BlockserverPVNames.COMPS: {
-        'type': 'char',
-        'count': 16000,
-        'value': [0],
-    },
-    BlockserverPVNames.LOAD_CONFIG: {
-        'type': 'char',
-        'count': 1000,
-        'value': [0],
-    },
-    BlockserverPVNames.SAVE_CONFIG: {
-        'type': 'char',
-        'count': 1000,
-        'value': [0],
-    },
-    BlockserverPVNames.RELOAD_CURRENT_CONFIG: {
-        'type': 'char',
-        'count': 100,
-        'value': [0],
-    },
-    BlockserverPVNames.START_IOCS: {
-        'type': 'char',
-        'count': 16000,
-        'value': [0],
-    },
-    BlockserverPVNames.STOP_IOCS: {
-        'type': 'char',
-        'count': 1000,
-        'value': [0],
-    },
-    BlockserverPVNames.RESTART_IOCS: {
-        'type': 'char',
-        'count': 1000,
-        'value': [0],
-    },
-    BlockserverPVNames.CONFIGS: {
-        'type': 'char',
-        'count': 16000,
-        'value': [0],
-    },
-    BlockserverPVNames.GET_CURR_CONFIG_DETAILS: {
-        'type': 'char',
-        'count': 64000,
-        'value': [0],
-    },
-    BlockserverPVNames.SET_CURR_CONFIG_DETAILS: {
-        'type': 'char',
-        'count': 64000,
-        'value': [0],
-    },
-    BlockserverPVNames.SAVE_NEW_CONFIG: {
-        'type': 'char',
-        'count': 64000,
-        'value': [0],
-    },
-    BlockserverPVNames.SAVE_NEW_COMPONENT: {
-        'type': 'char',
-        'count': 64000,
-        'value': [0],
-    },
-    BlockserverPVNames.SERVER_STATUS: {
-        'type': 'char',
-        'count': 1000,
-        'value': [0],
-    },
-    BlockserverPVNames.DELETE_CONFIGS: {
-        'type': 'char',
-        'count': 64000,
-        'value': [0],
-    },
-    BlockserverPVNames.DELETE_COMPONENTS: {
-        'type': 'char',
-        'count': 64000,
-        'value': [0],
-    },
-    BlockserverPVNames.BLANK_CONFIG: {
-        'type': 'char',
-        'count': 64000,
-        'value': [0],
-    },
-    BlockserverPVNames.ALL_COMPONENT_DETAILS: {
-        'type': 'char',
-        'count': 64000,
-        'value': [0],
-    },
-    BlockserverPVNames.BUMPSTRIP_AVAILABLE: {
-        'type': 'char',
-        'count': 16000,
-        'value': [0],
-    },
-    BlockserverPVNames.BUMPSTRIP_AVAILABLE_SP: {
-        'type': 'char',
-        'count': 16000,
-        'value': [0],
-    },
-    BlockserverPVNames.BANNER_DESCRIPTION: {
-        'type': 'char',
-        'count': 16000,
-        'value': [0],
+PVDB_lock = RLock()
+with PVDB_lock:
+    PVDB = {
+        BlockserverPVNames.BLOCKNAMES: {
+            'type': 'char',
+            'count': 16000,
+            'value': [0],
+        },
+        BlockserverPVNames.BLOCK_DETAILS: {
+            'type': 'char',
+            'count': 16000,
+            'value': [0],
+        },
+        BlockserverPVNames.GROUPS: {
+            'type': 'char',
+            'count': 16000,
+            'value': [0],
+        },
+        BlockserverPVNames.COMPS: {
+            'type': 'char',
+            'count': 16000,
+            'value': [0],
+        },
+        BlockserverPVNames.LOAD_CONFIG: {
+            'type': 'char',
+            'count': 1000,
+            'value': [0],
+        },
+        BlockserverPVNames.SAVE_CONFIG: {
+            'type': 'char',
+            'count': 1000,
+            'value': [0],
+        },
+        BlockserverPVNames.RELOAD_CURRENT_CONFIG: {
+            'type': 'char',
+            'count': 100,
+            'value': [0],
+        },
+        BlockserverPVNames.START_IOCS: {
+            'type': 'char',
+            'count': 16000,
+            'value': [0],
+        },
+        BlockserverPVNames.STOP_IOCS: {
+            'type': 'char',
+            'count': 1000,
+            'value': [0],
+        },
+        BlockserverPVNames.RESTART_IOCS: {
+            'type': 'char',
+            'count': 1000,
+            'value': [0],
+        },
+        BlockserverPVNames.CONFIGS: {
+            'type': 'char',
+            'count': 16000,
+            'value': [0],
+        },
+        BlockserverPVNames.GET_CURR_CONFIG_DETAILS: {
+            'type': 'char',
+            'count': 64000,
+            'value': [0],
+        },
+        BlockserverPVNames.SET_CURR_CONFIG_DETAILS: {
+            'type': 'char',
+            'count': 64000,
+            'value': [0],
+        },
+        BlockserverPVNames.SAVE_NEW_CONFIG: {
+            'type': 'char',
+            'count': 64000,
+            'value': [0],
+        },
+        BlockserverPVNames.SAVE_NEW_COMPONENT: {
+            'type': 'char',
+            'count': 64000,
+            'value': [0],
+        },
+        BlockserverPVNames.SERVER_STATUS: {
+            'type': 'char',
+            'count': 1000,
+            'value': [0],
+        },
+        BlockserverPVNames.DELETE_CONFIGS: {
+            'type': 'char',
+            'count': 64000,
+            'value': [0],
+        },
+        BlockserverPVNames.DELETE_COMPONENTS: {
+            'type': 'char',
+            'count': 64000,
+            'value': [0],
+        },
+        BlockserverPVNames.BLANK_CONFIG: {
+            'type': 'char',
+            'count': 64000,
+            'value': [0],
+        },
+        BlockserverPVNames.ALL_COMPONENT_DETAILS: {
+            'type': 'char',
+            'count': 64000,
+            'value': [0],
+        },
+        BlockserverPVNames.BUMPSTRIP_AVAILABLE: {
+            'type': 'char',
+            'count': 16000,
+            'value': [0],
+        },
+        BlockserverPVNames.BUMPSTRIP_AVAILABLE_SP: {
+            'type': 'char',
+            'count': 16000,
+            'value': [0],
+        },
+        BlockserverPVNames.BANNER_DESCRIPTION: {
+            'type': 'char',
+            'count': 16000,
+            'value': [0],
+        }
     }
-}
 
 
 class BlockServer(Driver):
@@ -732,34 +736,56 @@ class BlockServer(Driver):
 
     # Code for handling on-the-fly PVs
     def does_pv_exist(self, name):
-        return name in manager.pvs[self.port]
+        with manager_lock:
+            return name in manager.pvs[self.port]
 
     def delete_pv_from_db(self, name):
-        if name in manager.pvs[self.port]:
-            print_and_log("Removing PV %s" % name)
-            fullname = manager.pvs[self.port][name].name
-            del manager.pvs[self.port][name]
-            del manager.pvf[fullname]
-            del self.pvDB[name]
-            del PVDB[name]
+        with manager_lock:
+            if name in manager.pvs[self.port]:
+                print_and_log("Removing PV %s" % name)
+                fullname = manager.pvs[self.port][name].name
+                del manager.pvs[self.port][name]
+                del manager.pvf[fullname]
+                del self.pvDB[name]
+                with PVDB_lock:
+                    del PVDB[name]
 
     def add_string_pv_to_db(self, name, count=1000):
         # Check name not already in PVDB and that a PV does not already exist
-        if name not in PVDB and name not in manager.pvs[self.port]:
-            try:
-                print_and_log("Adding PV %s" % name)
-                PVDB[name] = {
-                    'type': 'char',
-                    'count': count,
-                    'value': [0],
-                }
-                self._cas.createPV(BLOCKSERVER_PREFIX, PVDB)
-                # self.configure_pv_db()
-                data = Data()
-                data.value = manager.pvs[self.port][name].info.value
-                self.pvDB[name] = data
-            except Exception as err:
-                print_and_log("Unable to add PV %S" % name,"MAJOR")
+        with PVDB_lock, manager_lock:
+            if name not in PVDB and name not in manager.pvs[self.port]:
+                try:
+                    print_and_log("Adding PV {}".format(name))
+                    PVDB[name] = {
+                        'type': 'char',
+                        'count': count,
+                        'value': [0],
+                    }
+                    self._cas.createPV(BLOCKSERVER_PREFIX, PVDB)
+                    # self.configure_pv_db()
+                    data = Data()
+                    data.value = manager.pvs[self.port][name].info.value
+                    self.pvDB[name] = data
+                except Exception as err:
+                    print_and_log("Unable to add PV '{}'. Error was: {}".format(name, err), "MAJOR")
+
+
+class ThreadsafeCasServer(object):
+    def __init__(self):
+        self._simple_server = SimpleServer()
+        self._lock = RLock()
+
+        # Process can occur at the same time as creating a PV
+        # but doesn't make sense to do two process calls concurrently.
+        self._process_lock = RLock()
+
+    def createPV(self, *args, **kwargs):
+        with self._lock:
+            self._simple_server.createPV(*args, **kwargs)
+
+    def process(self, *args, **kwargs):
+        with self._process_lock:
+            self._simple_server.process(*args, **kwargs)
 
 
 if __name__ == '__main__':
@@ -822,7 +848,7 @@ if __name__ == '__main__':
     PVLIST_FILE = args.pvlist_name[0]
 
     print_and_log("BLOCKSERVER PREFIX = %s" % BLOCKSERVER_PREFIX)
-    SERVER = SimpleServer()
+    SERVER = ThreadsafeCasServer()
     SERVER.createPV(BLOCKSERVER_PREFIX, PVDB)
     DRIVER = BlockServer(SERVER)
 
