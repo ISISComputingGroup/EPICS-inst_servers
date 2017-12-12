@@ -755,7 +755,7 @@ class BlockServer(Driver):
         with PVDB_lock, manager_lock:
             if name not in PVDB and name not in manager.pvs[self.port]:
                 try:
-                    print_and_log("Adding PV {}, count={}".format(name, count))
+                    print_and_log("Adding PV {}".format(name))
                     PVDB[name] = {
                         'type': 'char',
                         'count': count,
@@ -768,8 +768,6 @@ class BlockServer(Driver):
                     self.pvDB[name] = data
                 except Exception as err:
                     print_and_log("Unable to add PV '{}'. Error was: {}".format(name, err), "MAJOR")
-                    import traceback
-                    traceback.print_tb(sys.exc_traceback)
 
 
 if __name__ == '__main__':
