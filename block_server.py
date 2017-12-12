@@ -18,6 +18,8 @@
 import os
 import sys
 
+import copy
+
 sys.path.insert(0, os.path.abspath(os.environ["MYDIRBLOCK"]))
 
 # Standard imports
@@ -650,8 +652,7 @@ class BlockServer(Driver):
             status (string): The status to set
         """
         if self._active_configserver is not None:
-            d = dict()
-            d['status'] = status
+            d = {'status': status}
             with self.monitor_lock:
                 self.setParam(BlockserverPVNames.SERVER_STATUS, compress_and_hex(convert_to_json(d)))
                 self.updatePVs()
@@ -740,15 +741,14 @@ class BlockServer(Driver):
             return name in manager.pvs[self.port]
 
     def delete_pv_from_db(self, name):
-        with manager_lock:
+        with manager_lock, PVDB_lock:
             if name in manager.pvs[self.port]:
                 print_and_log("Removing PV %s" % name)
                 fullname = manager.pvs[self.port][name].name
                 del manager.pvs[self.port][name]
                 del manager.pvf[fullname]
                 del self.pvDB[name]
-                with PVDB_lock:
-                    del PVDB[name]
+                del PVDB[name]
 
     def add_string_pv_to_db(self, name, count=1000):
         # Check name not already in PVDB and that a PV does not already exist
@@ -761,13 +761,15 @@ class BlockServer(Driver):
                         'count': count,
                         'value': [0],
                     }
-                    self._cas.createPV(BLOCKSERVER_PREFIX, PVDB)
+                    self._cas.createPV(BLOCKSERVER_PREFIX, copy.deepcopy(PVDB))
                     # self.configure_pv_db()
                     data = Data()
                     data.value = manager.pvs[self.port][name].info.value
                     self.pvDB[name] = data
                 except Exception as err:
                     print_and_log("Unable to add PV '{}'. Error was: {}".format(name, err), "MAJOR")
+                    import traceback
+                    traceback.print_tb(sys.exc_traceback)
 
 
 if __name__ == '__main__':

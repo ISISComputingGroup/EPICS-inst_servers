@@ -14,9 +14,8 @@
 # https://www.eclipse.org/org/documents/epl-v10.php or
 # http://opensource.org/licenses/eclipse-1.0.php
 import threading
-
-from pcaspy import SimpleServer, Driver, cas
 import re
+from pcaspy import SimpleServer, Driver, cas
 
 
 class DynamicStringPV(cas.casPV):
@@ -55,7 +54,7 @@ class DynamicStringPV(cas.casPV):
         """
         self.stored_value.put(value)
         self.stored_value.setTimeStamp()
-        self.postEvent(self.stored_value)
+        self.postEvent(0, self.stored_value)
 
     def maxDimension(self):
         """Overrides the maxDimension method in cas.casPV. Used by pcaspy to find the dimensions of the PV data."""
@@ -74,13 +73,14 @@ class ThreadsafeCasServer(object):
     def __init__(self):
         self._simple_server = SimpleServer()
         self._lock = threading.RLock()
+        self._process_lock = threading.RLock()
 
     def createPV(self, *args, **kwargs):
         with self._lock:
             self._simple_server.createPV(*args, **kwargs)
 
     def process(self, *args, **kwargs):
-        with self._lock:
+        with self._process_lock:
             self._simple_server.process(*args, **kwargs)
 
 
