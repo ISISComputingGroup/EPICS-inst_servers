@@ -30,7 +30,7 @@ from BlockServer.core.file_path_manager import FILEPATH_MANAGER
 from BlockServer.epics.gateway import Gateway
 from BlockServer.core.active_config_holder import ActiveConfigHolder
 from BlockServer.core.inactive_config_holder import InactiveConfigHolder
-from server_common.channel_access_server import CAServer
+from server_common.channel_access_server import CAServer, ThreadsafeCasServer
 from server_common.utilities import compress_and_hex, dehex_and_decompress, print_and_log, set_logger, \
     convert_to_json, convert_from_json
 from BlockServer.core.macros import MACROS, BLOCKSERVER_PREFIX, BLOCK_PREFIX
@@ -755,7 +755,7 @@ class BlockServer(Driver):
         with PVDB_lock, manager_lock:
             if name not in PVDB and name not in manager.pvs[self.port]:
                 try:
-                    print_and_log("Adding PV {}".format(name))
+                    print_and_log("Adding PV {}, count={}".format(name, count))
                     PVDB[name] = {
                         'type': 'char',
                         'count': count,
@@ -768,24 +768,6 @@ class BlockServer(Driver):
                     self.pvDB[name] = data
                 except Exception as err:
                     print_and_log("Unable to add PV '{}'. Error was: {}".format(name, err), "MAJOR")
-
-
-class ThreadsafeCasServer(object):
-    def __init__(self):
-        self._simple_server = SimpleServer()
-        self._lock = RLock()
-
-        # Process can occur at the same time as creating a PV
-        # but doesn't make sense to do two process calls concurrently.
-        self._process_lock = RLock()
-
-    def createPV(self, *args, **kwargs):
-        with self._lock:
-            self._simple_server.createPV(*args, **kwargs)
-
-    def process(self, *args, **kwargs):
-        with self._process_lock:
-            self._simple_server.process(*args, **kwargs)
 
 
 if __name__ == '__main__':

@@ -17,17 +17,18 @@
 import ca
 import time
 import sys
-import zlib
 import json
 import threading
 import copy
 import os
 
+
 sys.path.insert(0, os.path.abspath(os.environ["MYDIRBLOCK"]))
 
-from pcaspy import SimpleServer, Driver
-from CaChannel import ca, CaChannel, CaChannelException
+from pcaspy import Driver
+from CaChannel import ca, CaChannel
 from server_common.utilities import compress_and_hex, convert_to_json, waveform_to_string, dehex_and_decompress,  print_and_log
+from server_common.channel_access_server import ThreadsafeCasServer
 
 EXISTS_TIMEOUT = 3 
 PEND_EVENT_TIMEOUT = 0.1
@@ -59,9 +60,9 @@ class BlocksMonitor(Driver):
         # Flag for stopping thread
         self.stop_thread = False
         # Thread lock for monitors
-        self.mon_lock = threading.Lock()
+        self.mon_lock = threading.RLock()
         # Thread lock for current values - this probably is not needed, but doesn't do any harm
-        self.curr_lock = threading.Lock()
+        self.curr_lock = threading.RLock()
         # The instrument prefix
         self.prefix = prefix
         
@@ -141,20 +142,13 @@ class BlocksMonitor(Driver):
     def disconnect_block_monitors(self):
         """Disconnects the existing block monitors.
         """
-        self.mon_lock.acquire()
-        try:
+        with self.mon_lock:
             for bn, bv in self.block_monitors.iteritems():
                 if bv is not None:
                     print "disconnecting", bn
                     bv.clear_event()
                     bv.pend_event(PEND_EVENT_TIMEOUT)
             self.block_monitors = {}
-        except:
-            # Don't care, it is all about releasing the lock
-            pass
-        finally:
-            # Must release lock
-            self.mon_lock.release()
 
     def initialise_block(self, name):
         """Creates the monitors for the block and its associated run-control PVs.
@@ -164,18 +158,11 @@ class BlocksMonitor(Driver):
         """
         full_name = '%sCS:SB:%s' % (self.prefix, name)
 
-        self.mon_lock.acquire()
-        try:       
+        with self.mon_lock:
             self.block_monitors[full_name] = self._initialise_channel('%s' % full_name)
             self.block_monitors['%s:RC:ENABLE' % full_name] = self._initialise_channel('%s:RC:ENABLE' % full_name)
             self.block_monitors['%s:RC:LOW' % full_name] = self._initialise_channel('%s:RC:LOW' % full_name)
-            self.block_monitors['%s:RC:HIGH' % full_name] = self._initialise_channel('%s:RC:HIGH' % full_name)              
-        except:
-            # Don't care, it is all about releasing the lock
-            pass
-        finally:
-            # Must release lock
-            self.mon_lock.release()
+            self.block_monitors['%s:RC:HIGH' % full_name] = self._initialise_channel('%s:RC:HIGH' % full_name)
             
     def _initialise_channel(self, name):
         """Initialises the channel by creating a connection callback.
@@ -222,17 +209,11 @@ class BlocksMonitor(Driver):
         """
         def _block_updated_callback(epics_args, user_args):
             # Update the current value...
-            self.curr_lock.acquire()
-            try:
-                self.curr_values[user_args[0]] = (epics_args['pv_value'], epics_args['type'])
-            except:
-                # Don't care, it is all about releasing the lock
-                print "Could not update value"
-                pass
-            finally:
-                # Must release lock
-                self.curr_lock.release()
-                pass
+            with self.curr_lock:
+                try:
+                    self.curr_values[user_args[0]] = (epics_args['pv_value'], epics_args['type'])
+                except:
+                    print("Could not update value")
                 
         ftype = chan.field_type()
 
@@ -254,29 +235,14 @@ class BlocksMonitor(Driver):
         Returns:
             A dictionary of the current values where the key is the full PV name.
         """
-        self.curr_lock.acquire()
-        try:
-            ans = copy.deepcopy(self.curr_values)
-        except:
-            ans = None
-        finally:
-            # Must release lock
-            self.curr_lock.release()        
-        return ans
+        with self.curr_lock:
+            return copy.deepcopy(self.curr_values)
     
     def clear_curr_values(self):
         """Clears the dictionary containing the current values.
         """
-        self.curr_lock.acquire()
-        try:
+        with self.curr_lock:
             self.curr_values = {}
-        except:
-            # Don't care, it is all about releasing the lock
-            # Should not throw anyway
-            pass
-        finally:
-            # Must release lock
-            self.curr_lock.release()
             
     @staticmethod        
     def _monitor_changes(blocks_mon):
@@ -288,21 +254,19 @@ class BlocksMonitor(Driver):
         Args:
             blocks_mon (BlocksMonitor): The BlocksMonitor instance.
         """
-        count = 0
-        local_names = blocks_mon.block_names
-        blocks_mon.connect_to_names_pv()
-        while True:
-            if blocks_mon.stop_thread:
-                break
-            elif local_names != blocks_mon.block_names:
-                print "Refreshing blocks"
-                blocks_mon.disconnect_block_monitors()
-                blocks_mon.clear_curr_values()
-                local_names = blocks_mon.block_names
-                for b in blocks_mon.block_names:
-                    blocks_mon.initialise_block(b)
-            else:
-                pass
+        with blocks_mon.mon_lock:
+            local_names = blocks_mon.block_names
+            blocks_mon.connect_to_names_pv()
+            while True:
+                if blocks_mon.stop_thread:
+                    break
+                elif local_names != blocks_mon.block_names:
+                    print "Refreshing blocks"
+                    blocks_mon.disconnect_block_monitors()
+                    blocks_mon.clear_curr_values()
+                    local_names = blocks_mon.block_names
+                    for b in blocks_mon.block_names:
+                        blocks_mon.initialise_block(b)
             
             time.sleep(1)
     
@@ -318,7 +282,7 @@ if __name__ == '__main__':
     my_prefix = os.environ["MYPVPREFIX"]
     print "Prefix is %s" % my_prefix
     
-    SERVER = SimpleServer()
+    SERVER = ThreadsafeCasServer()
     SERVER.createPV(my_prefix, PVDB)
     DRIVER = BlocksMonitor(my_prefix)
     DRIVER.start_thread()

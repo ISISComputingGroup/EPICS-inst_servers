@@ -13,6 +13,7 @@
 # along with this program; if not, you can obtain a copy from
 # https://www.eclipse.org/org/documents/epl-v10.php or
 # http://opensource.org/licenses/eclipse-1.0.php
+import threading
 
 from pcaspy import SimpleServer, Driver, cas
 import re
@@ -69,7 +70,21 @@ class DynamicStringPV(cas.casPV):
         return cas.aitEnumUint8
 
 
-class CAServer(SimpleServer):
+class ThreadsafeCasServer(object):
+    def __init__(self):
+        self._simple_server = SimpleServer()
+        self._lock = threading.RLock()
+
+    def createPV(self, *args, **kwargs):
+        with self._lock:
+            self._simple_server.createPV(*args, **kwargs)
+
+    def process(self, *args, **kwargs):
+        with self._lock:
+            self._simple_server.process(*args, **kwargs)
+
+
+class CAServer(ThreadsafeCasServer):
     """A class that inherits from SimpleServer to create our own Channel Access server. This allows us to dynamically
     add/remove PVs at runtime
     """
@@ -78,7 +93,8 @@ class CAServer(SimpleServer):
         """Initialisation requires a prefix that all PVs associated with this server will contain.
         """
         super(CAServer, self).__init__()
-        self._pvs = dict()
+        self._pvs_lock = threading.RLock()
+        self._pvs = {}
         self._prefix = pv_prefix
 
     def _strip_prefix(self, fullname):
@@ -108,10 +124,11 @@ class CAServer(SimpleServer):
         parent SimpleServer.
         """
         pv = self._strip_prefix(fullname)
-        if pv is not None and pv in self._pvs:
-            return self._pvs[pv]
-        else:
-            return SimpleServer.pvAttach(self, context, fullname)
+        with self._pvs_lock:
+            if pv is not None and pv in self._pvs:
+                return self._pvs[pv]
+            else:
+                return SimpleServer.pvAttach(self, context, fullname)
 
     def registerPV(self, name, data=''):
         """Creates a PV in the dictionary of this server.
@@ -120,8 +137,9 @@ class CAServer(SimpleServer):
             name (string): The name of the PV to create (without the PV prefix)
             data (string, optional): The initial data stored in the PV
         """
-        if name not in self._pvs:
-            self._pvs[name] = DynamicStringPV(data)
+        with self._pvs_lock:
+            if name not in self._pvs:
+                self._pvs[name] = DynamicStringPV(data)
 
     def updatePV(self, name, data):
         """Updates a PV in the dictionary of this server. The PV will be created if it does not exist.
@@ -130,10 +148,11 @@ class CAServer(SimpleServer):
             name (string): The name of the PV to update (without the PV prefix)
             data (string): The data to store in the PV
         """
-        if name in self._pvs:
-            self._pvs[name].updateValue(data)
-        else:
-            self.registerPV(name, data)
+        with self._pvs_lock:
+            if name in self._pvs:
+                self._pvs[name].updateValue(data)
+            else:
+                self.registerPV(name, data)
 
     def deletePV(self, name):
         """Removes a PV from the dictionary of this server.
@@ -141,8 +160,9 @@ class CAServer(SimpleServer):
         Args:
             name (string): The name of the PV to remove (without the PV prefix)
         """
-        if name in self._pvs:
-            del self._pvs[name]
+        with self._pvs_lock:
+            if name in self._pvs:
+                del self._pvs[name]
 
 if __name__ == '__main__':
     # Here for testing
