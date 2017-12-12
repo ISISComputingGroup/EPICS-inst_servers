@@ -69,22 +69,7 @@ class DynamicStringPV(cas.casPV):
         return cas.aitEnumUint8
 
 
-class ThreadsafeCasServer(object):
-    def __init__(self):
-        self._simple_server = SimpleServer()
-        self._lock = threading.RLock()
-        self._process_lock = threading.RLock()
-
-    def createPV(self, *args, **kwargs):
-        with self._lock:
-            self._simple_server.createPV(*args, **kwargs)
-
-    def process(self, *args, **kwargs):
-        with self._process_lock:
-            self._simple_server.process(*args, **kwargs)
-
-
-class CAServer(ThreadsafeCasServer):
+class CAServer(SimpleServer):
     """A class that inherits from SimpleServer to create our own Channel Access server. This allows us to dynamically
     add/remove PVs at runtime
     """
@@ -167,7 +152,7 @@ class CAServer(ThreadsafeCasServer):
 if __name__ == '__main__':
     # Here for testing
     prefix = 'MTEST:'
-    pvdb = { 'STATIC': {} }
+    pvdb = {'STATIC': {}}
 
     server = CAServer(prefix)
     server.createPV(prefix, pvdb)

@@ -25,10 +25,9 @@ import os
 
 sys.path.insert(0, os.path.abspath(os.environ["MYDIRBLOCK"]))
 
-from pcaspy import Driver
+from pcaspy import Driver, SimpleServer
 from CaChannel import ca, CaChannel
 from server_common.utilities import compress_and_hex, convert_to_json, waveform_to_string, dehex_and_decompress,  print_and_log
-from server_common.channel_access_server import ThreadsafeCasServer
 
 EXISTS_TIMEOUT = 3 
 PEND_EVENT_TIMEOUT = 0.1
@@ -282,7 +281,7 @@ if __name__ == '__main__':
     my_prefix = os.environ["MYPVPREFIX"]
     print "Prefix is %s" % my_prefix
     
-    SERVER = ThreadsafeCasServer()
+    SERVER = SimpleServer()
     SERVER.createPV(my_prefix, PVDB)
     DRIVER = BlocksMonitor(my_prefix)
     DRIVER.start_thread()

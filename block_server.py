@@ -32,7 +32,7 @@ from BlockServer.core.file_path_manager import FILEPATH_MANAGER
 from BlockServer.epics.gateway import Gateway
 from BlockServer.core.active_config_holder import ActiveConfigHolder
 from BlockServer.core.inactive_config_holder import InactiveConfigHolder
-from server_common.channel_access_server import CAServer, ThreadsafeCasServer
+from server_common.channel_access_server import CAServer
 from server_common.utilities import compress_and_hex, dehex_and_decompress, print_and_log, set_logger, \
     convert_to_json, convert_from_json
 from BlockServer.core.macros import MACROS, BLOCKSERVER_PREFIX, BLOCK_PREFIX
@@ -832,7 +832,7 @@ if __name__ == '__main__':
     PVLIST_FILE = args.pvlist_name[0]
 
     print_and_log("BLOCKSERVER PREFIX = %s" % BLOCKSERVER_PREFIX)
-    SERVER = ThreadsafeCasServer()
+    SERVER = SimpleServer()
     SERVER.createPV(BLOCKSERVER_PREFIX, PVDB)
     DRIVER = BlockServer(SERVER)
 
