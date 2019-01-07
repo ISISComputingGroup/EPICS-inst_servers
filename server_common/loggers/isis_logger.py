@@ -16,7 +16,7 @@
 
 import datetime
 import socket
-import xml.etree.ElementTree as ET
+from lxml import etree
 import re
 
 IOCLOG_ADDR = ("127.0.0.1", 7004)
@@ -49,17 +49,17 @@ class IsisLogger(object):
         if msg_time.utcoffset() is None:
             msg_time_str += "Z"
 
-        xml_message = ET.Element("message")
-        ET.SubElement(xml_message, "clientName").text = src
-        ET.SubElement(xml_message, "severity").text = severity
-        ET.SubElement(xml_message, "contents").text = "![CDATA[{}]".format(escape_xml_illegal_chars(message))
-        ET.SubElement(xml_message, "type").text = "ioclog"
-        ET.SubElement(xml_message, "eventTime").text = msg_time_str
+        xml_message = etree.Element("message")
+        etree.SubElement(xml_message, "clientName").text = src
+        etree.SubElement(xml_message, "severity").text = severity
+        etree.SubElement(xml_message, "contents").text = etree.CDATA(escape_xml_illegal_chars(message))
+        etree.SubElement(xml_message, "type").text = "ioclog"
+        etree.SubElement(xml_message, "eventTime").text = msg_time_str
 
         try:
             sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             sock.connect(IOCLOG_ADDR)
-            sock.sendall(ET.tostring(xml_message, "utf-8", "xml"))
+            sock.sendall(etree.tostring(xml_message, encoding="utf-8"))
         except Exception as err:
             print("Could not send message to IOC log: %s" % err)
         finally:
