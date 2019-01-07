@@ -16,18 +16,28 @@
 
 import datetime
 import socket
+import xml.etree.ElementTree as ET
+import re
+
+IOCLOG_ADDR = ("127.0.0.1", 7004)
+_illegal_xml_chars_RE = re.compile(u'[\x00-\x08\x0b\x0c\x0e-\x1F\uD800-\uDFFF\uFFFE\uFFFF]')
+
+
+def escape_xml_illegal_chars(text):
+    """Escapes illegal XML unicode characters to their python representation.
+    Args:
+        text (str): The text to escape.
+    Returns:
+        str: The corrected string.
+    """
+    return _illegal_xml_chars_RE.sub(lambda match: repr(match.group(0)), text)
 
 
 class IsisLogger(object):
-    def __init__(self):
-        super(IsisLogger, self).__init__()
-        self.ioclog_host = "127.0.0.1"
-        self.ioclog_port = 7004
-
     def write_to_log(self, message, severity="INFO", src="BLOCKSVR"):
         """Writes a message to the IOC log. It is preferable to use print_and_log for easier debugging.
         Args:
-            severity (string, optional): Gives the severity of the message. Expected serverities are MAJOR, MINOR and INFO.
+            severity (string, optional): Gives the severity of the message. Expected severities are MAJOR, MINOR and INFO.
                                         Default severity is INFO
             src (string, optional): Gives the source of the message. Default source is BLOCKSVR
         """
@@ -39,19 +49,17 @@ class IsisLogger(object):
         if msg_time.utcoffset() is None:
             msg_time_str += "Z"
 
-        xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
-        xml += "<message>"
-        xml += "<clientName>%s</clientName>" % src
-        xml += "<severity>%s</severity>" % severity
-        xml += "<contents><![CDATA[%s]]></contents>" % message
-        xml += "<type>ioclog</type>"
-        xml += "<eventTime>%s</eventTime>" % msg_time_str
-        xml += "</message>\n"
+        xml_message = ET.Element("message")
+        ET.SubElement(xml_message, "clientName").text = src
+        ET.SubElement(xml_message, "severity").text = severity
+        ET.SubElement(xml_message, "contents").text = "![CDATA[{}]".format(escape_xml_illegal_chars(message))
+        ET.SubElement(xml_message, "type").text = "ioclog"
+        ET.SubElement(xml_message, "eventTime").text = msg_time_str
 
         try:
             sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            sock.connect((self.ioclog_host, self.ioclog_port))
-            sock.sendall(xml)
+            sock.connect(IOCLOG_ADDR)
+            sock.sendall(ET.tostring(xml_message, "utf-8", "xml"))
         except Exception as err:
             print("Could not send message to IOC log: %s" % err)
         finally:
