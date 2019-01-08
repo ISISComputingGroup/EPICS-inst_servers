@@ -18,7 +18,7 @@ import unittest
 from BlockServer.core.ioc_control import IocControl
 from BlockServer.mocks.mock_procserv_utils import MockProcServWrapper
 from server_common.constants import IOCS_NOT_TO_STOP
-from mock import patch
+from mock import patch, MagicMock
 
 
 class TestIocControlSequence(unittest.TestCase):
@@ -94,3 +94,13 @@ class TestIocControlSequence(unittest.TestCase):
         self.assertFalse(self.ic.ioc_restart_pending("TESTIOC"))
         self.ic.restart_iocs(["TESTIOC"], reapply_auto=True)
         self.assertFalse(self.ic.ioc_restart_pending("TESTIOC"))
+
+    @patch("BlockServer.core.ioc_control.AlarmConfigLoader")
+    def test_WHEN_ioc_control_performed_on_alarm_THEN_alarm_server_not_reset(self, alarm_config_loader):
+        self.ic._perform_ioc_control(MagicMock(), "ALARM")
+        alarm_config_loader.restart_alarm_server.assert_not_called()
+
+    @patch("BlockServer.core.ioc_control.AlarmConfigLoader")
+    def test_WHEN_ioc_control_performed_on_other_ioc_THEN_alarm_server_not_reset(self, alarm_config_loader):
+        self.ic._perform_ioc_control(MagicMock(), "OTHER_IOC")
+        alarm_config_loader.restart_alarm_server.assert_called_once()

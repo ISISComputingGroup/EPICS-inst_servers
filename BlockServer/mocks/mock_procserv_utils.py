@@ -49,13 +49,6 @@ class MockProcServWrapper(object):
         else:
             return self.ps_status[ioc.lower()]
 
-    def ioc_exists(self, ioc):
-        try:
-            self.get_ioc_status(ioc)
-            return True
-        except:
-            return False
-
     def get_autorestart(self, ioc):
         return self.autorestart
 
