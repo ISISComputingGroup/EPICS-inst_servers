@@ -101,6 +101,6 @@ class TestIocControlSequence(unittest.TestCase):
         alarm_config_loader.restart_alarm_server.assert_not_called()
 
     @patch("BlockServer.core.ioc_control.AlarmConfigLoader")
-    def test_WHEN_ioc_control_performed_on_other_ioc_THEN_alarm_server_not_reset(self, alarm_config_loader):
+    def test_WHEN_ioc_control_performed_on_other_ioc_THEN_alarm_server_reset_once(self, alarm_config_loader):
         self.ic._perform_ioc_control(MagicMock(), "OTHER_IOC")
         alarm_config_loader.restart_alarm_server.assert_called_once()
