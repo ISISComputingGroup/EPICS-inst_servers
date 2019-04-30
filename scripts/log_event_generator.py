@@ -31,21 +31,8 @@ from ArchiverAccess.archive_time_period import ArchiveTimePeriod
 from ArchiverAccess.archiver_data_source import ArchiverDataSource
 from server_common.mysql_abstraction_layer import SQLAbstraction
 
-finish = False
-"""Finish the program"""
 
-
-def not_readonly(path):
-    """
-    Final function of the log
-    Args:
-        path: path of file
-
-    """
-    print("Created log file {}".format(path))
-
-
-def create_log(pv_values, time_period, filename, host="127.0.0.1"):
+def create_log(pv_names, time_period, filename, host="127.0.0.1"):
     """
     Create pv monitors based on the iocdatabase
 
@@ -57,12 +44,13 @@ def create_log(pv_values, time_period, filename, host="127.0.0.1"):
 
     with open(filename, "w") as log_file:
         log_file.write("Initial values\n")
-        for pv_name, val in zip(pv_values, archiver_data_source.initial_values(pv_values, time_period.start_time)):
+        for pv_name, val in zip(pv_names, archiver_data_source.initial_values(pv_names, time_period.start_time)):
             log_file.write("{}, {}\n".format(pv_name, val))
 
-        for time_stamp, index, value in archiver_data_source.changes_generator(pv_values, time_period):
+        log_file.write("Changes for time period\n")
+        for time_stamp, index, value in archiver_data_source.changes_generator(pv_names, time_period):
             time_stamp_as_str = time_stamp.strftime("%Y-%m-%dT%H:%M:%S.%f")
-            log_file.write("{}, {}, {}\n".format(time_stamp_as_str, pv_values[index], value))
+            log_file.write("{}, {}, {}\n".format(time_stamp_as_str, pv_names[index], value))
 
 
 if __name__ == '__main__':
@@ -81,8 +69,7 @@ if __name__ == '__main__':
     parser.add_argument("--default_field", default="VAL",
                         help="If the pv has no field add this field to it.")
 
-    parser.add_argument("pv_values", nargs="+",
-                        help="Each pv appearing in the data")
+    parser.add_argument("pv_names", nargs="+", help="Each pv appearing in the data")
 
     args = parser.parse_args()
 
@@ -94,4 +81,4 @@ if __name__ == '__main__':
 
     the_time_period = ArchiveTimePeriod(data_start_time, timedelta(seconds=args.delta_time), args.point_count)
 
-    create_log(args.pv_values, the_time_period, filename=args.filename, host=args.host)
+    create_log(args.pv_names, the_time_period, filename=args.filename, host=args.host)
