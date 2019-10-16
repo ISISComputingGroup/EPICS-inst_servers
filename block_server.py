@@ -26,7 +26,6 @@ sys.path.insert(0, os.path.abspath(os.environ["MYDIRBLOCK"]))
 from pcaspy import Driver, SimpleServer
 import argparse
 from threading import Thread, RLock
-from time import sleep
 import datetime
 from BlockServer.core.file_path_manager import FILEPATH_MANAGER
 from BlockServer.epics.gateway import Gateway
@@ -34,7 +33,7 @@ from BlockServer.core.active_config_holder import ActiveConfigHolder
 from BlockServer.core.inactive_config_holder import InactiveConfigHolder
 from server_common.channel_access_server import CAServer
 from server_common.utilities import compress_and_hex, dehex_and_decompress, print_and_log, set_logger, \
-    convert_to_json, convert_from_json, char_waveform
+    convert_to_json, convert_from_json, char_waveform, AccessGroups
 from BlockServer.core.macros import MACROS, BLOCKSERVER_PREFIX, BLOCK_PREFIX
 from server_common.pv_names import BlockserverPVNames
 from BlockServer.core.config_list_manager import ConfigListManager
@@ -59,26 +58,26 @@ from Queue import Queue
 
 # For documentation on these commands see the wiki
 initial_dbs = {
-    BlockserverPVNames.BLOCKNAMES: char_waveform(16000),
-    BlockserverPVNames.BLOCK_DETAILS: char_waveform(16000),
-    BlockserverPVNames.GROUPS: char_waveform(16000),
-    BlockserverPVNames.COMPS: char_waveform(16000),
-    BlockserverPVNames.LOAD_CONFIG: char_waveform(1000),
-    BlockserverPVNames.RELOAD_CURRENT_CONFIG: char_waveform(100),
-    BlockserverPVNames.START_IOCS: char_waveform(16000),
-    BlockserverPVNames.STOP_IOCS: char_waveform(1000),
-    BlockserverPVNames.RESTART_IOCS: char_waveform(1000),
-    BlockserverPVNames.CONFIGS: char_waveform(16000),
-    BlockserverPVNames.GET_CURR_CONFIG_DETAILS: char_waveform(64000),
+    BlockserverPVNames.BLOCKNAMES: char_waveform(16000, AccessGroups.READONLY),
+    BlockserverPVNames.BLOCK_DETAILS: char_waveform(16000, AccessGroups.READONLY),
+    BlockserverPVNames.GROUPS: char_waveform(16000, AccessGroups.READONLY),
+    BlockserverPVNames.COMPS: char_waveform(16000, AccessGroups.READONLY),
+    BlockserverPVNames.LOAD_CONFIG: char_waveform(1000, AccessGroups.DEFAULT),
+    BlockserverPVNames.RELOAD_CURRENT_CONFIG: char_waveform(100, AccessGroups.DEFAULT),
+    BlockserverPVNames.START_IOCS: char_waveform(16000, AccessGroups.DEFAULT),
+    BlockserverPVNames.STOP_IOCS: char_waveform(1000, AccessGroups.DEFAULT),
+    BlockserverPVNames.RESTART_IOCS: char_waveform(1000, AccessGroups.DEFAULT),
+    BlockserverPVNames.CONFIGS: char_waveform(16000, AccessGroups.READONLY),
+    BlockserverPVNames.GET_CURR_CONFIG_DETAILS: char_waveform(64000, AccessGroups.READONLY),
     BlockserverPVNames.SET_CURR_CONFIG_DETAILS: char_waveform(64000),
     BlockserverPVNames.SAVE_NEW_CONFIG: char_waveform(64000),
     BlockserverPVNames.SAVE_NEW_COMPONENT: char_waveform(64000),
-    BlockserverPVNames.SERVER_STATUS: char_waveform(1000),
+    BlockserverPVNames.SERVER_STATUS: char_waveform(1000, AccessGroups.READONLY),
     BlockserverPVNames.DELETE_CONFIGS: char_waveform(64000),
     BlockserverPVNames.DELETE_COMPONENTS: char_waveform(64000),
-    BlockserverPVNames.BLANK_CONFIG: char_waveform(64000),
-    BlockserverPVNames.ALL_COMPONENT_DETAILS: char_waveform(64000),
-    BlockserverPVNames.BANNER_DESCRIPTION: char_waveform(16000)
+    BlockserverPVNames.BLANK_CONFIG: char_waveform(64000, AccessGroups.READONLY),
+    BlockserverPVNames.ALL_COMPONENT_DETAILS: char_waveform(64000, AccessGroups.READONLY),
+    BlockserverPVNames.BANNER_DESCRIPTION: char_waveform(16000, AccessGroups.READONLY)
 }
 
 
@@ -131,12 +130,11 @@ class BlockServer(Driver):
 
         # Import data about all configs
         try:
-            self._config_list = ConfigListManager(self, SCHEMA_DIR, ConfigurationFileManager())
-        except Exception as err:
+            self._config_list = ConfigListManager(self, ConfigurationFileManager())
+        except Exception:
             print_and_log(
                 "Error creating inactive config list. Configuration list changes will not be stored " +
-                "in version control: %s " % str(err), "MINOR")
-            self._config_list = ConfigListManager(self, SCHEMA_DIR, ConfigurationFileManager())
+                "in version control: {}".format(traceback.format_exc()), "MINOR")
 
         # Start a background thread for handling write commands
         write_thread = Thread(target=self.consume_write_queue, args=())
@@ -511,12 +509,11 @@ class BlockServer(Driver):
             self.update_server_status(state)
             try:
                 cmd(*arg) if arg is not None else cmd()
-            except Exception as err:
+            except Exception:
                 print_and_log(
-                    "Error executing write queue command %s for state %s: %s" % (cmd.__name__, state, err.message),
-                    "MAJOR")
-                import traceback
-                traceback.print_exc()
+                    "Error executing write queue command {} for state {}: {}"
+                    .format(cmd.__name__, state, traceback.format_exc()), "MAJOR")
+
             self.update_server_status("")
 
     def get_blank_config(self):
@@ -558,18 +555,18 @@ class BlockServer(Driver):
             del manager.pvf[fullname]
             del self.pvDB[name]
 
-    def add_string_pv_to_db(self, name, count=1000):
+    def add_string_pv_to_db(self, name, count=1000, access_security_group=AccessGroups.DEFAULT):
         # Check name not already in PVDB and that a PV does not already exist
         if name not in manager.pvs[self.port]:
             try:
                 print_and_log("Adding PV {}".format(name))
-                new_pv = {name: char_waveform(count)}
+                new_pv = {name: char_waveform(count, access_security_group=access_security_group)}
                 self._cas.createPV(BLOCKSERVER_PREFIX, new_pv)
                 data = Data()
                 data.value = manager.pvs[self.port][name].info.value
                 self.pvDB[name] = data
-            except Exception as err:
-                print_and_log("Unable to add PV {}".format(name), "MAJOR")
+            except Exception:
+                print_and_log("Unable to add PV {} because:\n{}".format(name, traceback.format_exc()), "MAJOR")
 
 
 if __name__ == '__main__':
@@ -633,6 +630,10 @@ if __name__ == '__main__':
 
     print_and_log("BLOCKSERVER PREFIX = %s" % BLOCKSERVER_PREFIX)
     SERVER = SimpleServer()
+    SERVER.initAccessSecurityFile(
+        filename=os.path.join(MACROS["$(EPICS_KIT_ROOT)"], "support", "AccessSecurity", "master", "default.acf"),
+        P=MACROS["$(MYPVPREFIX)"]
+    )
     SERVER.createPV(BLOCKSERVER_PREFIX, initial_dbs)
     DRIVER = BlockServer(SERVER)
 
@@ -640,6 +641,6 @@ if __name__ == '__main__':
     while True:
         try:
             SERVER.process(0.1)
-        except Exception as err:
-            print_and_log(err, "MAJOR")
+        except Exception:
+            print_and_log(traceback.format_exc(), "MAJOR")
             break

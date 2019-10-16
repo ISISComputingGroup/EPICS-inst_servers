@@ -18,7 +18,7 @@ import unittest
 
 from BlockServer.core.config_list_manager import ConfigListManager, InvalidDeleteException
 from BlockServer.core.active_config_holder import ActiveConfigHolder
-from server_common.pv_names import BlockserverPVNames, prepend_blockserver
+from server_common.pv_names import prepend_blockserver
 from BlockServer.mocks.mock_block_server import MockBlockServer
 from BlockServer.core.inactive_config_holder import InactiveConfigHolder
 from BlockServer.core.constants import DEFAULT_COMPONENT
@@ -31,7 +31,6 @@ from BlockServer.mocks.mock_file_manager import MockConfigurationFileManager
 from server_common.utilities import create_pv_name
 
 CONFIG_PATH = "./test_configs/"
-SCHEMA_PATH = "./../../../../schema"
 
 GET_CONFIG_PV = ":GET_CONFIG_DETAILS"
 GET_COMPONENT_PV = ":GET_COMPONENT_DETAILS"
@@ -87,7 +86,7 @@ class TestInactiveConfigsSequence(unittest.TestCase):
     def setUp(self):
         self.bs = MockBlockServer()
         self.file_manager = MockConfigurationFileManager()
-        self.clm = ConfigListManager(self.bs, SCHEMA_PATH, self.file_manager)
+        self.clm = ConfigListManager(self.bs, self.file_manager)
 
     def tearDown(self):
         pass

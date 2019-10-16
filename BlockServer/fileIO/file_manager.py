@@ -269,21 +269,27 @@ class ConfigurationFileManager(object):
         """
         with open(file_path, 'w') as f:
             f.write(data)
-            return
 
-    def get_files_in_directory(self, path):
-        """Gets a list of the files in the specified folder
+    def get_subfolders_in_directory(self, path):
+        """
+        Gets a list of the subfolders in the specified folder. For example, in a folder structure like:
+
+        - configurations
+        -- CCR
+        --- meta.xml, iocs.xml, ...
+        -- Furnace
+        ---  meta.xml, iocs.xml, ...
+        -- Readme.txt
+
+        If this function is called with `configurations` as the path argument, it will return ["CCR", "Furnace"]
 
         Args:
-            path (string): The path of the folder
+            path (str): The path of the folder
 
         Returns:
-            list: the files in the folder
+            list[str]: the list of subfolders in the folder
         """
-        files = list()
-        if os.path.isdir(path):
-            files = [f for f in os.listdir(path) if os.path.isdir(os.path.join(path, f))]
-        return files
+        return [f for f in os.listdir(path) if os.path.isdir(os.path.join(path, f))] if os.path.isdir(path) else []
 
     @staticmethod
     def get_path(name, is_component):
@@ -291,7 +297,6 @@ class ConfigurationFileManager(object):
             path = os.path.abspath(FILEPATH_MANAGER.get_component_path(name))
         else:
             path = os.path.abspath(FILEPATH_MANAGER.get_config_path(name))
-
         return path
 
     @staticmethod

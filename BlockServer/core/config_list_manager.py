@@ -16,16 +16,18 @@
 
 import os
 import json
+import traceback
 from threading import RLock
+import six
 
 from BlockServer.core.file_path_manager import FILEPATH_MANAGER
 from BlockServer.core.macros import MACROS
 from BlockServer.core.inactive_config_holder import InactiveConfigHolder
-from server_common.utilities import print_and_log, compress_and_hex, create_pv_name, convert_to_json
+from server_common.utilities import print_and_log, compress_and_hex, create_pv_name, convert_to_json, AccessGroups
 from server_common.common_exceptions import MaxAttemptsExceededException
 from BlockServer.core.constants import DEFAULT_COMPONENT
 from server_common.pv_names import BlockserverPVNames
-from config_list_manager_exceptions import InvalidDeleteException
+from BlockServer.core.config_list_manager_exceptions import InvalidDeleteException
 
 
 class ConfigListManager(object):
@@ -35,34 +37,33 @@ class ConfigListManager(object):
         active_config_name (string): The name of the active configuration
         active_components (list): The names of the components in the active configuration
     """
-    def __init__(self, block_server, schema_folder, file_manager):
+    def __init__(self, block_server, file_manager):
         """Constructor.
 
         Args:
             block_server (block_server.BlockServer): A reference to the BlockServer itself
-            schema_folder (string): The location of the schemas for validation
             file_manager (ConfigurationFileManager): Deals with writing the config files
         """
 
-        self._config_metas = dict()
-        self._component_metas = dict()
-        self._comp_dependencies = dict()
+        self._config_metas = {}
+        self._component_metas = {}
+        self._comp_dependencies = {}
         self._bs = block_server
         self.active_config_name = ""
         self.active_components = []
-        self.all_components = dict()
+        self.all_components = {}
         self._lock = RLock()
-        self.schema_folder = schema_folder
         self.file_manager = file_manager
 
         self._conf_path = FILEPATH_MANAGER.config_dir
         self._comp_path = FILEPATH_MANAGER.component_dir
-        self._import_configs(self.schema_folder)
+        self._import_configs()
 
-    def _update_pv_value(self, fullname, data):
+    def _update_pv_value(self, fullname, data, protected=False):
         # First check PV exists if not create it
         if not self._bs.does_pv_exist(fullname):
-            self._bs.add_string_pv_to_db(fullname, 16000)
+            self._bs.add_string_pv_to_db(
+                fullname, 16000, access_security_group=AccessGroups.MANAGER if protected else AccessGroups.DEFAULT)
 
         self._bs.setParam(fullname, data)
         self._bs.updatePVs()
@@ -71,17 +72,22 @@ class ConfigListManager(object):
         self._bs.delete_pv_from_db(fullname)
 
     def _get_config_names(self):
-        return self._get_file_list(os.path.abspath(self._conf_path))
+        """
+        Gets the list of config names.
+
+        Returns:
+            list[str]: the list of config names
+        """
+        return self.file_manager.get_subfolders_in_directory(os.path.abspath(self._conf_path))
 
     def _get_component_names(self):
-        comp_list = self._get_file_list(os.path.abspath(self._comp_path))
-        l = list()
-        for cn in comp_list:
-            l.append(cn)
-        return l
+        """
+        Gets the list of component names.
 
-    def _get_file_list(self, path):
-        return self.file_manager.get_files_in_directory(path)
+        Returns:
+            list[str]: the list of component names
+        """
+        return self.file_manager.get_subfolders_in_directory(os.path.abspath(self._comp_path))
 
     def get_configs(self):
         """Returns all of the valid configurations, made up of those found on startup and those subsequently created.
@@ -89,7 +95,7 @@ class ConfigListManager(object):
         Returns:
             list : A list of available configurations
         """
-        configs_string = list()
+        configs_string = []
         for config in self._config_metas.values():
             configs_string.append(config.to_dict())
         return configs_string
@@ -100,13 +106,13 @@ class ConfigListManager(object):
         Returns:
             list : A list of available components
         """
-        comps = list()
-        for cn, cv in self._component_metas.iteritems():
+        comps = []
+        for cn, cv in six.iteritems(self._component_metas):
             if cn.lower() != DEFAULT_COMPONENT.lower():
                 comps.append(cv.to_dict())
         return comps
 
-    def _import_configs(self, schema_folder):
+    def _import_configs(self):
         # Create the pvs and get meta data
         config_list = self._get_config_names()
         comp_list = self._get_component_names()
@@ -114,12 +120,11 @@ class ConfigListManager(object):
         # Must load components first for them all to be known in dependencies
         for comp_name in comp_list:
             try:
-                path = FILEPATH_MANAGER.get_component_path(comp_name)
                 # load_config checks the schema
                 config = self.load_config(comp_name, True)
                 self.update_a_config_in_list(config, True)
-            except Exception as err:
-                print_and_log("Error in loading component: %s" % err, "MINOR")
+            except Exception:
+                print_and_log("Error in loading component {}: {}".format(comp_name, traceback.format_exc()), "MINOR")
 
         # Create default if it does not exist
         if DEFAULT_COMPONENT.lower() not in comp_list:
@@ -130,8 +135,8 @@ class ConfigListManager(object):
                 # load_config checks the schema
                 config = self.load_config(config_name)
                 self.update_a_config_in_list(config)
-            except Exception as err:
-                print_and_log("Error in loading config: %s" % err, "MINOR")
+            except Exception:
+                print_and_log("Error in loading config: {}".format(traceback.format_exc()), "MINOR")
 
     def load_config(self, name, is_component=False):
         """Loads an inactive configuration or component.
@@ -157,15 +162,28 @@ class ConfigListManager(object):
             pv_name = BlockserverPVNames.get_dependencies_pv(self._component_metas[name].pv)
             self._update_pv_value(pv_name, compress_and_hex(json.dumps(configs)))
 
+    def _is_protected(self, config):
+        """
+        Given the dictionary describing a configuration or component, return True if that configuration or component
+        is "protected".
+
+        Args:
+            config (dict): the configuration or component to check
+
+        Returns:
+            (bool) True if the config should be protected, False otherwise.
+        """
+        return str(config.get("isProtected", "false")).lower() == "true"
+
     def _update_config_pv(self, name, data):
         # Updates pvs with new data
         pv_name = BlockserverPVNames.get_config_details_pv(self._config_metas[name].pv)
-        self._update_pv_value(pv_name, compress_and_hex(json.dumps(data)))
+        self._update_pv_value(pv_name, compress_and_hex(json.dumps(data)), protected=self._is_protected(data))
 
     def _update_component_pv(self, name, data):
         # Updates pvs with new data
         pv_name = BlockserverPVNames.get_component_details_pv(self._component_metas[name].pv)
-        self._update_pv_value(pv_name, compress_and_hex(json.dumps(data)))
+        self._update_pv_value(pv_name, compress_and_hex(json.dumps(data)), protected=self._is_protected(data))
 
     def update(self, config, is_component=False):
         """Updates the PVs associated with a configuration
@@ -234,7 +252,7 @@ class ConfigListManager(object):
 
     def _remove_config_from_dependencies(self, config):
         # Remove old config from dependencies list
-        for comp, confs in self._comp_dependencies.iteritems():
+        for comp, confs in six.iteritems(self._comp_dependencies):
             if config in confs:
                 self._comp_dependencies[comp.lower()].remove(config)
                 self._update_component_dependencies_pv(comp.lower())

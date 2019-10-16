@@ -15,12 +15,14 @@
 # http://opensource.org/licenses/eclipse-1.0.php
 from abc import ABCMeta, abstractmethod
 
+import six
 
+
+@six.add_metaclass(ABCMeta)
 class OnTheFlyPvInterface(object):
     """ This is essentially an abstract base class to ensure that any class that needs to handle on-the-fly PVs
     implements all the correct methods.
     """
-    __metaclass__ = ABCMeta
 
     @abstractmethod
     def read_pv_exists(self, pv):
@@ -33,7 +35,6 @@ class OnTheFlyPvInterface(object):
         Returns:
             bool: Whether the PV exists for reading
         """
-        pass
 
     @abstractmethod
     def write_pv_exists(self, pv):
@@ -45,7 +46,6 @@ class OnTheFlyPvInterface(object):
         Returns:
             bool: Whether the PV exists for writing
         """
-        pass
 
     @abstractmethod
     def handle_pv_write(self, pv, data):
@@ -57,7 +57,6 @@ class OnTheFlyPvInterface(object):
             pv (string): The PV's name
             data (object): The value to write
         """
-        pass
 
     @abstractmethod
     def handle_pv_read(self, pv):
@@ -75,7 +74,6 @@ class OnTheFlyPvInterface(object):
     def update_monitors(self):
         """ Updates any monitors associated with the class.
         """
-        pass
 
     @abstractmethod
     def on_config_change(self, full_init=False):
@@ -86,4 +84,3 @@ class OnTheFlyPvInterface(object):
         Args:
             full_init (bool): Whether it is a full initialisation
         """
-        pass
