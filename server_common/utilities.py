@@ -22,7 +22,7 @@ import zlib
 import re
 import json
 from xml.etree import ElementTree
-from enum import Enum
+import enum
 
 from server_common.loggers.logger import Logger
 from server_common.common_exceptions import MaxAttemptsExceededException
@@ -41,7 +41,8 @@ class SEVERITY(object):
     MAJOR = "MAJOR"
 
 
-class AccessGroups(Enum):
+@enum.unique
+class AccessGroups(enum.Enum):
     """
     Access security groups to use when creating PVs
     """
@@ -61,7 +62,7 @@ def char_waveform(length, access_security_group=AccessGroups.DEFAULT):
     Return:
         (dict) The dictionary to add to the PVDB.
     """
-    return {'type': 'char', 'count': length, 'value': [0], "asg": str(access_security_group)}
+    return {'type': 'char', 'count': length, 'value': [0], "asg": access_security_group.value}
 
 
 def set_logger(logger):

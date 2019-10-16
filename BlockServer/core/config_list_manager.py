@@ -283,7 +283,7 @@ class ConfigListManager(object):
         with self._lock:
             # TODO: clean this up?
             print_and_log("Deleting: " + ', '.join(list(delete_list)), "INFO")
-            lower_delete_list = set([x.lower() for x in delete_list])
+            lower_delete_list = {x.lower() for x in delete_list}
             if not are_comps:
                 if self.active_config_name.lower() in lower_delete_list:
                     raise InvalidDeleteException("Cannot delete currently active configuration")

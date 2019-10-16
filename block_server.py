@@ -568,6 +568,11 @@ class BlockServer(Driver):
             except Exception:
                 print_and_log("Unable to add PV {} because:\n{}".format(name, traceback.format_exc()), "MAJOR")
 
+    def _recalculate_access_security_settings(self):
+        """
+        Calculates access security settings for each PV in pvdb.
+        """
+
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
