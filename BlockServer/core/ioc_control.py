@@ -33,24 +33,29 @@ class IocControl(object):
         """
         self._proc = ProcServWrapper(prefix)
 
+    def _perform_ioc_control(self, control_function, ioc):
+        """Performs an ioc control operation.
+        Args:
+            control_function: A reference to the function to perform.
+            ioc (str): The ioc to perform the function.
+        """
+        try:
+            control_function(ioc)
+            if ioc != "ALARM":
+                AlarmConfigLoader.restart_alarm_server(self)
+        except Exception as err:
+            print_and_log("Could not perform {} IOC {}: {}".format(control_function.__name__, ioc, str(err)), "MAJOR")
+
     def start_ioc(self, ioc):
         """Start an IOC.
 
         Args:
             ioc (string): The name of the IOC
         """
-        try:
-            self._proc.start_ioc(ioc)
-            if ioc != "ALARM":
-                AlarmConfigLoader.restart_alarm_server(self)
-        except Exception as err:
-            print_and_log("Could not start IOC %s: %s" % (ioc, str(err)), "MAJOR")
+        self._perform_ioc_control(self._proc.start_ioc, ioc)
 
     def restart_ioc(self, ioc, force=False):
         """Restart an IOC.
-
-        Note: restarting an IOC automatically sets the IOC to auto-restart, so it is neccessary to reapply the
-        previous auto-restart setting
 
         Args:
             ioc (string): The name of the IOC
@@ -59,13 +64,7 @@ class IocControl(object):
         # Check it is okay to stop it
         if not force and ioc.startswith(IOCS_NOT_TO_STOP):
             return
-        try:
-            auto = self._proc.get_autorestart(ioc)
-            self._proc.restart_ioc(ioc)
-            if ioc != "ALARM":
-                AlarmConfigLoader.restart_alarm_server(self)
-        except Exception as err:
-            print_and_log("Could not restart IOC %s: %s" % (ioc, str(err)), "MAJOR")
+        self._perform_ioc_control(self._proc.restart_ioc, ioc)
 
     def stop_ioc(self, ioc, force=False):
         """Stop an IOC.
@@ -77,12 +76,7 @@ class IocControl(object):
         # Check it is okay to stop it
         if not force and ioc.startswith(IOCS_NOT_TO_STOP):
             return
-        try:
-            self._proc.stop_ioc(ioc)
-            if ioc != "ALARM":
-                AlarmConfigLoader.restart_alarm_server(self)
-        except Exception as err:
-            print_and_log("Could not stop IOC %s: %s" % (ioc, str(err)), "MAJOR")
+        self._perform_ioc_control(self._proc.stop_ioc, ioc)
 
     def get_ioc_status(self, ioc):
         """Get the running status of an IOC.
