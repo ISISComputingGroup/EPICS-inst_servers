@@ -8,17 +8,19 @@ from parameterized import parameterized
 
 from server_common.autosave import AutosaveFile, FloatConversion, BoolConversion
 
+TEST_FILE = "test_file"
+
 TEMP_FOLDER = os.path.join("C:\\", "instrument", "var", "tmp", "autosave_tests")
 
 
 class TestAutosave(unittest.TestCase):
     def setUp(self):
-
+        self.tearDown()
         try:
             os.makedirs(TEMP_FOLDER)
         except:
             pass
-        self.autosave = AutosaveFile(service_name="unittests", file_name="test_file", folder=TEMP_FOLDER)
+        self.autosave = AutosaveFile(service_name="unittests", file_name=TEST_FILE, folder=TEMP_FOLDER)
 
     def test_GIVEN_no_existing_file_WHEN_get_parameter_from_autosave_THEN_default_returned(self):
         default = object()
@@ -45,7 +47,7 @@ class TestAutosave(unittest.TestCase):
             def autosave_convert_for_read(auto_save_value):
                 return [int(i) for i in auto_save_value.split(",")]
 
-        autosave = AutosaveFile(service_name="unittests", file_name="strat_test_file", folder=TEMP_FOLDER, conversion=Strategy())
+        autosave = AutosaveFile(service_name="unittests", file_name=TEST_FILE, folder=TEMP_FOLDER, conversion=Strategy())
         value = [1, 2]
         autosave.write_parameter("parameter_ab", value)
         self.assertEqual(autosave.read_parameter("parameter_ab", None), value)
@@ -65,7 +67,7 @@ class TestAutosave(unittest.TestCase):
         value = "string not a float"
         key = "parameter"
         autosave = AutosaveFile(service_name="unittests",
-                                file_name="test_file", folder=TEMP_FOLDER, conversion=FloatConversion())
+                                file_name=TEST_FILE, folder=TEMP_FOLDER, conversion=FloatConversion())
 
         autosave.write_parameter(key, value)
         result = autosave.read_parameter(key, None)
@@ -76,7 +78,7 @@ class TestAutosave(unittest.TestCase):
     def test_GIVEN_true_saved_as_bool_WHEN_get_parameter_from_autosave_THEN_value_returned_as_ture(self, value):
         key = "parameter"
         autosave = AutosaveFile(service_name="unittests",
-                                file_name="test_file", folder=TEMP_FOLDER, conversion=BoolConversion())
+                                file_name=TEST_FILE, folder=TEMP_FOLDER, conversion=BoolConversion())
 
         autosave.write_parameter(key, value)
         result = autosave.read_parameter(key, None)
@@ -87,7 +89,7 @@ class TestAutosave(unittest.TestCase):
         value = "string not a bool"
         key = "parameter"
         autosave = AutosaveFile(service_name="unittests",
-                                file_name="test_file", folder=TEMP_FOLDER, conversion=BoolConversion())
+                                file_name=TEST_FILE, folder=TEMP_FOLDER, conversion=BoolConversion())
 
         autosave.write_parameter(key, value)
         result = autosave.read_parameter(key, None)
