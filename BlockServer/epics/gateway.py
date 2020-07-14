@@ -31,8 +31,9 @@ EVALUATION ORDER ALLOW, DENY
 
 """
 
-# Alias e.g. INST:CS:SB:MyMotor:RC:INRANGE to INST:CS:MYMOTOR:RC:ENABLE
-RUNCONTROL_ALIAS = '{}\\(:RC.*\\)    ALIAS    {}{}\\1'
+# Alias e.g. INST:CS:SB:MyMotor:RC:INRANGE to INST:CS:MYMOTOR:RC:INRANGE
+# Also handle AC (alerts) and DC (device actions, such as LOQ fast shutter)
+RUNCONTROL_ALIAS = '{}\\(:[ADR]C:.*\\)    ALIAS    {}{}\\1'
 
 
 def build_block_alias_lines(full_block_pv, pv_suffix, underlying_pv, include_comments=True):
@@ -137,12 +138,16 @@ class Gateway(object):
 
         lines = build_block_alias_lines(full_block_pv, pv_suffix, underlying_pv)
         lines.append(RUNCONTROL_ALIAS.format(full_block_pv, self._control_sys_prefix, block_name.upper()))
+        lines.append('{}{}\\([.].*\\)    ALIAS    {}\\1'.format(self._control_sys_prefix, block_name.upper(), full_block_pv))
+        lines.append('{}{}    ALIAS    {}'.format(self._control_sys_prefix, block_name.upper(), full_block_pv))
 
         # Create a case insensitive alias so clients don't have to worry about getting case right
         if full_block_pv != full_block_pv.upper():
             lines.append("## Add full caps equivilant so clients need not be case sensitive")
             lines.extend(build_block_alias_lines(full_block_pv.upper(), pv_suffix, underlying_pv, False))
             lines.append(RUNCONTROL_ALIAS.format(full_block_pv.upper(), self._control_sys_prefix, block_name.upper()))
+            lines.append('{}{}\\([.].*\\)    ALIAS    {}\\1'.format(self._control_sys_prefix, block_name.upper(), full_block_pv))
+            lines.append('{}{}    ALIAS    {}'.format(self._control_sys_prefix, block_name.upper(), full_block_pv))
 
         lines.append("")  # New line to seperate out each block
         return lines
