@@ -35,6 +35,7 @@ from server_common.constants import IS_LINUX
 from server_common.pv_names import DatabasePVNames
 from server_common.loggers.logger import Logger
 
+# Use a dummy logger during tests as real logger requires log server
 set_logger(Logger())
 
 
