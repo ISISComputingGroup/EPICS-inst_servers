@@ -27,12 +27,15 @@ from DatabaseServer.database_server import DatabaseServer
 from server_common.mocks.mock_ca_server import MockCAServer
 from server_common.mocks.mock_ioc_data_source import MockIocDataSource, IOCS
 from server_common.test_modules.test_ioc_data import HIGH_PV_NAMES, MEDIUM_PV_NAMES, LOW_PV_NAMES, FACILITY_PV_NAMES
-from server_common.utilities import dehex_and_decompress
+from server_common.utilities import dehex_and_decompress, set_logger
 from DatabaseServer.mocks.mock_procserv_utils import MockProcServWrapper
 from server_common.ioc_data import IOCData
 from DatabaseServer.mocks.mock_exp_data import MockExpData
 from server_common.constants import IS_LINUX
 from server_common.pv_names import DatabasePVNames
+from server_common.loggers.logger import Logger
+
+set_logger(Logger())
 
 
 class TestDatabaseServer(unittest.TestCase):
