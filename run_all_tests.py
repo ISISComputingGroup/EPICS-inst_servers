@@ -36,15 +36,15 @@ DEFAULT_DIRECTORY = os.path.join('..', '..', '..', 'test-reports')
 
 @contextmanager
 def coverage_analysis():
-    cov = Coverage()
-    cov.start()
+    #cov = Coverage()
+    #cov.start()
     try:
         yield
     finally:
-        cov.stop()
-        cov.report()
+        #cov.stop()
+        #cov.report()
         print("------  SAVING COVERAGE REPORTS ------ ")
-        cov.xml_report(outfile=os.path.join(".", 'cobertura.xml'))
+        #cov.xml_report(outfile=os.path.join(".", 'cobertura.xml'))
 
 
 if __name__ == '__main__':
