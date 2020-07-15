@@ -33,7 +33,8 @@ EVALUATION ORDER ALLOW, DENY
 
 # Alias e.g. INST:CS:SB:MyMotor:RC:INRANGE to INST:CS:MYMOTOR:RC:INRANGE
 # Also handle AC (alerts) and DC (device actions, such as LOQ fast shutter)
-RUNCONTROL_ALIAS = '{}\\(:[ADR]C:.*\\)    ALIAS    {}\\1'
+MATCH_RUNCONTROL_SUFFIX = "\\(:[ADR]C:.*\\)"
+RUNCONTROL_ALIAS = '{}{}    ALIAS    {}\\1'.format("{}", MATCH_RUNCONTROL_SUFFIX, "{}")
 
 
 def build_block_alias_lines(full_block_pv, pv_suffix, underlying_pv, include_comments=True):
@@ -65,8 +66,6 @@ def build_block_alias_lines(full_block_pv, pv_suffix, underlying_pv, include_com
         # Pattern match is for picking up any any SP or SP:RBV
         lines.append('{}\\([.:].*\\)    ALIAS    {}\\1'.format(full_block_pv, underlying_pv))
     lines.append('{}    ALIAS    {}'.format(full_block_pv, underlying_pv))
-    lines.append("## Runcontrol settings should not be diverted to underlying PV")
-    lines.append(RUNCONTROL_ALIAS.format(full_block_pv, full_block_pv.upper()))
     return lines
 
 
@@ -139,11 +138,14 @@ class Gateway(object):
         full_block_pv = "{}{}".format(self._block_prefix, block_name)
 
         lines = build_block_alias_lines(full_block_pv, pv_suffix, underlying_pv)
+        lines.append("## Runcontrol settings should not be diverted to underlying PV")
+        lines.append("{}{}    DENY".format(full_block_pv.upper(), MATCH_RUNCONTROL_SUFFIX))
 
         # Create a case insensitive alias so clients don't have to worry about getting case right
         if full_block_pv != full_block_pv.upper():
             lines.append("## Add full caps equivilant so clients need not be case sensitive")
             lines.extend(build_block_alias_lines(full_block_pv.upper(), pv_suffix, underlying_pv, False))
+            lines.append(RUNCONTROL_ALIAS.format(full_block_pv, full_block_pv.upper()))
 
         lines.append("")  # New line to seperate out each block
         return lines
