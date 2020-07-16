@@ -51,7 +51,7 @@ MAX_LOOPS_TO_WAIT_FOR_START = 60  # roughly 2 minutes at standard time
 def create_db_load_string(block):
     load_record_string = 'dbLoadRecords("$(RUNCONTROL)/db/{file}.db", "{macros}")\n'
     return load_record_string.format(file="runcontrol",
-                                     macros="P=$(MYPVPREFIX),PV=$(MYPVPREFIX)CS:{}".format(block.name.upper()))
+                                     macros="P=$(MYPVPREFIX),PV=$(MYPVPREFIX)CS:SB:{}".format(block.name.upper()))
 
 
 class _RunControlAutoSaveHelper(object):
