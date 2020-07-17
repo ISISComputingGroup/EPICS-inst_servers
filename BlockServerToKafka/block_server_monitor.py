@@ -63,7 +63,8 @@ class BlockServerMonitor:
         """
         return f'{self.PVPREFIX}{BLOCK_PREFIX}{blk}'
 
-    def convert_to_string(self, pv_array):
+    @staticmethod
+    def convert_to_string(pv_array):
         """
         Convert from byte array to string and remove null characters.
 
@@ -76,7 +77,7 @@ class BlockServerMonitor:
             string : The string formed from the bytearray.
         """
 
-        return str(bytearray(pv_array)).replace("\x00", "")
+        return bytearray(pv_array).decode("utf-8").replace("\x00", "")
 
     def update_config(self, blocks):
         """
