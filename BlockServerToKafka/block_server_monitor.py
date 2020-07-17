@@ -39,7 +39,7 @@ class BlockServerMonitor:
         try:
             self.channel.searchw(self.address)
         except CaChannelException:
-            print_and_log("Unable to find pv {}".format(self.address))
+            print_and_log(f"Unable to find pv {self.address}")
             return
 
         # Create the CA monitor callback
@@ -61,7 +61,7 @@ class BlockServerMonitor:
         Returns:
             string : the associated PV name.
         """
-        return '{}{}{}'.format(self.PVPREFIX, BLOCK_PREFIX, blk)
+        return f'{self.PVPREFIX}{BLOCK_PREFIX}{blk}'
 
     def convert_to_string(self, pv_array):
         """
@@ -91,7 +91,7 @@ class BlockServerMonitor:
 
         pvs = [self.block_name_to_pv_name(blk) for blk in blocks]
         if pvs != self.last_pvs:
-            print_and_log("Configuration changed to: {}".format(pvs))
+            print_and_log(f"Configuration changed to: {pvs}")
             self.producer.remove_config(self.last_pvs)
             self.producer.add_config(pvs)
             self.last_pvs = pvs
