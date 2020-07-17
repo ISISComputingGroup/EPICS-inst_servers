@@ -45,9 +45,7 @@ class ProducerWrapper:
 
             if not self.topic_exists(self.topic, server):
                 print(
-                    "WARNING: topic {} does not exist. It will be created by default.".format(
-                        self.topic
-                    )
+                    f"WARNING: topic {self.topic} does not exist. It will be created by default."
                 )
         except KafkaException.args[0] == "_BROKER_NOT_AVAILABLE":
             print("No brokers found on server: " + server[0])
@@ -83,7 +81,7 @@ class ProducerWrapper:
             consumer.subscribe([topic_name])
             consumer.close()
         except KafkaException as e:
-            print("topic '{}' does not exist".format(topic_name))
+            print(f"topic '{topic_name}' does not exist")
             print(e)
             return False
         return True

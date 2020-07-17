@@ -41,7 +41,7 @@ if __name__ == '__main__':
     KAFKA_BROKER = args.broker
     PREFIX = args.pvprefix[0]
     producer = Producer(KAFKA_BROKER, KAFKA_CONFIG, KAFKA_DATA)
-    monitor = BlockServerMonitor("{}CS:BLOCKSERVER:BLOCKNAMES".format(PREFIX), PREFIX, producer)
+    monitor = BlockServerMonitor(f"{PREFIX}CS:BLOCKSERVER:BLOCKNAMES", PREFIX, producer)
 
     while True:
         sleep(0.1)
