@@ -13,71 +13,95 @@
 # along with this program; if not, you can obtain a copy from
 # https://www.eclipse.org/org/documents/epl-v10.php or
 # http://opensource.org/licenses/eclipse-1.0.php
-from forwarder_config import ForwarderConfig
-from kafka import KafkaProducer, errors, SimpleClient
-from server_common.utilities import print_and_log
+from .forwarderconfig import ForwarderConfig
+from confluent_kafka import Producer, Consumer, KafkaException
+import uuid
+from typing import List
+from streaming_data_types.fbschemas.forwarder_config_update_rf5k.Protocol import (
+    Protocol,
+)
 
 
-class Producer:
+class ProducerWrapper:
     """
     A wrapper class for the kafka producer.
     """
 
-    def __init__(self, servers, config_topic, data_topic):
+    def __init__(
+            self,
+            server: str,
+            config_topic: str,
+            data_topic: str,
+            epics_protocol: Protocol = Protocol.CA,
+    ):
         self.topic = config_topic
-        self.set_up_producer(servers)
-        self.converter = ForwarderConfig(r"//{}/{}".format(servers[0], data_topic))
+        self.converter = ForwarderConfig(data_topic, epics_protocol)
+        self._set_up_producer(server)
 
-    def set_up_producer(self, server):
+    def _set_up_producer(self, server: str):
+        conf = {"bootstrap.servers": server}
         try:
-            self.client = SimpleClient(server)
-            self.producer = KafkaProducer(bootstrap_servers=server)
-            if not self.topic_exists(self.topic):
-                print_and_log("WARNING: topic {} does not exist. It will be created by default.".format(self.topic))
-        except errors.NoBrokersAvailable:
-            print_and_log("No brokers found on server: " + server[0])
+            self.producer = Producer(**conf)
+
+            if not self.topic_exists(self.topic, server):
+                print(
+                    "WARNING: topic {} does not exist. It will be created by default.".format(
+                        self.topic
+                    )
+                )
+        except KafkaException.args[0] == "_BROKER_NOT_AVAILABLE":
+            print("No brokers found on server: " + server[0])
             quit()
-        except errors.ConnectionError:
-            print_and_log("No server found, connection error")
+        except KafkaException.args[0] == "_TIMED_OUT":
+            print("No server found, connection error")
             quit()
-        except errors.InvalidConfigurationError:
-            print_and_log("Invalid configuration")
+        except KafkaException.args[0] == "_INVALID_ARG":
+            print("Invalid configuration")
             quit()
-        except errors.InvalidTopicError:
-            print_and_log("Invalid topic, to enable auto creation of topics set"
-                          " auto.create.topics.enable to false in broker configuration")
+        except KafkaException.args[0] == "_UNKNOWN_TOPIC":
+            print(
+                "Invalid topic, to enable auto creation of topics set"
+                " auto.create.topics.enable to false in broker configuration"
+            )
             quit()
 
-    def add_config(self, pvs):
+    def add_config(self, pvs: List[str]):
         """
-        Creates a forwarder configuration to add more pvs to be monitored.
+        Create a forwarder configuration to add more pvs to be monitored.
 
-        Args:
-             pvs (list): A list of new PVs to add to the forwarder configuration.
-
-        Returns:
-            None.
+        :param pvs: A list of new PVs to add to the forwarder configuration.
         """
+        message_buffer = self.converter.create_forwarder_configuration(pvs)
+        self.producer.produce(self.topic, value=message_buffer)
+        self.producer.flush()
 
-        data = self.converter.create_forwarder_configuration(pvs)
-        print_and_log("Sending data {}".format(data))
-        self.producer.send(self.topic, bytes(data))
+    @staticmethod
+    def topic_exists(topic_name: str, server: str) -> bool:
+        conf = {"bootstrap.servers": server, "group.id": uuid.uuid4()}
+        consumer = Consumer(**conf)
+        try:
+            consumer.subscribe([topic_name])
+            consumer.close()
+        except KafkaException as e:
+            print("topic '{}' does not exist".format(topic_name))
+            print(e)
+            return False
+        return True
 
-    def topic_exists(self, topicname):
-        return topicname in self.client.topics
-
-    def remove_config(self, pvs):
+    def remove_config(self, pvs: List[str]):
         """
-        Creates a forwarder configuration to remove pvs that are being monitored.
+        Create a forwarder configuration to remove pvs that are being monitored.
 
-        Args:
-            pvs (list): A list of PVs to remove from the forwarder configuration.
-
-        Returns:
-            None.
+        :param pvs: A list of PVs to remove from the forwarder configuration.
         """
+        message_buffer = self.converter.remove_forwarder_configuration(pvs)
+        self.producer.produce(self.topic, value=message_buffer)
+        self.producer.flush()
 
-        data = self.converter.remove_forwarder_configuration(pvs)
-        for pv in data:
-            print_and_log("Sending data {}".format(data))
-            self.producer.send(self.topic, bytes(pv))
+    def stop_all_pvs(self):
+        """
+        Sends a stop_all command to the forwarder to clear all configuration.
+        """
+        message_buffer = self.converter.remove_all_forwarder_configuration()
+        self.producer.produce(self.topic, value=message_buffer)
+        self.producer.flush()
