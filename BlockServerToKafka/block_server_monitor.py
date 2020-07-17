@@ -48,7 +48,8 @@ class BlockServerMonitor:
             0,
             ca.DBE_VALUE,
             self.update,
-            None)
+            None,
+        )
         self.channel.pend_event()
 
     def block_name_to_pv_name(self, blk):
@@ -61,7 +62,7 @@ class BlockServerMonitor:
         Returns:
             string : the associated PV name.
         """
-        return f'{self.PVPREFIX}{BLOCK_PREFIX}{blk}'
+        return f"{self.PVPREFIX}{BLOCK_PREFIX}{blk}"
 
     @staticmethod
     def convert_to_string(pv_array):
@@ -110,8 +111,8 @@ class BlockServerMonitor:
         """
 
         with self.monitor_lock:
-            data = self.convert_to_string(epics_args['pv_value'])
-            data = dehex_and_decompress(data)
+            data = self.convert_to_string(epics_args["pv_value"])
+            data = dehex_and_decompress(bytes(data, encoding="utf-8"))
             blocks = json.loads(data)
 
             self.update_config(blocks)
