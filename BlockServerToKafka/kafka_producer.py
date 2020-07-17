@@ -14,12 +14,12 @@
 # https://www.eclipse.org/org/documents/epl-v10.php or
 # http://opensource.org/licenses/eclipse-1.0.php
 from BlockServerToKafka.forwarder_config import ForwarderConfig
-from confluent_kafka import Producer, Consumer, KafkaException
-import uuid
 from typing import List
 from streaming_data_types.fbschemas.forwarder_config_update_rf5k.Protocol import (
     Protocol,
 )
+from kafka import KafkaProducer, errors, KafkaConsumer
+from server_common.utilities import print_and_log
 
 
 class ProducerWrapper:
@@ -39,28 +39,23 @@ class ProducerWrapper:
         self._set_up_producer(server)
 
     def _set_up_producer(self, server: str):
-        conf = {"bootstrap.servers": server}
         try:
-            self.producer = Producer(**conf)
-
-            if not self.topic_exists(self.topic, server):
-                print(
-                    f"WARNING: topic {self.topic} does not exist. It will be created by default."
-                )
-        except KafkaException.args[0] == "_BROKER_NOT_AVAILABLE":
-            print("No brokers found on server: " + server[0])
+            self.client = KafkaConsumer(bootstrap_servers=server)
+            self.producer = KafkaProducer(bootstrap_servers=server)
+            if not self.topic_exists(self.topic):
+                print_and_log(f"WARNING: topic {self.topic} does not exist. It will be created by default.")
+        except errors.NoBrokersAvailable:
+            print_and_log(f"No brokers found on server: {server[0]}")
             quit()
-        except KafkaException.args[0] == "_TIMED_OUT":
-            print("No server found, connection error")
+        except errors.ConnectionError:
+            print_and_log("No server found, connection error")
             quit()
-        except KafkaException.args[0] == "_INVALID_ARG":
-            print("Invalid configuration")
+        except errors.InvalidConfigurationError:
+            print_and_log("Invalid configuration")
             quit()
-        except KafkaException.args[0] == "_UNKNOWN_TOPIC":
-            print(
-                "Invalid topic, to enable auto creation of topics set"
-                " auto.create.topics.enable to false in broker configuration"
-            )
+        except errors.InvalidTopicError:
+            print_and_log("Invalid topic, to enable auto creation of topics set"
+                          " auto.create.topics.enable to false in broker configuration")
             quit()
 
     def add_config(self, pvs: List[str]):
@@ -70,21 +65,10 @@ class ProducerWrapper:
         :param pvs: A list of new PVs to add to the forwarder configuration.
         """
         message_buffer = self.converter.create_forwarder_configuration(pvs)
-        self.producer.produce(self.topic, value=message_buffer)
-        self.producer.flush()
+        self.producer.send(self.topic, message_buffer)
 
-    @staticmethod
-    def topic_exists(topic_name: str, server: str) -> bool:
-        conf = {"bootstrap.servers": server, "group.id": uuid.uuid4()}
-        consumer = Consumer(**conf)
-        try:
-            consumer.subscribe([topic_name])
-            consumer.close()
-        except KafkaException as e:
-            print(f"topic '{topic_name}' does not exist")
-            print(e)
-            return False
-        return True
+    def topic_exists(self, topic_name: str) -> bool:
+        return topic_name in self.client.topics()
 
     def remove_config(self, pvs: List[str]):
         """
@@ -93,13 +77,11 @@ class ProducerWrapper:
         :param pvs: A list of PVs to remove from the forwarder configuration.
         """
         message_buffer = self.converter.remove_forwarder_configuration(pvs)
-        self.producer.produce(self.topic, value=message_buffer)
-        self.producer.flush()
+        self.producer.send(self.topic, message_buffer)
 
     def stop_all_pvs(self):
         """
         Sends a stop_all command to the forwarder to clear all configuration.
         """
         message_buffer = self.converter.remove_all_forwarder_configuration()
-        self.producer.produce(self.topic, value=message_buffer)
-        self.producer.flush()
+        self.producer.send(self.topic, message_buffer)
