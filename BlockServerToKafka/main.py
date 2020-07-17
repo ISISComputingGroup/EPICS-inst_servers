@@ -1,5 +1,5 @@
 # This file is part of the ISIS IBEX application.
-# Copyright (C) 2012-2016 Science & Technology Facilities Council.
+# Copyright (C) 2012-2020 Science & Technology Facilities Council.
 # All rights reserved.
 #
 # This program is distributed in the hope that it will be useful.
@@ -33,7 +33,7 @@ if __name__ == '__main__':
     parser.add_argument('-b', '--broker', help='Location of the Kafka brokers (host:port)', nargs='+', type=str,
                         default='sakura.isis.cclrc.ac.uk:9092')
     parser.add_argument('-p', '--pvprefix', help='PV Prefix of the block server', nargs=1, type=str,
-                        default=environ["MYPVPREFIX"])
+                        default="")
 
     args = parser.parse_args()
     KAFKA_DATA = args.data[0]
