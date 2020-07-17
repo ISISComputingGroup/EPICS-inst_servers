@@ -13,7 +13,7 @@
 # along with this program; if not, you can obtain a copy from
 # https://www.eclipse.org/org/documents/epl-v10.php or
 # http://opensource.org/licenses/eclipse-1.0.php
-from .forwarderconfig import ForwarderConfig
+from BlockServerToKafka.forwarder_config import ForwarderConfig
 from confluent_kafka import Producer, Consumer, KafkaException
 import uuid
 from typing import List
