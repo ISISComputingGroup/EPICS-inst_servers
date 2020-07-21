@@ -33,7 +33,7 @@ if __name__ == '__main__':
     parser.add_argument('-b', '--broker', help='Location of the Kafka brokers (host:port)', nargs='+', type=str,
                         default='sakura.isis.cclrc.ac.uk:9092')
     parser.add_argument('-p', '--pvprefix', help='PV Prefix of the block server', nargs=1, type=str,
-                        default="") #todo revert this to finding pv prefix from environment variables
+                        default=environ["MYPVPREFIX"])
 
     args = parser.parse_args()
     KAFKA_DATA = args.data[0]
