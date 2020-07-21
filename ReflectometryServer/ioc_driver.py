@@ -295,7 +295,7 @@ class IocDriver:
 
     def _on_recalc_correction(self, _):
         """
-        The engineering correction has changed so we should recalcuate the rbv and set point chacge based on
+        The engineering correction has changed so we should recalculate the rbv and set point change based on
         the last value
         """
         last_value = self._motor_axis.listener_last_value(ReadbackUpdate)

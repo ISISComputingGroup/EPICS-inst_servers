@@ -188,13 +188,13 @@ class Beamline:
         self._active_mode = None
         self._initialise_mode(modes)
 
-        # initialise drivers (mode must be initialised first because of mode dependent engineering correction
+        # initialise drivers (mode must be initialised first because of mode dependent engineering correction)
         for driver in self._drivers:
             driver.set_observe_mode_change_on(self)
             driver.initialise()
 
         # set whether incoming beam can change dependent on current mode. Must do this after autosave and init because
-        #  they will change the beam path
+        # they will change the beam path
         self._set_incoming_beam_can_change()
 
         STATUS_MANAGER.set_initialised()
@@ -302,7 +302,8 @@ class Beamline:
         return self._components[item]
 
     def get_param_names_in_mode(self):
-        """ Returns a list of the name of params in the current mode, in order.
+        """ 
+        Returns a list of the name of params in the current mode, in order.
         """
 
         param_names_in_mode = []

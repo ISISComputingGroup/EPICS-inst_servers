@@ -57,7 +57,7 @@ class TestEpicsGateway(unittest.TestCase):
         alias = "INST:BLOCK:MY_BLOCK"
         expected_lines = [[r"{}\([.:].*\)".format(alias), "ALIAS", "INST:MY_PV\\1"],
                           [alias, "ALIAS", "INST:MY_PV"],
-                          [r"{}\(:RC.*\)".format(alias), "ALIAS", "INST:CONTROL:{}\\1".format(blockname)]]
+                          [r"{}\(:[ADR]C:.*\)".format(alias), "DENY"]]
 
         lines = self.gateway.generate_alias(blockname, block_pv, True)
 
@@ -68,7 +68,7 @@ class TestEpicsGateway(unittest.TestCase):
         alias = "INST:BLOCK:MY_BLOCK"
         expected_lines = [[r"{}\([.:].*\)".format(alias), "ALIAS", "MY_PV\\1"],
                           [alias, "ALIAS", "MY_PV"],
-                          [r"{}\(:RC.*\)".format(alias), "ALIAS", "INST:CONTROL:{}\\1".format(blockname)]]
+                          [r"{}\(:[ADR]C:.*\)".format(alias), "DENY"]]
 
         lines = self.gateway.generate_alias(blockname, block_pv, False)
 
@@ -80,7 +80,7 @@ class TestEpicsGateway(unittest.TestCase):
         expected_lines = [[r"{}\([.:].*\)".format(alias), "ALIAS", "INST:MY_PV\\1"],
                           ["{}[.]VAL".format(alias), "ALIAS", "INST:MY_PV.EGU"],
                           [alias, "ALIAS", "INST:MY_PV.EGU"],
-                          [r"{}\(:RC.*\)".format(alias), "ALIAS", "INST:CONTROL:{}\\1".format(blockname)]]
+                          [r"{}\(:[ADR]C:.*\)".format(alias), "DENY"]]
 
         lines = self.gateway.generate_alias(blockname, block_pv, True)
 
@@ -92,7 +92,7 @@ class TestEpicsGateway(unittest.TestCase):
         expected_lines = [[r"{}\([.:].*\)".format(alias), "ALIAS", "MY_PV\\1"],
                           ["{}[.]VAL".format(alias), "ALIAS", "MY_PV.RBV"],
                           [alias, "ALIAS", "MY_PV.RBV"],
-                          [r"{}\(:RC.*\)".format(alias), "ALIAS", "INST:CONTROL:{}\\1".format(blockname)]]
+                          [r"{}\(:[ADR]C:.*\)".format(alias), "DENY"]]
 
         lines = self.gateway.generate_alias(blockname, block_pv, False)
 
@@ -103,7 +103,7 @@ class TestEpicsGateway(unittest.TestCase):
         alias = "INST:BLOCK:MY_BLOCK"
         expected_lines = [[r"{}\(:SP\)?\([.:].*\)".format(alias), "ALIAS", "INST:MY_PV:SP\\2"],
                           [r"{}\(:SP\)?".format(alias), "ALIAS", "INST:MY_PV:SP"],
-                          [r"{}\(:RC.*\)".format(alias), "ALIAS", "INST:CONTROL:{}\\1".format(blockname.upper())]]
+                          [r"{}\(:[ADR]C:.*\)".format(alias), "DENY"]]
 
         lines = self.gateway.generate_alias(blockname, block_pv, True)
 
@@ -114,7 +114,7 @@ class TestEpicsGateway(unittest.TestCase):
         alias = "INST:BLOCK:MY_BLOCK"
         expected_lines = [[r"{}\(:SP\)?\([.:].*\)".format(alias), "ALIAS", "MY_PV:SP\\2"],
                           [r"{}\(:SP\)?".format(alias), "ALIAS", "MY_PV:SP"],
-                          [r"{}\(:RC.*\)".format(alias), "ALIAS", "INST:CONTROL:{}\\1".format(blockname.upper())]]
+                          [r"{}\(:[ADR]C:.*\)".format(alias), "DENY"]]
 
         lines = self.gateway.generate_alias(blockname, block_pv, False)
 
@@ -125,7 +125,7 @@ class TestEpicsGateway(unittest.TestCase):
         alias = "INST:BLOCK:MY_BLOCK"
         expected_lines = [[r"{}\([.:].*\)".format(alias), "ALIAS", "MY_TEST\\1"],
                           ["{}".format(alias), "ALIAS", "MY_TEST"],
-                          [r"{}\(:RC.*\)".format(alias), "ALIAS", "INST:CONTROL:{}\\1".format(blockname)]]
+                          [r"{}\(:[ADR]C:.*\)".format(alias), "DENY"]]
 
         lines = self.gateway.generate_alias(blockname, block_pv, False)
 
@@ -136,11 +136,12 @@ class TestEpicsGateway(unittest.TestCase):
         alias = "INST:BLOCK:My_Block"
         expected_lines = [[r"{}\([.:].*\)".format(alias), "ALIAS", "MY_PV\\1"],
                           [alias, "ALIAS", "MY_PV"],
-                          [r"{}\(:RC.*\)".format(alias), "ALIAS", "INST:CONTROL:{}\\1".format(blockname.upper())],
+                          [r"{}\(:[ADR]C:.*\)".format(alias.upper()), "DENY"],
                           [r"{}\([.:].*\)".format(alias.upper()), "ALIAS", "MY_PV\\1"],
                           [alias.upper(), "ALIAS", "MY_PV"],
-                          [r"{}\(:RC.*\)".format(alias.upper()), "ALIAS", "INST:CONTROL:{}\\1".format(blockname.upper())]]
+                          [r"{}\(:[ADR]C:.*\)".format(alias), "ALIAS", "INST:BLOCK:{}\\1".format(blockname.upper())]]
 
         lines = self.gateway.generate_alias(blockname, block_pv, False)
 
         self._assert_lines_correct(lines, expected_lines)
+
