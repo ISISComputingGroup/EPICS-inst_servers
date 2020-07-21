@@ -17,4 +17,4 @@ if "%ISIS_INSTRUMENT%" == "1" (
     set BROKER=tenten.isis.cclrc.ac.uk
 )
 
-%PYTHON3% %MYDIRCD%\BlockServerToKafka\main.py -d %INSTRUMENT%_sampleEnv -c forwarder_config -b %BROKER%:9092 -p %MYPVPREFIX%
+%PYTHON3W% %MYDIRCD%\BlockServerToKafka\main.py -d %INSTRUMENT%_sampleEnv -c forwarder_config -b %BROKER%:9092 -p %MYPVPREFIX%
