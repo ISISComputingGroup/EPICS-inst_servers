@@ -1,5 +1,5 @@
 # This file is part of the ISIS IBEX application.
-# Copyright (C) 2012-2016 Science & Technology Facilities Council.
+# Copyright (C) 2012-2020 Science & Technology Facilities Council.
 # All rights reserved.
 #
 # This program is distributed in the hope that it will be useful.
@@ -39,7 +39,7 @@ class BlockServerMonitor:
         try:
             self.channel.searchw(self.address)
         except CaChannelException:
-            print_and_log("Unable to find pv {}".format(self.address))
+            print_and_log(f"Unable to find pv {self.address}")
             return
 
         # Create the CA monitor callback
@@ -48,7 +48,8 @@ class BlockServerMonitor:
             0,
             ca.DBE_VALUE,
             self.update,
-            None)
+            None,
+        )
         self.channel.pend_event()
 
     def block_name_to_pv_name(self, blk):
@@ -61,9 +62,10 @@ class BlockServerMonitor:
         Returns:
             string : the associated PV name.
         """
-        return '{}{}{}'.format(self.PVPREFIX, BLOCK_PREFIX, blk)
+        return f"{self.PVPREFIX}{BLOCK_PREFIX}{blk}"
 
-    def convert_to_string(self, pv_array):
+    @staticmethod
+    def convert_to_string(pv_array):
         """
         Convert from byte array to string and remove null characters.
 
@@ -76,7 +78,7 @@ class BlockServerMonitor:
             string : The string formed from the bytearray.
         """
 
-        return str(bytearray(pv_array)).replace("\x00", "")
+        return bytearray(pv_array).decode("utf-8").replace("\x00", "")
 
     def update_config(self, blocks):
         """
@@ -91,7 +93,7 @@ class BlockServerMonitor:
 
         pvs = [self.block_name_to_pv_name(blk) for blk in blocks]
         if pvs != self.last_pvs:
-            print_and_log("Configuration changed to: {}".format(pvs))
+            print_and_log(f"Configuration changed to: {pvs}")
             self.producer.remove_config(self.last_pvs)
             self.producer.add_config(pvs)
             self.last_pvs = pvs
@@ -109,8 +111,8 @@ class BlockServerMonitor:
         """
 
         with self.monitor_lock:
-            data = self.convert_to_string(epics_args['pv_value'])
-            data = dehex_and_decompress(data)
+            data = self.convert_to_string(epics_args["pv_value"])
+            data = dehex_and_decompress(bytes(data, encoding="utf-8"))
             blocks = json.loads(data)
 
             self.update_config(blocks)
