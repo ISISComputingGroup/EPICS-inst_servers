@@ -1,4 +1,3 @@
-from builtins import object
 from collections import namedtuple
 
 from hamcrest import *
