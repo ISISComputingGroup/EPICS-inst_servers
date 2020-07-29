@@ -1,5 +1,5 @@
 # This file is part of the ISIS IBEX application.
-# Copyright (C) 2012-2016 Science & Technology Facilities Council.
+# Copyright (C) 2012-2020 Science & Technology Facilities Council.
 # All rights reserved.
 #
 # This program is distributed in the hope that it will be useful.
@@ -13,79 +13,39 @@
 # along with this program; if not, you can obtain a copy from
 # https://www.eclipse.org/org/documents/epl-v10.php or
 # http://opensource.org/licenses/eclipse-1.0.php
-import json
+from streaming_data_types.forwarder_config_update_rf5k import serialise_rf5k, StreamInfo
+from streaming_data_types.fbschemas.forwarder_config_update_rf5k.Protocol import (
+    Protocol,
+)
+from streaming_data_types.fbschemas.forwarder_config_update_rf5k.UpdateType import (
+    UpdateType,
+)
+from typing import List
 
 
 class ForwarderConfig:
     """
-    Class that converts the pv information to a forwarder config.
+    Class that converts the pv information to a forwarder config message payload
     """
 
-    def __init__(self, topic, using_v4=False, schema="f142"):
+    def __init__(
+        self, topic: str, epics_protocol: Protocol = Protocol.CA, schema: str = "f142"
+    ):
         self.schema = schema
         self.topic = topic
-        self.using_v4 = using_v4
+        self.epics_protocol = epics_protocol
 
-    def _get_converter(self):
-        """
-        Gets the flatbuffers schema and the topic it's being applied to.
+    def _create_streams(self, pvs: List[str]) -> List[StreamInfo]:
+        return [
+            StreamInfo(pv, self.schema, self.topic, self.epics_protocol) for pv in pvs
+        ]
 
-        Returns:
-              dict: The dictionary of the schema and topic for the flatbuffers converter.
-        """
+    def create_forwarder_configuration(self, pvs: List[str]) -> bytes:
+        return serialise_rf5k(UpdateType.ADD, self._create_streams(pvs))
 
-        return {"schema": self.schema, "topic": self.topic}
+    def remove_forwarder_configuration(self, pvs: List[str]) -> bytes:
+        return serialise_rf5k(UpdateType.REMOVE, self._create_streams(pvs))
 
-    def _create_stream(self, blk):
-        """
-        Creates a stream for the JSON for specified block.
-
-        Args:
-            blk(string): The block containing the PV data.
-
-        Returns:
-             dict: The stream information including channel and flatbuffer encoding.
-        """
-
-        return {
-            "channel": blk,
-            "converter": self._get_converter(),
-            "channel_provider_type": "pva" if self.using_v4 else "ca"
-        }
-
-    def create_forwarder_configuration(self, pvs):
-        """
-        Add all specified PVs and return JSON string.
-
-        Args:
-            pvs (list): The PVs in all blocks.
-
-        Returns:
-            string: The JSON configuration string.
-        """
-
-        output_dict = {
-            "cmd": "add",
-            "streams": [self._create_stream(pv) for pv in pvs]
-        }
-        return json.dumps(output_dict)
-
-    def remove_forwarder_configuration(self, pvs):
-        """
-        Removes old forwarder configuration with the stop_channel command.
-
-        Args:
-            pvs (list): All PVs to be removed.
-
-        Returns:
-            list: A list of json strings with all PVs to remove.
-        """
-
-        output_list = []
-        for pv in pvs:
-            out_dict = {
-                "cmd": "stop_channel",
-                "channel": pv
-            }
-            output_list.append(json.dumps(out_dict))
-        return output_list
+    @staticmethod
+    def remove_all_forwarder_configuration() -> bytes:
+        return serialise_rf5k(UpdateType.REMOVEALL, [])

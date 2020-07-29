@@ -1,5 +1,5 @@
 # This file is part of the ISIS IBEX application.
-# Copyright (C) 2012-2016 Science & Technology Facilities Council.
+# Copyright (C) 2012-2020 Science & Technology Facilities Council.
 # All rights reserved.
 #
 # This program is distributed in the hope that it will be useful.
@@ -13,29 +13,39 @@
 # along with this program; if not, you can obtain a copy from
 # https://www.eclipse.org/org/documents/epl-v10.php or
 # http://opensource.org/licenses/eclipse-1.0.php
-from forwarder_config import ForwarderConfig
-from kafka import KafkaProducer, errors, SimpleClient
+from BlockServerToKafka.forwarder_config import ForwarderConfig
+from typing import List
+from streaming_data_types.fbschemas.forwarder_config_update_rf5k.Protocol import (
+    Protocol,
+)
+from kafka import KafkaProducer, errors, KafkaConsumer
 from server_common.utilities import print_and_log
 
 
-class Producer:
+class ProducerWrapper:
     """
     A wrapper class for the kafka producer.
     """
 
-    def __init__(self, servers, config_topic, data_topic):
+    def __init__(
+            self,
+            server: str,
+            config_topic: str,
+            data_topic: str,
+            epics_protocol: Protocol = Protocol.CA,
+    ):
         self.topic = config_topic
-        self.set_up_producer(servers)
-        self.converter = ForwarderConfig(r"//{}/{}".format(servers[0], data_topic))
+        self.converter = ForwarderConfig(data_topic, epics_protocol)
+        self._set_up_producer(server)
 
-    def set_up_producer(self, server):
+    def _set_up_producer(self, server: str):
         try:
-            self.client = SimpleClient(server)
+            self.client = KafkaConsumer(bootstrap_servers=server)
             self.producer = KafkaProducer(bootstrap_servers=server)
             if not self.topic_exists(self.topic):
-                print_and_log("WARNING: topic {} does not exist. It will be created by default.".format(self.topic))
+                print_and_log(f"WARNING: topic {self.topic} does not exist. It will be created by default.")
         except errors.NoBrokersAvailable:
-            print_and_log("No brokers found on server: " + server[0])
+            print_and_log(f"No brokers found on server: {server[0]}")
             quit()
         except errors.ConnectionError:
             print_and_log("No server found, connection error")
@@ -48,36 +58,30 @@ class Producer:
                           " auto.create.topics.enable to false in broker configuration")
             quit()
 
-    def add_config(self, pvs):
+    def add_config(self, pvs: List[str]):
         """
-        Creates a forwarder configuration to add more pvs to be monitored.
+        Create a forwarder configuration to add more pvs to be monitored.
 
-        Args:
-             pvs (list): A list of new PVs to add to the forwarder configuration.
-
-        Returns:
-            None.
+        :param pvs: A list of new PVs to add to the forwarder configuration.
         """
+        message_buffer = self.converter.create_forwarder_configuration(pvs)
+        self.producer.send(self.topic, message_buffer)
 
-        data = self.converter.create_forwarder_configuration(pvs)
-        print_and_log("Sending data {}".format(data))
-        self.producer.send(self.topic, bytes(data))
+    def topic_exists(self, topic_name: str) -> bool:
+        return topic_name in self.client.topics()
 
-    def topic_exists(self, topicname):
-        return topicname in self.client.topics
-
-    def remove_config(self, pvs):
+    def remove_config(self, pvs: List[str]):
         """
-        Creates a forwarder configuration to remove pvs that are being monitored.
+        Create a forwarder configuration to remove pvs that are being monitored.
 
-        Args:
-            pvs (list): A list of PVs to remove from the forwarder configuration.
-
-        Returns:
-            None.
+        :param pvs: A list of PVs to remove from the forwarder configuration.
         """
+        message_buffer = self.converter.remove_forwarder_configuration(pvs)
+        self.producer.send(self.topic, message_buffer)
 
-        data = self.converter.remove_forwarder_configuration(pvs)
-        for pv in data:
-            print_and_log("Sending data {}".format(data))
-            self.producer.send(self.topic, bytes(pv))
+    def stop_all_pvs(self):
+        """
+        Sends a stop_all command to the forwarder to clear all configuration.
+        """
+        message_buffer = self.converter.remove_all_forwarder_configuration()
+        self.producer.send(self.topic, message_buffer)

@@ -3,6 +3,7 @@ Classes used by configuration for easy import
 """
 import six
 
+
 if six.PY2:
     print("Reflectometry IOC can not be run in python 2!!")
 else:
