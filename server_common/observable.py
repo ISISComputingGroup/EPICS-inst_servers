@@ -35,15 +35,29 @@ def observable(*allowed_listener_types):
         Returns: class
         """
 
-        def _add_listener(self, listener_type, listener):
+        def _add_listener(self, listener_type, listener, run_listener=False):
             """
             Add a listener of the given type to this class
             Args:
                 self: instance of the class
                 listener_type: the type of listener
                 listener: listener to add
+                run_listener: if the last value is set then run the listener just added with it
             """
-            _get_listeners_info(self, listener_type).listeners.add(listener)
+            info = _get_listeners_info(self, listener_type)
+            info.listeners.add(listener)
+            if run_listener and info.last_value is not None:
+                listener(info.last_value)
+
+        def _remove_listener(self, listener_type, listener):
+            """
+            Remove a listener of the given type from this class
+            Args:
+                self: instance of the class
+                listener_type: the type of listener
+                listener: listener to remove
+            """
+            _get_listeners_info(self, listener_type).listeners.remove(listener)
 
         def _add_pre_trigger_function(self, listener_type, pre_trigger_function):
             """
@@ -112,6 +126,9 @@ def observable(*allowed_listener_types):
 
         # add the method which allows observers of the class to add their listeners to it
         setattr(cls, "add_listener", _add_listener)
+
+        # add the method which allows observers of the class to remove their listeners
+        setattr(cls, "remove_listener", _remove_listener)
 
         # add the method which triggers all the listeners
         setattr(cls, "trigger_listeners", _trigger_listeners)

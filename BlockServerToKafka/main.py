@@ -1,5 +1,5 @@
 # This file is part of the ISIS IBEX application.
-# Copyright (C) 2012-2016 Science & Technology Facilities Council.
+# Copyright (C) 2012-2020 Science & Technology Facilities Council.
 # All rights reserved.
 #
 # This program is distributed in the hope that it will be useful.
@@ -21,7 +21,7 @@ from argparse import ArgumentParser
 from BlockServerToKafka.block_server_monitor import BlockServerMonitor
 from time import sleep
 from os import environ
-from BlockServerToKafka.kafka_producer import Producer
+from BlockServerToKafka.kafka_producer import ProducerWrapper
 
 if __name__ == '__main__':
     parser = ArgumentParser()
@@ -40,8 +40,8 @@ if __name__ == '__main__':
     KAFKA_CONFIG = args.config[0]
     KAFKA_BROKER = args.broker
     PREFIX = args.pvprefix[0]
-    producer = Producer(KAFKA_BROKER, KAFKA_CONFIG, KAFKA_DATA)
-    monitor = BlockServerMonitor("{}CS:BLOCKSERVER:BLOCKNAMES".format(PREFIX), PREFIX, producer)
+    producer = ProducerWrapper(KAFKA_BROKER, KAFKA_CONFIG, KAFKA_DATA)
+    monitor = BlockServerMonitor(f"{PREFIX}CS:BLOCKSERVER:BLOCKNAMES", PREFIX, producer)
 
     while True:
         sleep(0.1)

@@ -1,3 +1,4 @@
+import json
 import os
 import sys
 
@@ -25,3 +26,14 @@ def register_ioc_start(ioc_name, pv_database=None, prefix=None):
         ioc_data_source.insert_ioc_start(ioc_name, os.getpid(), exepath, pv_database, prefix)
     except Exception as e:
         print_and_log("Error registering ioc start: {}: {}".format(e.__class__.__name__, e), SEVERITY.MAJOR)
+
+
+def get_macro_values():
+    """
+    Parse macro environment JSON into dict. To make this work use the icpconfigGetMacros program.
+
+    Returns: Macro Key:Value pairs as dict
+    """
+    macros = json.loads(os.environ.get("REFL_MACROS", ""))
+    macros = {key: value for (key, value) in macros.items()}
+    return macros
