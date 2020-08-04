@@ -8,7 +8,7 @@ from genie_python.genie_startup import *
 
 import pv_server
 import render
-from configurations import config_zoom as config
+from configurations import config_sans2d_tank as config
 from collide import collide, CollisionDetector
 from geometry import GeometryBox
 from move import move_all
