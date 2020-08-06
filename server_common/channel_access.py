@@ -1,9 +1,6 @@
 from __future__ import absolute_import, print_function, unicode_literals, division
 from time import sleep
 
-"""
-Make channel access not dependent on genie_python.
-"""
 # This file is part of the ISIS IBEX application.
 # Copyright (C) 2012-2016 Science & Technology Facilities Council.
 # All rights reserved.
@@ -19,8 +16,6 @@ Make channel access not dependent on genie_python.
 # along with this program; if not, you can obtain a copy from
 # https://www.eclipse.org/org/documents/epl-v10.php or
 # http://opensource.org/licenses/eclipse-1.0.php
-from enum import Enum
-
 from BlockServer.core.macros import MACROS
 from server_common.utilities import print_and_log
 from concurrent.futures import ThreadPoolExecutor
@@ -55,17 +50,20 @@ except ImportError:
 try:
     from genie_python.genie_cachannel_wrapper import AlarmSeverity, AlarmCondition as AlarmStatus
 except ImportError:
-    class AlarmSeverity(Enum):
+    from enum import IntEnum
+
+
+    class AlarmSeverity(IntEnum):
         """
         Enum for severity of alarm
         """
         No = 0
         Minor = 1
         Major = 2
-        invalid = 3
+        Invalid = 3
 
 
-    class AlarmStatus(Enum):
+    class AlarmStatus(IntEnum):
         """
         Enum for status of alarm
         """
