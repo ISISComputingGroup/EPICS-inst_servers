@@ -59,6 +59,10 @@ from Queue import Queue
 
 CURR_CONFIG_NAME_SEVR_VALUE = 0
 
+# This IOC gets special treatment as it needs to be reloaded on every single config change, regardless of whether
+# it's macros have changed or not. For details see https://github.com/ISISComputingGroup/IBEX/issues/5590
+CAEN_DISCRIMINATOR_IOC_NAME = "CAENV895_01"
+
 # For documentation on these commands see the wiki
 initial_dbs = {
     BlockserverPVNames.BLOCKNAMES: char_waveform(16000),
@@ -341,7 +345,18 @@ class BlockServer(Driver):
         self._ioc_control.stop_iocs(iocs_to_stop)
 
         if full_init or any(len(x) > 0 for x in (iocs_to_start, iocs_to_stop, iocs_to_restart)):
-            self._stop_iocs_and_start_config_iocs(iocs_to_start, iocs_to_restart)
+            self._stop_iocs_and_start_config_iocs()
+        elif CAEN_DISCRIMINATOR_IOC_NAME in self._active_configserver.get_ioc_names():
+            # See https://github.com/ISISComputingGroup/IBEX/issues/5590 for justification of why this ioc gets
+            # special treatment.
+            ioc = self._active_configserver.get_all_ioc_details()[CAEN_DISCRIMINATOR_IOC_NAME]
+            if ioc.autostart:
+                print_and_log("{} present in configuration and set to autostart - restarting it"
+                              .format(CAEN_DISCRIMINATOR_IOC_NAME))
+                if self._ioc_control.get_ioc_status(CAEN_DISCRIMINATOR_IOC_NAME) == "RUNNING":
+                    self._ioc_control.restart_iocs([CAEN_DISCRIMINATOR_IOC_NAME], reapply_auto=True)
+                else:
+                    self.start_iocs([CAEN_DISCRIMINATOR_IOC_NAME])
 
         # Set up the gateway
         if self._active_configserver.blocks_changed() or full_init:
@@ -362,7 +377,7 @@ class BlockServer(Driver):
         # Update Web Server text
         self.server.set_config(convert_to_json(self._active_configserver.get_config_details()))
 
-    def _stop_iocs_and_start_config_iocs(self, iocs_to_start, iocs_to_restart):
+    def _stop_iocs_and_start_config_iocs(self):
         """ Stop all IOCs and start the IOCs that are part of the configuration."""
         # iocs_to_start, iocs_to_restart are not used at the moment, but longer term they could be used
         # for only restarting IOCs for which the setting have changed.
