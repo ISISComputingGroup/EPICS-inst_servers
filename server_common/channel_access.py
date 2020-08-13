@@ -195,7 +195,6 @@ class ChannelAccess(object):
         current_value = None
         for _ in range(retry_count):
             ChannelAccess.caput(pv_name, value, wait=True)
-            sleep(0.2)
             current_value = ChannelAccess.caget(pv_name)
             if current_value == value:
                 break
