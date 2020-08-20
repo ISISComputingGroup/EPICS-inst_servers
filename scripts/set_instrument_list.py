@@ -129,6 +129,7 @@ if __name__ == "__main__":
         inst_dictionary("EMU"),
         inst_dictionary("INTER"),
         inst_dictionary("POLREF"),
+        inst_dictionary("SANS2D"),
     ]
 
     set_instlist(instruments_list, pv_address) 
