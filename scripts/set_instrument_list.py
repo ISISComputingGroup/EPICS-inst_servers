@@ -172,5 +172,20 @@ if __name__ == "__main__":
         inst_dictionary("SANS2D"),
         inst_dictionary("LARMOR"),
     ]
-    set_instlist(instruments_list, pv_address) 
+    set_instlist(instruments_list, pv_address)
 
+    pv_address = "CS:INSTLIST:MOLSPEC"
+    instruments_list = [
+        inst_dictionary("IRIS"),
+        inst_dictionary("OSIRIS"),
+        inst_dictionary("TOSCA"),
+        inst_dictionary("VESUVIO"),
+    ]
+    set_instlist(instruments_list, pv_address)
+
+    pv_address = "CS:INSTLIST:ENGINEERING"
+    instruments_list = [
+        inst_dictionary("IMAT"),
+        inst_dictionary("ENGINX"),
+    ]
+    set_instlist(instruments_list, pv_address)
