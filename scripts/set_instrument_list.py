@@ -69,6 +69,23 @@ def inst_dictionary(instrument_name, hostname_prefix="NDX", hostname=None, pv_pr
             "pvPrefix": pv_prefix_to_use,
             "isScheduled": is_scheduled}
 
+def set_instlist(instruments_list, pv_address):
+    new_value = json.dumps(instruments_list)
+    new_value_compressed = compress_and_hex(new_value)
+
+    ca.caput(pv_address, str(new_value_compressed), True)
+
+    result_compr = ca.caget(pv_address, True)
+    result = dehex_and_decompress(result_compr)
+
+    print(result)
+
+    if result != new_value:
+        print("Warning! Entered value does not match new value.")
+        print("Entered value: " + new_value)
+        print("Actual value: " + result)
+    else:
+        print("Success! The PV now reads: {0}".format(result))
 
 if __name__ == "__main__":
     set_env()
@@ -115,19 +132,60 @@ if __name__ == "__main__":
         inst_dictionary("SANS2D"),
     ]
 
-    new_value = json.dumps(instruments_list)
-    new_value_compressed = compress_and_hex(new_value)
+    set_instlist(instruments_list, pv_address) 
 
-    ca.caput(pv_address, str(new_value_compressed), True)
+    pv_address = "CS:INSTLIST:MUONS"
+    instruments_list = [
+        inst_dictionary("EMU"),
+    ]
+    set_instlist(instruments_list, pv_address) 
 
-    result_compr = ca.caget(pv_address, True)
-    result = dehex_and_decompress(result_compr)
+    pv_address = "CS:INSTLIST:EXCITATIONS"
+    instruments_list = [
+        inst_dictionary("MAPS"),
+        inst_dictionary("MERLIN"),
+        inst_dictionary("LET"),
+        inst_dictionary("MARI"),
+    ]
+    set_instlist(instruments_list, pv_address) 
 
-    print(result)
+    pv_address = "CS:INSTLIST:DISORDERED"
+    instruments_list = [
+        inst_dictionary("SANDALS"),
+        inst_dictionary("NIMROD"),
+        inst_dictionary("GEM"),
+    ]
+    set_instlist(instruments_list, pv_address) 
 
-    if result != new_value:
-        print("Warning! Entered value does not match new value.")
-        print("Entered value: " + new_value)
-        print("Actual value: " + result)
-    else:
-        print("Success! The PV now reads: {0}".format(result))
+    pv_address = "CS:INSTLIST:REFLECTOMETRY"
+    instruments_list = [
+        inst_dictionary("CRISP"),
+        inst_dictionary("SURF"),
+        inst_dictionary("POLREF"),
+    ]
+    set_instlist(instruments_list, pv_address) 
+
+    pv_address = "CS:INSTLIST:SANS"
+    instruments_list = [
+        inst_dictionary("ZOOM"),
+        inst_dictionary("LOQ"),
+        inst_dictionary("SANS2D"),
+        inst_dictionary("LARMOR"),
+    ]
+    set_instlist(instruments_list, pv_address)
+
+    pv_address = "CS:INSTLIST:MOLSPEC"
+    instruments_list = [
+        inst_dictionary("IRIS"),
+        inst_dictionary("OSIRIS"),
+        inst_dictionary("TOSCA"),
+        inst_dictionary("VESUVIO"),
+    ]
+    set_instlist(instruments_list, pv_address)
+
+    pv_address = "CS:INSTLIST:ENGINEERING"
+    instruments_list = [
+        inst_dictionary("IMAT"),
+        inst_dictionary("ENGINX"),
+    ]
+    set_instlist(instruments_list, pv_address)
