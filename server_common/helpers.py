@@ -29,19 +29,24 @@ def register_ioc_start(ioc_name, pv_database=None, prefix=None):
         print_and_log("Error registering ioc start: {}: {}".format(e.__class__.__name__, e), SEVERITY.MAJOR)
 
 
-def get_macro_values(config_xml=None):
+def get_macro_values():
     """
     Parse macro environment JSON into dict. To make this work use the icpconfigGetMacros program.
-
-    Args:
-        config_xml (str): The location of the config_xml for the calling ioc.
 
     Returns: Macro Key:Value pairs as dict
     """
     macros = json.loads(os.environ.get("REFL_MACROS", "{}"))
     macros = {key: value for (key, value) in macros.items()}
     # Get macros set by IocTestFramework
-    if os.environ.get("TESTDEVSIM", "no").lower() == "yes" or os.environ.get("TESTRECSIM", "no").lower() == "yes":
+    test_devsim = os.environ.get("TESTDEVSIM", "no").lower() == "yes"
+    test_recsim = os.environ.get("TESTRECSIM", "no").lower() == "yes"
+    if test_devsim or test_recsim:
+        # Set macros as is done in EPICS/iocstartup/ioctesting.cmd
+        macros["DEVSIM"] = 1 if test_devsim else 0
+        macros["RECSIM"] = 1 if test_recsim else 0
+        macros["SIMULATE"] = 1
+        macros["SIMSFX"] = "_RECSIM" if test_recsim else "_DEVSIM"
+        # Load macros from test_config.txt
         test_macros_filepath = os.path.join(os.getenv("ICPVARDIR", r"C:\Instrument\Var"), "tmp", "test_config.txt")
         if os.path.exists(test_macros_filepath):
             with open(test_macros_filepath, mode="r") as test_macros_file:
