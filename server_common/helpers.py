@@ -1,6 +1,7 @@
 import json
 import os
 import sys
+import xml.etree.ElementTree as ET
 
 from server_common.ioc_data_source import IocDataSource
 from server_common.mysql_abstraction_layer import SQLAbstraction
@@ -28,12 +29,26 @@ def register_ioc_start(ioc_name, pv_database=None, prefix=None):
         print_and_log("Error registering ioc start: {}: {}".format(e.__class__.__name__, e), SEVERITY.MAJOR)
 
 
-def get_macro_values():
+def get_macro_values(config_xml=None):
     """
     Parse macro environment JSON into dict. To make this work use the icpconfigGetMacros program.
+
+    Args:
+        config_xml (str): The location of the config_xml for the calling ioc.
 
     Returns: Macro Key:Value pairs as dict
     """
     macros = json.loads(os.environ.get("REFL_MACROS", "{}"))
     macros = {key: value for (key, value) in macros.items()}
+    # Get macros set by IocTestFramework
+    if os.environ.get("TESTDEVSIM", "no").lower() == "yes" or os.environ.get("TESTRECSIM", "no").lower() == "yes":
+        test_macros_filepath = os.path.join(os.getenv("ICPVARDIR", r"C:\Instrument\Var"), "tmp", "test_config.txt")
+        if os.path.exists(test_macros_filepath):
+            with open(test_macros_filepath, mode="r") as test_macros_file:
+                for line in test_macros_file.readlines():
+                    split_line = line.split('"')
+                    macro_name = split_line[1]
+                    macro_value = split_line[3]
+                    macros[macro_name] = macro_value
+    print("Defined macros: " + str(macros))
     return macros
