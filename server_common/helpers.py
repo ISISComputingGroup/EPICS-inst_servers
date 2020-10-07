@@ -1,7 +1,6 @@
 import json
 import os
 import sys
-import xml.etree.ElementTree as ET
 
 from server_common.ioc_data_source import IocDataSource
 from server_common.mysql_abstraction_layer import SQLAbstraction
