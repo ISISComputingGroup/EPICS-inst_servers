@@ -42,9 +42,9 @@ def get_macro_values():
     test_recsim = os.environ.get("TESTRECSIM", "no").lower() == "yes"
     if test_devsim or test_recsim:
         # Set macros as is done in EPICS/iocstartup/ioctesting.cmd
-        macros["DEVSIM"] = 1 if test_devsim else 0
-        macros["RECSIM"] = 1 if test_recsim else 0
-        macros["SIMULATE"] = 1
+        macros["DEVSIM"] = "1" if test_devsim else "0"
+        macros["RECSIM"] = "1" if test_recsim else "0"
+        macros["SIMULATE"] = "1"
         macros["SIMSFX"] = "_RECSIM" if test_recsim else "_DEVSIM"
         # Load macros from test_config.txt
         test_macros_filepath = os.path.join(os.getenv("ICPVARDIR", r"C:\Instrument\Var"), "tmp", "test_config.txt")
