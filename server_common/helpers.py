@@ -36,23 +36,5 @@ def get_macro_values():
     """
     macros = json.loads(os.environ.get("MACROS", "{}"))
     macros = {key: value for (key, value) in macros.items()}
-    # Get macros set by IocTestFramework
-    test_devsim = os.environ.get("TESTDEVSIM", "no").lower() == "yes"
-    test_recsim = os.environ.get("TESTRECSIM", "no").lower() == "yes"
-    if test_devsim or test_recsim:
-        # Set macros as is done in EPICS/iocstartup/ioctesting.cmd
-        macros["DEVSIM"] = "1" if test_devsim else "0"
-        macros["RECSIM"] = "1" if test_recsim else "0"
-        macros["SIMULATE"] = "1"
-        macros["SIMSFX"] = "_RECSIM" if test_recsim else "_DEVSIM"
-        # Load macros from test_config.txt
-        test_macros_filepath = os.path.join(os.getenv("ICPVARDIR", r"C:\Instrument\Var"), "tmp", "test_config.txt")
-        if os.path.exists(test_macros_filepath):
-            with open(test_macros_filepath, mode="r") as test_macros_file:
-                for line in test_macros_file.readlines():
-                    split_line = line.split('"')
-                    macro_name = split_line[1]
-                    macro_value = split_line[3]
-                    macros[macro_name] = macro_value
     print("Defined macros: " + str(macros))
     return macros
