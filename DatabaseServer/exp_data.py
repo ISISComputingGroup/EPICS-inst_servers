@@ -250,7 +250,9 @@ class ExpData(object):
                 names.append(name.__dict__)
             orgs = list(set(orgs))
         self.ca.caput(self._simnames, self.encode_for_return(names))
-        self.ca.caput(self._surnamepv, self.encode_for_return(surnames))
+        # surname PV is set twice with g.change_users() once from genie python and from database server(here) wait=True
+        # makes sure that surname is updated in order. Database server to set it first followed by genie python
+        self.ca.caput(self._surnamepv, self.encode_for_return(surnames), wait=True)
         self.ca.caput(self._orgspv, self.encode_for_return(orgs))
         # The value put to the dae names pv will need changing in time to use compressed and hexed json etc. but
         # this is not available at this time in the ICP
