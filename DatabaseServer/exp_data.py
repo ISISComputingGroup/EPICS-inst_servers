@@ -225,24 +225,16 @@ class ExpData(object):
         names = []
         surnames = []
         orgs = []
-        if len(users) > 3:
-            # Format the string into a list of JSON strings for decoding/encoding
-            users = users[1:-1]
-            users = users.split("},{")
-            if len(users) > 1:
-                # Strip the {} from the beginning and the end to allow for easier editing of the teammembers
-                users[0] = users[0][1:]
-                users[-1] = users[-1][:len(users[-1])-1]
-                # Add a {} to EACH teammember
-                for ndx, member in enumerate(users):
-                    users[ndx] = "{" + member + "}"
-
-            # Loop through the list of strings to generate the lists/similar for conversion to JSON
-            for teammember in users:
-                member = json.loads(teammember)
-                fullname = six.text_type(member['name'])
-                org = six.text_type(member['institute'])
-                role = six.text_type(member['role'])
+        users = json.loads(users)
+        # Find user details in deserialized json user data
+        for team_member in users:
+            fullname = team_member['name']
+            # If user only wants to change users not the whole table
+            if team_member.get("institute") is None:
+                surnames.append(self._get_surname_from_fullname(fullname))
+            else:
+                org = team_member['institute']
+                role = team_member['role']
                 if not role == "Contact":
                     surnames.append(self._get_surname_from_fullname(fullname))
                 orgs.append(org)
