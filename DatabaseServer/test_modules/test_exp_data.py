@@ -107,10 +107,12 @@ class TestExpData(unittest.TestCase):
         simnames = self.decode_pv(self.exp_data._simnames)
         surnames = self.decode_pv(self.exp_data._surnamepv)
         orgs = self.decode_pv(self.exp_data._orgspv)
+        dae_surnames = self.ca.caget(self.exp_data._daenamespv)
 
         self.assertEqual(simnames[0]["name"], "Tom Jones")
         self.assertTrue("Jones" in surnames)
         self.assertTrue("STFC" in orgs)
+        self.assertEqual(dae_surnames, b"Jones")
 
     def test_update_username_for_multiple_users_same_institute(self):
         # Arrange
@@ -126,10 +128,12 @@ class TestExpData(unittest.TestCase):
         simnames = self.decode_pv(self.exp_data._simnames)
         surnames = self.decode_pv(self.exp_data._surnamepv)
         orgs = self.decode_pv(self.exp_data._orgspv)
+        dae_surnames = self.ca.caget(self.exp_data._daenamespv)
 
         self.assertEqual(len(simnames), 2)
         self.assertEqual(len(surnames), 2)
         self.assertEqual(len(orgs), 1)
+        self.assertEqual(dae_surnames, b"Jones,James")
 
     def test_update_username_for_blank_users(self):
         # Arrange
@@ -143,10 +147,76 @@ class TestExpData(unittest.TestCase):
         simnames = self.decode_pv(self.exp_data._simnames)
         surnames = self.decode_pv(self.exp_data._surnamepv)
         orgs = self.decode_pv(self.exp_data._orgspv)
+        dae_surnames = self.ca.caget(self.exp_data._daenamespv)
 
         self.assertEqual(len(simnames), 0)
         self.assertEqual(len(surnames), 0)
         self.assertEqual(len(orgs), 0)
+        self.assertEqual(dae_surnames, " ")
+
+    def test_update_username_for_single_user_no_further_data(self):
+        # Arrange
+        users = '[{"name":"Tom Jones"}]'
+
+        # Act
+        self.exp_data.update_username(users)
+
+        # Assert
+        simnames = self.decode_pv(self.exp_data._simnames)
+        surnames = self.decode_pv(self.exp_data._surnamepv)
+        orgs = self.decode_pv(self.exp_data._orgspv)
+        dae_surnames = self.ca.caget(self.exp_data._daenamespv)
+
+        self.assertEqual(len(simnames), 0)
+        self.assertTrue("Jones" in surnames)
+        self.assertEqual(len(orgs), 0)
+        self.assertEqual(dae_surnames, b"Jones")
+
+    def test_update_username_for_multiple_users_no_further_data(self):
+        # Arrange
+        users = '['
+        users += '{"name":"Tom Jones"},'
+        users += '{"name":"David James"}'
+        users += ']'
+
+        # Act
+        self.exp_data.update_username(users)
+
+        # Assert
+        simnames = self.decode_pv(self.exp_data._simnames)
+        surnames = self.decode_pv(self.exp_data._surnamepv)
+        orgs = self.decode_pv(self.exp_data._orgspv)
+        dae_surnames = self.ca.caget(self.exp_data._daenamespv)
+
+        self.assertEqual(len(simnames), 0)
+        self.assertEqual(len(surnames), 2)
+        self.assertTrue("Jones" in surnames)
+        self.assertTrue("James" in surnames)
+        self.assertEqual(len(orgs), 0)
+        self.assertEqual(dae_surnames, b"Jones,James")
+
+    def test_update_username_for_multiple_users_no_firstname_and_no_further_data_then_assumed_surname(self):
+        # Arrange
+        users = '['
+        users += '{"name":"Jones"},'
+        users += '{"name":"James"}'
+        users += ']'
+
+        # Act
+        self.exp_data.update_username(users)
+
+        # Assert
+        simnames = self.decode_pv(self.exp_data._simnames)
+        surnames = self.decode_pv(self.exp_data._surnamepv)
+        orgs = self.decode_pv(self.exp_data._orgspv)
+        dae_surnames = self.ca.caget(self.exp_data._daenamespv)
+
+        self.assertEqual(len(simnames), 0)
+        self.assertEqual(len(surnames), 2)
+        self.assertTrue("Jones" in surnames)
+        self.assertTrue("James" in surnames)
+        self.assertEqual(len(orgs), 0)
+        self.assertEqual(dae_surnames, b"Jones,James")
 
     def test_remove_accents_from_name(self):
         # Arrange
