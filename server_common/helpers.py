@@ -34,6 +34,7 @@ def get_macro_values():
 
     Returns: Macro Key:Value pairs as dict
     """
-    macros = json.loads(os.environ.get("REFL_MACROS", ""))
+    macros = json.loads(os.environ.get("MACROS", "{}"))
     macros = {key: value for (key, value) in macros.items()}
+    print("Defined macros: " + str(macros))
     return macros
