@@ -1,4 +1,4 @@
-from BaseHTTPServer import BaseHTTPRequestHandler,HTTPServer
+from http.server import BaseHTTPRequestHandler, HTTPServer
 from threading import Thread
 from time import sleep
 from server_common.utilities import print_and_log
@@ -31,9 +31,9 @@ class MyHandler(BaseHTTPRequestHandler):
 class Server(Thread):
 
     def run(self):
-        server = HTTPServer(('', PORT), MyHandler)
+        _server = HTTPServer(('', PORT), MyHandler)
         print_and_log("Serving HTTP on port %s ..." % PORT)
-        server.serve_forever()
+        _server.serve_forever()
 
     def set_config(self, set_to):
         """

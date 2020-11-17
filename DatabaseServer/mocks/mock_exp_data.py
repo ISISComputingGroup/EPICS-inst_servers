@@ -1,4 +1,3 @@
-from __future__ import print_function, absolute_import, division, unicode_literals
 import json
 
 from server_common.utilities import compress_and_hex

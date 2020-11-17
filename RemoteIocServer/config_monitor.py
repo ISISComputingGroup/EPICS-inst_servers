@@ -1,8 +1,6 @@
 """
 Module to help monitor and react to the configuration on the instrument server.
 """
-from __future__ import print_function, unicode_literals, division, absolute_import
-
 import json
 import zlib
 import threading

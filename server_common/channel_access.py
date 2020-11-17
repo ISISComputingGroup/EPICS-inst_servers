@@ -1,6 +1,3 @@
-from __future__ import absolute_import, print_function, unicode_literals, division
-from time import sleep
-
 # This file is part of the ISIS IBEX application.
 # Copyright (C) 2012-2016 Science & Technology Facilities Council.
 # All rights reserved.
