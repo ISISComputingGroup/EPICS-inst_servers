@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 ICP_VAR_DIR = os.path.normpath(os.environ.get("ICPVARDIR", os.path.join("C:\\", "Instrument", "var")))
 
 
-class Conversion(object):
+class Conversion:
     """
     Take a value convert it to a string for writing. Useful base class for conversions.
     A conversion should define autosave_convert_for_write and autosave_convert_for_read
@@ -93,7 +93,7 @@ class BoolConversion(Conversion):
         raise ValueError("String is not True or False")
 
 
-class AutosaveFile(object):
+class AutosaveFile:
     """
     An Autosave object useful for saving values that can be read and written at sensible points in time.
     """

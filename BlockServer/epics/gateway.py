@@ -52,8 +52,8 @@ def build_block_alias_lines(full_block_pv, pv_suffix, underlying_pv, include_com
     elif pv_suffix is not None:
         # The block points at a readback value (most likely for a motor)
         if include_comments:
-            lines.append("## The block points at a {} field, so it needs entries for both reading the field "
-                         "and for the rest".format(pv_suffix))
+            lines.append(f"## The block points at a {pv_suffix} field, so it needs entries for both reading the field "
+                         f"and for the rest")
 
         # Pattern match is for picking up any extras like :RBV or .EGU
         lines.append('{}\\([.:].*\\)    ALIAS    {}\\1'.format(full_block_pv, underlying_pv.replace(pv_suffix, "")))
@@ -69,7 +69,7 @@ def build_block_alias_lines(full_block_pv, pv_suffix, underlying_pv, include_com
     return lines
 
 
-class Gateway(object):
+class Gateway:
     """A class for interacting with the EPICS gateway that creates the aliases used for implementing blocks"""
 
     def __init__(self, gateway_prefix, instrument_prefix, pvlist_file, block_prefix,

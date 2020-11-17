@@ -15,7 +15,7 @@
 # http://opensource.org/licenses/eclipse-1.0.php
 
 
-class MetaData(object):
+class MetaData:
     """Represents the metadata from a configuration/component.
 
     Attributes:

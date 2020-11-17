@@ -24,7 +24,7 @@ from threading import RLock
 from server_common.utilities import print_and_log
 
 
-class IOCData(object):
+class IOCData:
     """
     A wrapper to connect to the IOC database and proc server.
     """

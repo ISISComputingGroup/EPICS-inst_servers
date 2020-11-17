@@ -23,7 +23,7 @@ from server_common.utilities import print_and_log
 from server_common.constants import IOCS_NOT_TO_STOP
 
 
-class IocControl(object):
+class IocControl:
     """A class for starting, stopping and restarting IOCs"""
     def __init__(self, prefix):
         """Constructor.

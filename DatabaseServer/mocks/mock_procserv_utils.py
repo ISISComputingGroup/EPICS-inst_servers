@@ -16,7 +16,7 @@ from __future__ import print_function, absolute_import, division, unicode_litera
 # http://opensource.org/licenses/eclipse-1.0.php
 
 
-class MockProcServWrapper(object):
+class MockProcServWrapper:
     """
     Note: this file cannot currently be given type hints as it is included from the "server_common" tests.
 

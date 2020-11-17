@@ -14,7 +14,7 @@ colors = [MAGENTA, YELLOW]
 pv_prefix = os.environ["MYPVPREFIX"]
 
 # PV prefix for controlling the system
-control_pv = "{}COLLIDE:".format(pv_prefix)
+control_pv = f"{pv_prefix}COLLIDE:"
 
 # Define the geometry of the system in mm
 # Coordinate origin at arc centre, with nominal beam height

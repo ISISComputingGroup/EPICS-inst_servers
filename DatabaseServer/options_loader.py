@@ -31,7 +31,7 @@ TAG_HAS_DEFAULT = 'hasDefault'
 
 
 def create_xpath_search(group: str, individual: str) -> str:
-    return "./{}/{}/{}".format(CONFIG_PART, group, individual)
+    return f"./{CONFIG_PART}/{group}/{individual}"
 
 
 MACROS = create_xpath_search('macros', 'macro')
@@ -39,7 +39,7 @@ PVS = create_xpath_search('pvs', 'pv')
 PVSETS = create_xpath_search('pvsets', 'pvset')
 
 
-class OptionsLoader(object):
+class OptionsLoader:
     @staticmethod
     def get_options(path: str) -> OrderedDict:
         """Loads the IOC options from file and converts them into IocOptions objects

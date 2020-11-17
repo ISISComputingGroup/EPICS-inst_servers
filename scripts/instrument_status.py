@@ -23,25 +23,25 @@ except ImportError:
     from server_common.channel_access import ChannelAccess as ca
 
 
-class Log(object):
+class Log:
     def error(self, message):
-        print ("ERROR: {0}".format(message))
+        print(f"ERROR: {message}")
 
     def info(self, message):
-        print ("INFO : {0}".format(message))
+        print(f"INFO : {message}")
 
 
 LOG = Log()
 
 
-class InstrumentStatus(object):
+class InstrumentStatus:
 
     def __init__(self, pv_prefix=None):
         if pv_prefix is None:
             self._prefix = os.getenv("MYPVPREFIX", "")
         else:
             self._prefix = pv_prefix
-        LOG.info("PVPREFIX: {0}".format(self._prefix))
+        LOG.info(f"PVPREFIX: {self._prefix}")
 
         # If we're not in an EPICS terminal, add the address list to the set of environment keys
         epics_ca_addr_list = "EPICS_CA_ADDR_LIST"
@@ -58,26 +58,25 @@ class InstrumentStatus(object):
         return "OK"
 
     def _check_PV_compressed_hex(self, pv_name, description, help_text="", allowed_values=None):
-        full_pv = "{prefix}{pv_name}".format(prefix=self._prefix, pv_name=pv_name)
+        full_pv = f"{self._prefix}{pv_name}"
         value = ca.caget(full_pv)
         if value is None:
-            LOG.error("{description}: Fail PV can not be read".format(description=description))
-            LOG.error("    {help}".format(help=help_text))
+            LOG.error(f"{description}: Fail PV can not be read")
+            LOG.error(f"    {help_text}")
             return False
 
         try:
             uncompressed_val = zlib.decompress(value.decode("hex"))
         except Exception as ex:
             #TODO: untried
-            LOG.error("{full_pv}={value}".format(full_pv=full_pv, value=value))
-            LOG.error("{description}: Fail to decompress PV with error - {ex}".format(ex=ex))
+            LOG.error(f"{full_pv}={value}")
+            LOG.error(f"{description}: Fail to decompress PV with error - {ex}")
             return False
 
         if allowed_values is not None and uncompressed_val not in allowed_values:
-            LOG.error("{full_pv}={value}".format(full_pv=full_pv, value=uncompressed_val))
-            LOG.error("{description}: Fail PV has invalid value must be one of {allowed_values}".format(
-                description=description, allowed_values=allowed_values))
-            LOG.error("    {help}".format(help=help_text))
+            LOG.error(f"{full_pv}={uncompressed_val}")
+            LOG.error(f"{description}: Fail PV has invalid value must be one of {allowed_values}")
+            LOG.error(f"    {help_text}")
             return False
 
         return True

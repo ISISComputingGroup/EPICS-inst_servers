@@ -37,7 +37,7 @@ def add_default_field(pv_name, default_field):
         return pv_name
     if pv_name is None or pv_name == "" or "." in pv_name:
         return pv_name
-    return "{0}.{1}".format(pv_name, default_field)
+    return f"{pv_name}.{default_field}"
 
 
 def truncate(x, d):

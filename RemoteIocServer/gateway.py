@@ -17,7 +17,7 @@ GATEWAY_FILESYSTEM_WRITE_LOCK = threading.RLock()
 GATEWAY_RESTART_LOCK = threading.RLock()
 
 
-class GateWay(object):
+class GateWay:
     """
     Class representing the EPICS remote IOC gateway.
     """
@@ -39,7 +39,7 @@ class GateWay(object):
         Args:
             remote_pv_prefix: the prefix of the remote machine to observe (e.g. IN:DEMO: )
         """
-        print_and_log("Gateway: instrument changed from {} to {}".format(self._remote_pv_prefix, remote_pv_prefix))
+        print_and_log(f"Gateway: instrument changed from {self._remote_pv_prefix} to {remote_pv_prefix}")
         self._remote_pv_prefix = remote_pv_prefix
         self._reapply_gateway_settings()
 
@@ -50,7 +50,7 @@ class GateWay(object):
         Args:
             iocs: the new list of IOC names to observe
         """
-        print_and_log("Gateway: ioc list changed from {} to {}".format(str(self._ioc_names), str(iocs)))
+        print_and_log(f"Gateway: ioc list changed from {str(self._ioc_names)} to {iocs}")
         self._ioc_names = iocs
         self._reapply_gateway_settings()
 
@@ -60,7 +60,7 @@ class GateWay(object):
 
     def _recreate_gateway_config_files(self):
         with GATEWAY_FILESYSTEM_WRITE_LOCK:
-            print_and_log("Gateway: rewriting gateway configuration file at '{}'".format(self._gateway_pvlist_file_path))
+            print_and_log(f"Gateway: rewriting gateway configuration file at '{self._gateway_pvlist_file_path}'")
 
             if not os.path.exists(os.path.dirname(self._gateway_pvlist_file_path)):
                 os.makedirs(os.path.dirname(self._gateway_pvlist_file_path))
@@ -115,7 +115,7 @@ class GateWay(object):
             try:
                 with open(os.devnull, "w") as devnull:
                     status = subprocess.call(self._gateway_restart_script_path, stdout=devnull, stderr=devnull)
-                print_and_log("Gateway: restart complete (exit code: {})".format(status))
+                print_and_log(f"Gateway: restart complete (exit code: {status})")
             except subprocess.CalledProcessError:
-                print_and_log("Gateway: restart failed (path to script: {})".format(self._gateway_restart_script_path))
+                print_and_log(f"Gateway: restart failed (path to script: {self._gateway_restart_script_path})")
                 print_and_log(traceback.format_exc())

@@ -29,7 +29,7 @@ MINIMUM_LOGGING_PERIOD = 0.01
 """Smallest logging period allowed"""
 
 
-class LoggingPeriodProvider(object):
+class LoggingPeriodProvider:
     """
     Logging Period provider
     """
@@ -77,7 +77,7 @@ class LoggingPeriodProviderConst(LoggingPeriodProvider):
         self._logging_period_in_seconds = logging_period
 
     def __repr__(self):
-        return "Logging period of {0}s".format(self._logging_period_in_seconds)
+        return f"Logging period of {self._logging_period_in_seconds}s"
 
     def get_logging_period(self, archive_data_source, time):
         """
@@ -118,8 +118,7 @@ class LoggingPeriodProviderPV(LoggingPeriodProvider):
         self._period_on_error = timedelta(seconds=default_on_error)
 
     def __repr__(self):
-        return "Logging from pv {0} with a default on error of {1}s".format(
-            self._logging_period_pv, self._default_on_error)
+        return f"Logging from pv {self._logging_period_pv} with a default on error of {self._default_on_error}s"
 
     def get_logging_period(self, archive_data_source, time):
         """

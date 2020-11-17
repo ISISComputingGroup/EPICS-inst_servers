@@ -16,7 +16,7 @@
 from abc import ABCMeta, abstractmethod
 
 
-class OnTheFlyPvInterface(object):
+class OnTheFlyPvInterface:
     """ This is an abstract base class to ensure that any class that needs to handle on-the-fly PVs
     implements all the correct methods.
     """
@@ -57,7 +57,7 @@ class OnTheFlyPvInterface(object):
 
         Args:
             pv (string): The PV's name
-            data (object): The value to write
+            data : The value to write
         """
         pass
 

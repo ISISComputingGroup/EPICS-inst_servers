@@ -130,5 +130,5 @@ class IsisPutLog:
         """
         time_now = datetime.datetime.now()
         time_str = time_now.strftime("%d-%b-%y %H:%M:%S")
-        message = "{} {} {} {} {} {}".format(time_str, LOCALHOST, self._ioc_name, pv_name, new_value, old_value)
+        message = f"{time_str} {LOCALHOST} {self._ioc_name} {pv_name} {new_value} {old_value}"
         self.logger.write_to_log(message)

@@ -54,7 +54,7 @@ NAMESPACES = {
 }
 
 
-class ConfigurationXmlConverter(object):
+class ConfigurationXmlConverter:
     """Converts configuration data to and from XML.
 
     Consists of static methods only.

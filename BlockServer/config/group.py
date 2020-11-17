@@ -14,7 +14,7 @@
 # https://www.eclipse.org/org/documents/epl-v10.php or
 # http://opensource.org/licenses/eclipse-1.0.php
 
-class Group(object):
+class Group:
     """ Represents a group.
 
         Attributes:

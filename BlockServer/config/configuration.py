@@ -26,7 +26,7 @@ from BlockServer.core.macros import PVPREFIX_MACRO
 from server_common.utilities import print_and_log
 
 
-class Configuration(object):
+class Configuration:
     """ The Configuration class.
 
     Attributes:
@@ -97,7 +97,7 @@ class Configuration(object):
         """
         # Only add it if it has not been added before
         if name.upper() in self.iocs.keys():
-            print_and_log("Warning: IOC '{}' is already part of the configuration. Not adding it again.".format(name))
+            print_and_log(f"Warning: IOC '{name}' is already part of the configuration. Not adding it again.")
         else:
             self.iocs[name.upper()] = IOC(name, autostart, restart, component, macros, pvs, pvsets, simlevel,
                                           remotePvPrefix)

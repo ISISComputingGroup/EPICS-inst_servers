@@ -29,7 +29,7 @@ class DatabaseError(Exception):
         self.message = message
 
 
-class AbstratSQLCommands(object):
+class AbstractSQLCommands:
     """
     Abstract base class for sql commands for testing
     """
@@ -93,7 +93,7 @@ class AbstratSQLCommands(object):
         self._execute_command(command, False, bound_variables)
 
 
-class SQLAbstraction(AbstratSQLCommands):
+class SQLAbstraction(AbstractSQLCommands):
     """
     A wrapper to connect to MySQL databases.
     """

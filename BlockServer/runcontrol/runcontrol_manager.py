@@ -51,10 +51,10 @@ MAX_LOOPS_TO_WAIT_FOR_START = 60  # roughly 2 minutes at standard time
 def create_db_load_string(block):
     load_record_string = 'dbLoadRecords("$(RUNCONTROL)/db/{file}.db", "{macros}")\n'
     return load_record_string.format(file="runcontrol",
-                                     macros="P=$(MYPVPREFIX),PV=$(MYPVPREFIX)CS:SB:{}".format(block.name.upper()))
+                                     macros=f"P=$(MYPVPREFIX),PV=$(MYPVPREFIX)CS:SB:{block.name.upper()}")
 
 
-class _RunControlAutoSaveHelper(object):
+class _RunControlAutoSaveHelper:
 
     def __init__(self):
         self._autosave_dir = None
@@ -66,13 +66,13 @@ class _RunControlAutoSaveHelper(object):
                 if os.path.isfile(file_path):
                     os.unlink(file_path)
             except Exception as err:
-                print_and_log("Problem deleting autosave files for the "
-                              "run-control IOC: {}".format(str(err)), "MAJOR")
+                print_and_log(f"Problem deleting autosave files for the "
+                              f"run-control IOC: {err}", "MAJOR")
 
     def set_var_dir(self, var_dir):
         self._autosave_dir = os.path.join(var_dir, AUTOSAVE_DIR,
                                           RUNCONTROL_IOC)
-        print_and_log("RUNCONTROL AUTOSAVE DIRECTORY: {}".format(self._autosave_dir))
+        print_and_log(f"RUNCONTROL AUTOSAVE DIRECTORY: {self._autosave_dir}")
 
 
 class RunControlManager(OnTheFlyPvInterface):

@@ -247,7 +247,7 @@ def set_limits(limits, pvs):
 
 
 # Contains operating mode events
-class OperatingMode(object):
+class OperatingMode:
     def __init__(self):
         # Close event to be triggered by the render thread
         self.close = threading.Event()

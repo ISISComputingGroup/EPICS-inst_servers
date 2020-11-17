@@ -186,7 +186,7 @@ class ActiveConfigHolder(ConfigHolder):
             print_and_log("No last configuration defined")
             return None
 
-        print_and_log("Trying to load last configuration '{}'".format(last_config_name))
+        print_and_log(f"Trying to load last configuration '{last_config_name}'")
         self.load_active(last_config_name)
         return last_config_name
 
@@ -197,7 +197,7 @@ class ActiveConfigHolder(ConfigHolder):
             print_and_log("No current configuration defined. Nothing to reload.")
             return
 
-        print_and_log("Trying to reload current configuration '{}'".format(current_config_name))
+        print_and_log(f"Trying to reload current configuration '{current_config_name}'")
         self.load_active(current_config_name)
 
     def iocs_changed(self):

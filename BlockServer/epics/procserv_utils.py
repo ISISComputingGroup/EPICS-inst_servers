@@ -17,7 +17,7 @@ from server_common.channel_access import ChannelAccess
 from server_common.utilities import print_and_log, ioc_restart_pending, retry
 
 
-class ProcServWrapper(object):
+class ProcServWrapper:
     """A wrapper for accessing some of the functionality of ProcServ."""
 
     def __init__(self, prefix):
@@ -25,7 +25,7 @@ class ProcServWrapper(object):
         Args:
             prefix (string): The prefix for the instrument
         """
-        self.procserv_prefix = "{}CS:PS:".format(prefix)
+        self.procserv_prefix = f"{prefix}CS:PS:"
 
     def start_ioc(self, ioc):
         """Starts the specified IOC.
@@ -33,7 +33,7 @@ class ProcServWrapper(object):
         Args:
             ioc (string): The name of the IOC
         """
-        print_and_log("Starting IOC %s" % ioc)
+        print_and_log(f"Starting IOC {ioc}")
         ChannelAccess.caput(self.procserv_prefix + ioc + ":START", 1)
 
     def stop_ioc(self, ioc):
@@ -42,7 +42,7 @@ class ProcServWrapper(object):
         Args:
             ioc (string): The name of the IOC
         """
-        print_and_log("Stopping IOC %s" % ioc)
+        print_and_log(f"Stopping IOC {ioc}")
         ChannelAccess.caput(self.procserv_prefix + ioc + ":STOP", 1, wait=True)
 
     def restart_ioc(self, ioc):
@@ -51,7 +51,7 @@ class ProcServWrapper(object):
         Args:
             ioc (string): The name of the IOC
         """
-        print_and_log("Restarting IOC %s" % ioc)
+        print_and_log(f"Restarting IOC {ioc}")
         ChannelAccess.caput(self.procserv_prefix + ioc + ":RESTART", 1)
 
     def ioc_restart_pending(self, ioc):
@@ -77,7 +77,7 @@ class ProcServWrapper(object):
         pv_name = self.procserv_prefix + ioc + ":STATUS"
         ans = ChannelAccess.caget(pv_name, as_string=True)
         if ans is None:
-            raise Exception("Could not find IOC {} (using pv {})".format(ioc, pv_name))
+            raise Exception(f"Could not find IOC {ioc} (using pv {pv_name})")
         return ans.upper()
 
     def toggle_autorestart(self, ioc):
@@ -87,7 +87,7 @@ class ProcServWrapper(object):
             ioc (string): The name of the IOC
         """
         # Check IOC is running, otherwise command is ignored
-        print_and_log("Toggling auto-restart for IOC {}".format(ioc))
+        print_and_log(f"Toggling auto-restart for IOC {ioc}")
         ChannelAccess.caput(self.procserv_prefix + ioc + ":TOGGLE", 1)
 
     @retry(50, 0.1, ValueError)  # Retry for 5 seconds to get a valid value on failure
@@ -102,8 +102,8 @@ class ProcServWrapper(object):
         """
         ioc_prefix = self.procserv_prefix + ioc
 
-        ans = ChannelAccess.caget("{}:AUTORESTART".format(ioc_prefix), as_string=True)
+        ans = ChannelAccess.caget(f"{ioc_prefix}:AUTORESTART", as_string=True)
         if ans not in ["On", "Off"]:
-            raise ValueError("Could not get auto-restart property for IOC {}, got '{}'".format(ioc_prefix, ans))
+            raise ValueError(f"Could not get auto-restart property for IOC {ioc_prefix}, got '{ans}'")
 
         return ans == "On"

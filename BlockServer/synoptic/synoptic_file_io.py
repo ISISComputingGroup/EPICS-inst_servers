@@ -22,7 +22,7 @@ RETRY_MAX_ATTEMPTS = 20
 RETRY_INTERVAL = 0.5
 
 
-class SynopticFileIO(object):
+class SynopticFileIO:
 
     @retry(RETRY_MAX_ATTEMPTS, RETRY_INTERVAL, (OSError, IOError))
     def write_synoptic_file(self, name, save_path, xml_data):

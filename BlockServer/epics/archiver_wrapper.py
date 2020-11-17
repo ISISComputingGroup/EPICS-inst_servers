@@ -17,7 +17,7 @@
 import urllib2
 
 
-class ArchiverWrapper(object):
+class ArchiverWrapper:
     def restart_archiver(self):
         # Set to ignore proxy for localhost
         proxy_handler = urllib2.ProxyHandler({})

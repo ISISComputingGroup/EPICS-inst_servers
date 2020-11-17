@@ -72,9 +72,9 @@ class SynopticManager(OnTheFlyPvInterface):
                 self.save_synoptic_xml(data)
                 self.update_monitors()
         except IOError as err:
-            print_and_log("Error accessing synoptic file: {error}".format(error=err), "MAJOR")
+            print_and_log(f"Error accessing synoptic file: {err}", "MAJOR")
         except Exception as err:
-            print_and_log("Error writing to PV %s: %s" % (pv, str(err)), "MAJOR")
+            print_and_log(f"Error writing to PV {pv}: {err}", "MAJOR")
 
     def handle_pv_read(self, pv):
         # Nothing to do as it is all handled by monitors
@@ -233,8 +233,8 @@ class SynopticManager(OnTheFlyPvInterface):
         try:
             self._file_io.write_synoptic_file(name, save_path, xml_data)
         except MaxAttemptsExceededException:
-            raise IOError("Could not save to synoptic file at {path}. Please check the file is "
-                          "not in use by another process.".format(path=save_path))
+            raise IOError(f"Could not save to synoptic file at {save_path}. Please check the file is "
+                          f"not in use by another process.")
         print_and_log("Synoptic saved: " + name)
 
     def delete(self, delete_list):
@@ -252,8 +252,8 @@ class SynopticManager(OnTheFlyPvInterface):
                 fullname = synoptic + ".xml"
                 self._file_io.delete_synoptic(self._directory, fullname)
             except MaxAttemptsExceededException:
-                print_and_log("Could not delete synoptic file {name}. Please check the file is "
-                              "not in use by another process.".format(name=fullname), "MINOR")
+                print_and_log(f"Could not delete synoptic file {fullname}. Please check the file is "
+                              f"not in use by another process.", "MINOR")
                 continue
 
             self._bs.delete_pv_from_db(SYNOPTIC_PRE + self._synoptic_pvs[synoptic] + SYNOPTIC_GET)

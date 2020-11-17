@@ -37,7 +37,7 @@ DEFAULT_COLUMN_SEPARATOR = "\t"
 """Default separator between columns in the table"""
 
 
-class ArchiveAccessConfigBuilder(object):
+class ArchiveAccessConfigBuilder:
     """
     Configuration builder a way of creating an archive access configuration step by step using a fluid API.
     """
@@ -175,7 +175,7 @@ class ArchiveAccessConfigBuilder(object):
         self._logging_period_provider = logging_period_provider
 
 
-class ArchiveAccessConfig(object):
+class ArchiveAccessConfig:
     """
     A complete valid configuration object for creating a single log file
     """

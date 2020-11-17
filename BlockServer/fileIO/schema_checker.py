@@ -44,7 +44,7 @@ class ConfigurationFileBlank(Exception):
         self.message = message
 
 
-class ConfigurationSchemaChecker(object):
+class ConfigurationSchemaChecker:
     """ The ConfigurationSchemaChecker class
 
     Contains utilities to check configurations against xml schema.
@@ -77,7 +77,7 @@ class ConfigurationSchemaChecker(object):
             ConfigurationSchemaChecker.check_xml_data_matches_schema(schema_filepath, screen_xml_data)
         except ConfigurationInvalidUnderSchema as err:
             raise ConfigurationInvalidUnderSchema(
-                "{object_type} incorrectly formatted: {err}".format(object_type=object_type, err=err.message))
+                f"{object_type} incorrectly formatted: {err.message}")
 
     @staticmethod
     def _check_file_against_schema(xml_file, schema_folder, schema_file):

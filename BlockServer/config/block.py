@@ -18,7 +18,7 @@ from BlockServer.core.macros import PVPREFIX_MACRO
 import copy
 
 
-class Block(object):
+class Block:
     """ Contains all the information about a block.
 
         Attributes:

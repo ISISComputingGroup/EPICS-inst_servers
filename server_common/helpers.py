@@ -25,7 +25,7 @@ def register_ioc_start(ioc_name, pv_database=None, prefix=None):
         ioc_data_source = IocDataSource(SQLAbstraction("iocdb", "iocdb", "$iocdb"))
         ioc_data_source.insert_ioc_start(ioc_name, os.getpid(), exepath, pv_database, prefix)
     except Exception as e:
-        print_and_log("Error registering ioc start: {}: {}".format(e.__class__.__name__, e), SEVERITY.MAJOR)
+        print_and_log(f"Error registering ioc start: {e.__class__.__name__}: {e}", SEVERITY.MAJOR)
 
 
 def get_macro_values():

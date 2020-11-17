@@ -71,7 +71,7 @@ class ArchiverDataStub(ArchiverDataSource):
         return self._initial_archiver_data_value
 
 
-class FileStub(object):
+class FileStub:
     """
     Mimic the python file object (inc file system effects) call clear on setup to avoid persisted state
     """
@@ -104,7 +104,7 @@ class FileStub(object):
         file_contents_for_file = FileStub.file_contents[self.filename]
         next_line = file_contents_for_file[self.read_line_index]
         self.read_line_index += 1
-        return "{0}\n".format(next_line)
+        return f"{next_line}\n"
 
     @classmethod
     def add_file(cls, file_contents, filename):
@@ -119,5 +119,5 @@ class FileStub(object):
     @classmethod
     def contents_of_only_file(cls):
         assert len(FileStub.file_contents) == 1, \
-            "Number of files created is not 1. Filenames are {0}".format(FileStub.file_contents.keys())
+            f"Number of files created is not 1. Filenames are {FileStub.file_contents.keys()}"
         return FileStub.file_contents.values()[0]

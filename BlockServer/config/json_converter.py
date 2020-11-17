@@ -20,7 +20,7 @@ from collections import OrderedDict
 from BlockServer.core.constants import GRP_NONE
 
 
-class ConfigurationJsonConverter(object):
+class ConfigurationJsonConverter:
     """Helper class for converting configuration data to and from JSON.
 
     Consists of static methods only.

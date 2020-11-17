@@ -22,7 +22,7 @@ from server_common.utilities import dehex_and_decompress
 from DatabaseServer.exp_data import ExpData
 
 
-class MockExpDataSource(object):
+class MockExpDataSource:
     def __init__(self):
         self.valid_experiments = {"123456": [["Matt", "ESS", "PI"], ["Dom", "ISIS", ""], ["Jack", "ISIS", "Contact"]]}
 

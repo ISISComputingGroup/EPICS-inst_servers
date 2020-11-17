@@ -17,7 +17,7 @@
 import copy
 
 
-class IOC(object):
+class IOC:
     """ Represents an IOC.
 
     Attributes:
@@ -92,7 +92,7 @@ class IOC(object):
         return out_list
 
     def __str__(self):
-        return "{}(name={}, component={})".format(self.__class__.__name__, self.name, self.component)
+        return f"{self.__class__.__name__}(name={self.name}, component={self.component})"
 
     def to_dict(self):
         """ Puts the IOC's details into a dictionary.

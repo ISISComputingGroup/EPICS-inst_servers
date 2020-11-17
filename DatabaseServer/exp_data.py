@@ -29,7 +29,7 @@ from server_common.utilities import compress_and_hex, char_waveform, print_and_l
 from typing import Type, Union
 
 
-class User(object):
+class User:
     """
     A user class to allow for easier conversions from database to json.
     """
@@ -39,7 +39,7 @@ class User(object):
         self.role = role
 
 
-class ExpDataSource(object):
+class ExpDataSource:
     """
     This is a humble object containing all the code for accessing the database.
     """
@@ -94,7 +94,7 @@ class ExpDataSource(object):
             return False
 
 
-class ExpData(object):
+class ExpData:
     """
     A wrapper to connect to the IOC database via MySQL.
     """

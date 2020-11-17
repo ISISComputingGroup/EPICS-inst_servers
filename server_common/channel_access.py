@@ -31,7 +31,7 @@ except ImportError:
         The system is unable to connect to a PV for some reason.
         """
         def __init__(self, pv_name, err):
-            super(UnableToConnectToPVException, self).__init__("Unable to connect to PV {0}: {1}".format(pv_name, err))
+            super(UnableToConnectToPVException, self).__init__(f"Unable to connect to PV {pv_name}: {err}")
 
     class ReadAccessException(IOError):
         """
@@ -39,7 +39,7 @@ except ImportError:
         """
 
         def __init__(self, pv_name):
-            super(ReadAccessException, self).__init__("Read access denied for PV {}".format(pv_name))
+            super(ReadAccessException, self).__init__(f"Read access denied for PV {pv_name}")
 
 try:
     # noinspection PyUnresolvedReferences
@@ -104,7 +104,7 @@ def _create_caput_pool():
     return executor
 
 
-class ChannelAccess(object):
+class ChannelAccess:
     # Create a thread poll so that threads are reused and so ca contexts that each thread gets are shared. This also
     # caps the number of ca library threads. 20 is chosen as being probably enough but limited.
     thread_pool = _create_caput_pool()
@@ -154,7 +154,7 @@ class ChannelAccess(object):
 
         Args:
             name (string): The name of the PV to be set
-            value (object): The data to send to the PV
+            value : The data to send to the PV
             wait (bool, optional): Wait for the PV to set before returning
             set_pv_value: function to call to set a pv, used only in testing; None to use CaChannelWrapper set value
         Returns:
@@ -199,7 +199,7 @@ class ChannelAccess(object):
             if current_value == value:
                 break
         else:
-            raise IOError("PV value can not be set, pv {}, was {} expected {}".format(pv_name, current_value, value))
+            raise IOError(f"PV value can not be set, pv {pv_name}, was {current_value} expected {value}")
 
     @staticmethod
     def pv_exists(name, timeout=None):
@@ -269,16 +269,16 @@ def verify_manager_mode(channel_access=ChannelAccess(), message="Operation must 
         ManagerModeRequiredException: if manager mode was not enabled or was unable to connect
     """
     try:
-        is_manager = channel_access.caget("{}CS:MANAGER".format(MACROS["$(MYPVPREFIX)"])).lower() == "yes"
+        is_manager = channel_access.caget(f'{MACROS["$(MYPVPREFIX)"]}CS:MANAGER').lower() == "yes"
     except UnableToConnectToPVException as e:
-        raise ManagerModeRequiredException("Manager mode is required, but the manager mode PV did not connect "
-                                           "(caused by: {})".format(e))
+        raise ManagerModeRequiredException(f"Manager mode is required, but the manager mode PV did not connect "
+                                           f"(caused by: {e})")
     except ReadAccessException as e:
-        raise ManagerModeRequiredException("Manager mode is required, but the manager mode PV could not be read "
-                                           "(caused by: {})".format(e))
+        raise ManagerModeRequiredException(f"Manager mode is required, but the manager mode PV could not be read "
+                                           f"(caused by: {e})")
     except Exception as e:
-        raise ManagerModeRequiredException("Manager mode is required, but an unknown exception occurred "
-                                           "(caused by: {})".format(e))
+        raise ManagerModeRequiredException(f"Manager mode is required, but an unknown exception occurred "
+                                           f"(caused by: {e})")
 
     if not is_manager:
         raise ManagerModeRequiredException(message)

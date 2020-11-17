@@ -36,7 +36,7 @@ def needs_config_updating_lock(func):
     return _wrapper
 
 
-class _EpicsMonitor(object):
+class _EpicsMonitor:
     """
     Wrapper around an EPICS monitor.
     """
@@ -65,7 +65,7 @@ class _EpicsMonitor(object):
         ChannelAccess.clear_monitor(self._pv)
 
 
-class ConfigurationMonitor(object):
+class ConfigurationMonitor:
     """
     Monitors the configuration PV from whichever instrument is controlling this remote IOC.
 

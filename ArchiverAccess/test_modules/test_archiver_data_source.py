@@ -26,7 +26,7 @@ from ArchiverAccess.archiver_data_source import ArchiverDataSource, ArchiverData
 from server_common.mysql_abstraction_layer import DatabaseError
 
 
-class SQLAbstractionStub(object):
+class SQLAbstractionStub:
 
     def __init__(self):
         self._initial_values_index = -1

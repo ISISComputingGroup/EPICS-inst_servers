@@ -87,8 +87,8 @@ class ArchiverDataValue:
 ARCHIVER_DATA_VALUE_QUERY = "severity_id, status_id, num_val, float_val, str_val, array_val, smpl_time"
 """Field which are part of the archiver data value query string"""
 
-INITIAL_VALUES_QUERY = """
-    SELECT {0} 
+INITIAL_VALUES_QUERY = f"""
+    SELECT {ARCHIVER_DATA_VALUE_QUERY} 
       FROM archive.sample 
      WHERE sample_id = (
         SELECT s.sample_id
@@ -101,7 +101,7 @@ INITIAL_VALUES_QUERY = """
          ORDER BY s.smpl_time DESC
          LIMIT 1
      )
-""".format(ARCHIVER_DATA_VALUE_QUERY)
+"""
 """ SQL Query to return the values at a specific time by lookking for the latest sampled value for the 
 pv before the given time"""
 
@@ -138,7 +138,7 @@ GET_SAMPLE_ID_BEFORE = GET_LATEST_SAMPLE_ID_TEMPLATE.format(before_time_clause="
 """Sql to get the latest sample id after a given sample id and sample time"""
 
 
-class ArchiverDataSource(object):
+class ArchiverDataSource:
     """
     Data source for the archiver data.
     """

@@ -26,7 +26,7 @@ DEVICES_DIRECTORY = "devices"
 
 
 # Do not create an instance of this class, instead use FILEPATH_MANAGER as a singleton
-class FilePathManager(object):
+class FilePathManager:
     """
     Manager for file paths
     """

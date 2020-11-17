@@ -80,7 +80,7 @@ def get_expected_devices_file_path():
     return os.path.join(FILEPATH_MANAGER.devices_dir, SCREENS_FILE)
 
 
-class MockDevicesFileIO(object):
+class MockDevicesFileIO:
     def __init__(self):
         self.files = dict()
 

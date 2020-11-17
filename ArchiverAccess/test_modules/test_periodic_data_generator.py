@@ -230,7 +230,7 @@ class TestPeriodicDataGenerator(unittest.TestCase):
             ArchiveTimePeriod(expected_start_time, timedelta(seconds=1), log_count))
 
     def _set_up_data_generator(self, initial_pv_values, values=None, archiver_throw_exception_on_initial_values=False):
-        pv_names = ["pv{0}".format(i) for i in range(len(initial_pv_values))]
+        pv_names = [f"pv{i}" for i in range(len(initial_pv_values))]
         initial_pv_values_dict = {}
         for name, val in zip(pv_names, initial_pv_values):
             initial_pv_values_dict[name] = val

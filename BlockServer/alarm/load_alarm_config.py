@@ -4,7 +4,7 @@ import time
 from server_common.utilities import print_and_log
 
 
-class AlarmConfigLoader(object):
+class AlarmConfigLoader:
     """
     Alarm configuration loader class will create a new configuration and load it into the alarm server. While the
     instance exists it will count down when it get to 0 it will no longer be the current instance and will then
@@ -51,7 +51,7 @@ class AlarmConfigLoader(object):
         """
         with AlarmConfigLoader.lock:
             self._delay_left = AlarmConfigLoader.DELAY
-            print_and_log("Alarm server will update in {0} seconds from now".format(self._delay_left))
+            print_and_log(f"Alarm server will update in {self._delay_left} seconds from now")
 
     def _is_still_delayed(self):
         """

@@ -24,7 +24,7 @@ period_data_point = collections.namedtuple("period_data_point", "time values")
 """a single periodic data point, essential all the values at a point in time"""
 
 
-class PeriodicDataGenerator(object):
+class PeriodicDataGenerator:
     """
     Generate the data as a set of periodic values.
 

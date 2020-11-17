@@ -22,7 +22,7 @@ from datetime import datetime
 from ArchiverAccess.utilities import truncate
 
 
-class ArchiveTimePeriod(object):
+class ArchiveTimePeriod:
     """
     A time period.
     """

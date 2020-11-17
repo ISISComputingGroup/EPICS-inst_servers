@@ -82,7 +82,7 @@ DELETE_IOC_PV_DETAILS = "DELETE FROM pvs WHERE iocname=%s"
 """Delete ioc pv details, this cascades to pv info details"""
 
 
-class IocDataSource(object):
+class IocDataSource:
     """
     A source for IOC data from the database
     """
@@ -91,7 +91,7 @@ class IocDataSource(object):
         Constructor.
 
         Args:
-            mysql_abstraction_layer(server_common.mysql_abstraction_layer.AbstratSQLCommands): contact database with sql
+            mysql_abstraction_layer(server_common.mysql_abstraction_layer.AbstractSQLCommands): contact database with sql
         """
         self.mysql_abstraction_layer = mysql_abstraction_layer
 

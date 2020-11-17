@@ -4,7 +4,7 @@ import json
 from server_common.utilities import compress_and_hex
 
 
-class MockExpData(object):
+class MockExpData:
     def encode_for_return(self, data: str) -> bytes:
         return compress_and_hex(json.dumps(data).encode('utf-8', 'replace'))
 

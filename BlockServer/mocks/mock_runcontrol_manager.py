@@ -17,7 +17,7 @@
 from BlockServer.core.constants import TAG_RC_LOW, TAG_RC_HIGH, TAG_RC_ENABLE, TAG_RC_OUT_LIST
 
 
-class MockBlock(object):
+class MockBlock:
     def __init__(self):
         self.value = 0
         self.enable = False
@@ -25,7 +25,7 @@ class MockBlock(object):
         self.highlimit = 0
 
 
-class MockRunControlManager(object):
+class MockRunControlManager:
     def __init__(self):
         self._prefix = ""
         self._block_prefix = ""

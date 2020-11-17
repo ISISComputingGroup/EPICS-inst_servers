@@ -24,13 +24,12 @@ def get_hostname_from_prefix(pv_prefix):
     """
     DevIocStats on any IOC publishes the hostname of the computer it's running on over channel access.
     """
-    pv_name = "{}CS:IOC:INSTETC_01:DEVIOS:HOSTNAME".format(pv_prefix)
+    pv_name = f"{pv_prefix}CS:IOC:INSTETC_01:DEVIOS:HOSTNAME"
     name = ChannelAccess.caget(pv_name, as_string=True, timeout=5)
     if name is None:
-        print_and_log("get_hostname_from_prefix: Unable to get hostname because of error reading pv {}.".format(
-            pv_name))
+        print_and_log(f"get_hostname_from_prefix: Unable to get hostname because of error reading pv {pv_name}.")
     else:
-        print_and_log("get_hostname_from_prefix: hostname is '{}' (from DevIocStats)".format(name))
+        print_and_log(f"get_hostname_from_prefix: hostname is '{name}' (from DevIocStats)")
     return name
 
 

@@ -55,7 +55,7 @@ class TestDatabaseServer(unittest.TestCase):
         pv_names = [item[0] for item in pv_data if len(item) > 0]
 
         for name in HIGH_PV_NAMES:
-            self.assertTrue(name in pv_names, msg="{name} in {pv_names}".format(name=name, pv_names=pv_names))
+            self.assertTrue(name in pv_names, msg=f"{name} in {pv_names}")
 
     @unittest.skipIf(IS_LINUX, "DB server not configured to run properly on Linux build")
     def test_interest_medium_pvs_correct(self):
@@ -63,7 +63,7 @@ class TestDatabaseServer(unittest.TestCase):
         pv_names = [item[0] for item in pv_data if len(item) > 0]
 
         for name in MEDIUM_PV_NAMES:
-            self.assertTrue(name in pv_names, msg="{name} in {pv_names}".format(name=name, pv_names=pv_names))
+            self.assertTrue(name in pv_names, msg=f"{name} in {pv_names}")
 
     @unittest.skipIf(IS_LINUX, "DB server not configured to run properly on Linux build")
     def test_WHEN_asked_for_low_THEN_get_low_pvs(self):
@@ -71,7 +71,7 @@ class TestDatabaseServer(unittest.TestCase):
         pv_names = [item[0] for item in pv_data if len(item) > 0]
 
         for name in LOW_PV_NAMES:
-            self.assertTrue(name in pv_names, msg="{name} in {pv_names}".format(name=name, pv_names=pv_names))
+            self.assertTrue(name in pv_names, msg=f"{name} in {pv_names}")
 
     @unittest.skipIf(IS_LINUX, "DB server not configured to run properly on Linux build")
     def test_interest_facility_pvs_correct(self):
@@ -79,11 +79,11 @@ class TestDatabaseServer(unittest.TestCase):
         pv_names = [item[0] for item in pv_data if len(item) > 0]
 
         for name in FACILITY_PV_NAMES:
-            self.assertTrue(name in pv_names, msg="{name} in {pv_names}".format(name=name, pv_names=pv_names))
+            self.assertTrue(name in pv_names, msg=f"{name} in {pv_names}")
 
     @unittest.skipIf(IS_LINUX, "DB server not configured to run properly on Linux build")
     def test_iocs_pvs_correct(self):
         pv_data = json.loads(dehex_and_decompress(self.db_server.read(DatabasePVNames.IOCS)))
         for name in IOCS:
-            self.assertTrue(name in pv_data, msg="{name} in {pv_names}".format(name=name, pv_names=pv_data))
+            self.assertTrue(name in pv_data, msg=f"{name} in {pv_data}")
 

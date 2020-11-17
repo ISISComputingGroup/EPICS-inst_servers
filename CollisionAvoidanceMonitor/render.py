@@ -432,7 +432,7 @@ def loop(renderer, monitors):
             draw(renderer, monitors)
 
 
-class RenderParams(object):
+class RenderParams:
     def __init__(self):
         self.lock = threading.Lock()
         self.softlimits = []

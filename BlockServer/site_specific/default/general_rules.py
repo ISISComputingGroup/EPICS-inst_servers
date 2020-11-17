@@ -37,7 +37,7 @@ GROUP_REGEX_ERROR_MESSAGE = REGEX_ERROR_TEMPLATE_PV_NAME.format("Group name")
 CONFIG_DESC_REGEX_ERROR_MESSAGE = REGEX_ERROR_TEMPLATE_ALLOW_EVERYTHING.format("Configuration description")
 
 
-class GroupRules(object):
+class GroupRules:
     """Class for managing exposing the rules for allowed group names"""
 
     def __init__(self, block_server):
@@ -57,7 +57,7 @@ class GroupRules(object):
         self._bs.updatePVs()
 
 
-class ConfigurationDescriptionRules(object):
+class ConfigurationDescriptionRules:
     """Class for managing exposing the rules for allowed configuration descriptions"""
 
     def __init__(self, block_server):

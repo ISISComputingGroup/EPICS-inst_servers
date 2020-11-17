@@ -38,7 +38,7 @@ IOCS = {
 }
 
 
-class MockIocDataSource(object):
+class MockIocDataSource:
     def __init__(self):
         self.iocs = IOCS
 

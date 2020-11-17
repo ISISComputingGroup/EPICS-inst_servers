@@ -17,7 +17,7 @@ import copy
 from BlockServer.config.configuration import Configuration
 
 
-class MockActiveConfigHolder(object):
+class MockActiveConfigHolder:
     def __init__(self, macros):
         self.config_name = ""
         self.config = Configuration(macros)

@@ -17,7 +17,7 @@ from __future__ import print_function, absolute_import, division, unicode_litera
 import six
 
 
-class IocOptions(object):
+class IocOptions:
     """Contains the possible macros and pvsets of an IOC."""
 
     def __init__(self, name: str):

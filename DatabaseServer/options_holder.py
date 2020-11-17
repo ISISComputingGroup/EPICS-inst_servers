@@ -18,7 +18,7 @@ import six
 from DatabaseServer.options_loader import OptionsLoader
 
 
-class OptionsHolder(object):
+class OptionsHolder:
     """Holds all the IOC options"""
     def __init__(self, options_folder: str, options_loader: OptionsLoader):
         """Constructor

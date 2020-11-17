@@ -38,9 +38,9 @@ def set_env():
     epics_ca_addr_list = "EPICS_CA_ADDR_LIST"
     """ If we're not in an EPICS terminal, add the address list to the set of
     environment keys """
-    if not epics_ca_addr_list in os.environ.keys():
+    if epics_ca_addr_list not in os.environ.keys():
         os.environ[epics_ca_addr_list] = "127.255.255.255 130.246.51.255"
-    print(epics_ca_addr_list + " = " + str(os.environ.get(epics_ca_addr_list)))
+    print(f"{epics_ca_addr_list} = {str(os.environ.get(epics_ca_addr_list))}")
 
 
 def inst_dictionary(instrument_name, hostname_prefix="NDX", hostname=None, pv_prefix=None, is_scheduled=True):
@@ -50,7 +50,7 @@ def inst_dictionary(instrument_name, hostname_prefix="NDX", hostname=None, pv_pr
         instrument_name: instrument name
         hostname_prefix: prefix for hostname (defaults to NDX)
         hostname: whole host name overrides prefix, defaults to hostname_prefix + instrument name
-        pv_prefix: the pv prefeix; default to IN:instrument_name
+        pv_prefix: the pv prefix; default to IN:instrument_name
         is_scheduled: whether the instrument has scheduled users and so should have user details written to it; default to True
 
     Returns: dictionary for instrument
@@ -63,11 +63,12 @@ def inst_dictionary(instrument_name, hostname_prefix="NDX", hostname=None, pv_pr
     if pv_prefix is not None:
         pv_prefix_to_use = pv_prefix
     else:
-        pv_prefix_to_use = "IN:{0}:".format(instrument_name)
+        pv_prefix_to_use = f"IN:{instrument_name}:"
     return {"name": instrument_name,
             "hostName": hostname_to_use,
             "pvPrefix": pv_prefix_to_use,
             "isScheduled": is_scheduled}
+
 
 def set_instlist(instruments_list, pv_address):
     new_value = json.dumps(instruments_list)
@@ -82,10 +83,11 @@ def set_instlist(instruments_list, pv_address):
 
     if result != new_value:
         print("Warning! Entered value does not match new value.")
-        print("Entered value: " + new_value)
-        print("Actual value: " + result)
+        print(f"Entered value: {new_value}")
+        print(f"Actual value: {result}")
     else:
-        print("Success! The PV now reads: {0}".format(result))
+        print(f"Success! The PV now reads: {result}")
+
 
 if __name__ == "__main__":
     set_env()

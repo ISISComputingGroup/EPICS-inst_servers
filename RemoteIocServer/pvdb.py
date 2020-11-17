@@ -6,7 +6,7 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), os.pa
 from server_common.utilities import char_waveform
 
 
-class PvNames(object):
+class PvNames:
     INSTRUMENT = "INSTRUMENT"
 
 

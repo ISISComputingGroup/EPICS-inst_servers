@@ -7,7 +7,7 @@ RETRY_MAX_ATTEMPTS = 20
 RETRY_INTERVAL = 0.5
 
 
-class DevicesFileIO(object):
+class DevicesFileIO:
     """Responsible for loading and saving the devices file."""
 
     @retry(RETRY_MAX_ATTEMPTS, RETRY_INTERVAL, (OSError, IOError))

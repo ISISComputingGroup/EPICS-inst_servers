@@ -96,7 +96,7 @@ if __name__ == '__main__':
         exit(1)
 
     the_time_period = ArchiveTimePeriod(data_start_time, timedelta(seconds=args.delta_time), args.point_count)
-    header_line = ["Data from {}".format(args.host)]
+    header_line = [f"Data from {args.host}"]
 
     column_defs = []
     header = None

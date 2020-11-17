@@ -34,7 +34,7 @@ LOGGER = Logger()
 _LOGGER_LOCK = threading.RLock()  # To prevent message interleaving between different threads.
 
 
-class SEVERITY(object):
+class SEVERITY:
     """
     Standard message severities.
     """
@@ -90,8 +90,8 @@ def compress_and_hex(value):
         bytes : A compressed and hexed version of the inputted string
     """
     assert type(value) == str, \
-        "Non-str argument passed to compress_and_hex, maybe Python 2/3 compatibility issue\n" \
-        "Argument was type {} with value {}".format(value.__class__.__name__, value)
+        f"Non-str argument passed to compress_and_hex, maybe Python 2/3 compatibility issue\n" \
+        f"Argument was type {value.__class__.__name__} with value {value}"
     compr = zlib.compress(bytes(value) if six.PY2 else bytes(value, "utf-8"))
     return binascii.hexlify(compr)
 
@@ -306,7 +306,7 @@ def retry(max_attempts, interval, exception):
     def _tags_decorator(func):
         def _wrapper(*args, **kwargs):
             attempts = 0
-            ex = ValueError("Max attempts should be > 0, it is {}".format(max_attempts))
+            ex = ValueError(f"Max attempts should be > 0, it is {max_attempts}")
             while attempts < max_attempts:
                 try:
                     return func(*args, **kwargs)

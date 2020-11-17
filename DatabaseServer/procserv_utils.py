@@ -19,7 +19,7 @@ from server_common.channel_access import ChannelAccess
 from server_common.utilities import print_and_log
 
 
-class ProcServWrapper(object):
+class ProcServWrapper:
     """A wrapper for ProcSev to allow for control of IOCs"""
 
     @staticmethod
@@ -30,7 +30,7 @@ class ProcServWrapper(object):
             prefix: The prefix of the instrument the IOC is being run on
             ioc: The name of the requested IOC
         """
-        return "{}CS:PS:{}".format(prefix, ioc)
+        return f"{prefix}CS:PS:{ioc}"
 
     def start_ioc(self, prefix: str, ioc: str) -> None:
         """Starts the specified IOC
@@ -39,7 +39,7 @@ class ProcServWrapper(object):
             prefix: The prefix of the instrument the IOC is being run on
             ioc: The name of the IOC to start
         """
-        print_and_log("Starting IOC {}".format(ioc))
+        print_and_log(f"Starting IOC {ioc}")
         ChannelAccess.caput(self.generate_prefix(prefix, ioc) + ":START", 1)
 
     def stop_ioc(self, prefix: str, ioc: str) -> None:
@@ -49,7 +49,7 @@ class ProcServWrapper(object):
             prefix: The prefix of the instrument the IOC is being run on
             ioc: The name of the IOC to stop
         """
-        print_and_log("Stopping IOC {}".format(ioc))
+        print_and_log(f"Stopping IOC {ioc}")
         ChannelAccess.caput(self.generate_prefix(prefix, ioc) + ":STOP", 1)
 
     def restart_ioc(self, prefix: str, ioc: str) -> None:
@@ -59,7 +59,7 @@ class ProcServWrapper(object):
             prefix: The prefix of the instrument the IOC is being run on
             ioc: The name of the IOC to restart
         """
-        print_and_log("Restarting IOC {}".format(ioc))
+        print_and_log(f"Restarting IOC {ioc}")
         ChannelAccess.caput(self.generate_prefix(prefix, ioc) + ":RESTART", 1)
 
     def get_ioc_status(self, prefix: str, ioc: str) -> str:
@@ -75,7 +75,7 @@ class ProcServWrapper(object):
         pv = self.generate_prefix(prefix, ioc) + ":STATUS"
         ans = ChannelAccess.caget(pv, as_string=True)
         if ans is None:
-            raise IOError("Could not find IOC (%s)" % pv)
+            raise IOError(f"Could not find IOC {pv}")
         return ans.upper()
 
     def ioc_exists(self, prefix: str, ioc: str) -> bool:

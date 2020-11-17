@@ -24,7 +24,7 @@ DISALLOWED_BLOCK_NAMES = ["lowlimit", "highlimit", "runcontrol", "wait"]
 BLOCK_REGEX_ERROR_MESSAGE = REGEX_ERROR_TEMPLATE_PV_NAME.format("Block name")
 
 
-class BlockRules(object):
+class BlockRules:
     """Class for managing exposing the rules for allowed block names"""
 
     def __init__(self, block_server):

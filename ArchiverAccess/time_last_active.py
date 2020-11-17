@@ -38,7 +38,7 @@ DEFAULT_DELTA = 1
 """If there is an error this is the default delta"""
 
 
-class TimeLastActive(object):
+class TimeLastActive:
     """
     Allow Getting and Settting of the time last active log was written. This is stored in a file.
     """
@@ -108,4 +108,4 @@ class TimeLastActive(object):
                 time_last_active_file.write("{0}\n".format(delta))
                 time_last_active_file.write("{0}\n".format(last_sample_id))
         except (ValueError, TypeError, IOError)as err:
-            print_and_log("Error writing last activity file: '{0}'".format(err))
+            print_and_log(f"Error writing last activity file: '{err}'")

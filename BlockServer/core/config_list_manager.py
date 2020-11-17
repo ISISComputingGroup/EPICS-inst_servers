@@ -64,7 +64,7 @@ def deletion_context(func):
     return needs_lock(update_monitors_when_finished(func))
 
 
-class ConfigListManager(object):
+class ConfigListManager:
     """ Class to handle data on all available configurations and manage their associated PVs.
 
     Attributes:
@@ -151,7 +151,7 @@ class ConfigListManager(object):
                 config = self.load_config(comp_name, True)
                 self.update_a_config_in_list(config, True)
             except Exception as err:
-                print_and_log("Error in loading component: {}".format(err), "MINOR")
+                print_and_log(f"Error in loading component: {err}", "MINOR")
                 print_and_log(traceback.format_exc())
 
         # Create default if it does not exist
@@ -164,7 +164,7 @@ class ConfigListManager(object):
                 config = self.load_config(config_name)
                 self.update_a_config_in_list(config)
             except Exception as err:
-                print_and_log("Error in loading config: {}".format(err), "MINOR")
+                print_and_log(f"Error in loading config: {err}", "MINOR")
                 print_and_log(traceback.format_exc())
 
     def load_config(self, name, is_component=False):
@@ -349,7 +349,7 @@ class ConfigListManager(object):
         for component in lower_delete_list:
             if self._component_metas[component].isProtected:
                 verify_manager_mode(self.channel_access,
-                                    message="Attempting to delete protected component ('{}')".format(component))
+                                    message=f"Attempting to delete protected component ('{component}')")
 
         for component in lower_delete_list:
             self._delete_single_component(component)

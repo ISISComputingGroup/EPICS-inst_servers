@@ -28,7 +28,7 @@ from BlockServer.core.file_path_manager import FILEPATH_MANAGER
 from server_common.utilities import print_and_log
 
 
-class ConfigHolder(object):
+class ConfigHolder:
     """ The ConfigHolder class.
 
     Holds a configuration which can then be manipulated via this class.
@@ -285,7 +285,7 @@ class ConfigHolder(object):
         elif component.lower() in self._components:
             self._components[component.lower()].add_ioc(name, component, autostart, restart, macros, pvs, pvsets, simlevel, remotePvPrefix)
         else:
-            raise ValueError("Can't add IOC '{}' to component '{}': component does not exist".format(name, component))
+            raise ValueError(f"Can't add IOC '{name}' to component '{component}': component does not exist")
 
     def get_config_details(self):
         """ Get the details of the configuration.

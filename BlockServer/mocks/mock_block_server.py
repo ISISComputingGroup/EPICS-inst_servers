@@ -17,7 +17,7 @@
 from threading import RLock
 
 
-class MockBlockServer(object):
+class MockBlockServer:
     def __init__(self):
         self._comps = list()
         self._confs = list()
