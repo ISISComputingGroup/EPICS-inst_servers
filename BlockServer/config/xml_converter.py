@@ -75,7 +75,7 @@ class ConfigurationXmlConverter:
         root.attrib["xmlns"] = SCHEMA_PATH + BLOCK_SCHEMA
         root.attrib["xmlns:blk"] = SCHEMA_PATH + BLOCK_SCHEMA
         root.attrib["xmlns:xi"] = "http://www.w3.org/2001/XInclude"
-        for name, block in blocks.iteritems():
+        for name, block in blocks.items():
             # Don't save if in component
             if block.component is None or block.component is False:
                 ConfigurationXmlConverter._block_to_xml(root, block, macros)
@@ -97,7 +97,7 @@ class ConfigurationXmlConverter:
         root.attrib["xmlns"] = SCHEMA_PATH + GROUP_SCHEMA
         root.attrib["xmlns:grp"] = SCHEMA_PATH + GROUP_SCHEMA
         root.attrib["xmlns:xi"] = "http://www.w3.org/2001/XInclude"
-        for name, group in groups.iteritems():
+        for name, group in groups.items():
             # Don't generate xml if in NONE or if it is empty
             if name != KEY_NONE and group.blocks is not None:
                 ConfigurationXmlConverter._group_to_xml(root, group)
@@ -141,7 +141,7 @@ class ConfigurationXmlConverter:
         root.attrib["xmlns"] = SCHEMA_PATH + COMPONENT_SCHEMA
         root.attrib["xmlns:comp"] = SCHEMA_PATH + COMPONENT_SCHEMA
         root.attrib["xmlns:xi"] = "http://www.w3.org/2001/XInclude"
-        for name, case_sensitve_name in comps.iteritems():
+        for name, case_sensitve_name in comps.items():
             ConfigurationXmlConverter._component_to_xml(root, case_sensitve_name)
         return minidom.parseString(ElementTree.tostring(root)).toprettyxml()
 

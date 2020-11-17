@@ -33,7 +33,7 @@ class MockRunControlManager:
         self.mock_blocks = dict()
 
     def update_runcontrol_blocks(self, blocks):
-        for b, blk in blocks.iteritems():
+        for b, blk in blocks.items():
             self.mock_blocks[blk.name] = MockBlock()
             self.mock_blocks[blk.name].enable = blk.rc_enabled
             self.mock_blocks[blk.name].lowlimit = blk.rc_lowlimit
@@ -41,7 +41,7 @@ class MockRunControlManager:
 
     def get_out_of_range_pvs(self):
         raw = ""
-        for n, blk in self.mock_blocks.iteritems():
+        for n, blk in self.mock_blocks.items():
             if blk.enable:
                 if blk.value < blk.lowlimit or blk.value > blk.highlimit:
                     raw += n + " "
@@ -58,7 +58,7 @@ class MockRunControlManager:
     def get_current_settings(self, blocks):
         # Blocks object is ignored for testing
         settings = dict()
-        for bn, blk in self.mock_blocks.iteritems():
+        for bn, blk in self.mock_blocks.items():
             low = self.mock_blocks[bn].lowlimit
             high = self.mock_blocks[bn].highlimit
             enable = self.mock_blocks[bn].enable
@@ -66,7 +66,7 @@ class MockRunControlManager:
         return settings
 
     def restore_config_settings(self, blocks):
-        for n, blk in blocks.iteritems():
+        for n, blk in blocks.items():
             settings = dict()
             if blk.rc_enabled:
                 settings["ENABLE"] = True
@@ -78,7 +78,7 @@ class MockRunControlManager:
 
     def set_runcontrol_settings(self, data):
         # Data should be a dictionary of dictionaries
-        for bn, settings in data.iteritems():
+        for bn, settings in data.items():
             if settings is not None and bn in self.mock_blocks.keys():
                 self.mock_blocks[bn].enable = settings["ENABLE"]
                 self.mock_blocks[bn].lowlimit = settings["LOW"]

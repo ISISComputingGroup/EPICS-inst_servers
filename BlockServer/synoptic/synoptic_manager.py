@@ -162,7 +162,7 @@ class SynopticManager(OnTheFlyPvInterface):
         """
         syn_list = list()
         default_is_none_synoptic = True
-        for k, v in self._synoptic_pvs.iteritems():
+        for k, v in self._synoptic_pvs.items():
             is_default = False
             if "<name>" + k + "</name>" in self._default_syn_xml:
                 default_is_none_synoptic = False

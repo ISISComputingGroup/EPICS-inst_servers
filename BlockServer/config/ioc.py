@@ -84,7 +84,7 @@ class IOC:
             list : The newly created list
         """
         out_list = []
-        for k, v in in_dict.iteritems():
+        for k, v in in_dict.items():
             # Take a copy as we do not want to modify the original
             c = copy.deepcopy(v)
             c['name'] = k

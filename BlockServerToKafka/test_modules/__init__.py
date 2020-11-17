@@ -15,8 +15,6 @@
 # http://opensource.org/licenses/eclipse-1.0.php
 
 import os
-import six
-import unittest
 
 
 def load_tests(loader, standard_tests, pattern):
@@ -25,8 +23,5 @@ def load_tests(loader, standard_tests, pattern):
     https://docs.python.org/3/library/unittest.html#load-tests-protocol
     The tests in this module are only added under Python 3.
     """
-    if six.PY3:
-        standard_tests.addTests(loader.discover(os.path.dirname(__file__), pattern=pattern))
-        return standard_tests
-    else:
-        return unittest.TestSuite()
+    standard_tests.addTests(loader.discover(os.path.dirname(__file__), pattern=pattern))
+    return standard_tests

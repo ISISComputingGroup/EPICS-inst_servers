@@ -169,7 +169,7 @@ class TestArchiverDataSource(unittest.TestCase):
         gen = self._data_source.changes_generator([channel_name, ], ArchiveTimePeriod(datetime(2017, 1, 2, 3, 4, 5),
                                                                                       timedelta(seconds=1), 10))
 
-        assert_that(calling(next, gen), raises(DatabaseError))
+        assert_that(calling(next(gen)), raises(DatabaseError))
 
     def test_GIVEN_nothing_WHEN_get_latest_sample_time_THEN_latest_sample_id_returned(self):
         self.set_up_data_source()

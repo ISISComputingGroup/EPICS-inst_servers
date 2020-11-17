@@ -333,7 +333,7 @@ class TestConfigurationXmlConverterSequence(unittest.TestCase):
 
         # Assert
         self.assertEqual(len(groups), len(expected_groups))
-        for key, value in expected_groups.iteritems():
+        for key, value in expected_groups.items():
             self.assertTrue(key in groups)
             grp = groups[key]
             self.assertEqual(value.name, grp.name)
@@ -352,7 +352,7 @@ class TestConfigurationXmlConverterSequence(unittest.TestCase):
 
         # Assert
         self.assertEqual(len(iocs), len(expected_iocs))
-        for n, ioc in iocs.iteritems():
+        for n, ioc in iocs.items():
             self.assertTrue(n in expected_iocs)
 
             self.assertEqual(ioc.autostart, True)
@@ -412,7 +412,7 @@ class TestConfigurationXmlConverterSequence(unittest.TestCase):
 
         # Assert
         self.assertEqual(len(blocks), len(expected_blocks))
-        for key, value in blocks.iteritems():
+        for key, value in blocks.items():
             self.assertTrue(key in expected_blocks)
             expected = expected_blocks[key]
             self.assertEqual(value.name, expected.name)
@@ -437,7 +437,7 @@ class TestConfigurationXmlConverterSequence(unittest.TestCase):
 
         # Assert
         self.assertEqual(len(iocs), len(expected_iocs))
-        for n, ioc in iocs.iteritems():
+        for n, ioc in iocs.items():
             self.assertTrue(n in expected_iocs)
 
             self.assertEqual(ioc.autostart, True)
@@ -468,7 +468,7 @@ class TestConfigurationXmlConverterSequence(unittest.TestCase):
 
         # Assert
         self.assertEqual(len(groups), len(expected_groups))
-        for key, value in groups.iteritems():
+        for key, value in groups.items():
             self.assertTrue(key in expected_groups)
             expected = expected_groups[key]
             self.assertEqual(value.name, expected.name)
@@ -503,7 +503,7 @@ class TestConfigurationXmlConverterSequence(unittest.TestCase):
 
         # Assert
         self.assertEqual(len(blocks), len(initial_blocks))
-        for key, value in blocks.iteritems():
+        for key, value in blocks.items():
             self.assertTrue(key in initial_blocks)
             expected = initial_blocks[key]
             self.assertEqual(value.name, expected.name)
@@ -530,7 +530,7 @@ class TestConfigurationXmlConverterSequence(unittest.TestCase):
 
         # Assert
         self.assertEqual(len(groups), len(initial_groups))
-        for key, value in groups.iteritems():
+        for key, value in groups.items():
             self.assertTrue(key in initial_groups)
             expected = initial_groups[key]
             self.assertEqual(value.name, expected.name)
@@ -550,7 +550,7 @@ class TestConfigurationXmlConverterSequence(unittest.TestCase):
 
         # Assert
         self.assertEqual(len(iocs), len(initial_iocs))
-        for n, ioc in iocs.iteritems():
+        for n, ioc in iocs.items():
             self.assertTrue(n in initial_iocs)
 
             self.assertEqual(ioc.autostart, True)
