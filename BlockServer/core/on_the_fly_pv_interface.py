@@ -57,7 +57,7 @@ class OnTheFlyPvInterface:
 
         Args:
             pv (string): The PV's name
-            data : The value to write
+            data (object): The value to write
         """
         pass
 

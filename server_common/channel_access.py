@@ -154,7 +154,7 @@ class ChannelAccess:
 
         Args:
             name (string): The name of the PV to be set
-            value : The data to send to the PV
+            value (object): The data to send to the PV
             wait (bool, optional): Wait for the PV to set before returning
             set_pv_value: function to call to set a pv, used only in testing; None to use CaChannelWrapper set value
         Returns:
