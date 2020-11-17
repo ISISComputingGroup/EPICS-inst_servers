@@ -55,7 +55,7 @@ from BlockServer.site_specific.default.general_rules import GroupRules, Configur
 from BlockServer.fileIO.file_manager import ConfigurationFileManager
 from WebServer.simple_webserver import Server
 from BlockServer.core.database_client import get_iocs
-from Queue import Queue
+from queue import Queue
 
 CURR_CONFIG_NAME_SEVR_VALUE = 0
 
@@ -375,7 +375,7 @@ class BlockServer(Driver):
                 h.on_config_change(full_init)
 
         # Update Web Server text
-        self.server.set_config(convert_to_json(self._active_configserver.get_config_details()))
+        set_config(convert_to_json(self._active_configserver.get_config_details()))
 
     def _stop_iocs_and_start_config_iocs(self):
         """ Stop all IOCs and start the IOCs that are part of the configuration."""
