@@ -15,8 +15,6 @@
 # http://opensource.org/licenses/eclipse-1.0.php
 import unittest
 import json
-
-import six
 from mock import Mock
 from parameterized import parameterized
 
@@ -61,7 +59,7 @@ def get_groups_and_blocks(jsondata):
 
 
 def create_grouping(groups):
-    return json.dumps([{"name": group, "blocks": blocks} for group, blocks in six.iteritems(groups)])
+    return json.dumps([{"name": group, "blocks": blocks} for group, blocks in groups.items()])
 
 
 def create_dummy_component():

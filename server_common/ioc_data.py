@@ -13,7 +13,6 @@
 # along with this program; if not, you can obtain a copy from
 # https://www.eclipse.org/org/documents/epl-v10.php or
 # http://opensource.org/licenses/eclipse-1.0.php
-import six
 
 """
 Module for reading data from the ioc database.
@@ -51,7 +50,7 @@ class IOCData:
         """
         iocs = self._ioc_data_source.get_iocs_and_descriptions()
         for ioc in iocs.keys():
-            ioc = six.text_type(ioc)
+            ioc = str(ioc)
             with self._running_iocs_lock:
                 # Create a copy so we don't lock the list for longer than necessary (do we need to do this?)
                 running = list(self._running_iocs)

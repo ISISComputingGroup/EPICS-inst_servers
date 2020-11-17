@@ -4,9 +4,7 @@ Module to help monitor and react to the configuration on the instrument server.
 import json
 import zlib
 import threading
-
-import six
-
+from functools import wraps
 from BlockServer.config.configuration import Configuration
 from BlockServer.core.file_path_manager import FILEPATH_MANAGER
 from BlockServer.fileIO.file_manager import ConfigurationFileManager
@@ -27,7 +25,7 @@ def needs_config_updating_lock(func):
     Args:
         func: function to lock
     """
-    @six.wraps(func)
+    @wraps(func)
     def _wrapper(*args, **kwargs):
         with CONFIG_UPDATING_LOCK:
             return func(*args, **kwargs)

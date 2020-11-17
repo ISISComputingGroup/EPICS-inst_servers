@@ -16,7 +16,7 @@
 
 import os
 import socket
-import six
+from functools import wraps
 from git import *
 from threading import Thread, RLock
 from time import sleep
@@ -50,7 +50,7 @@ def check_branch_allowed(func):
     """
     Decorator which only runs the function if the branch is allowed
     """
-    @six.wraps(func)
+    @wraps(func)
     def wrapper(self, *args, **kwargs):
         if self.branch_allowed(str(self.repo.active_branch)):
             func(self, *args, **kwargs)

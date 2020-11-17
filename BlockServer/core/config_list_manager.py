@@ -18,7 +18,7 @@ import os
 import json
 
 import traceback
-import six
+from functools import wraps
 from threading import RLock
 
 from BlockServer.core.file_path_manager import FILEPATH_MANAGER
@@ -38,7 +38,7 @@ def needs_lock(func):
     """
     Decorator which takes out the config list manager lock while the decorated function is running.
     """
-    @six.wraps(func)
+    @wraps(func)
     def wrapper(self, *args, **kwargs):
         with self._lock:
             return func(self, *args, **kwargs)
@@ -49,7 +49,7 @@ def update_monitors_when_finished(func):
     """
     Decorator which updates monitors once the decorated function has finished running.
     """
-    @six.wraps(func)
+    @wraps(func)
     def wrapper(self, *args, **kwargs):
         result = func(self, *args, **kwargs)
         self.update_monitors()
@@ -134,7 +134,7 @@ class ConfigListManager:
             list : A list of available components
         """
         comps = list()
-        for cn, cv in six.iteritems(self._component_metas):
+        for cn, cv in self._component_metas.items():
             if cn.lower() != DEFAULT_COMPONENT.lower():
                 comps.append(cv.to_dict())
         return comps
@@ -268,7 +268,7 @@ class ConfigListManager:
 
     def _remove_config_from_dependencies(self, config):
         # Remove old config from dependencies list
-        for comp, confs in six.iteritems(self._comp_dependencies):
+        for comp, confs in self._comp_dependencies.items():
             if config in confs:
                 self._comp_dependencies[comp.lower()].remove(config)
                 self._update_component_dependencies_pv(comp.lower())

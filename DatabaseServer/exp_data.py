@@ -16,8 +16,6 @@
 
 import json
 import typing
-
-import six
 import unicodedata
 import traceback
 
@@ -194,9 +192,9 @@ class ExpData:
             teammembers = self._db.get_team(experiment_id)
             # Generate the lists/similar for conversion to JSON
             for member in teammembers:
-                fullname = six.text_type(member[0])
-                org = six.text_type(member[1])
-                role = six.text_type(member[2])
+                fullname = str(member[0])
+                org = str(member[1])
+                role = str(member[2])
                 if not role == "Contact":
                     surnames.append(self._get_surname_from_fullname(fullname))
                 orgs.append(org)

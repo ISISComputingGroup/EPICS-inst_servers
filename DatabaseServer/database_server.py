@@ -17,8 +17,6 @@
 # Add root path for access to server_commons
 import os
 import traceback
-
-import six
 import sys
 import json
 import argparse
@@ -152,7 +150,7 @@ class DatabaseServer(Driver):
             The data, compressed and hexed.
         """
         data = self._pv_info[pv]['get']()
-        data = compress_and_hex(six.text_type(json.dumps(data)))
+        data = compress_and_hex(str(json.dumps(data)))
         self._check_pv_capacity(pv, len(data), self._blockserver_prefix)
         return data
 

@@ -4,9 +4,6 @@ import subprocess
 import textwrap
 import threading
 import traceback
-
-import six
-
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir)))
 from RemoteIocServer.utilities import print_and_log, get_hostname_from_prefix, THREADPOOL
 
@@ -84,7 +81,7 @@ class GateWay:
     def _get_access_security_file_content(self):
         hostname = get_hostname_from_prefix(self._remote_pv_prefix)
         return textwrap.dedent("""\
-            HAG(allowed_write) { localhost, 127.0.0.1, """ + six.binary_type(hostname) + """ }
+            HAG(allowed_write) { localhost, 127.0.0.1, """ + bytes(hostname) + """ }
             
             ASG(DEFAULT) {
                RULE(1, READ)

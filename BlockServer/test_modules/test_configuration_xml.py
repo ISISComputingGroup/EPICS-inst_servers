@@ -14,10 +14,8 @@
 # https://www.eclipse.org/org/documents/epl-v10.php or
 # http://opensource.org/licenses/eclipse-1.0.php
 
-import os
 import re
 import unittest
-import six
 from xml.etree import ElementTree
 from collections import OrderedDict
 
@@ -296,7 +294,7 @@ class TestConfigurationXmlConverterSequence(unittest.TestCase):
 
         # Assert
         self.assertEqual(len(blocks), len(expected_blocks))
-        for key, value in six.iteritems(blocks):
+        for key, value in blocks.items():
             self.assertTrue(key in expected_blocks)
             expected = expected_blocks[key]
             self.assertEqual(value.name, expected.name)

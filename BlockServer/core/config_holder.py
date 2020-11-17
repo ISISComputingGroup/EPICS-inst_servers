@@ -18,8 +18,6 @@
 import copy
 from collections import OrderedDict
 import re
-import six
-
 from BlockServer.config.configuration import Configuration
 from BlockServer.core.constants import DEFAULT_COMPONENT, GRP_NONE
 from BlockServer.config.group import Group
@@ -122,7 +120,7 @@ class ConfigHolder:
         """
         blocks = copy.deepcopy(self._config.blocks)
         for component in self._components.values():
-            for block_name, block in six.iteritems(component.blocks):
+            for block_name, block in component.blocks.items():
                 if block_name not in blocks:
                     blocks[block_name] = block
         return blocks
@@ -141,7 +139,7 @@ class ConfigHolder:
             used_blocks.extend(group.blocks)
 
         for component in self._components.values():
-            for group_name, grp in six.iteritems(component.groups):
+            for group_name, grp in component.groups.items():
                 if group_name not in groups.keys():
                     # Add the groups if they have not been used before and exist
                     blks = [x for x in grp.blocks if x not in used_blocks and x in blocks]
@@ -218,7 +216,7 @@ class ConfigHolder:
             list : The names of the IOCs
         """
         iocs = self._config.iocs.keys()
-        for cn, cv in six.iteritems(self._components):
+        for cn, cv in self._components.items():
             if include_base or cn.lower() != DEFAULT_COMPONENT.lower():
                 iocs.extend(cv.iocs)
         return iocs
@@ -239,7 +237,7 @@ class ConfigHolder:
         """
         iocs = {}
         for component in self._components.values():
-            for ioc_name, ioc in six.iteritems(component.iocs):
+            for ioc_name, ioc in component.iocs.items():
                 if ioc_name not in iocs:
                     iocs[ioc_name] = ioc
         return iocs
@@ -264,7 +262,7 @@ class ConfigHolder:
             list : A list of components in the configuration
         """
         component_names = []
-        for component_name, component in six.iteritems(self._components):
+        for component_name, component in self._components.items():
             if include_base or (component_name.lower() != DEFAULT_COMPONENT.lower()):
                 component_names.append(component.get_name())
         return component_names
@@ -317,7 +315,7 @@ class ConfigHolder:
 
     def _comps_to_list(self):
         comps = []
-        for component_name, component_value in six.iteritems(self._components):
+        for component_name, component_value in self._components.items():
             if component_name.lower() != DEFAULT_COMPONENT.lower():
                 comps.append({'name': component_value.get_name()})
         return comps
@@ -379,7 +377,7 @@ class ConfigHolder:
         self._is_component = is_component
         self._components = OrderedDict()
         if not is_component:
-            for n, v in six.iteritems(config.components):
+            for n, v in config.components.items():
                 if n.lower() != DEFAULT_COMPONENT.lower():
                     comp = self.load_configuration(v, True)
                     self.add_component(v, comp)

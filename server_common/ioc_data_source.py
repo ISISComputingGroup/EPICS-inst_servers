@@ -1,5 +1,3 @@
-import six
-
 """
 Data source for ioc data
 """
@@ -133,7 +131,7 @@ class IocDataSource:
         """
         try:
             values = self._query_and_normalise(GET_PVNAMES_IN_PVCATEGORY, ("%{0}%".format(category),))
-            return [six.text_type(val[0]) for val in values]
+            return [str(val[0]) for val in values]
         except Exception as err:
             print_and_log("could not get parameters category %s from database: %s" % (category, err), "MAJOR", "DBSVR")
             return []
