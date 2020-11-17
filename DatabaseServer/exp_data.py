@@ -65,7 +65,7 @@ class ExpDataSource:
             sqlquery += " ORDER BY role.priority"
             team = [list(element) for element in self._db.query(sqlquery, (experiment_id,))]
             if len(team) == 0:
-                raise ValueError("unable to find team details for experiment ID {}".format(experiment_id))
+                raise ValueError(f"unable to find team details for experiment ID {experiment_id}")
             else:
                 return team
         except Exception:

@@ -88,8 +88,7 @@ def observable(*allowed_listener_types):
                                             for allowed_type in allowed_listener_types}
                     return self._listeners_info[listener_type.__name__]
             except KeyError:
-                raise TypeError("Trigger or add listener called with non observer type {}".format(
-                    listener_type.__name__))
+                raise TypeError(f"Trigger or add listener called with non observer type {listener_type.__name__}")
 
         def _trigger_listeners(self, new_value):
             """

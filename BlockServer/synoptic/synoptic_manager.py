@@ -119,10 +119,10 @@ class SynopticManager(OnTheFlyPvInterface):
                 # Get the synoptic name
                 self._create_pv(data)
             except MaxAttemptsExceededException:
-                print_and_log("Could not open synoptic file {path}. Please check the file is "
-                              "not in use by another process.".format(path=f), "MAJOR")
+                print_and_log(f"Could not open synoptic file {f}. Please check the file is "
+                              f"not in use by another process.", "MAJOR")
             except Exception as err:
-                print_and_log("Error creating synoptic PV: {error}".format(error=err), "MAJOR")
+                print_and_log(f"Error creating synoptic PV: {err}", "MAJOR")
 
     def _create_pv(self, data):
         """Creates a single PV based on a name and data. Adds this PV to the dictionary returned on get_synoptic_list
@@ -136,7 +136,7 @@ class SynopticManager(OnTheFlyPvInterface):
             for key in self._synoptic_pvs.keys():
                 if name.lower() == key.lower():
                     self._synoptic_pvs.pop(key)
-            pv = create_pv_name(name, self._synoptic_pvs.values(), "SYNOPTIC")
+            pv = create_pv_name(name, list(self._synoptic_pvs.values()), "SYNOPTIC")
             self._synoptic_pvs[name] = pv
 
         # Create the PV
@@ -187,8 +187,8 @@ class SynopticManager(OnTheFlyPvInterface):
                 data = self._file_io.read_synoptic_file(self._directory, fullname)
                 self._default_syn_xml = data
             except MaxAttemptsExceededException:
-                print_and_log("Could not open synoptic file {path}. Please check the file is not "
-                              "in use by another process.".format(path=fullname), "MAJOR")
+                print_and_log(f"Could not open synoptic file {fullname}. Please check the file is not "
+                              f"in use by another process.", "MAJOR")
                 self._default_syn_xml = ""
         else:
             # No synoptic

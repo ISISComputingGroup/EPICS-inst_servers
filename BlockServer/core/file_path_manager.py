@@ -94,7 +94,7 @@ class FilePathManager:
         Returns: File path to the synoptic of the given name
 
         """
-        return os.path.join(self.synoptic_dir, "{}.xml".format(synoptic_name))
+        return os.path.join(self.synoptic_dir, f"{synoptic_name}.xml")
 
     def get_banner_path(self):
         """

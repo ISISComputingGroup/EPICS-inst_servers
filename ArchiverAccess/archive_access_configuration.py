@@ -133,7 +133,7 @@ class ArchiveAccessConfigBuilder:
 
         """
         if self._trigger_pv is not None:
-            print_and_log("Trigger pv being redefined to {0} from {1}".format(pv_name, self._trigger_pv),
+            print_and_log(f"Trigger pv being redefined to {pv_name} from {self._trigger_pv}",
                           severity=SEVERITY.MAJOR, src="ArchiverAccess")
 
         self._trigger_pv = pv_name
@@ -169,8 +169,7 @@ class ArchiveAccessConfigBuilder:
 
     def _set_logging_period_provider(self, logging_period_provider):
         if self._logging_period_provider is not None:
-            print_and_log("Logging period being redefined to {0} from {1}".format(
-                logging_period_provider, self._logging_period_provider), severity=SEVERITY.MAJOR, src="ArchiverAccess")
+            print_and_log(f"Logging period being redefined to {logging_period_provider} from {self._logging_period_provider}", severity=SEVERITY.MAJOR, src="ArchiverAccess")
 
         self._logging_period_provider = logging_period_provider
 
@@ -218,15 +217,15 @@ class ArchiveAccessConfig:
 
     def __rep__(self):
         rep = "Logging configuration (pvs as read from the archive)"
-        rep += " - file (log on end): {0}".format(self.on_end_logging_filename_template)
-        rep += " - file (continuous): {0}".format(self.continuous_logging_filename_template)
-        rep += " - trigger pv: {0}".format(self.trigger_pv)
-        rep += " - trigger pv: {0}".format(self.logging_period_provider)
-        rep += " - file headers: {0}".format(self.header)
-        rep += " - pvs in fileheader {0}".format(self.pv_names_in_header)
-        rep += " - table headers: {0}".format(self.column_header_list)
-        rep += " - table line: {0}".format(self.table_line)
-        rep += " - pvs in table line {0}".format(self.pv_names_in_columns)
+        rep += f" - file (log on end): {self.on_end_logging_filename_template}"
+        rep += f" - file (continuous): {self.continuous_logging_filename_template}"
+        rep += f" - trigger pv: {self.trigger_pv}"
+        rep += f" - trigger pv: {self.logging_period_provider}"
+        rep += f" - file headers: {self.header}"
+        rep += f" - pvs in fileheader {self.pv_names_in_header}"
+        rep += f" - table headers: {self.column_header_list}"
+        rep += f" - table line: {self.table_line}"
+        rep += f" - pvs in table line {self.pv_names_in_columns}"
         return rep
 
     def _convert_columns(self, columns):

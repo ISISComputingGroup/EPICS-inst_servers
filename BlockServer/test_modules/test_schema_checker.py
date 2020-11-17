@@ -115,8 +115,7 @@ class TestSchemaChecker(unittest.TestCase):
             ConfigurationSchemaChecker.check_xml_data_matches_schema(os.path.join(self.schema_dir, "groups.xsd"), xml)
         except Exception as ex:
             self.fail(
-                msg="Exception thrown from schema checker. Xml is {xml} exception is {0}".format(traceback.format_exc(),
-                                                                                                 xml=xml))
+                msg=f"Exception thrown from schema checker. Xml is {xml} exception is {traceback.format_exc()}")
 
     def test_groups_xml_does_not_match_schema_raises(self):
         self.cs.set_config_details(TEST_CONFIG)
@@ -135,7 +134,7 @@ class TestSchemaChecker(unittest.TestCase):
         try:
             ConfigurationSchemaChecker.check_xml_data_matches_schema(os.path.join(self.schema_dir, "iocs.xsd"), xml)
         except Exception as ex:
-            self.fail(msg="Exception thrown from schema checker. Xml is {xml} exception is {0}".format(traceback.format_exc(), xml=xml))
+            self.fail(msg=f"Exception thrown from schema checker. Xml is {xml} exception is {traceback.format_exc()}")
 
     def test_iocs_xml_does_not_match_schema_raises(self):
         self.cs.set_config_details(TEST_CONFIG)

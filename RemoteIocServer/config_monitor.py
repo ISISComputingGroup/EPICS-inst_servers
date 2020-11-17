@@ -107,7 +107,7 @@ class ConfigurationMonitor:
         Monitors the PV and calls the provided callback function when the value changes
         """
         self._stop_monitoring()
-        self._monitor = _EpicsMonitor("{}CS:BLOCKSERVER:GET_CURR_CONFIG_DETAILS".format(self._remote_pv_prefix))
+        self._monitor = _EpicsMonitor(f"{self._remote_pv_prefix}CS:BLOCKSERVER:GET_CURR_CONFIG_DETAILS")
         self._monitor.start(callback=self._config_updated)
 
     def _stop_monitoring(self):
@@ -122,9 +122,8 @@ class ConfigurationMonitor:
             self.write_new_config_as_xml(new_config)
             THREADPOOL.submit(self.restart_iocs_callback_func)
         except (TypeError, ValueError, IOError, zlib.error) as e:
-            print_and_log("ConfigMonitor: Config JSON from instrument not decoded correctly: {}: {}"
-                          .format(e.__class__.__name__, e))
-            print_and_log("ConfigMonitor: Raw PV value was: {}".format(value))
+            print_and_log(f"ConfigMonitor: Config JSON from instrument not decoded correctly: {e.__class__.__name__}: {e}")
+            print_and_log(f"ConfigMonitor: Raw PV value was: {value}")
 
     @needs_config_updating_lock
     def write_new_config_as_xml(self, config_json_as_str):
@@ -192,4 +191,4 @@ class ConfigurationMonitor:
     def _update_last_config(self):
         print_and_log("ConfigMonitor: Writing last_config.txt")
         with open(FILEPATH_MANAGER.get_last_config_file_path(), "w") as f:
-            f.write("{}\n".format(REMOTE_IOC_CONFIG_NAME))
+            f.write(f"{REMOTE_IOC_CONFIG_NAME}\n")

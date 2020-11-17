@@ -62,7 +62,7 @@ class TimeLastActive:
 
         """
         time_last_active, sample_id = self._get_last_active()
-        print_and_log("Last active: {0} ({1})".format(time_last_active.isoformat(), sample_id), src="ArchiverAccess")
+        print_and_log(f"Last active: {time_last_active.isoformat()} ({sample_id})", src="ArchiverAccess")
         return time_last_active, sample_id
 
     def _get_last_active(self):
@@ -80,7 +80,7 @@ class TimeLastActive:
                 max_delta = int(time_last_active_file.readline().strip())
                 sample_id = int(time_last_active_file.readline().strip())
         except (ValueError, TypeError, IOError) as ex:
-            print_and_log("Failed to read last active file error '{0}'".format(ex),
+            print_and_log(f"Failed to read last active file error '{ex}'",
                           severity=SEVERITY.MINOR, src="ArchiverAccess")
             return time_now - timedelta(days=DEFAULT_DELTA), sample_id
         if max_delta < 0:
@@ -103,9 +103,9 @@ class TimeLastActive:
         """
         try:
             with self._file(TIME_LAST_ACTIVE_FILENAME, mode="w") as time_last_active_file:
-                time_last_active_file.write("{0}\n".format(TIME_LAST_ACTIVE_HEADER))
-                time_last_active_file.write("{0}\n".format(last_active_time.strftime(TIME_FORMAT)))
-                time_last_active_file.write("{0}\n".format(delta))
-                time_last_active_file.write("{0}\n".format(last_sample_id))
+                time_last_active_file.write(f"{TIME_LAST_ACTIVE_HEADER}\n")
+                time_last_active_file.write(f"{last_active_time.strftime(TIME_FORMAT)}\n")
+                time_last_active_file.write(f"{delta}\n")
+                time_last_active_file.write(f"{last_sample_id}\n")
         except (ValueError, TypeError, IOError)as err:
             print_and_log(f"Error writing last activity file: '{err}'")

@@ -81,11 +81,11 @@ class RemoteIocListDriver(Driver):
             reason: PV to set value of
             value: Value to set
         """
-        print_and_log("RemoteIocListDriver: Processing PV write for reason {}".format(reason))
+        print_and_log(f"RemoteIocListDriver: Processing PV write for reason {reason}")
         if reason == PvNames.INSTRUMENT:
             self.set_remote_pv_prefix(value)
         else:
-            print_and_log("RemoteIocListDriver: Could not write to PV '{}': not known".format(reason), "MAJOR")
+            print_and_log(f"RemoteIocListDriver: Could not write to PV '{reason}': not known", "MAJOR")
 
         # Update PVs after any write.
         self.updatePVs()
@@ -97,13 +97,13 @@ class RemoteIocListDriver(Driver):
         Args:
             reason: PV to read value of
         """
-        print_and_log("RemoteIocListDriver: Processing PV read for reason {}".format(reason))
+        print_and_log(f"RemoteIocListDriver: Processing PV read for reason {reason}")
         self.updatePVs()  # Update PVs before any read so that they are up to date.
 
         if reason == PvNames.INSTRUMENT:
             return six.binary_type(self._remote_pv_prefix if self._remote_pv_prefix is not None else "NONE")
         else:
-            print_and_log("RemoteIocListDriver: Could not read from PV '{}': not known".format(reason), "MAJOR")
+            print_and_log(f"RemoteIocListDriver: Could not read from PV '{reason}': not known", "MAJOR")
 
     def set_remote_pv_prefix(self, remote_pv_prefix):
         """
@@ -114,8 +114,7 @@ class RemoteIocListDriver(Driver):
         Returns:
 
         """
-        print_and_log("RemoteIocListDriver: setting instrument to {} (old: {})"
-                      .format(remote_pv_prefix, self._remote_pv_prefix))
+        print_and_log(f"RemoteIocListDriver: setting instrument to {remote_pv_prefix} (old: {self._remote_pv_prefix})")
         self._remote_pv_prefix = remote_pv_prefix
         self._autosave.write_parameter(AUTOSAVE_REMOTE_PREFIX_NAME, remote_pv_prefix)
 
@@ -123,7 +122,7 @@ class RemoteIocListDriver(Driver):
         THREADPOOL.submit(self.restart_all_iocs)
         THREADPOOL.submit(self._gateway.set_remote_pv_prefix, remote_pv_prefix)
         self.updatePVs()
-        print_and_log("RemoteIocListDriver: Finished setting instrument to {}".format(self._remote_pv_prefix))
+        print_and_log(f"RemoteIocListDriver: Finished setting instrument to {self._remote_pv_prefix}")
 
     def restart_all_iocs(self):
         """
@@ -153,7 +152,7 @@ def serve_forever(pv_prefix, subsystem_prefix, gateway_pvlist_path, gateway_acf_
     """
     server = SimpleServer()
 
-    server.createPV("{}{}".format(pv_prefix, subsystem_prefix).encode('ascii'), STATIC_PV_DATABASE)
+    server.createPV(f"{pv_prefix}{subsystem_prefix}", STATIC_PV_DATABASE)
 
     # Looks like it does nothing, but this creates *and automatically registers* the driver
     # (via metaclasses in pcaspy). See declaration of DriverType in pcaspy/driver.py for details

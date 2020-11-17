@@ -219,9 +219,8 @@ class DatabaseServer(Driver):
             prefix: The PV prefix
         """
         if size > self._pv_info[pv]['count']:
-            print_and_log("Too much data to encode PV {0}. Current size is {1} characters but {2} are required"
-                          .format(prefix + pv, self._pv_info[pv]['count'], size),
-                          MAJOR_MSG, LOG_TARGET)
+            print_and_log(f"Too much data to encode PV {prefix + pv}. Current size is {self._pv_info[pv]['count']} "
+                          f"characters but {size} are required", MAJOR_MSG, LOG_TARGET)
 
     def _get_iocs_info(self) -> dict:
         iocs = self._iocs.get_iocs()
@@ -345,7 +344,7 @@ if __name__ == '__main__':
         print_and_log("Connected to IOCData database", INFO_MSG, LOG_TARGET)
     except Exception as e:
         ioc_data = None
-        print_and_log("Problem initialising IOCData DB connection: {}".format(traceback.format_exc()),
+        print_and_log(f"Problem initialising IOCData DB connection: {traceback.format_exc()}",
                       MAJOR_MSG, LOG_TARGET)
 
     # Initialise experimental database connection
@@ -354,7 +353,7 @@ if __name__ == '__main__':
         print_and_log("Connected to experimental details database", INFO_MSG, LOG_TARGET)
     except Exception as e:
         exp_data = None
-        print_and_log("Problem connecting to experimental details database: {}".format(traceback.format_exc()),
+        print_and_log(f"Problem connecting to experimental details database: {traceback.format_exc()}",
                       MAJOR_MSG, LOG_TARGET)
 
     DRIVER = DatabaseServer(SERVER, ioc_data, exp_data, OPTIONS_DIR, BLOCKSERVER_PREFIX)

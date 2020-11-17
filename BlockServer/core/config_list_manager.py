@@ -291,7 +291,7 @@ class ConfigListManager:
 
     @deletion_context
     def delete_configs(self, delete_list):
-        print_and_log("Deleting configurations: {}".format(', '.join(list(delete_list)), "INFO"))
+        print_and_log(f"Deleting configurations: {', '.join(list(delete_list))}", "INFO")
         lower_delete_list = lowercase_and_make_unique(delete_list)
 
         if self.active_config_name.lower() in lower_delete_list:
@@ -302,7 +302,7 @@ class ConfigListManager:
         for config in lower_delete_list:
             if self._config_metas[config].isProtected:
                 verify_manager_mode(self.channel_access,
-                                    message="Attempting to delete protected configuration ('{}')".format(config))
+                                    message=f"Attempting to delete protected configuration ('{config}')")
 
         for config in delete_list:
             self._delete_single_config(config)
@@ -311,8 +311,8 @@ class ConfigListManager:
         try:
             self.file_manager.delete(config, is_component=False)
         except MaxAttemptsExceededException:
-            print_and_log("Could not delete configuration {name} from file system. "
-                          "Make sure its files are not in use by a different process.".format(name=config),
+            print_and_log(f"Could not delete configuration {config} from file system. "
+                          f"Make sure its files are not in use by a different process.",
                           "MINOR")
 
         self._delete_pv(BlockserverPVNames.get_config_details_pv(self._config_metas[config.lower()].pv))
@@ -331,7 +331,7 @@ class ConfigListManager:
             None
 
         """
-        print_and_log("Deleting components: {}".format(', '.join(list(delete_list)), "INFO"))
+        print_and_log(f"Deleting components: {', '.join(list(delete_list))}", "INFO")
         lower_delete_list = lowercase_and_make_unique(delete_list)
 
         if DEFAULT_COMPONENT.lower() in lower_delete_list:
@@ -341,7 +341,7 @@ class ConfigListManager:
         for component in lower_delete_list:
             if self._comp_dependencies.get(component):
                 raise InvalidDeleteException(
-                    "{} is in use in: {}".format(component, ', '.join(self._comp_dependencies[component])))
+                    f"{component} is in use in: {', '.join(self._comp_dependencies[component])}")
 
         if not lower_delete_list.issubset(self._component_metas.keys()):
             raise InvalidDeleteException("Delete list contains unknown components")
@@ -368,8 +368,8 @@ class ConfigListManager:
         try:
             self.file_manager.delete(component, is_component=True)
         except MaxAttemptsExceededException:
-            print_and_log("Could not delete component {name} from file system. "
-                          "Make sure its files are not in use by a different process.".format(name=component),
+            print_and_log(f"Could not delete component {component} from file system. "
+                          f"Make sure its files are not in use by a different process.",
                           "MINOR")
         self._delete_pv(BlockserverPVNames.get_component_details_pv(self._component_metas[component].pv))
         self._delete_pv(BlockserverPVNames.get_dependencies_pv(self._component_metas[component].pv))

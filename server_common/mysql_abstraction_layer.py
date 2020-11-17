@@ -178,7 +178,7 @@ class SQLAbstraction(AbstractSQLCommands):
             # to values not auto-updating in the GUI.
             conn.commit()
         except Exception as err:
-            print_and_log("Error executing command on database: {0}".format(err), "MAJOR")
+            print_and_log(f"Error executing command on database: {err}", "MAJOR")
             raise DatabaseError(str(err))
         finally:
             if curs is not None:
@@ -212,7 +212,7 @@ class SQLAbstraction(AbstractSQLCommands):
             # to values not auto-updating in the GUI.
             conn.commit()
         except Exception as err:
-            print_and_log("Error executing command on database: {0}".format(err), "MAJOR")
+            print_and_log(f"Error executing command on database: {err}", "MAJOR")
             raise DatabaseError(str(err))
         finally:
             if curs is not None:

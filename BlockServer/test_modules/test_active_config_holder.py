@@ -107,7 +107,7 @@ class TestActiveConfigHolderSequence(unittest.TestCase):
         try:
             config_holder.save_active("TEST_CONFIG")
         except Exception as e:
-            self.fail("test_save_config raised Exception unexpectedly: {}".format(e))
+            self.fail(f"test_save_config raised Exception unexpectedly: {e}")
 
     @unittest.skipIf(IS_LINUX, "Location of last_config.txt not correctly configured on Linux")
     def test_load_config(self):
@@ -160,7 +160,7 @@ class TestActiveConfigHolderSequence(unittest.TestCase):
         try:
             config_holder.save_active("TEST_CONFIG1", as_comp=True)
         except Exception as e:
-            self.fail("test_save_as_component raised Exception unexpectedly: {}".format(e))
+            self.fail(f"test_save_as_component raised Exception unexpectedly: {e}")
 
     @unittest.skipIf(IS_LINUX, "Unable to save config on Linux")
     def test_save_config_for_component(self):
@@ -169,7 +169,7 @@ class TestActiveConfigHolderSequence(unittest.TestCase):
         try:
             config_holder.save_active("TEST_CONFIG1")
         except Exception as e:
-            self.fail("test_save_config_for_component raised Exception unexpectedly: {}".format(e))
+            self.fail(f"test_save_config_for_component raised Exception unexpectedly: {e}")
 
     def test_load_component_fails(self):
         config_holder = self.active_config_holder

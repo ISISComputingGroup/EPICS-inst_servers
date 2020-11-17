@@ -106,8 +106,8 @@ def dehex_and_decompress(value):
         bytes : A decompressed version of the inputted string
     """
     assert type(value) == bytes, \
-        "Non-bytes argument passed to dehex_and_decompress, maybe Python 2/3 compatibility issue\n" \
-        "Argument was type {} with value {}".format(value.__class__.__name__, value)
+        f"Non-bytes argument passed to dehex_and_decompress, maybe Python 2/3 compatibility issue\n" \
+        f"Argument was type {value.__class__.__name__} with value {value}"
     return zlib.decompress(binascii.unhexlify(value))
 
 
@@ -121,8 +121,8 @@ def dehex_and_decompress_waveform(value):
         bytes : A decompressed version of the inputted string
     """
     assert type(value) == list, \
-        "Non-list argument passed to dehex_and_decompress_waveform\n" \
-        "Argument was type {} with value {}".format(value.__class__.__name__, value)
+        f"Non-list argument passed to dehex_and_decompress_waveform\n" \
+        f"Argument was type {value.__class__.__name__} with value {value}"
 
     unicode_rep = waveform_to_string(value)
     bytes_rep = unicode_rep.encode("ascii")
