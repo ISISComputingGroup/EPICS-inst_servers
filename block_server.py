@@ -374,8 +374,8 @@ class BlockServer(Driver):
         self.update_get_details_monitors()
         self.update_curr_config_name_monitors()
         self._active_configserver.update_archiver(full_init)
-        for h in self.on_the_fly_handlers:
-                h.on_config_change(full_init)
+        for handler in self.on_the_fly_handlers:
+            handler.on_config_change()
 
         # Update Web Server text
         self.server.set_config(convert_to_json(self._active_configserver.get_config_details()))
