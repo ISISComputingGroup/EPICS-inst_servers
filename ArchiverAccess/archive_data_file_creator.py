@@ -249,6 +249,6 @@ class ArchiveDataFileCreator:
 
         """
         if self._first_line_written:
-            periodic_data.next()
+            next(periodic_data)
         else:
             self._first_line_written = True

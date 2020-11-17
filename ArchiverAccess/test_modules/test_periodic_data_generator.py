@@ -31,7 +31,7 @@ class TestPeriodicDataGenerator(unittest.TestCase):
         expected_start_time = datetime(2017, 1, 1, 1, 2, 3, 0)
         data_generator = self._create_data_generator(expected_start_time, [1], 10)
 
-        result = data_generator.next()
+        result = next(data_generator)
 
         assert_that(result[0], is_(expected_start_time))
 
@@ -39,7 +39,7 @@ class TestPeriodicDataGenerator(unittest.TestCase):
         initial_value_pv1 = 1.23
         data_generator = self._create_data_generator(datetime(2017, 1, 1, 1, 2, 3, 0), [initial_value_pv1], 10)
 
-        result = data_generator.next()
+        result = next(data_generator)
 
         assert_that(result.values[0], is_(initial_value_pv1))
 
@@ -47,7 +47,7 @@ class TestPeriodicDataGenerator(unittest.TestCase):
         initial_value_pvs = [1.23, 3.45, 5.67]
         data_generator = self._create_data_generator(datetime(2017, 1, 1, 1, 2, 3, 0), initial_value_pvs, 10)
 
-        result = data_generator.next()
+        result = next(data_generator)
 
         assert_that(result.values, is_(initial_value_pvs))
 

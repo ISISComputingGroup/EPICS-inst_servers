@@ -89,7 +89,7 @@ class PeriodicDataGenerator:
         """
         try:
             self._next_change_time, self._next_change_index, self._next_change_value = \
-                _archiver_changes_generator.next()
+                next(_archiver_changes_generator)
         except StopIteration:
             self._next_change_time = None
 
