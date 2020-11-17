@@ -689,10 +689,10 @@ class TestConfigHolderSequence(unittest.TestCase):
         add_block(ch, "TESTBLOCK3", "PV3", "GROUP2", True)
         add_block(ch, "TESTBLOCK4", "PV4", "NONE", True)
         blocks = ch.get_blocknames()
-        self.assertEquals(len(blocks), 4)
+        self.assertEqual(len(blocks), 4)
         ch.clear_config()
         blocks = ch.get_blocknames()
-        self.assertEquals(len(blocks), 0)
+        self.assertEqual(len(blocks), 0)
 
     def test_cannot_save_with_blank_name(self):
         ch = ConfigHolder(MACROS, file_manager=MockConfigurationFileManager(),

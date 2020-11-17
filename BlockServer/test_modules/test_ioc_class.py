@@ -35,9 +35,9 @@ class TestIocClassSequence(unittest.TestCase):
     def test_ioc_simlevel_none_spelling(self):
         ioc = IOC("SIMPLE1")
 
-        self.assertEquals(ioc.simlevel, "none")
+        self.assertEqual(ioc.simlevel, "none")
 
     def test_ioc_simlevel_spelling(self):
         ioc = IOC("SIMPLE1", simlevel="FOOSIM")
 
-        self.assertEquals(ioc.simlevel, "foosim")
+        self.assertEqual(ioc.simlevel, "foosim")

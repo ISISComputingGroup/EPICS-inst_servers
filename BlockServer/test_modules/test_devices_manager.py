@@ -121,12 +121,12 @@ class TestDevicesManagerSequence(unittest.TestCase):
         result = self.dm.get_devices_filename()
 
         # Assert
-        self.assertEquals(expected, result)
+        self.assertEqual(expected, result)
 
     def test_when_devices_screens_file_does_not_exist_then_current_uses_blank_devices_data(self):
         # Assert
         self.assertTrue(len(self.file_io.files) == 0)
-        self.assertEquals(self.bs.pvs[GET_SCREENS], compress_and_hex(self.dm.get_blank_devices()))
+        self.assertEqual(self.bs.pvs[GET_SCREENS], compress_and_hex(self.dm.get_blank_devices()))
 
     def test_given_invalid_devices_data_when_device_xml_saved_then_not_saved(self):
         # Act: Save invalid new data to file
@@ -134,7 +134,7 @@ class TestDevicesManagerSequence(unittest.TestCase):
 
         # Assert
         # Should stay as blank (i.e. the previous value)
-        self.assertEquals(self.dm.get_blank_devices(), dehex_and_decompress(self.bs.pvs[GET_SCREENS]))
+        self.assertEqual(self.dm.get_blank_devices(), dehex_and_decompress(self.bs.pvs[GET_SCREENS]))
 
     def test_given_valid_devices_data_when_device_xml_saved_then_saved(self):
         # Act: Save the new data to file
@@ -142,4 +142,4 @@ class TestDevicesManagerSequence(unittest.TestCase):
 
         # Assert:
         # Device screens in blockserver should have been updated with value written to device manager
-        self.assertEquals(EXAMPLE_DEVICES, dehex_and_decompress(self.bs.pvs[GET_SCREENS]))
+        self.assertEqual(EXAMPLE_DEVICES, dehex_and_decompress(self.bs.pvs[GET_SCREENS]))
