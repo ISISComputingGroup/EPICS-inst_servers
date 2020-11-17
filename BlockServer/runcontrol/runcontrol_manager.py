@@ -118,9 +118,9 @@ class RunControlManager(OnTheFlyPvInterface):
         Initilise & create a new set of run control PVs.
 
         Args:
-            full_init: ignored
+            full_init: whether to force recreating run control PVs even if unchanged.
         """
-        self.create_runcontrol_pvs()
+        self.create_runcontrol_pvs(full_init=full_init)
 
     def _create_standard_pvs(self):
         self._bs.add_string_pv_to_db(RUNCONTROL_OUT_PV, 16000)
@@ -133,7 +133,7 @@ class RunControlManager(OnTheFlyPvInterface):
         self.wait_for_ioc_start()
         print_and_log("Runcontrol IOC started")
 
-    def create_runcontrol_pvs(self, time_between_tries=2):
+    def create_runcontrol_pvs(self, full_init=False, time_between_tries=2):
         """
         Create the PVs for run-control.
 
@@ -141,10 +141,11 @@ class RunControlManager(OnTheFlyPvInterface):
         configuration.
 
         Args:
+            full_init: True to force recreating blocks even if they haven't changed, False otherwise
             time_between_tries: Time to wait between checking run control has
                 started
         """
-        if self._active_configholder.blocks_changed():
+        if self._active_configholder.blocks_changed() or full_init:
             print_and_log("Start creating runcontrol PVs")
             self.update_runcontrol_blocks(
                 self._active_configholder.get_block_details())
