@@ -1,7 +1,7 @@
 import threading
 import time
 import unittest
-from queue import Queue, Empty
+from six.moves.queue import Queue, Empty
 
 from concurrent.futures import wait
 from mock import Mock, patch
@@ -62,10 +62,12 @@ class TestChannelAccess(unittest.TestCase):
 
         newly_created_threads = current_count - initial_thread_count
         assert_that(newly_created_threads, is_(greater_than(NUMBER_OF_CAPUT_THREADS / 2)),
-                    f"Number of threads running (thread count: initial {initial_thread_count} current {current_count})")
+                    "Number of threads running (thread count: initial {} current {})".format(initial_thread_count,
+                                                                                             current_count))
 
         assert_that(newly_created_threads, is_(less_than_or_equal_to(NUMBER_OF_CAPUT_THREADS)),
-                    f"Number of threads running (thread count: initial {initial_thread_count} current {current_count})")
+                    "Number of threads running (thread count: initial {} current {})".format(initial_thread_count,
+                                                                                             current_count))
 
         wait(the_future)
         time.sleep(3)  # wait for all items to finish

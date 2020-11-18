@@ -1,3 +1,5 @@
+from __future__ import unicode_literals, absolute_import, print_function, division
+
 import re
 import unittest
 import os
@@ -95,7 +97,8 @@ class TestISISLog(unittest.TestCase):
         pv_name = "pv:name"
         new_value = 19
         old_value = 10.23
-        expected_message = f"{expected_date} 127.0.0.1 {expected_ioc_name} {pv_name} {new_value} {old_value}"
+        expected_message = "{} 127.0.0.1 {} {} {} {}".format(
+            expected_date, expected_ioc_name, pv_name, new_value, old_value)
 
         logger = IsisPutLog(expected_ioc_name)
         mock_socket = Mock()

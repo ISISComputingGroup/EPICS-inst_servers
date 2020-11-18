@@ -17,6 +17,7 @@
 Utilities for running block server and related ioc's.
 """
 import threading
+import six
 import time
 import zlib
 import re
@@ -33,7 +34,7 @@ LOGGER = Logger()
 _LOGGER_LOCK = threading.RLock()  # To prevent message interleaving between different threads.
 
 
-class SEVERITY:
+class SEVERITY(object):
     """
     Standard message severities.
     """
@@ -89,9 +90,9 @@ def compress_and_hex(value):
         bytes : A compressed and hexed version of the inputted string
     """
     assert type(value) == str, \
-        f"Non-str argument passed to compress_and_hex, maybe Python 2/3 compatibility issue\n" \
-        f"Argument was type {value.__class__.__name__} with value {value}"
-    compr = bytes(value, "utf-8")
+        "Non-str argument passed to compress_and_hex, maybe Python 2/3 compatibility issue\n" \
+        "Argument was type {} with value {}".format(value.__class__.__name__, value)
+    compr = zlib.compress(bytes(value) if six.PY2 else bytes(value, "utf-8"))
     return binascii.hexlify(compr)
 
 
@@ -105,8 +106,8 @@ def dehex_and_decompress(value):
         bytes : A decompressed version of the inputted string
     """
     assert type(value) == bytes, \
-        f"Non-bytes argument passed to dehex_and_decompress, maybe Python 2/3 compatibility issue\n" \
-        f"Argument was type {value.__class__.__name__} with value {value}"
+        "Non-bytes argument passed to dehex_and_decompress, maybe Python 2/3 compatibility issue\n" \
+        "Argument was type {} with value {}".format(value.__class__.__name__, value)
     return zlib.decompress(binascii.unhexlify(value))
 
 
@@ -120,8 +121,8 @@ def dehex_and_decompress_waveform(value):
         bytes : A decompressed version of the inputted string
     """
     assert type(value) == list, \
-        f"Non-list argument passed to dehex_and_decompress_waveform\n" \
-        f"Argument was type {value.__class__.__name__} with value {value}"
+        "Non-list argument passed to dehex_and_decompress_waveform\n" \
+        "Argument was type {} with value {}".format(value.__class__.__name__, value)
 
     unicode_rep = waveform_to_string(value)
     bytes_rep = unicode_rep.encode("ascii")
@@ -268,11 +269,11 @@ def waveform_to_string(data):
     Returns: waveform as a sting
 
     """
-    output = ""
+    output = six.text_type()
     for i in data:
         if i == 0:
             break
-        output += chr(i)
+        output += six.unichr(i)
     return output
 
 
@@ -305,7 +306,7 @@ def retry(max_attempts, interval, exception):
     def _tags_decorator(func):
         def _wrapper(*args, **kwargs):
             attempts = 0
-            ex = ValueError(f"Max attempts should be > 0, it is {max_attempts}")
+            ex = ValueError("Max attempts should be > 0, it is {}".format(max_attempts))
             while attempts < max_attempts:
                 try:
                     return func(*args, **kwargs)

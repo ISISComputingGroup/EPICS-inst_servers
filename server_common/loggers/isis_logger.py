@@ -2,6 +2,7 @@
 Access to external loggers at ISIS
 """
 
+from __future__ import print_function, absolute_import, division, unicode_literals
 # This file is part of the ISIS IBEX application.
 # Copyright (C) 2012-2016 Science & Technology Facilities Council.
 # All rights reserved.
@@ -129,5 +130,5 @@ class IsisPutLog:
         """
         time_now = datetime.datetime.now()
         time_str = time_now.strftime("%d-%b-%y %H:%M:%S")
-        message = f"{time_str} {LOCALHOST} {self._ioc_name} {pv_name} {new_value} {old_value}"
+        message = "{} {} {} {} {} {}".format(time_str, LOCALHOST, self._ioc_name, pv_name, new_value, old_value)
         self.logger.write_to_log(message)

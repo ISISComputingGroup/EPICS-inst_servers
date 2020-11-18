@@ -1,3 +1,5 @@
+import six
+
 HIGH_PV_NAMES = ["HIGH_PV1", "HIGH_PV2", "HIGH_PV3"]
 HIGH_PVS = [
     [HIGH_PV_NAMES[0], "ai", "HIGH PV 1", "SomeIOC"],
@@ -36,7 +38,7 @@ IOCS = {
 }
 
 
-class MockIocDataSource:
+class MockIocDataSource(object):
     def __init__(self):
         self.iocs = IOCS
 
@@ -44,7 +46,7 @@ class MockIocDataSource:
         return self.iocs
 
     def get_iocs_and_running_status(self):
-        iocs_and_run_status = [(ioc_name, ioc_info["running"]) for ioc_name, ioc_info in self.iocs.items()]
+        iocs_and_run_status = [(ioc_name, ioc_info["running"]) for ioc_name, ioc_info in six.iteritems(self.iocs)]
         return iocs_and_run_status
 
     def update_ioc_is_running(self, iocname, running):

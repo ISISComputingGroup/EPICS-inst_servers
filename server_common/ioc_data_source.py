@@ -1,3 +1,7 @@
+from __future__ import print_function, absolute_import, division, unicode_literals
+
+import six
+
 """
 Data source for ioc data
 """
@@ -78,7 +82,7 @@ DELETE_IOC_PV_DETAILS = "DELETE FROM pvs WHERE iocname=%s"
 """Delete ioc pv details, this cascades to pv info details"""
 
 
-class IocDataSource:
+class IocDataSource(object):
     """
     A source for IOC data from the database
     """
@@ -87,7 +91,7 @@ class IocDataSource:
         Constructor.
 
         Args:
-            mysql_abstraction_layer(server_common.mysql_abstraction_layer.AbstractSQLCommands): contact database with sql
+            mysql_abstraction_layer(server_common.mysql_abstraction_layer.AbstratSQLCommands): contact database with sql
         """
         self.mysql_abstraction_layer = mysql_abstraction_layer
 
@@ -131,7 +135,7 @@ class IocDataSource:
         """
         try:
             values = self._query_and_normalise(GET_PVNAMES_IN_PVCATEGORY, ("%{0}%".format(category),))
-            return [str(val[0]) for val in values]
+            return [six.text_type(val[0]) for val in values]
         except Exception as err:
             print_and_log("could not get parameters category %s from database: %s" % (category, err), "MAJOR", "DBSVR")
             return []
@@ -192,7 +196,7 @@ class IocDataSource:
                     sql_query = GET_PVS_WITH_DETAILS
             return self._query_and_normalise(sql_query, bind_vars)
         except Exception as err:
-            print_and_log(f"issue with getting interesting PVs: {err}", "MAJOR", "DBSVR")
+            print_and_log("issue with getting interesting PVs: %s" % err, "MAJOR", "DBSVR")
             return []
 
     def get_active_pvs(self):
@@ -205,7 +209,7 @@ class IocDataSource:
         try:
             return self._query_and_normalise(GET_ACTIVE_IOC_INTERESTING_PVS)
         except Exception as err:
-            print_and_log(f"issue with getting active PVs: {err}", "MAJOR", "DBSVR")
+            print_and_log("issue with getting active PVs: %s" % err, "MAJOR", "DBSVR")
             return []
 
     def get_iocs_and_running_status(self):
@@ -218,7 +222,7 @@ class IocDataSource:
         try:
             return self._query_and_normalise(GET_IOCS_AND_RUNNING_STATUS)
         except Exception as err:
-            print_and_log(f"issue with reading IOC statuses before update: {err}", "MAJOR", "DBSVR")
+            print_and_log("issue with reading IOC statuses before update: %s" % err, "MAJOR", "DBSVR")
             return []
 
     def update_ioc_is_running(self, ioc_name, running):
@@ -232,7 +236,8 @@ class IocDataSource:
         try:
             self.mysql_abstraction_layer.update(UPDATE_IOC_IS_RUNNING, (running, ioc_name))
         except Exception as err:
-            print_and_log(f"Failed to update ioc running state in database ({ioc_name},{running}): {err}", "MAJOR", "DBSVR")
+            print_and_log("Failed to update ioc running state in database ({ioc_name},{running}): {error}"
+                          .format(ioc_name=ioc_name, running=running, error=err), "MAJOR", "DBSVR")
 
     def insert_ioc_start(self, ioc_name, pid, exe_path, pv_database, prefix):
         """
@@ -250,7 +255,7 @@ class IocDataSource:
         self._add_ioc_start_to_db(exe_path, ioc_name, pid)
 
         for pvname, pv in pv_database.items():
-            pv_fullname = f"{prefix}{pvname}"
+            pv_fullname = "{}{}".format(prefix, pvname)
             self._add_pv_to_db(ioc_name, pv, pv_fullname)
 
             for info_field_name, info_field_value in pv.get(PV_INFO_FIELD_NAME, {}).items():
@@ -270,8 +275,9 @@ class IocDataSource:
         try:
             self.mysql_abstraction_layer.update(UPDATE_PV_INFO, (pv_fullname, info_field_name, info_field_value))
         except Exception as err:
-            print_and_log(f"Failed to insert pv info for pv '{pv_fullname}' with name '{info_field_name}' and value "
-                          f"'{info_field_value}': {err}", "MAJOR", "DBSVR")
+            print_and_log("Failed to insert pv info for pv '{pvname}' with name '{name}' and value "
+                          "'{value}': {error}".format(pvname=pv_fullname, name=info_field_name,
+                                                      value=info_field_value, error=err), "MAJOR", "DBSVR")
 
     def _add_pv_to_db(self, ioc_name, pv, pv_fullname):
         """
@@ -286,7 +292,8 @@ class IocDataSource:
             description = pv.get(PV_DESCRIPTION_NAME, "")
             self.mysql_abstraction_layer.update(INSERT_PV_DETAILS, (pv_fullname, pv_type, description, ioc_name))
         except DatabaseError as err:
-            print_and_log(f"Failed to insert pv data for pv '{pv_fullname}' with contents '{pv}': {err}", "MAJOR", "DBSVR")
+            print_and_log("Failed to insert pv data for pv '{pvname}' with contents '{pv}': {error}"
+                          .format(ioc_name=ioc_name, pvname=pv_fullname, pv=pv, error=err), "MAJOR", "DBSVR")
 
     def _add_ioc_start_to_db(self, exe_path, ioc_name, pid):
         """
@@ -300,7 +307,8 @@ class IocDataSource:
 
             self.mysql_abstraction_layer.update(INSERT_IOC_STARTED_DETAILS, (ioc_name, pid, exe_path))
         except DatabaseError as err:
-            print_and_log(f"Failed to insert ioc into database ({ioc_name},{pid},{exe_path}): {err}", "MAJOR", "DBSVR")
+            print_and_log("Failed to insert ioc into database ({ioc_name},{pid},{exepath}): {error}"
+                          .format(ioc_name=ioc_name, pid=pid, exepath=exe_path, error=err), "MAJOR", "DBSVR")
 
     def _remove_ioc_from_db(self, ioc_name):
         """
@@ -311,8 +319,10 @@ class IocDataSource:
         try:
             self.mysql_abstraction_layer.update(DELETE_IOC_RUN_STATE, (ioc_name,))
         except DatabaseError as err:
-            print_and_log(f"Failed to delete ioc, '{ioc_name}', from iocrt: {err}", "MAJOR", "DBSVR")
+            print_and_log("Failed to delete ioc, '{ioc_name}', from iocrt: {error}"
+                          .format(ioc_name=ioc_name, error=err), "MAJOR", "DBSVR")
         try:
             self.mysql_abstraction_layer.update(DELETE_IOC_PV_DETAILS, (ioc_name,))
         except DatabaseError as err:
-            print_and_log(f"Failed to delete ioc, '{ioc_name}', from pvs: {err}", "MAJOR", "DBSVR")
+            print_and_log("Failed to delete ioc, '{ioc_name}', from pvs: {error}"
+                          .format(ioc_name=ioc_name, error=err), "MAJOR", "DBSVR")

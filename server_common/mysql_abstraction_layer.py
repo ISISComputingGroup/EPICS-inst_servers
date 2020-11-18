@@ -29,7 +29,7 @@ class DatabaseError(Exception):
         self.message = message
 
 
-class AbstractSQLCommands:
+class AbstratSQLCommands(object):
     """
     Abstract base class for sql commands for testing
     """
@@ -93,7 +93,7 @@ class AbstractSQLCommands:
         self._execute_command(command, False, bound_variables)
 
 
-class SQLAbstraction(AbstractSQLCommands):
+class SQLAbstraction(AbstratSQLCommands):
     """
     A wrapper to connect to MySQL databases.
     """
@@ -178,7 +178,7 @@ class SQLAbstraction(AbstractSQLCommands):
             # to values not auto-updating in the GUI.
             conn.commit()
         except Exception as err:
-            print_and_log(f"Error executing command on database: {err}", "MAJOR")
+            print_and_log("Error executing command on database: {0}".format(err), "MAJOR")
             raise DatabaseError(str(err))
         finally:
             if curs is not None:
@@ -212,7 +212,7 @@ class SQLAbstraction(AbstractSQLCommands):
             # to values not auto-updating in the GUI.
             conn.commit()
         except Exception as err:
-            print_and_log(f"Error executing command on database: {err}", "MAJOR")
+            print_and_log("Error executing command on database: {0}".format(err), "MAJOR")
             raise DatabaseError(str(err))
         finally:
             if curs is not None:

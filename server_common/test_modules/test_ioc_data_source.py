@@ -19,10 +19,10 @@ from hamcrest import *
 from mock import Mock
 
 from server_common.ioc_data_source import IocDataSource
-from server_common.mysql_abstraction_layer import DatabaseError, AbstractSQLCommands
+from server_common.mysql_abstraction_layer import DatabaseError, AbstratSQLCommands
 
 
-class SQLAbstractionStubForIOC(AbstractSQLCommands):
+class SQLAbstractionStubForIOC(AbstratSQLCommands):
     """Testing stub."""
     def __init__(self, query_return):
         self.sql_param = []
@@ -120,8 +120,8 @@ class TestIocDataSource(unittest.TestCase):
         pv_name_1 = "pv_name_1"
         pv_name_2 = "pv_name_2"
         description = "desc1"
-        expected_name1 = f"{prefix}{pv_name_1}"
-        expected_name2 = f"{prefix}{pv_name_2}"
+        expected_name1 = "{}{}".format(prefix, pv_name_1)
+        expected_name2 = "{}{}".format(prefix, pv_name_2)
         pvs = {pv_name_1: {"type": expected_type1, "description": description},
                pv_name_2: {}}
 
@@ -144,7 +144,7 @@ class TestIocDataSource(unittest.TestCase):
         value2 = "HIGH"
         prefix = "prefix"
         pv_name = "pv_name"
-        expected_name1 = f"{prefix}{pv_name}"
+        expected_name1 = "{}{}".format(prefix, pv_name)
         pvs = {pv_name: {"info_field": {name1: value1, name2: value2}}}
 
         data_source.insert_ioc_start("name", 12, "path", pvs, prefix)
