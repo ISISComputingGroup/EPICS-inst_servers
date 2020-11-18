@@ -155,9 +155,11 @@ class ConfigHolder:
                             used_blocks.append(bn)
 
         # If any groups are empty now we've filled in from the components, get rid of them
-        for key in groups:
+        # This is an ordered dict so we need to copy it before iterating - throws a runtime error if it has mutated.
+        groups_copy = groups.copy()
+        for key in groups_copy.keys():
             if len(groups[key].blocks) == 0:
-                del groups[key]
+                groups.pop(key)
 
         return groups
 
@@ -218,7 +220,7 @@ class ConfigHolder:
         iocs = self._config.iocs.keys()
         for cn, cv in self._components.items():
             if include_base or cn.lower() != DEFAULT_COMPONENT.lower():
-                iocs.extend(cv.iocs)
+                self._config.iocs.update(cv.iocs)
         return iocs
 
     def get_ioc_details(self):
