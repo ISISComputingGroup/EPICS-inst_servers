@@ -62,7 +62,7 @@ class ConfigurationSchemaChecker:
         if len(xml_data) == 0:
             raise ConfigurationFileBlank("Invalid XML: File is blank.")
 
-        folder, file_name = string.rsplit(schema_filepath, os.sep, 1)
+        folder, file_name = schema_filepath.rsplit(os.sep, 1)
         schema = ConfigurationSchemaChecker._get_schema(folder, file_name)
 
         try:
