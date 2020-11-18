@@ -398,6 +398,6 @@ class ConfigListManager:
             self._bs.setParam(BlockserverPVNames.COMPS, compress_and_hex(convert_to_json(self.get_components())))
             # Set the available component details
             self._bs.setParam(BlockserverPVNames.ALL_COMPONENT_DETAILS,
-                              compress_and_hex(convert_to_json(self.all_components.values())))
+                              compress_and_hex(convert_to_json(list(self.all_components.values()))))
             # Update them
             self._bs.updatePVs()
