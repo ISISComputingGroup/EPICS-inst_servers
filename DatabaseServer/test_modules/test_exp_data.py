@@ -1,3 +1,4 @@
+from __future__ import print_function, absolute_import, division, unicode_literals
 # This file is part of the ISIS IBEX application.
 # Copyright (C) 2012-2016 Science & Technology Facilities Council.
 # All rights reserved.
@@ -21,7 +22,7 @@ from server_common.utilities import dehex_and_decompress
 from DatabaseServer.exp_data import ExpData
 
 
-class MockExpDataSource:
+class MockExpDataSource(object):
     def __init__(self):
         self.valid_experiments = {"123456": [["Matt", "ESS", "PI"], ["Dom", "ISIS", ""], ["Jack", "ISIS", "Contact"]]}
 

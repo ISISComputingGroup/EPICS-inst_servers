@@ -1,3 +1,4 @@
+from __future__ import print_function, absolute_import, division, unicode_literals
 # This file is part of the ISIS IBEX application.
 # Copyright (C) 2012-2016 Science & Technology Facilities Council.
 # All rights reserved.
@@ -15,7 +16,7 @@
 # http://opensource.org/licenses/eclipse-1.0.php
 
 
-class MockProcServWrapper:
+class MockProcServWrapper(object):
     """
     Note: this file cannot currently be given type hints as it is included from the "server_common" tests.
 

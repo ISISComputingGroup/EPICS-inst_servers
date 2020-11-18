@@ -1,3 +1,4 @@
+from __future__ import print_function, unicode_literals, division, absolute_import
 import sys
 import os
 
@@ -5,7 +6,7 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), os.pa
 from server_common.utilities import char_waveform
 
 
-class PvNames:
+class PvNames(object):
     INSTRUMENT = "INSTRUMENT"
 
 

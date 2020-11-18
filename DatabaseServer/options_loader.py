@@ -1,3 +1,4 @@
+from __future__ import print_function, absolute_import, division, unicode_literals
 # This file is part of the ISIS IBEX application.
 # Copyright (C) 2012-2016 Science & Technology Facilities Council.
 # All rights reserved.
@@ -30,7 +31,7 @@ TAG_HAS_DEFAULT = 'hasDefault'
 
 
 def create_xpath_search(group: str, individual: str) -> str:
-    return f"./{CONFIG_PART}/{group}/{individual}"
+    return "./{}/{}/{}".format(CONFIG_PART, group, individual)
 
 
 MACROS = create_xpath_search('macros', 'macro')
@@ -38,7 +39,7 @@ PVS = create_xpath_search('pvs', 'pv')
 PVSETS = create_xpath_search('pvsets', 'pvset')
 
 
-class OptionsLoader:
+class OptionsLoader(object):
     @staticmethod
     def get_options(path: str) -> OrderedDict:
         """Loads the IOC options from file and converts them into IocOptions objects

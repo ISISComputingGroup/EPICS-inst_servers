@@ -1,3 +1,4 @@
+from __future__ import print_function, absolute_import, division, unicode_literals
 # This file is part of the ISIS IBEX application.
 # Copyright (C) 2012-2016 Science & Technology Facilities Council.
 # All rights reserved.
@@ -18,7 +19,7 @@ from server_common.channel_access import ChannelAccess
 from server_common.utilities import print_and_log
 
 
-class ProcServWrapper:
+class ProcServWrapper(object):
     """A wrapper for ProcSev to allow for control of IOCs"""
 
     @staticmethod
@@ -29,7 +30,7 @@ class ProcServWrapper:
             prefix: The prefix of the instrument the IOC is being run on
             ioc: The name of the requested IOC
         """
-        return f"{prefix}CS:PS:{ioc}"
+        return "{}CS:PS:{}".format(prefix, ioc)
 
     def start_ioc(self, prefix: str, ioc: str) -> None:
         """Starts the specified IOC
@@ -38,7 +39,7 @@ class ProcServWrapper:
             prefix: The prefix of the instrument the IOC is being run on
             ioc: The name of the IOC to start
         """
-        print_and_log(f"Starting IOC {ioc}")
+        print_and_log("Starting IOC {}".format(ioc))
         ChannelAccess.caput(self.generate_prefix(prefix, ioc) + ":START", 1)
 
     def stop_ioc(self, prefix: str, ioc: str) -> None:
@@ -48,7 +49,7 @@ class ProcServWrapper:
             prefix: The prefix of the instrument the IOC is being run on
             ioc: The name of the IOC to stop
         """
-        print_and_log(f"Stopping IOC {ioc}")
+        print_and_log("Stopping IOC {}".format(ioc))
         ChannelAccess.caput(self.generate_prefix(prefix, ioc) + ":STOP", 1)
 
     def restart_ioc(self, prefix: str, ioc: str) -> None:
@@ -58,7 +59,7 @@ class ProcServWrapper:
             prefix: The prefix of the instrument the IOC is being run on
             ioc: The name of the IOC to restart
         """
-        print_and_log(f"Restarting IOC {ioc}")
+        print_and_log("Restarting IOC {}".format(ioc))
         ChannelAccess.caput(self.generate_prefix(prefix, ioc) + ":RESTART", 1)
 
     def get_ioc_status(self, prefix: str, ioc: str) -> str:
@@ -74,7 +75,7 @@ class ProcServWrapper:
         pv = self.generate_prefix(prefix, ioc) + ":STATUS"
         ans = ChannelAccess.caget(pv, as_string=True)
         if ans is None:
-            raise IOError(f"Could not find IOC {pv}")
+            raise IOError("Could not find IOC (%s)" % pv)
         return ans.upper()
 
     def ioc_exists(self, prefix: str, ioc: str) -> bool:

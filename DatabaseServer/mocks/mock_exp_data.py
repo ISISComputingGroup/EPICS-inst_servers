@@ -1,9 +1,10 @@
+from __future__ import print_function, absolute_import, division, unicode_literals
 import json
 
 from server_common.utilities import compress_and_hex
 
 
-class MockExpData:
+class MockExpData(object):
     def encode_for_return(self, data: str) -> bytes:
         return compress_and_hex(json.dumps(data).encode('utf-8', 'replace'))
 

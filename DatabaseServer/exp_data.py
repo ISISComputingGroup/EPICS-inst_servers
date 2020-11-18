@@ -1,3 +1,4 @@
+from __future__ import print_function, absolute_import, division, unicode_literals
 # This file is part of the ISIS IBEX application.
 # Copyright (C) 2012-2016 Science & Technology Facilities Council.
 # All rights reserved.
@@ -16,6 +17,8 @@
 
 import json
 import typing
+
+import six
 import unicodedata
 import traceback
 
@@ -26,7 +29,7 @@ from server_common.utilities import compress_and_hex, char_waveform, print_and_l
 from typing import Type, Union
 
 
-class User:
+class User(object):
     """
     A user class to allow for easier conversions from database to json.
     """
@@ -36,7 +39,7 @@ class User:
         self.role = role
 
 
-class ExpDataSource:
+class ExpDataSource(object):
     """
     This is a humble object containing all the code for accessing the database.
     """
@@ -63,7 +66,7 @@ class ExpDataSource:
             sqlquery += " ORDER BY role.priority"
             team = [list(element) for element in self._db.query(sqlquery, (experiment_id,))]
             if len(team) == 0:
-                raise ValueError(f"unable to find team details for experiment ID {experiment_id}")
+                raise ValueError("unable to find team details for experiment ID {}".format(experiment_id))
             else:
                 return team
         except Exception:
@@ -91,7 +94,7 @@ class ExpDataSource:
             return False
 
 
-class ExpData:
+class ExpData(object):
     """
     A wrapper to connect to the IOC database via MySQL.
     """
@@ -192,9 +195,9 @@ class ExpData:
             teammembers = self._db.get_team(experiment_id)
             # Generate the lists/similar for conversion to JSON
             for member in teammembers:
-                fullname = str(member[0])
-                org = str(member[1])
-                role = str(member[2])
+                fullname = six.text_type(member[0])
+                org = six.text_type(member[1])
+                role = six.text_type(member[2])
                 if not role == "Contact":
                     surnames.append(self._get_surname_from_fullname(fullname))
                 orgs.append(org)

@@ -1,3 +1,5 @@
+from __future__ import print_function, unicode_literals, division, absolute_import
+
 import json
 import unittest
 import sys
@@ -42,7 +44,7 @@ class TestConfigMonitor(unittest.TestCase):
         mon = ConfigurationMonitor(LOCAL_TEST_PREFIX, lambda *a, **k: None)
         mon.set_remote_pv_prefix(REMOTE_TEST_PREFIX)
 
-        epicsmonitor.assert_called_with(f"{REMOTE_TEST_PREFIX}CS:BLOCKSERVER:GET_CURR_CONFIG_DETAILS")
+        epicsmonitor.assert_called_with("{}CS:BLOCKSERVER:GET_CURR_CONFIG_DETAILS".format(REMOTE_TEST_PREFIX))
         epicsmonitor.return_value.start.assert_called_once()
 
     @patch("RemoteIocServer.config_monitor.get_hostname_from_prefix")
