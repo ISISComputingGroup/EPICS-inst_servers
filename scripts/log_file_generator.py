@@ -43,7 +43,7 @@ def not_readonly(path):
         path: path of file
 
     """
-    print(f"Created log file {path}")
+    print("Created log file {}".format(path))
 
 
 def create_log(headers, columns, time_period, default_field, filename_template="default.log", host="127.0.0.1"):
@@ -92,11 +92,11 @@ if __name__ == '__main__':
     try:
         data_start_time = datetime.strptime(args.start_time, "%Y-%m-%dT%H:%M:%S")
     except (ValueError, TypeError) as ex:
-        print(f"Can not interpret date '{args.start_time}' error: {ex}")
+        print("Can not interpret date '{}' error: {}".format(args.start_time, ex))
         exit(1)
 
     the_time_period = ArchiveTimePeriod(data_start_time, timedelta(seconds=args.delta_time), args.point_count)
-    header_line = [f"Data from {args.host}"]
+    header_line = ["Data from {}".format(args.host)]
 
     column_defs = []
     header = None
