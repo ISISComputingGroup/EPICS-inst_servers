@@ -22,12 +22,10 @@ import time
 import zlib
 import re
 import json
-import codecs
 import binascii
 from xml.etree import ElementTree
 from server_common.loggers.logger import Logger
 from server_common.common_exceptions import MaxAttemptsExceededException
-
 
 # Default to base class - does not actually log anything
 LOGGER = Logger()
@@ -85,15 +83,19 @@ def compress_and_hex(value):
     """Compresses the inputted string and encodes it as hex.
 
     Args:
-        value (str): The string to be compressed
+        value (str, bytes): The string to be compressed
     Returns:
         bytes : A compressed and hexed version of the inputted string
     """
-    assert type(value) == str, \
-        "Non-str argument passed to compress_and_hex, maybe Python 2/3 compatibility issue\n" \
-        "Argument was type {} with value {}".format(value.__class__.__name__, value)
-    compr = zlib.compress(bytes(value) if six.PY2 else bytes(value, "utf-8"))
-    return binascii.hexlify(compr)
+    if isinstance(value, str):
+        _to_compress = bytes(value) if six.PY2 else bytes(value, "utf-8")
+    elif isinstance(value, six.binary_type):
+        _to_compress = value
+    else:
+        raise AssertionError("Non-str or bytes argument passed to compress_and_hex, maybe Python 2/3 compatibility "
+                             "issue\n Argument was type {} with value {}".format(value.__class__.__name__, value))
+    _compressed = zlib.compress(_to_compress)
+    return binascii.hexlify(_compressed)
 
 
 def dehex_and_decompress(value):
@@ -303,6 +305,7 @@ def retry(max_attempts, interval, exception):
         The input function wrapped in a retry loop
 
     """
+
     def _tags_decorator(func):
         def _wrapper(*args, **kwargs):
             attempts = 0
@@ -315,7 +318,9 @@ def retry(max_attempts, interval, exception):
                     time.sleep(interval)
 
             raise MaxAttemptsExceededException(ex)
+
         return _wrapper
+
     return _tags_decorator
 
 
