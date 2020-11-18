@@ -14,12 +14,8 @@
 # https://www.eclipse.org/org/documents/epl-v10.php or
 # http://opensource.org/licenses/eclipse-1.0.php
 import unittest
-import os
-
 from BlockServer.config.configuration import Configuration
-
 from BlockServer.mocks.mock_configuration import MockConfigurationFileManager
-from BlockServer.mocks.mock_configuration import MockConfigurationXmlConverter
 from BlockServer.mocks.mock_configuration import MockConfigurationJsonConverter
 from BlockServer.core.macros import MACROS
 

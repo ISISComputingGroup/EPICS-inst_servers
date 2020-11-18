@@ -15,7 +15,6 @@
 # http://opensource.org/licenses/eclipse-1.0.php
 
 from BlockServer.core.macros import PVPREFIX_MACRO
-import copy
 
 
 class Block:

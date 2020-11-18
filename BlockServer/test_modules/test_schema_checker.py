@@ -21,9 +21,6 @@ import shutil
 from BlockServer.core.inactive_config_holder import InactiveConfigHolder
 from BlockServer.fileIO.schema_checker import ConfigurationSchemaChecker, ConfigurationInvalidUnderSchema
 from BlockServer.core.macros import MACROS
-from BlockServer.mocks.mock_ioc_control import MockIocControl
-from BlockServer.mocks.mock_archiver_wrapper import MockArchiverWrapper
-from BlockServer.epics.archiver_manager import ArchiverManager
 from BlockServer.core.file_path_manager import FILEPATH_MANAGER
 from BlockServer.mocks.mock_file_manager import MockConfigurationFileManager
 from BlockServer.config.configuration import Configuration

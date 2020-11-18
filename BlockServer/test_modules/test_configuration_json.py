@@ -19,8 +19,6 @@ import json
 from collections import OrderedDict
 
 from BlockServer.config.group import Group
-from BlockServer.config.block import Block
-from BlockServer.config.ioc import IOC
 from BlockServer.config.json_converter import ConfigurationJsonConverter
 from BlockServer.core.constants import GRP_NONE
 
@@ -74,7 +72,4 @@ class TestConfigurationJsonConverterSequence(unittest.TestCase):
         self.assertEqual(returned[2]["component"], "TESTCOMPONENT1")
         self.assertIsNone(returned[3]["component"])
 
-
-
-
-
+# TODO: add tests here for blocks & IOCs
