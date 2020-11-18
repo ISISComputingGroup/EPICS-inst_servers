@@ -12,4 +12,4 @@ set PYTHONUNBUFFERED=TRUE
 
 echo on
 rem %PYTHONW% %MYDIRCD%\CollisionAvoidanceMonitor\main.py
-%PYTHON3% %MYDIRCD%\CollisionAvoidanceMonitor\main.py
+%PYTHON% %MYDIRCD%\CollisionAvoidanceMonitor\main.py

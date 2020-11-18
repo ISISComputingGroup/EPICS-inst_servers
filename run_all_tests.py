@@ -21,6 +21,8 @@ Run all inst server tests
 import os
 import sys
 import unittest
+
+import six
 import xmlrunner
 import argparse
 from coverage import Coverage
@@ -57,7 +59,8 @@ if __name__ == '__main__':
 
     ret_vals = None
 
-    with coverage_analysis():
+    # Python 2 coverage analysis does not understand the Py3 code in some modules, and crashes out.
+    with nullcontext() if six.PY2 else coverage_analysis():
         print("\n\n------ BEGINNING INST SERVERS UNIT TESTS ------")
         ret_vals = xmlrunner.XMLTestRunner(output=xml_dir, verbosity=2).run(test_suite)
         print("------ INST SERVERS UNIT TESTS COMPLETE ------\n\n")
