@@ -315,7 +315,7 @@ class TestLogFileInitiator(unittest.TestCase):
         try:
             log_file_initiator.check_initiated()
         except Exception as e:
-            self.fail(f"If underlying call throws then this should catch and logs. Error: '{e}'")
+            self.fail("If underlying call throws then this should catch and logs. Error: '{}'".format(e))
 
         self.log_file_creators[0].write_complete_file.assert_called_once()
 
@@ -332,7 +332,7 @@ class TestLogFileInitiator(unittest.TestCase):
 
         assert_that(archive_data_source.to_sample_time, is_([expected_to_sample_time]))
 
-class DataSourceMother:
+class DataSourceMother(object):
     @staticmethod
     def set_up_data_source(initial_pv_values=None,
                             final_pv_value=0,

@@ -34,7 +34,7 @@ class DataFileCreationError(Exception):
     """
 
 
-class TemplateReplacer:
+class TemplateReplacer(object):
     """
     Code to replace templated values
     """
@@ -104,7 +104,7 @@ def make_file_readonly_fn(filepath):
     os.chmod(filepath, S_IREAD | S_IRGRP | S_IROTH)
 
 
-class DataFileCreatorFactory:
+class DataFileCreatorFactory(object):
     """
     Factory for creating a data file creator
     """
@@ -130,7 +130,7 @@ class DataFileCreatorFactory:
                                       make_file_readonly=make_file_readonly)
 
 
-class ArchiveDataFileCreator:
+class ArchiveDataFileCreator(object):
     """
     Archive data file creator creates the log file based on the configuration.
     """
@@ -179,8 +179,9 @@ class ArchiveDataFileCreator:
         try:
             self._make_file_readonly_fn(self._filename)
         except Exception as ex:
-            raise DataFileCreationError(f"Failed to make log file {self._filename} readonly. "
-                                        f"Error is: '{ex}'")
+            raise DataFileCreationError("Failed to make log file {filename} readonly. "
+                                        "Error is: '{exception}'"
+                                        .format(exception=ex, filename=self._filename))
 
     def write_file_header(self, start_time):
         """
@@ -197,20 +198,21 @@ class ArchiveDataFileCreator:
             template_replacer = TemplateReplacer(pv_values, start_time=start_time)
 
             self._filename = template_replacer.replace(self._filename_template)
-            print_and_log(f"Writing log file '{self._filename}'", src="ArchiverAccess")
+            print_and_log("Writing log file '{0}'".format(self._filename), src="ArchiverAccess")
             self._mkdir_for_file_fn(self._filename)
             with self._file_access_class(self._filename, mode="w") as f:
                 for header_template in self._config.header:
                     header_line = template_replacer.replace(header_template)
-                    f.write(f"{header_line}\n")
+                    f.write("{0}\n".format(header_line))
 
-                f.write(f"{self._config.column_headers}\n")
+                f.write("{0}\n".format(self._config.column_headers))
             self._first_line_written = False
             self._periodic_data_generator = PeriodicDataGenerator(self._archiver_data_source)
 
         except Exception as ex:
-            raise DataFileCreationError(f"Failed to write header in log file {self._filename}"
-                                        f" for start time {start_time}. Error is: '{ex}'")
+            raise DataFileCreationError("Failed to write header in log file {filename} for start time {time}. "
+                                        "Error is: '{exception}'"
+                                        .format(time=start_time, exception=ex, filename=self._filename))
 
     def write_data_lines(self, time_period):
         """
@@ -233,12 +235,12 @@ class ArchiveDataFileCreator:
                 for time, values in periodic_data:
                     table_template_replacer = TemplateReplacer(values, time=time)
                     table_line = table_template_replacer.replace(self._config.table_line)
-                    f.write(f"{table_line}\n")
+                    f.write("{0}\n".format(table_line))
 
         except Exception as ex:
-            raise DataFileCreationError(f"Failed to write lines in log file {self._filename} for time period {time_period}. "
-                                        f"Error is: '{ex}'"
-                                        )
+            raise DataFileCreationError("Failed to write lines in log file {filename} for time period {time_period}. "
+                                        "Error is: '{exception}'"
+                                        .format(time_period=time_period, exception=ex, filename=self._filename))
 
     def _ignore_first_line_if_already_written(self, periodic_data):
         """
@@ -249,6 +251,6 @@ class ArchiveDataFileCreator:
 
         """
         if self._first_line_written:
-            next(periodic_data)
+            periodic_data.next()
         else:
             self._first_line_written = True

@@ -29,7 +29,7 @@ from server_common.utilities import print_and_log, SEVERITY
 SAMPLING_BEHIND_REAL_TIME = timedelta(seconds=90)
 
 
-class LogFileInitiatorOnPVChange:
+class LogFileInitiatorOnPVChange(object):
     """
     Initiate the writing of a log file based on the change of a PV.
     """
@@ -85,12 +85,12 @@ class LogFileInitiatorOnPVChange:
 
         for timestamp, pv_index, value in changes:
             if self._value_is_logging_on(value):
-                print_and_log(f"Continual logging started for {self._trigger_pvs[pv_index]} at {timestamp}",
+                print_and_log("Continual logging started for {0} at {1}".format(self._trigger_pvs[pv_index], timestamp),
                               src="ArchiverAccess")
                 for logger in self._loggers_for_pvs[pv_index]:
                     logger.logging_switched_on(timestamp)
             else:
-                print_and_log(f"Logging stopped for {self._trigger_pvs[pv_index]} at {timestamp}",
+                print_and_log("Logging stopped for {0} at {1}".format(self._trigger_pvs[pv_index], timestamp),
                               src="ArchiverAccess")
                 for logger in self._loggers_for_pvs[pv_index]:
                     logger.logging_switched_off(timestamp)
@@ -116,7 +116,7 @@ class LogFileInitiatorOnPVChange:
             return False
 
 
-class ContinualLogger:
+class ContinualLogger(object):
     """
     A logger that will write the data to the file every period.
     """
@@ -151,7 +151,7 @@ class ContinualLogger:
             try:
                 self._archive_data_file_creator.write_file_header(timestamp)
             except DataFileCreationError as e:
-                print_and_log(f"{e}", severity=SEVERITY.MAJOR, src="ArchiverAccess")
+                print_and_log("{}".format(e), severity=SEVERITY.MAJOR, src="ArchiverAccess")
 
     def logging_switched_off(self, timestamp):
         """
@@ -167,7 +167,7 @@ class ContinualLogger:
             try:
                 self._archive_data_file_creator.finish_log_file()
             except DataFileCreationError as e:
-                print_and_log(f"{e}", severity=SEVERITY.MAJOR, src="ArchiverAccess")
+                print_and_log("{}".format(e), severity=SEVERITY.MAJOR, src="ArchiverAccess")
 
     def post_changes(self, timestamp):
         """
@@ -195,10 +195,10 @@ class ContinualLogger:
             archive_data_file_creator = self._archive_data_file_creator
             archive_data_file_creator.write_data_lines(time_period)
         except DataFileCreationError as e:
-            print_and_log(f"{e}", severity=SEVERITY.MAJOR, src="ArchiverAccess")
+            print_and_log("{}".format(e), severity=SEVERITY.MAJOR, src="ArchiverAccess")
 
 
-class WriteOnLoggingEndLogger:
+class WriteOnLoggingEndLogger(object):
     """
     Logger which writes a file when logging ends
     """
@@ -243,7 +243,7 @@ class WriteOnLoggingEndLogger:
         try:
             self._archive_data_file_creator.write_complete_file(time_period)
         except DataFileCreationError as e:
-            print_and_log(f"{e}", severity=SEVERITY.MAJOR, src="ArchiverAccess")
+            print_and_log("{}".format(e), severity=SEVERITY.MAJOR, src="ArchiverAccess")
         self._logging_started = None
 
     def post_changes(self, timestamp):

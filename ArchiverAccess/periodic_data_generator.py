@@ -24,7 +24,7 @@ period_data_point = collections.namedtuple("period_data_point", "time values")
 """a single periodic data point, essential all the values at a point in time"""
 
 
-class PeriodicDataGenerator:
+class PeriodicDataGenerator(object):
     """
     Generate the data as a set of periodic values.
 
@@ -89,7 +89,7 @@ class PeriodicDataGenerator:
         """
         try:
             self._next_change_time, self._next_change_index, self._next_change_value = \
-                next(_archiver_changes_generator)
+                _archiver_changes_generator.next()
         except StopIteration:
             self._next_change_time = None
 

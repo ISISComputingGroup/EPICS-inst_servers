@@ -43,7 +43,7 @@ COLUMN_TEMPLATE_ANNOTATION_PREFIX = "log_column_template"
 """The annotation prefix for a column template, the end is the column index"""
 
 
-class ArchiverAccessDatabaseConfigBuilder:
+class ArchiverAccessDatabaseConfigBuilder(object):
     """
     Create configurations based on the entries in the IOC database.
     """
@@ -66,7 +66,7 @@ class ArchiverAccessDatabaseConfigBuilder:
 
         configurations = []
         for ioc_name, logging_items in self._ioc_data_source.get_pv_logging_info().items():
-            print_and_log(f"Reading config for ioc: {ioc_name}",
+            print_and_log("Reading config for ioc: {ioc}".format(ioc=ioc_name),
                           severity=SEVERITY.INFO, src="ArchiverAccess")
             one_end_file_name_template = "{ioc_name}_{{start_time}}.dat".format(ioc_name=ioc_name)
             one_end_file_name_template = os.path.join(ioc_name, one_end_file_name_template)
@@ -91,7 +91,7 @@ class ArchiverAccessDatabaseConfigBuilder:
         for pv_name, key, template in sorted_values:
             key_lowered = key.lower()
             if key_lowered in all_keys:
-                print_and_log(f"Logging info key {key} is repeated.",
+                print_and_log("Logging info key {0} is repeated.".format(key),
                               severity=SEVERITY.MAJOR, src="ArchiverAccess")
             all_keys.add(key_lowered)
             self._translate_db_annotations_to_config(key_lowered, pv_name, template, columns, config_builder)
@@ -112,7 +112,7 @@ class ArchiverAccessDatabaseConfigBuilder:
             try:
                 config_builder.logging_period_seconds(float(value))
             except (TypeError, ValueError):
-                print_and_log(f"Invalid logging period set '{value}'",
+                print_and_log("Invalid logging period set '{0}'".format(value),
                               severity=SEVERITY.MAJOR, src="ArchiverAccess")
         elif key.startswith(COLUMN_HEADER_ANNOTATION_PREFIX):
             default_template = "{{{pv_name}}}".format(pv_name=pv_name)

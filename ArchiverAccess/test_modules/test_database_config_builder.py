@@ -294,7 +294,7 @@ class TestDatabaseConfigBuilder(TestCase):
                         header_pv = header_pvs[index]
                     except (ValueError, TypeError):
                         header_pv = "pvname"
-                    logging_data.append((header_pv, f"LOG_header{index}", header_line))
+                    logging_data.append((header_pv, "LOG_header{0}".format(index), header_line))
         else:
             logging_data.extend(header_lines_section)
 
@@ -306,18 +306,18 @@ class TestDatabaseConfigBuilder(TestCase):
 
         if column_headers is not None:
             for pv_name, index, template in column_headers:
-                logging_data.append((pv_name, f"LOG_column_header{index}", template))
+                logging_data.append((pv_name, "LOG_column_header{0}".format(index), template))
 
         if column_templates is not None:
             for pv_name, index, template in column_templates:
-                logging_data.append((pv_name, f"LOG_column_template{index}", template))
+                logging_data.append((pv_name, "LOG_column_template{0}".format(index), template))
 
         if columns is not None:
             for is_template, pv_name, index, template in columns:
                 if is_template:
-                    logging_data.append((pv_name, f"LOG_column_template{index}", template))
+                    logging_data.append((pv_name, "LOG_column_template{0}".format(index), template))
                 else:
-                    logging_data.append((pv_name, f"LOG_column_header{index}", template))
+                    logging_data.append((pv_name, "LOG_column_header{0}".format(index), template))
 
         data = {ioc_name: logging_data}
         ioc_data_source = Mock()
