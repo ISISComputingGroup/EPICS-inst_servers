@@ -67,7 +67,7 @@ class ConfigurationSchemaChecker:
             doc = etree.fromstring(xml_data)
             schema.assertValid(doc)
         except etree.DocumentInvalid as err:
-            raise ConfigurationInvalidUnderSchema(err.message)
+            raise ConfigurationInvalidUnderSchema(str(err))
 
     @staticmethod
     def check_xml_matches_schema(schema_filepath, screen_xml_data, object_type):
@@ -92,7 +92,7 @@ class ConfigurationSchemaChecker:
         schema = ConfigurationSchemaChecker._get_schema(schema_folder, schema_file)
 
         # Import the xml file
-        with open(xml_file, 'r') as f:
+        with open(xml_file, 'rb') as f:
             xml = f.read()
 
         doc = etree.fromstring(xml)
@@ -109,7 +109,7 @@ class ConfigurationSchemaChecker:
         # must move to directory to handle schema includes
         cur = os.getcwd()
         os.chdir(schema_folder)
-        with open(schema_file, 'r') as f:
+        with open(schema_file, 'rb') as f:
             schema_raw = etree.XML(f.read())
 
         schema = etree.XMLSchema(schema_raw)

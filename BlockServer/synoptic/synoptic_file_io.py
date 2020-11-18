@@ -30,7 +30,7 @@ class SynopticFileIO:
             os.remove(save_path)
 
         # Save the data
-        with open(save_path, 'w') as synfile:
+        with open(save_path, 'wb') as synfile:
             pretty_xml = minidom.parseString(xml_data).toprettyxml()
             synfile.write(pretty_xml)
             return
@@ -39,7 +39,7 @@ class SynopticFileIO:
     def read_synoptic_file(self, directory, fullname):
         path = os.path.join(directory, fullname)
 
-        with open(path, 'r') as synfile:
+        with open(path, 'rb') as synfile:
             data = synfile.read()
 
         return data
