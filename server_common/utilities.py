@@ -87,15 +87,11 @@ def compress_and_hex(value):
     Returns:
         bytes : A compressed and hexed version of the inputted string
     """
-    if isinstance(value, str):
-        _to_compress = bytes(value) if six.PY2 else bytes(value, "utf-8")
-    elif isinstance(value, six.binary_type):
-        _to_compress = value
-    else:
-        raise AssertionError("Non-str or bytes argument passed to compress_and_hex, maybe Python 2/3 compatibility "
-                             "issue\n Argument was type {} with value {}".format(value.__class__.__name__, value))
-    _compressed = zlib.compress(_to_compress)
-    return binascii.hexlify(_compressed)
+    assert type(value) == str, \
+        "Non-str argument passed to compress_and_hex, maybe Python 2/3 compatibility issue\n" \
+        "Argument was type {} with value {}".format(value.__class__.__name__, value)
+    compr = zlib.compress(bytes(value) if six.PY2 else bytes(value, "utf-8"))
+    return binascii.hexlify(compr)
 
 
 def dehex_and_decompress(value):

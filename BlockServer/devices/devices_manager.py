@@ -149,13 +149,13 @@ class DevicesManager(OnTheFlyPvInterface):
         self.update(xml_data, "Device screens modified by client")
         print_and_log("Devices saved to " + self.get_devices_filename())
 
-    def get_devices_schema(self):
+    def get_devices_schema(self) -> str:
         """ Gets the XSD data for the devices screens.
 
         Note: Only reads file once, if the file changes then the BlockServer will need to be restarted
 
         Returns:
-            string : The XML for the devices screens schema
+            str : The XML for the devices screens schema
         """
         if self._schema == "":
             # Try loading it
