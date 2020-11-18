@@ -63,7 +63,7 @@ class TestArchiveManager(unittest.TestCase):
         self._setting_path = "blockserver_xml_path"
         self.archiver_manager = ArchiverManager(uploader_path=None, settings_path=self._setting_path)
 
-    @patch('__builtin__.open', new_callable=mock_open, mock=FileStub)
+    @patch('builtins.open', new_callable=mock_open, mock=FileStub)
     def test_GIVEN_no_blocks_WHEN_update_THEN_xml_for_archiver_contains_just_header(self, mock_file):
         blocks = []
         prefix = "prefix"
@@ -73,7 +73,7 @@ class TestArchiveManager(unittest.TestCase):
 
         assert_that(mock_file.file_contents[self._setting_path], contains_exactly(*expected_output))
 
-    @patch('__builtin__.open', new_callable=mock_open, mock=FileStub)
+    @patch('builtins.open', new_callable=mock_open, mock=FileStub)
     def test_GIVEN_one_blocks_is_not_logged_WHEN_update_THEN_xml_for_archiver_contains_block_in_dataweb_group(self, mock_file):
         expected_name="block"
         expected_pv = "pv"
@@ -85,7 +85,7 @@ class TestArchiveManager(unittest.TestCase):
 
         assert_that(mock_file.file_contents[self._setting_path], has_items(*block_str.splitlines()))
 
-    @patch('__builtin__.open', new_callable=mock_open, mock=FileStub)
+    @patch('builtins.open', new_callable=mock_open, mock=FileStub)
     def test_GIVEN_one_blocks_is_logged_periodic_WHEN_update_THEN_xml_for_archiver_contains_periodic_block(self, mock_file):
         expected_name="block"
         expected_pv = "pv"
@@ -98,7 +98,7 @@ class TestArchiveManager(unittest.TestCase):
 
         assert_that(mock_file.file_contents[self._setting_path], has_items(*block_str.splitlines()))
 
-    @patch('__builtin__.open', new_callable=mock_open, mock=FileStub)
+    @patch('builtins.open', new_callable=mock_open, mock=FileStub)
     def test_GIVEN_one_blocks_is_not_periodic_WHEN_update_THEN_xml_for_archiver_contains_periodic_block(self, mock_file):
         expected_name="block"
         expected_pv = "pv"
@@ -111,7 +111,7 @@ class TestArchiveManager(unittest.TestCase):
 
         assert_that(mock_file.file_contents[self._setting_path], has_items(*block_str.splitlines()))
 
-    @patch('__builtin__.open', new_callable=mock_open, mock=FileStub)
+    @patch('builtins.open', new_callable=mock_open, mock=FileStub)
     def test_GIVEN_one_blocks_WHEN_update_THEN_xml_for_archiver_contains_runcontrl_low_value_block_in_dataweb_group(self, mock_file):
         expected_name = "block"
         expected_pv = "pv"
@@ -123,7 +123,7 @@ class TestArchiveManager(unittest.TestCase):
 
         assert_that(mock_file.file_contents[self._setting_path], has_items(*block_str_rc_low.splitlines()))
 
-    @patch('__builtin__.open', new_callable=mock_open, mock=FileStub)
+    @patch('builtins.open', new_callable=mock_open, mock=FileStub)
     def test_GIVEN_one_blocks_WHEN_update_THEN_xml_for_archiver_contains_runcontrl_high_value_block_in_dataweb_group(self, mock_file):
         expected_name = "block"
         expected_pv = "pv"
@@ -135,7 +135,7 @@ class TestArchiveManager(unittest.TestCase):
 
         assert_that(mock_file.file_contents[self._setting_path], has_items(*block_str_rc_low.splitlines()))
 
-    @patch('__builtin__.open', new_callable=mock_open, mock=FileStub)
+    @patch('builtins.open', new_callable=mock_open, mock=FileStub)
     def test_GIVEN_one_blocks_WHEN_update_THEN_xml_for_archiver_contains_runcontrl_inrange_block_in_dataweb_group(self, mock_file):
         expected_name = "block"
         expected_pv = "pv"
@@ -147,7 +147,7 @@ class TestArchiveManager(unittest.TestCase):
 
         assert_that(mock_file.file_contents[self._setting_path], has_items(*block_str_rc_low.splitlines()))
 
-    @patch('__builtin__.open', new_callable=mock_open, mock=FileStub)
+    @patch('builtins.open', new_callable=mock_open, mock=FileStub)
     def test_GIVEN_one_blocks_WHEN_update_THEN_xml_for_archiver_contains_runcontrl_enabled_block_in_dataweb_group(self, mock_file):
         expected_name = "block"
         expected_pv = "pv"
