@@ -45,7 +45,7 @@ class TestConfigurationSequence(unittest.TestCase):
         blocks = cf.blocks.keys()
         # assert
         self.assertEqual(len(blocks), 1)
-        self.assertEqual(blocks[0], block_name.lower())
+        self.assertEqual(list(blocks)[0], block_name.lower())
 
     def test_adding_a_block_also_adds_its_associated_group(self):
         # arrange
