@@ -118,7 +118,7 @@ class TestSynopticManagerSequence(unittest.TestCase):
 
         self.assertTrue(len(xml) > 0)
         # Check the correct name appears in the xml
-        self.assertTrue("synoptic0" in xml)
+        self.assertTrue(b"synoptic0" in xml)
 
     def test_set_current_synoptic_xml_creates_pv(self):
         # Arrange
