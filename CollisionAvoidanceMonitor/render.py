@@ -237,7 +237,7 @@ def text(x, y, string, color=(0.4, 0.4, 0.4), align="left"):
     text_surface = font.render(string, True, color, (0, 0, 0, 255))
     text_data = pygame.image.tostring(text_surface, "RGBA", True)
 
-    if align == "right":
+    if align is "right":
         glRasterPos2d(x - text_surface.get_width(), y)
     else:
         glRasterPos2d(x, y)
@@ -432,7 +432,7 @@ def loop(renderer, monitors):
             draw(renderer, monitors)
 
 
-class RenderParams:
+class RenderParams(object):
     def __init__(self):
         self.lock = threading.Lock()
         self.softlimits = []

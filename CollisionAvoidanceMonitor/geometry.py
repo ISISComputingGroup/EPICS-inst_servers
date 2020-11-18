@@ -4,7 +4,7 @@ import ode
 from transform import Transformation
 
 
-class GeometryBox:
+class GeometryBox(object):
     def __init__(self, space, position=(0, 0, 0), size=(1, 1, 1), color=(1, 1, 1), oversize=1, name=None):
 
         # Set parameters for drawing the body

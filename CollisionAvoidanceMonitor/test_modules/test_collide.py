@@ -18,7 +18,7 @@ from CollisionAvoidanceMonitor.collide import collide
 from unittest import TestCase
 
 
-class MockGeometry:
+class MockGeometry(object):
     """
     Object to mock a geometry.
     """

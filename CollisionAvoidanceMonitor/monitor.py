@@ -7,7 +7,7 @@ import time
 from server_common.utilities import print_and_log
 
 
-class Monitor:
+class Monitor(object):
 
     def __init__(self, pv):
         self.pv = pv
@@ -22,10 +22,10 @@ class Monitor:
             self.stop()
 
         try:
-            print_and_log(f"Searching for collision detection pv {self.pv}")
+            print_and_log("Searching for collision detection pv {}".format(self.pv))
             self.channel.searchw(self.pv)
         except CaChannelException:
-            print_and_log(f"Unable to find collision detection pv {self.pv}")
+            print_and_log("Unable to find collision detection pv {}".format(self.pv))
             return
 
         # Create the CA monitor callback
@@ -125,7 +125,7 @@ class MonitorQueue(Monitor):
                 return True
 
 
-class DummyMonitor:
+class DummyMonitor(object):
     def __init__(self, value):
         self.val = None
         self.update(value)

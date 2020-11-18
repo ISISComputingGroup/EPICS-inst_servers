@@ -2,7 +2,7 @@ import numpy as np
 from math import sin, cos
 
 
-class Transformation:
+class Transformation(object):
     """
     Class that represents a transformation in 3-D space.
 
