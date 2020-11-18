@@ -1,7 +1,7 @@
 import asyncio
 from time import sleep
 from typing import Optional, Awaitable
-from threading import Thread
+from threading import Thread, RLock
 import tornado.ioloop
 import tornado.web
 
@@ -33,6 +33,7 @@ def make_app():
 
 class Server(Thread):
     def run(self):
+        self._lock_config = RLock()
         asyncio.set_event_loop(asyncio.new_event_loop())
         app = make_app()
         app.listen(PORT)
@@ -42,8 +43,9 @@ class Server(Thread):
         """
         :param set_to: The config to serve, converted to JSON.
         """
-        global _config
-        _config = set_to
+        with self._lock_config:
+            global _config
+            _config = set_to
 
 
 if __name__ == '__main__':
@@ -56,4 +58,6 @@ if __name__ == '__main__':
         sleep(10)
         _server.set_config("NOT TEST")
     except KeyboardInterrupt:
+        print("stopping server")
+        tornado.ioloop.IOLoop.instance().stop()
         _server.join(1)
