@@ -61,10 +61,10 @@ class ArchiverManager:
                 print_and_log("Finished arbitrary wait")
                 self._archive_wrapper.restart_archiver()
         except Exception as err:
-            print_and_log("Could not update archiver: %s" % str(err), "MAJOR")
+            print_and_log(f"Could not update archiver: {err}", "MAJOR")
 
     def _generate_archive_config(self, block_prefix, blocks):
-        print_and_log("Generating archiver configuration file: %s" % self._settings_path)
+        print_and_log(f"Generating archiver configuration file: {self._settings_path}")
         root = eTree.Element('engineconfig')
         group = eTree.SubElement(root, 'group')
         name = eTree.SubElement(group, 'name')

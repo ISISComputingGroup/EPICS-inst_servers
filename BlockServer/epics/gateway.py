@@ -107,7 +107,7 @@ class Gateway:
                 time.sleep(1)
             print_and_log("Gateway reloaded")
         except Exception as err:
-            print_and_log("Problem with reloading the gateway %s" % err)
+            print_and_log(f"Problem with reloading the gateway {err}")
 
     def _generate_alias_file(self, blocks=None):
         # Generate blocks.pvlist for gateway

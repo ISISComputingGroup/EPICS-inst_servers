@@ -96,7 +96,7 @@ class TestSynopticManagerSequence(unittest.TestCase):
         self.sm._load_initial()
 
         # Assert
-        self.assertTrue(self.bs.does_pv_exist("%sSYNOP1%s" % (SYNOPTIC_PRE, SYNOPTIC_GET)))
+        self.assertTrue(self.bs.does_pv_exist(f"{SYNOPTIC_PRE}SYNOP1{SYNOPTIC_GET}"))
 
     def test_get_default_synoptic_xml_returns_nothing(self):
         # Arrange
