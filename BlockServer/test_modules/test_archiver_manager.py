@@ -71,7 +71,7 @@ class TestArchiveManager(unittest.TestCase):
 
         self.archiver_manager.update_archiver(prefix, blocks)
 
-        assert_that(mock_file.file_contents[self._setting_path], contains(*expected_output))
+        assert_that(mock_file.file_contents[self._setting_path], contains_exactly(*expected_output))
 
     @patch('__builtin__.open', new_callable=mock_open, mock=FileStub)
     def test_GIVEN_one_blocks_is_not_logged_WHEN_update_THEN_xml_for_archiver_contains_block_in_dataweb_group(self, mock_file):

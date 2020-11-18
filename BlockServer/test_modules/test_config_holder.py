@@ -680,7 +680,7 @@ class TestConfigHolderSequence(unittest.TestCase):
         try:
             ch.save_configuration(DEFAULT_COMPONENT, True)
         except Exception as err:
-            self.assertEqual(err.message, "Cannot save over default component")
+            self.assertEqual(str(err), "Cannot save over default component")
 
     def test_clear_config(self):
         ch = ConfigHolder(MACROS, file_manager=MockConfigurationFileManager(), test_config=None)

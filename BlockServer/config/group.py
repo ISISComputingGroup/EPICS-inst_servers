@@ -34,8 +34,7 @@ class Group:
         self.component = component
 
     def __str__(self):
-        data = "Name: %s, COMPONENT: %s, Blocks: %s" % (self.name, self.component, self.blocks)
-        return data
+        return f"Name: {self.name}, COMPONENT: {self.component}, Blocks: {self.blocks}"
 
     def to_dict(self):
         """ Puts the group's details into a dictionary.

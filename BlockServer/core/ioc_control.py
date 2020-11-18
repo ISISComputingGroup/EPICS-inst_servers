@@ -15,8 +15,6 @@
 # http://opensource.org/licenses/eclipse-1.0.php
 
 from time import sleep, time
-
-
 from BlockServer.epics.procserv_utils import ProcServWrapper
 from BlockServer.alarm.load_alarm_config import AlarmConfigLoader
 from server_common.utilities import print_and_log
@@ -45,7 +43,7 @@ class IocControl:
             if ioc != "ALARM" and restart_alarm_server:
                 AlarmConfigLoader.restart_alarm_server(self)
         except Exception as err:
-            print_and_log("Could not start IOC %s: %s" % (ioc, str(err)), "MAJOR")
+            print_and_log(f"Could not start IOC {ioc}: {err}", "MAJOR")
 
     def restart_ioc(self, ioc, force=False, restart_alarm_server=True):
         """Restart an IOC.
@@ -66,7 +64,7 @@ class IocControl:
             if ioc != "ALARM" and restart_alarm_server:
                 AlarmConfigLoader.restart_alarm_server(self)
         except Exception as err:
-            print_and_log("Could not restart IOC %s: %s" % (ioc, str(err)), "MAJOR")
+            print_and_log(f"Could not restart IOC {ioc}: {err}", "MAJOR")
 
     def stop_ioc(self, ioc, force=False):
         """Stop an IOC.
@@ -83,7 +81,7 @@ class IocControl:
             if ioc != "ALARM":
                 AlarmConfigLoader.restart_alarm_server(self)
         except Exception as err:
-            print_and_log("Could not stop IOC %s: %s" % (ioc, str(err)), "MAJOR")
+            print_and_log(f"Could not stop IOC {ioc}: {err}", "MAJOR")
 
     def get_ioc_status(self, ioc):
         """Get the running status of an IOC.
@@ -173,11 +171,11 @@ class IocControl:
                     # If different to requested then change it
                     self._proc.toggle_autorestart(ioc)
                     return
-                print_and_log("Auto-restart for IOC %s unchanged as value has not changed" % ioc)
+                print_and_log(f"Auto-restart for IOC {ioc} unchanged as value has not changed")
             else:
-                print_and_log("Auto-restart for IOC %s unchanged as IOC is not running" % ioc)
+                print_and_log(f"Auto-restart for IOC {ioc} unchanged as IOC is not running")
         except Exception as err:
-            print_and_log("Could not set auto-restart IOC %s: %s" % (ioc, str(err)), "MAJOR")
+            print_and_log(f"Could not set auto-restart IOC {ioc}: {err}", "MAJOR")
 
     def get_autorestart(self, ioc):
         """Gets the current auto-restart setting of the specified IOC.
@@ -191,7 +189,7 @@ class IocControl:
         try:
             return self._proc.get_autorestart(ioc)
         except Exception as err:
-            print_and_log("Could not get auto-restart setting for IOC %s: %s" % (ioc, str(err)), "MAJOR")
+            print_and_log(f"Could not get auto-restart setting for IOC {ioc}: {err}", "MAJOR")
 
     def waitfor_running(self, ioc, timeout=5):
         """Waits for the IOC to start running.
@@ -205,5 +203,5 @@ class IocControl:
             while self.ioc_restart_pending(ioc) or self.get_ioc_status(ioc) != "RUNNING":
                 sleep(0.5)
                 if time() - start >= timeout:
-                    print_and_log("Gave up waiting for IOC %s to be running" % ioc, "MAJOR")
+                    print_and_log(f"Gave up waiting for IOC {ioc} to be running", "MAJOR")
                     return

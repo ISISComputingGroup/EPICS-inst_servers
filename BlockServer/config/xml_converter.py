@@ -13,10 +13,9 @@
 # along with this program; if not, you can obtain a copy from
 # https://www.eclipse.org/org/documents/epl-v10.php or
 # http://opensource.org/licenses/eclipse-1.0.php
-
+from typing import Dict, OrderedDict
 from xml.dom import minidom
 from server_common.utilities import *
-
 from BlockServer.config.group import Group
 from BlockServer.config.block import Block
 from BlockServer.config.ioc import IOC
@@ -61,7 +60,7 @@ class ConfigurationXmlConverter:
     """
 
     @staticmethod
-    def blocks_to_xml(blocks, macros):
+    def blocks_to_xml(blocks: OrderedDict, macros: Dict):
         """ Generates an XML representation for a supplied dictionary of blocks.
 
         Args:
@@ -83,7 +82,7 @@ class ConfigurationXmlConverter:
         return minidom.parseString(ElementTree.tostring(root)).toprettyxml()
 
     @staticmethod
-    def groups_to_xml(groups, include_none=False):
+    def groups_to_xml(groups: OrderedDict, include_none: bool=False):
         """ Generates an XML representation for a supplied dictionary of groups.
 
         Args:
@@ -108,7 +107,7 @@ class ConfigurationXmlConverter:
         return minidom.parseString(ElementTree.tostring(root)).toprettyxml()
 
     @staticmethod
-    def iocs_to_xml(iocs):
+    def iocs_to_xml(iocs: OrderedDict):
         """ Generates an XML representation for a supplied list of iocs.
 
         Args:
@@ -128,7 +127,7 @@ class ConfigurationXmlConverter:
         return minidom.parseString(ElementTree.tostring(root)).toprettyxml()
 
     @staticmethod
-    def components_to_xml(comps):
+    def components_to_xml(comps: OrderedDict):
         """ Generates an XML representation for a supplied dictionary of components.
 
         Args:
@@ -174,7 +173,7 @@ class ConfigurationXmlConverter:
         return minidom.parseString(ElementTree.tostring(root)).toprettyxml()
 
     @staticmethod
-    def _block_to_xml(root_xml, block, macros):
+    def _block_to_xml(root_xml: ElementTree.Element, block: Block, macros: Dict):
         """Generates the XML for a block"""
         name = block.name
         read_pv = block.pv
@@ -222,7 +221,7 @@ class ConfigurationXmlConverter:
         log_deadband.text = str(block.log_deadband)
 
     @staticmethod
-    def _group_to_xml(root_xml, group):
+    def _group_to_xml(root_xml: ElementTree, group: Group):
         """Generates the XML for a group"""
         grp = ElementTree.SubElement(root_xml, TAG_GROUP)
         grp.set(TAG_NAME, group.name)
@@ -233,7 +232,7 @@ class ConfigurationXmlConverter:
             b.set(TAG_NAME, blk)
 
     @staticmethod
-    def _ioc_to_xml(root_xml, ioc):
+    def _ioc_to_xml(root_xml: ElementTree.Element, ioc: IOC):
         """Generates the XML for an ioc"""
         grp = ElementTree.SubElement(root_xml, TAG_IOC)
         grp.set(TAG_NAME, ioc.name)
@@ -256,13 +255,13 @@ class ConfigurationXmlConverter:
         value_list_to_xml(ioc.pvsets, grp, TAG_PVSETS, TAG_PVSET)
 
     @staticmethod
-    def _component_to_xml(root_xml, name):
+    def _component_to_xml(root_xml: ElementTree.Element, name: str):
         """Generates the XML for a component"""
         grp = ElementTree.SubElement(root_xml, TAG_COMPONENT)
         grp.set(TAG_NAME, name)
 
     @staticmethod
-    def blocks_from_xml(root_xml, blocks, groups):
+    def blocks_from_xml(root_xml: ElementTree.Element, blocks: OrderedDict, groups: OrderedDict):
         """ Populates the supplied dictionary of blocks and groups based on an XML tree.
 
         Args:
@@ -324,7 +323,7 @@ class ConfigurationXmlConverter:
                     blocks[name.lower()].log_deadband = float(log_deadband.text)
 
     @staticmethod
-    def groups_from_xml(root_xml, groups, blocks):
+    def groups_from_xml(root_xml: ElementTree.Element, groups: OrderedDict, blocks: OrderedDict):
         """ Populates the supplied dictionary of groups and assign blocks based on an XML tree
 
         Args:
@@ -362,7 +361,7 @@ class ConfigurationXmlConverter:
                     groups[KEY_NONE].blocks.remove(name)
 
     @staticmethod
-    def ioc_from_xml(root_xml, iocs):
+    def ioc_from_xml(root_xml: ElementTree.Element, iocs: OrderedDict):
         """ Populates the supplied dictionary of IOCs based on an XML tree.
 
         Args:
@@ -405,7 +404,7 @@ class ConfigurationXmlConverter:
                     raise Exception("Tag not found in ioc.xml (" + str(err) + ")")
 
     @staticmethod
-    def components_from_xml(root_xml, components):
+    def components_from_xml(root_xml: ElementTree.Element, components:OrderedDict):
         """Populates the supplied dictionary of components based on an XML tree.
 
         Args:
@@ -419,7 +418,7 @@ class ConfigurationXmlConverter:
                 components[n.lower()] = n
 
     @staticmethod
-    def meta_from_xml(root_xml, data):
+    def meta_from_xml(root_xml: ElementTree.Element, data):
         """Populates the supplied MetaData object based on an XML tree.
 
         Args:
@@ -445,7 +444,7 @@ class ConfigurationXmlConverter:
         data.history = [e.text for e in edits]
 
     @staticmethod
-    def _find_all_nodes(root, tag, name):
+    def _find_all_nodes(root: ElementTree.Element, tag: str, name: str):
         """Finds all the nodes regardless of whether it has a namespace or not.
 
         For example the name space for IOCs is xmlns:ioc="http://epics.isis.rl.ac.uk/schema/iocs/1.0"
@@ -458,14 +457,14 @@ class ConfigurationXmlConverter:
         Returns: list of children
         """
         # First try with namespace
-        nodes = root.findall('%s:%s' % (tag, name), NAMESPACES)
+        nodes = root.findall(f'{tag}:{name}', NAMESPACES)
         if len(nodes) == 0:
             # Try without namespace
-            nodes = root.findall('%s' % name)
+            nodes = root.findall(name)
         return nodes
 
     @staticmethod
-    def _find_single_node(root, tag, name):
+    def _find_single_node(root: ElementTree.Element, tag: str, name: str):
         """Finds a single node regardless of whether it has a namespace or not.
 
         For example the name space for IOCs is xmlns:ioc="http://epics.isis.rl.ac.uk/schema/iocs/1.0"
@@ -478,10 +477,10 @@ class ConfigurationXmlConverter:
         Returns: ElementTree.Element the found node
         """
         # First try with namespace
-        node = root.find('%s:%s' % (tag, name), NAMESPACES)
+        node = root.find(f'{tag}:{name}', NAMESPACES)
         if node is None:
             # Try without namespace
-            node = root.find('%s' % name)
+            node = root.find(name)
         return node
 
     @staticmethod

@@ -18,7 +18,7 @@ import time
 import re
 from server_common.channel_access import ChannelAccess
 from server_common.utilities import print_and_log
-from BlockServer.core.macros import CONTROL_SYSTEM_PREFIX, BLOCK_PREFIX
+from BlockServer.core.macros import CONTROL_SYSTEM_PREFIX
 
 ALIAS_HEADER = """\
 ##

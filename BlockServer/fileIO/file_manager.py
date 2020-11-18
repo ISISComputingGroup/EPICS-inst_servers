@@ -18,7 +18,6 @@ import os
 import shutil
 from collections import OrderedDict
 from xml.etree import ElementTree
-
 from BlockServer.config.group import Group
 from BlockServer.config.xml_converter import ConfigurationXmlConverter
 from BlockServer.config.configuration import Configuration, MetaData

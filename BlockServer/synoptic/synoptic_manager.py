@@ -23,7 +23,7 @@ from lxml import etree
 from server_common.common_exceptions import MaxAttemptsExceededException
 from server_common.utilities import print_and_log, compress_and_hex, create_pv_name, \
     convert_to_json, convert_from_json
-from synoptic_file_io import SynopticFileIO
+from BlockServer.synoptic.synoptic_file_io import SynopticFileIO
 
 
 # Synoptics PVs are of the form IN:DEMO:SYNOPTICS:XXXXX (no BLOCKSERVER in the name)

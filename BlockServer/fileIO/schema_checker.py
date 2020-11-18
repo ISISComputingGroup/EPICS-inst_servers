@@ -15,8 +15,6 @@
 # http://opensource.org/licenses/eclipse-1.0.php
 
 import os
-import string
-
 from lxml import etree
 
 

@@ -17,9 +17,7 @@
 from BlockServer.mocks.mock_block_server import MockBlockServer
 from BlockServer.site_specific.default.block_rules import BlockRules
 import unittest
-import json
 import re
-from server_common.utilities import dehex_and_decompress
 
 
 class TestBlockRulesSequence(unittest.TestCase):

@@ -135,7 +135,7 @@ class DevicesManager(OnTheFlyPvInterface):
             ConfigurationSchemaChecker.check_xml_data_matches_schema(os.path.join(self._schema_folder, SCREENS_SCHEMA),
                                                                      xml_data)
         except ConfigurationInvalidUnderSchema as err:
-            print_and_log(err.message)
+            print_and_log(err)
             return
 
         try:

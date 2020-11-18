@@ -85,11 +85,8 @@ class Block:
         self.visible = visible
 
     def __str__(self):
-        data = "Name: %s, PV: %s, Local: %s, Visible: %s, Component: %s" \
-               % (self.name, self.pv, self.local, self.visible, self.component)
-        data += ", RCEnabled: %s, RCLow: %s, RCHigh: %s" \
-                % (self.rc_enabled, self.rc_lowlimit, self.rc_highlimit)
-        return data
+        return f"Name: {self.name}, PV: {self.pv}, Local: {self.local}, Visible: {self.visible}, Component: {self.component}" \
+               f", RCEnabled: {self.rc_enabled}, RCLow: {self.rc_lowlimit}, RCHigh: {self.rc_highlimit}"
 
     def to_dict(self):
         """ Puts the block's details into a dictionary.

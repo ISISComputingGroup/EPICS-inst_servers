@@ -559,7 +559,7 @@ class BlockServer(Driver):
                 print_and_log(f"Error, operation requires manager mode: {err}", "MAJOR")
             except Exception as err:
                 print_and_log(
-                    "Error executing write queue command %s for state %s: %s" % (cmd.__name__, state, err.message),
+                    f"Error executing write queue command {cmd.__name__} for state {state}: {err}",
                     "MAJOR")
                 traceback.print_exc()
             self.update_server_status("")
@@ -600,7 +600,7 @@ class BlockServer(Driver):
 
     def delete_pv_from_db(self, name):
         if name in manager.pvs[self.port]:
-            print_and_log("Removing PV %s" % name)
+            print_and_log(f"Removing PV {name}")
             fullname = manager.pvs[self.port][name].name
             del manager.pvs[self.port][name]
             del manager.pvf[fullname]
@@ -654,32 +654,32 @@ if __name__ == '__main__':
         from server_common.loggers.isis_logger import IsisLogger
 
         set_logger(IsisLogger())
-    print_and_log("FACILITY = %s" % FACILITY)
+    print_and_log(f"FACILITY = {FACILITY}")
 
     GATEWAY_PREFIX = args.gateway_prefix[0]
     if not GATEWAY_PREFIX.endswith(':'):
         GATEWAY_PREFIX += ":"
     GATEWAY_PREFIX = GATEWAY_PREFIX.replace('%MYPVPREFIX%', MACROS["$(MYPVPREFIX)"])
-    print_and_log("BLOCK GATEWAY PREFIX = %s" % GATEWAY_PREFIX)
+    print_and_log(f"BLOCK GATEWAY PREFIX = {GATEWAY_PREFIX}")
 
     CONFIG_DIR = os.path.abspath(args.config_dir[0])
-    print_and_log("CONFIGURATION DIRECTORY %s" % CONFIG_DIR)
+    print_and_log(f"CONFIGURATION DIRECTORY {CONFIG_DIR}")
 
     SCRIPT_DIR = os.path.abspath(args.script_dir[0])
-    print_and_log("SCRIPTS DIRECTORY %s" % SCRIPT_DIR)
+    print_and_log(f"SCRIPTS DIRECTORY {SCRIPT_DIR}")
 
     SCHEMA_DIR = os.path.abspath(args.schema_dir[0])
-    print_and_log("SCHEMA DIRECTORY = %s" % SCHEMA_DIR)
+    print_and_log(f"SCHEMA DIRECTORY = {SCHEMA_DIR}")
 
     ARCHIVE_UPLOADER = args.archive_uploader[0].replace('%EPICS_KIT_ROOT%', MACROS["$(EPICS_KIT_ROOT)"])
-    print_and_log("ARCHIVE UPLOADER = %s" % ARCHIVE_UPLOADER)
+    print_and_log(f"ARCHIVE UPLOADER = {ARCHIVE_UPLOADER}")
 
     ARCHIVE_SETTINGS = args.archive_settings[0].replace('%EPICS_KIT_ROOT%', MACROS["$(EPICS_KIT_ROOT)"])
-    print_and_log("ARCHIVE SETTINGS = %s" % ARCHIVE_SETTINGS)
+    print_and_log(f"ARCHIVE SETTINGS = {ARCHIVE_SETTINGS}")
 
     PVLIST_FILE = args.pvlist_name[0]
 
-    print_and_log("BLOCKSERVER PREFIX = %s" % CONTROL_SYSTEM_PREFIX)
+    print_and_log(f"BLOCKSERVER PREFIX = {CONTROL_SYSTEM_PREFIX}")
     SERVER = SimpleServer()
     SERVER.createPV(CONTROL_SYSTEM_PREFIX, initial_dbs)
     DRIVER = BlockServer(SERVER)
