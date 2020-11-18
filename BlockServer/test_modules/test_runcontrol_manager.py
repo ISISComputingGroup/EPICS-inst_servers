@@ -58,24 +58,22 @@ class TestRunControlSequence(unittest.TestCase):
         self.cs = MockChannelAccess()
         self.set_start_time_of_run_control()
         self.mock_file_manager = MockConfigurationFileManager()
-        self.active_config, self.ioc_control, self.run_control_manager, self.rcash = self._create_initial_runcontrol_manager()
+        self.active_config, self.ioc_control, self.run_control_manager = self._create_initial_runcontrol_manager()
 
     def _create_initial_runcontrol_manager(self):
         prefix = ""
         ioc_control = MockIocControl("")
         config_holder = ActiveConfigHolder(MACROS, None, self.mock_file_manager, ioc_control)
-        run_control_autosave_helper = Mock()
-        run_control_manager = RunControlManager(prefix, "", "", ioc_control, config_holder, MockBlockServer(), self.cs,
-                                                run_control_auto_save_helper=run_control_autosave_helper)
+        run_control_manager = RunControlManager(prefix, "", "", ioc_control, config_holder, MockBlockServer(), self.cs)
 
-        return config_holder, ioc_control, run_control_manager, run_control_autosave_helper
+        return config_holder, ioc_control, run_control_manager
 
     def set_start_time_of_run_control(self, start_time=_get_current_time()):
         PVS[MACROS["$(MYPVPREFIX)"] + RC_START_PV] = start_time
 
     def test_get_runcontrol_settings_empty(self):
         self.set_start_time_of_run_control()
-        self.run_control_manager.create_runcontrol_pvs(False, 0)
+        self.run_control_manager.create_runcontrol_pvs(0)
         ans = self.run_control_manager.get_current_settings()
         self.assertTrue(len(ans) == 0)
 
@@ -86,7 +84,7 @@ class TestRunControlSequence(unittest.TestCase):
         self.active_config.add_block(quick_block_to_json("TESTBLOCK3", "PV3", "GROUP2", True))
         self.active_config.add_block(quick_block_to_json("TESTBLOCK4", "PV4", "NONE", True))
         self.set_start_time_of_run_control()
-        self.run_control_manager.create_runcontrol_pvs(False, 0)
+        self.run_control_manager.create_runcontrol_pvs(0)
         ans = self.run_control_manager.get_current_settings()
         self.assertTrue(len(ans) == 4)
         for i in range(1, 5):
@@ -101,7 +99,7 @@ class TestRunControlSequence(unittest.TestCase):
                 'runcontrol': True, 'lowlimit': -5, 'highlimit': 5}
         self.active_config.add_block(data)
         self.set_start_time_of_run_control()
-        self.run_control_manager.create_runcontrol_pvs(False, 0)
+        self.run_control_manager.create_runcontrol_pvs(0)
         ans = self.run_control_manager.get_current_settings()
         self.assertTrue(len(ans) == 1)
         self.assertTrue(ans["TESTBLOCK1"]["HIGH"] == 5)
@@ -116,17 +114,6 @@ class TestRunControlSequence(unittest.TestCase):
             self.assertEqual(channel.get_call_count(rc_pv), 1)
 
     @patch("BlockServer.runcontrol.runcontrol_manager.sleep")
-    def test_GIVEN_already_started_runcontrol_WHEN_restart_THAT_code_is_not_stuck_in_loop(self, sleep_patch):
-        rc_pv = RC_START_PV
-
-        now = datetime.now()
-        env = {rc_pv: [_get_relative_time(now, minutes=-3), "", _get_relative_time(now, minutes=-2)]}
-        with ChannelAccessEnv(env) as channel:
-            _, _, run_control_manager, _ = self._create_initial_runcontrol_manager()
-            run_control_manager.create_runcontrol_pvs(True, 0)
-            self.assertEqual(channel.get_call_count(rc_pv), 3)
-
-    @patch("BlockServer.runcontrol.runcontrol_manager.sleep")
     def test_GIVEN_nonsense_runcontrol_start_time_WHEN_restart_runcontrol_THAT_code_loops_to_restart_runcontrol(self, sleep_patch):
         rc_pv = RC_START_PV
         with ChannelAccessEnv({rc_pv: [""] * 60}) as channel:
@@ -135,46 +122,6 @@ class TestRunControlSequence(unittest.TestCase):
 
     def _modify_active(self, config_holder, new_details):
         modify_active("abc", MACROS, self.mock_file_manager, new_details, config_holder)
-
-    def test_GIVEN_blocks_unchanged_and_not_full_init_WHEN_initialised_THEN_runcontrol_doesnt_restart_and_autosave_files_not_deleted(self):
-        self._modify_active(self.active_config, self.active_config.get_block_details())
-
-        self.run_control_manager.on_config_change(False)
-
-        self.assertNotIn("RUNCTRL_01", self.ioc_control.restarted_iocs)
-        self.assertFalse(self.rcash.clear_autosave_files.called)
-
-    @patch("BlockServer.runcontrol.runcontrol_manager.sleep")
-    def test_GIVEN_blocks_changed_and_not_full_init_WHEN_initialised_THEN_runcontrol_restarts_and_autosave_files_not_deleted(self, sleep_patch):
-        config_details = self.active_config.get_config_details()
-        config_details['blocks'].append(Block(name="TESTNAME", pv="TESTPV").to_dict())
-        self._modify_active(self.active_config, config_details)
-
-        self.run_control_manager.on_config_change(False)
-
-        self.assertIn("RUNCTRL_01", self.ioc_control.restarted_iocs)
-        self.assertFalse(self.rcash.clear_autosave_files.called)
-
-    @patch("BlockServer.runcontrol.runcontrol_manager.sleep")
-    def test_GIVEN_blocks_unchanged_and_full_init_WHEN_initialised_THEN_runcontrol_restarts_and_autosave_files_deleted(self, sleep_patch):
-        config_details = self.active_config.get_config_details()
-        self._modify_active(self.active_config, config_details)
-
-        self.run_control_manager.on_config_change(True)
-
-        self.assertIn("RUNCTRL_01", self.ioc_control.restarted_iocs)
-        self.assertTrue(self.rcash.clear_autosave_files.called)
-
-    @patch("BlockServer.runcontrol.runcontrol_manager.sleep")
-    def test_GIVEN_blocks_changed_and_full_init_WHEN_initialised_THEN_runcontrol_restarts_and_autosave_files_deleted(self, sleep_patch):
-        config_details = self.active_config.get_config_details()
-        config_details['blocks'].append(Block(name="TESTNAME", pv="TESTPV").to_dict())
-        self._modify_active(self.active_config, config_details)
-
-        self.run_control_manager.on_config_change(True)
-
-        self.assertIn("RUNCTRL_01", self.ioc_control.restarted_iocs)
-        self.assertTrue(self.rcash.clear_autosave_files.called)
 
     def test_GIVEN_enabled_block_WHEN_restore_config_settings_THEN_PVs_written_to(self):
         expected_low_limit, expected_high_limit = 10, 20
