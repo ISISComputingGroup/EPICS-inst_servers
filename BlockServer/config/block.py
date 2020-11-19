@@ -13,6 +13,7 @@
 # along with this program; if not, you can obtain a copy from
 # https://www.eclipse.org/org/documents/epl-v10.php or
 # http://opensource.org/licenses/eclipse-1.0.php
+from typing import Dict, Union
 
 from BlockServer.core.macros import PVPREFIX_MACRO
 
@@ -26,17 +27,16 @@ class Block:
             local (bool): Whether the PV is local to the instrument
             visible (bool): Whether the block should be shown
             component (string): The component the block belongs to
-
             runcontrol (bool): Whether run-control is enabled
-            lowlimt (float): The low limit for run-control
+            lowlimit (float): The low limit for run-control
             highlimit (float): The high limit for run-control
-
-            arch_periodic (bool): Whether the block is sampled periodically in the archiver
-            arch_rate (float): Time between archive samples (in seconds)
-            arch_deadband (float): Deadband for the block to be archived
+            log_periodic (bool): Whether the block is sampled periodically in the archiver
+            log_rate (float): Time between archive samples (in seconds)
+            log_deadband (float): Deadband for the block to be archived
     """
-    def __init__(self, name, pv, local=True, visible=True, component=None, runcontrol=False, lowlimit=None,
-                 highlimit=None, suspend_on_invalid=False, log_periodic=False, log_rate=5, log_deadband=0):
+    def __init__(self, name: str, pv: str, local: bool = True, visible: bool = True, component: str = None, runcontrol:
+                 bool = False, lowlimit: float = None, highlimit: float = None, suspend_on_invalid: bool = False,
+                 log_periodic: bool = False, log_rate: float = 5, log_deadband: float = 0):
         """ Constructor.
 
         Args:
@@ -45,15 +45,13 @@ class Block:
             local (bool): Whether the PV is local to the instrument
             visible (bool): Whether the block should be shown
             component (string): The component the block belongs to
-
             runcontrol (bool): Whether run-control is enabled
-            lowlimt (float): The low limit for run-control
+            lowlimit (float): The low limit for run-control
             highlimit (float): The high limit for run-control
             suspend_on_invalid (bool): Whether to suspend run-control on invalid values
-
-            arch_periodic (bool): Whether the block is sampled periodically in the archiver
-            arch_rate (float): Time between archive samples (in seconds)
-            arch_deadband (float): Deadband for the block to be archived
+            log_periodic (bool): Whether the block is sampled periodically in the archiver
+            log_rate (float): Time between archive samples (in seconds)
+            log_deadband (float): Deadband for the block to be archived
         """
         self.name = name
         self.pv = pv
@@ -68,7 +66,7 @@ class Block:
         self.log_rate = log_rate
         self.log_deadband = log_deadband
 
-    def _get_pv(self):
+    def _get_pv(self) -> str:
         pv_name = self.pv
         # Check starts with as may have already been provided
         if self.local and not pv_name.startswith(PVPREFIX_MACRO):
@@ -87,7 +85,7 @@ class Block:
         return f"Name: {self.name}, PV: {self.pv}, Local: {self.local}, Visible: {self.visible}, Component: {self.component}" \
                f", RCEnabled: {self.rc_enabled}, RCLow: {self.rc_lowlimit}, RCHigh: {self.rc_highlimit}"
 
-    def to_dict(self):
+    def to_dict(self) -> Dict[str, Union[str, float, bool]]:
         """ Puts the block's details into a dictionary.
 
         Returns:

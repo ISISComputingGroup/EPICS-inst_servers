@@ -13,6 +13,7 @@
 # along with this program; if not, you can obtain a copy from
 # https://www.eclipse.org/org/documents/epl-v10.php or
 # http://opensource.org/licenses/eclipse-1.0.php
+from typing import List, Union, Dict
 
 
 class MetaData:
@@ -25,7 +26,7 @@ class MetaData:
         synoptic (string): The default synoptic view for this configuration
         history (list): The save history of the configuration
     """
-    def __init__(self, config_name, pv_name="", description="", synoptic=""):
+    def __init__(self, config_name: str, pv_name: str = "", description: str = "", synoptic: str = ""):
         """ Constructor.
 
         Args:
@@ -41,7 +42,7 @@ class MetaData:
         self.history = []
         self.isProtected = False
 
-    def to_dict(self):
+    def to_dict(self) -> Dict[str, Union[str, bool, List]]:
         """ Puts the metadata into a dictionary.
 
         Returns:

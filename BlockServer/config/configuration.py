@@ -16,6 +16,7 @@
 
 """ Contains all the code for defining a configuration or component"""
 from collections import OrderedDict
+from typing import Dict
 
 from BlockServer.config.group import Group
 from BlockServer.config.block import Block
@@ -38,7 +39,7 @@ class Configuration:
         components (OrderedDict): The components which are part of the configuration
         is_component (bool): Whether it is actually a component
     """
-    def __init__(self, macros):
+    def __init__(self, macros: Dict):
         """ Constructor.
 
         Args:
@@ -53,7 +54,7 @@ class Configuration:
         self.components = OrderedDict()
         self.is_component = False
 
-    def add_block(self, name, pv, group=GRP_NONE, local=True, **kwargs):
+    def add_block(self, name: str, pv: str, group: str = GRP_NONE, local: bool = True, **kwargs):
         """ Add a block to the configuration.
 
         Args:
@@ -79,8 +80,8 @@ class Configuration:
                 self.groups[group.lower()] = Group(group)
             self.groups[group.lower()].blocks.append(name)
 
-    def add_ioc(self, name, component=None, autostart=None, restart=None, macros=None, pvs=None, pvsets=None,
-                simlevel=None, remotePvPrefix=None):
+    def add_ioc(self, name: str, component: str = None, autostart: bool = None, restart: bool = None, macros: Dict = None, pvs: Dict = None, pvsets: Dict = None,
+                simlevel: str = None, remotePvPrefix: str = None):
         """ Add an IOC to the configuration.
 
         Args:
@@ -89,9 +90,9 @@ class Configuration:
             autostart (bool, optional): Should the IOC automatically start
             restart (bool, optional): Should the IOC automatically restart
             macros (dict, optional): The macro sets relating to the IOC
-            pvs (, optional):
-            pvsets (, optional): Any PV values that should be set at start up
-            simlevel (, optional): Sets the simulation level
+            pvs (dict, optional):
+            pvsets (dict, optional): Any PV values that should be set at start up
+            simlevel (str, optional): Sets the simulation level
             remotePvPrefix (str, optional): Sets the remote PV prefix to use for this IOC
 
         """

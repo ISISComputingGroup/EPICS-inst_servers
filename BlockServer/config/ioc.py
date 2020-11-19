@@ -15,6 +15,7 @@
 # http://opensource.org/licenses/eclipse-1.0.php
 
 import copy
+from typing import Dict, List, Union, Any
 
 
 class IOC:
@@ -30,8 +31,8 @@ class IOC:
         pvsets (dict): The IOC's PV sets
         simlevel (string): The level of simulation
     """
-    def __init__(self, name, autostart=True, restart=True, component=None, macros=None, pvs=None, pvsets=None,
-                 simlevel=None, remotePvPrefix=None):
+    def __init__(self, name: str, autostart: bool = True, restart: bool = True, component: str = None, macros: Dict =
+                 None, pvs: Dict = None, pvsets: Dict = None, simlevel: str = None, remotePvPrefix: str = None):
         """ Constructor.
 
         Args:
@@ -72,7 +73,7 @@ class IOC:
         else:
             self.pvsets = pvsets
 
-    def _dict_to_list(self, in_dict):
+    def _dict_to_list(self, in_dict: Dict[str, Any]) -> List[Any]:
         """ Converts into a format better for the GUI to parse, namely a list.
 
         It's messy but it's what the GUI wants.
@@ -91,10 +92,10 @@ class IOC:
             out_list.append(c)
         return out_list
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"{self.__class__.__name__}(name={self.name}, component={self.component})"
 
-    def to_dict(self):
+    def to_dict(self) -> Dict[str, Union[str, bool, List[Any]]]:
         """ Puts the IOC's details into a dictionary.
 
         Returns:
