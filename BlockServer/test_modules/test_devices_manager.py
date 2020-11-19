@@ -82,7 +82,7 @@ def get_expected_devices_file_path():
 
 class MockDevicesFileIO:
     def __init__(self):
-        self.files = dict()
+        self.files = {}
 
     def load_devices_file(self, file_name):
         if file_name not in self.files:
@@ -134,7 +134,7 @@ class TestDevicesManagerSequence(unittest.TestCase):
 
         # Assert
         # Should stay as blank (i.e. the previous value)
-        self.assertEqual(self.dm.get_blank_devices(), dehex_and_decompress(self.bs.pvs[GET_SCREENS]))
+        self.assertEqual(self.dm.get_blank_devices(), dehex_and_decompress(self.bs.pvs[GET_SCREENS]).decode("utf-8"))
 
     def test_given_valid_devices_data_when_device_xml_saved_then_saved(self):
         # Act: Save the new data to file
