@@ -105,8 +105,9 @@ class ConfigurationFileManager:
 
             # There was a historic bug where the simlevel was saved as 'None' rather than "none".
             # Correct that here
-            correct_xml = ElementTree.tostring(root, encoding='utf8').replace('simlevel="None"',
-                                                                              'simlevel="none"')
+            correct_xml = ElementTree.tostring(root, encoding='utf8')
+
+            correct_xml = correct_xml.replace(b'simlevel="None"', b'simlevel="none"')
 
             # Check against the schema - raises if incorrect
             self._check_against_schema(correct_xml, FILENAME_IOCS)
