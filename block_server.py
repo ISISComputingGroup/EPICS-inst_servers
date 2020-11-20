@@ -375,7 +375,7 @@ class BlockServer(Driver):
                 h.on_config_change(full_init)
 
         # Update Web Server text
-        set_config(convert_to_json(self._active_configserver.get_config_details()))
+        self.server.set_config(convert_to_json(self._active_configserver.get_config_details()))
 
     def _stop_iocs_and_start_config_iocs(self):
         """ Stop all IOCs and start the IOCs that are part of the configuration."""
