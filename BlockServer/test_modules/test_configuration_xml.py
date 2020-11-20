@@ -101,32 +101,32 @@ GROUPS_XML = u"""
 IOCS_XML = u"""
 <?xml version="1.0" ?>
 <iocs xmlns="http://epics.isis.rl.ac.uk/schema/iocs/1.0" xmlns:ioc="http://epics.isis.rl.ac.uk/schema/iocs/1.0" xmlns:xi="http://www.w3.org/2001/XInclude">
-    <ioc autostart="true" name="TESTIOC1" restart="false" simlevel="recsim">
+    <ioc name="TESTIOC1" autostart="true" restart="false" simlevel="recsim">
         <macros>
-            <macro name="TESTIOC2MACRO" value="1"/>
             <macro name="TESTIOC1MACRO" value="1"/>
+            <macro name="TESTIOC2MACRO" value="1"/>
         </macros>
         <pvs>
             <pv name="TESTIOC1PV" value="1"/>
             <pv name="TESTIOC2PV" value="1"/>
         </pvs>
         <pvsets>
-            <pvset enabled="True" name="TESTIOC2PVSET"/>
-            <pvset enabled="True" name="TESTIOC1PVSET"/>
+            <pvset name="TESTIOC1PVSET" enabled="True"/>
+            <pvset name="TESTIOC2PVSET" enabled="True"/>
         </pvsets>
     </ioc>
-    <ioc autostart="true" name="TESTIOC2" restart="false" simlevel="devsim">
+    <ioc name="TESTIOC2" autostart="true" restart="false" simlevel="devsim">
         <macros>
-            <macro name="TESTIOC2MACRO" value="2"/>
             <macro name="TESTIOC1MACRO" value="2"/>
+            <macro name="TESTIOC2MACRO" value="2"/>
         </macros>
         <pvs>
             <pv name="TESTIOC1PV" value="2"/>
             <pv name="TESTIOC2PV" value="2"/>
         </pvs>
         <pvsets>
-            <pvset enabled="True" name="TESTIOC2PVSET"/>
-            <pvset enabled="True" name="TESTIOC1PVSET"/>
+            <pvset name="TESTIOC1PVSET" enabled="True"/>
+            <pvset name="TESTIOC2PVSET" enabled="True"/>
         </pvsets>
     </ioc>
 </iocs>"""
