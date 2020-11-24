@@ -62,6 +62,7 @@ class TestArchiveManager(unittest.TestCase):
     def setUp(self):
         self._setting_path = "blockserver_xml_path"
         self.archiver_manager = ArchiverManager(uploader_path=None, settings_path=self._setting_path)
+        self.config_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)), "settings")
 
     @patch('__builtin__.open', new_callable=mock_open, mock=FileStub)
     def test_GIVEN_no_blocks_WHEN_update_THEN_xml_for_archiver_contains_just_header(self, mock_file):
@@ -69,7 +70,7 @@ class TestArchiveManager(unittest.TestCase):
         prefix = "prefix"
         expected_output = "{}{}{}".format(HEADER_XML, BLOCKS_TO_DATAWEB_XML, FOOTER_XML).splitlines()
 
-        self.archiver_manager.update_archiver(prefix, blocks)
+        self.archiver_manager.update_archiver(prefix, blocks, False, self.config_dir)
 
         assert_that(mock_file.file_contents[self._setting_path], contains(*expected_output))
 
@@ -81,7 +82,7 @@ class TestArchiveManager(unittest.TestCase):
         prefix = "prefix"
         block_str = SCAN_BLOCK.format(prefix=prefix, block_name=expected_name, period_s=0, period_min=5)
 
-        self.archiver_manager.update_archiver(prefix, blocks)
+        self.archiver_manager.update_archiver(prefix, blocks, False, self.config_dir)
 
         assert_that(mock_file.file_contents[self._setting_path], has_items(*block_str.splitlines()))
 
@@ -94,7 +95,7 @@ class TestArchiveManager(unittest.TestCase):
         prefix = "prefix"
         block_str = SCAN_BLOCK.format(prefix=prefix, block_name=expected_name, period_s=expecter_logging_rate_s, period_min=0)
 
-        self.archiver_manager.update_archiver(prefix, blocks)
+        self.archiver_manager.update_archiver(prefix, blocks, False, self.config_dir)
 
         assert_that(mock_file.file_contents[self._setting_path], has_items(*block_str.splitlines()))
 
@@ -107,7 +108,7 @@ class TestArchiveManager(unittest.TestCase):
         prefix = "prefix"
         block_str = MONITOR_BLOCK.format(prefix=prefix, block_name=expected_name, deadband=expected_deadband)
 
-        self.archiver_manager.update_archiver(prefix, blocks)
+        self.archiver_manager.update_archiver(prefix, blocks, False, self.config_dir)
 
         assert_that(mock_file.file_contents[self._setting_path], has_items(*block_str.splitlines()))
 
@@ -119,7 +120,7 @@ class TestArchiveManager(unittest.TestCase):
         prefix = "prefix"
         block_str_rc_low = SCAN_BLOCK.format(prefix=prefix, block_name=expected_name + ":RC:LOW.VAL", period_s=0, period_min=5)
 
-        self.archiver_manager.update_archiver(prefix, blocks)
+        self.archiver_manager.update_archiver(prefix, blocks, False, self.config_dir)
 
         assert_that(mock_file.file_contents[self._setting_path], has_items(*block_str_rc_low.splitlines()))
 
@@ -131,7 +132,7 @@ class TestArchiveManager(unittest.TestCase):
         prefix = "prefix"
         block_str_rc_low = SCAN_BLOCK.format(prefix=prefix, block_name=expected_name + ":RC:HIGH.VAL", period_s=0, period_min=5)
 
-        self.archiver_manager.update_archiver(prefix, blocks)
+        self.archiver_manager.update_archiver(prefix, blocks, False, self.config_dir)
 
         assert_that(mock_file.file_contents[self._setting_path], has_items(*block_str_rc_low.splitlines()))
 
@@ -143,7 +144,7 @@ class TestArchiveManager(unittest.TestCase):
         prefix = "prefix"
         block_str_rc_low = SCAN_BLOCK.format(prefix=prefix, block_name=expected_name + ":RC:INRANGE.VAL", period_s=0, period_min=5)
 
-        self.archiver_manager.update_archiver(prefix, blocks)
+        self.archiver_manager.update_archiver(prefix, blocks, False, self.config_dir)
 
         assert_that(mock_file.file_contents[self._setting_path], has_items(*block_str_rc_low.splitlines()))
 
@@ -155,6 +156,6 @@ class TestArchiveManager(unittest.TestCase):
         prefix = "prefix"
         block_str_rc_low = SCAN_BLOCK.format(prefix=prefix, block_name=expected_name + ":RC:ENABLE.VAL", period_s=0, period_min=5)
 
-        self.archiver_manager.update_archiver(prefix, blocks)
+        self.archiver_manager.update_archiver(prefix, blocks, False, self.config_dir)
 
         assert_that(mock_file.file_contents[self._setting_path], has_items(*block_str_rc_low.splitlines()))

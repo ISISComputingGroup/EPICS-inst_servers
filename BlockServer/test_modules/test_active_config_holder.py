@@ -15,6 +15,7 @@
 # http://opensource.org/licenses/eclipse-1.0.php
 import unittest
 import json
+import os
 
 import six
 from mock import Mock
@@ -88,7 +89,8 @@ class TestActiveConfigHolderSequence(unittest.TestCase):
         self.active_config_holder = self.create_active_config_holder()
 
     def create_active_config_holder(self):
-        return ActiveConfigHolder(MACROS, self.mock_archive, self.mock_file_manager, MockIocControl(""))
+        config_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)), "settings")
+        return ActiveConfigHolder(MACROS, self.mock_archive, self.mock_file_manager, MockIocControl(""), config_dir)
 
     def test_add_ioc(self):
         config_holder = self.active_config_holder
