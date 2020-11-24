@@ -17,6 +17,7 @@
 """
 
 import os
+import shutil
 import datetime
 import time
 from subprocess import Popen
@@ -43,16 +44,26 @@ class ArchiverManager(object):
         self._settings_path = settings_path
         self._archive_wrapper = archiver
 
-    def update_archiver(self, block_prefix, blocks):
+    def update_archiver(self, block_prefix, blocks, configuration_contains_archiver_xml, config_dir):
         """Update the archiver to log the blocks specified.
 
         Args:
             block_prefix (string): The block prefix
             blocks (list): The blocks to archive
+            configuration_contains_archiver_xml (bool): True if the configuration
+                claims it contains the block_config.xml
+            config_dir (str): The directory of the current configuration.
         """
         try:
             if self._settings_path is not None:
-                self._generate_archive_config(block_prefix, blocks)
+                block_config_xml_file = os.path.join(config_dir, "block_config.xml")
+                if configuration_contains_archiver_xml and os.path.exists(block_config_xml_file):
+                    shutil.copyfile(block_config_xml_file, self._settings_path)
+                elif configuration_contains_archiver_xml:
+                    print_and_log("Could not find {} generating archive config".format(block_config_xml_file))
+                    self._generate_archive_config(block_prefix, blocks)
+                else:
+                    self._generate_archive_config(block_prefix, blocks)
             if self._uploader_path is not None:
                 self._upload_archive_config()
                 # Needs a second delay

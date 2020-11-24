@@ -103,7 +103,7 @@ class ActiveConfigHolder(ConfigHolder):
     """
     Class to serve up the active configuration.
     """
-    def __init__(self, macros, archive_manager, file_manager, ioc_control):
+    def __init__(self, macros, archive_manager, file_manager, ioc_control, config_dir):
         """ Constructor.
 
         Args:
@@ -116,6 +116,7 @@ class ActiveConfigHolder(ConfigHolder):
         self._archive_manager = archive_manager
         self._ioc_control = ioc_control
         self._db = None
+        self._config_dir = config_dir
 
     def save_active(self, name, as_comp=False):
         """ Save the active configuration.
@@ -147,8 +148,11 @@ class ActiveConfigHolder(ConfigHolder):
             full_init: if True restart; if False only restart if blocks have changed
         """
         if full_init or self.blocks_changed():
-            self._archive_manager.update_archiver(MACROS["$(MYPVPREFIX)"] + BLOCK_PREFIX,
-                                                  self.get_block_details().values())
+            self._archive_manager.update_archiver(
+                MACROS["$(MYPVPREFIX)"] + BLOCK_PREFIX, self.get_block_details().values(),
+                self.configures_block_gateway_and_archiver(),
+                os.path.join(self._config_dir, "configurations", self.get_config_name())
+            )
 
     def set_last_config(self, config_name):
         """ Save the last configuration used to file.

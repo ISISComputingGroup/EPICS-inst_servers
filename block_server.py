@@ -169,7 +169,7 @@ class BlockServer(Driver):
         arch = ArchiverManager(ARCHIVE_UPLOADER, ARCHIVE_SETTINGS)
 
         self._active_configserver = ActiveConfigHolder(MACROS, arch, ConfigurationFileManager(),
-                                                       self._ioc_control)
+                                                       self._ioc_control, CONFIG_DIR)
 
         if facility == "ISIS":
             self._run_control = RunControlManager(self.instrument_prefix, MACROS["$(ICPCONFIGROOT)"],
