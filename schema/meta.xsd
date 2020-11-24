@@ -8,6 +8,7 @@
 		<xs:element name="synoptic" minOccurs="0" maxOccurs="1" type="xs:string"/>
 		<xs:element name="edits" minOccurs="1" maxOccurs="1" type="edits_type"/>
 		<xs:element name="isProtected" minOccurs="0" maxOccurs="1" type="xs:boolean" default="false"/>
+		<xs:element name="configuresBlockGWAndArchiver" minOccurs="0" maxOccurs="1" type="xs:boolean" default="false"/>
 	  </xs:sequence>
     </xs:complexType>
   </xs:element>

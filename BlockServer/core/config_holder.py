@@ -315,6 +315,14 @@ class ConfigHolder(object):
         """
         return self._config.meta.isProtected
 
+    def configures_block_gateway_and_archiver(self):
+        """
+        Returns:
+            (bool): Whether this config has a gwblock.pvlist and block_config.xml to configure the
+             block gateway and archiver with.
+        """
+        return self._config.meta.configuresBlockGWAndArchiver
+
     def _comps_to_list(self):
         comps = []
         for component_name, component_value in six.iteritems(self._components):

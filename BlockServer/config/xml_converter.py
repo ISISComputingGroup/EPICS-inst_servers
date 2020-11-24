@@ -38,6 +38,7 @@ TAG_META = "meta"
 TAG_DESC = "description"
 TAG_SYNOPTIC = "synoptic"
 TAG_PROTECTED = "isProtected"
+TAG_CONFIGURES_BLOCK_GW_AND_ARCHIVER = "configuresBlockGWAndArchiver"
 
 NS_TAG_BLOCK = 'blk'
 NS_TAG_IOC = 'ioc'
@@ -170,6 +171,9 @@ class ConfigurationXmlConverter(object):
 
         protect_xml = ElementTree.SubElement(root, TAG_PROTECTED)
         protect_xml.text = str(data.isProtected).lower()
+
+        configure_block_gw_and_archiver_xml = ElementTree.SubElement(root, TAG_CONFIGURES_BLOCK_GW_AND_ARCHIVER)
+        configure_block_gw_and_archiver_xml.text = str(data.configuresBlockGWAndArchiver).lower()
 
         return minidom.parseString(ElementTree.tostring(root)).toprettyxml()
 
@@ -440,6 +444,13 @@ class ConfigurationXmlConverter(object):
                 data.isProtected = isProtected.text.lower() == "true"
             else:
                 data.isProtected = False
+
+        configuresBlockGWAndArchiver = root_xml.find("./" + TAG_CONFIGURES_BLOCK_GW_AND_ARCHIVER)
+        if configuresBlockGWAndArchiver is not None:
+            if configuresBlockGWAndArchiver is not None:
+                data.configuresBlockGWAndArchiver = configuresBlockGWAndArchiver.text.lower() == "true"
+            else:
+                data.configuresBlockGWAndArchiver = False
 
         edits = root_xml.findall("./" + TAG_EDITS + "/" + TAG_EDIT)
         data.history = [e.text for e in edits]

@@ -141,6 +141,7 @@ META_XML = u"""<?xml version="1.0" ?>
 <edit>1992-02-07</edit>
 </edits>
 <isProtected>false</isProtected>
+<configuresBlockGWAndArchiver>false</configuresBlockGWAndArchiver>
 </meta>
 """
 
