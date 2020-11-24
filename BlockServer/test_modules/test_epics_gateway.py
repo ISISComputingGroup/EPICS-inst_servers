@@ -169,8 +169,8 @@ class TestEpicsGateway(unittest.TestCase):
     @patch('BlockServer.epics.gateway.copyfile')
     @patch('BlockServer.epics.gateway.Gateway._reload')
     @patch('__builtin__.open', new_callable=mock_open, mock=FileStub)
-    def test_GIVEN_configuration_has_pvlist_WHEN_set_new_aliases_THEN_pvlist_copied(self, mock_file,
-                                                                                    reload_mock, copyfile_mock):
+    def test_GIVEN_configuration_claims_has_pvlist_BUT_does_not_WHEN_set_new_aliases_THEN_pvlist_copied(
+            self, mock_file, reload_mock, copyfile_mock):
         mock_file.clear()
         config_dir = os.path.join(self.config_dir, "empty")
         expected_name = "block"
