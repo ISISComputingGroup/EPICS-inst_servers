@@ -363,7 +363,11 @@ class BlockServer(Driver):
 
         # Set up the gateway
         if self._active_configserver.blocks_changed() or full_init:
-            self._gateway.set_new_aliases(self._active_configserver.get_block_details())
+            self._gateway.set_new_aliases(
+                self._active_configserver.get_block_details(),
+                self._active_configserver.configures_block_gateway_and_archiver(),
+                os.path.join(CONFIG_DIR, "configurations", self._active_configserver.get_config_name())
+            )
 
         self._config_list.active_config_name = self._active_configserver.get_config_name()
         self._config_list.active_components = self._active_configserver.get_component_names()
