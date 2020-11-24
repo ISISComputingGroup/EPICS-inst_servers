@@ -20,7 +20,7 @@ from server_common.channel_access import ChannelAccess
 from server_common.utilities import print_and_log
 from BlockServer.core.macros import CONTROL_SYSTEM_PREFIX, BLOCK_PREFIX
 import os
-import shutil
+from shutil import copyfile
 
 ALIAS_HEADER = """\
 ##
@@ -163,7 +163,7 @@ class Gateway(object):
         """
         pvlist_file = os.path.join(config_dir, "gwblock.pvlist")
         if configures_block_gateway and os.path.exists(pvlist_file):
-            shutil.copyfile(pvlist_file, self._pvlist_file)
+            copyfile(pvlist_file, self._pvlist_file)
         elif configures_block_gateway:
             print_and_log("File: {} not found generating gwblock.pvlist".format(pvlist_file))
             self._generate_alias_file(blocks)

@@ -15,9 +15,13 @@
 # http://opensource.org/licenses/eclipse-1.0.php
 
 import unittest
-from mock import patch, MagicMock
+from hamcrest import *
+from mock import patch, MagicMock, mock_open
+import os
 
-from BlockServer.epics.gateway import Gateway
+from ArchiverAccess.test_modules.stubs import FileStub
+from BlockServer.epics.gateway import Gateway, ALIAS_HEADER
+from BlockServer.config.block import Block
 
 
 class TestEpicsGateway(unittest.TestCase):
@@ -28,6 +32,7 @@ class TestEpicsGateway(unittest.TestCase):
         self.prefix = "INST:"
         self.block_prefix = self.prefix + "BLOCK:"
         self.control_sys_prefix = self.prefix + "CONTROL:"
+        self.config_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)), "settings")
 
         self.gateway = Gateway(self.gateway_prefix, self.prefix, self.gateway_file_path, self.block_prefix,
                                self.control_sys_prefix)
@@ -145,3 +150,43 @@ class TestEpicsGateway(unittest.TestCase):
 
         self._assert_lines_correct(lines, expected_lines)
 
+    @patch('BlockServer.epics.gateway.copyfile')
+    @patch('BlockServer.epics.gateway.Gateway._reload')
+    @patch('__builtin__.open', new_callable=mock_open, mock=FileStub)
+    def test_GIVEN_configuration_has_pvlist_WHEN_set_new_aliases_THEN_pvlist_copied(self, mock_file,
+                                                                                    reload_mock, copyfile_mock):
+        mock_file.clear()
+        config_dir = os.path.join(self.config_dir, "non_empty")
+        expected_name = "block"
+        expected_pv = "pv"
+        blocks = [Block(expected_name, expected_pv, log_periodic=True, log_rate=0, log_deadband=1)]
+
+        self.gateway.set_new_aliases(blocks, True, config_dir)
+
+        copyfile_mock.assert_called_once_with(os.path.join(config_dir, "gwblock.pvlist"), self.gateway_file_path)
+        assert_that(mock_file.file_contents, empty())
+
+    @patch('BlockServer.epics.gateway.copyfile')
+    @patch('BlockServer.epics.gateway.Gateway._reload')
+    @patch('__builtin__.open', new_callable=mock_open, mock=FileStub)
+    def test_GIVEN_configuration_has_pvlist_WHEN_set_new_aliases_THEN_pvlist_copied(self, mock_file,
+                                                                                    reload_mock, copyfile_mock):
+        mock_file.clear()
+        config_dir = os.path.join(self.config_dir, "empty")
+        expected_name = "block"
+        expected_pv = "pv"
+        blocks = {expected_name: Block(expected_name, expected_pv, log_periodic=True, log_rate=0, log_deadband=1)}
+        alias = "INST:BLOCK:block"
+        expected_lines = [line.split() for line in ALIAS_HEADER.format("INST:").splitlines() if not line.startswith("##") and line != ""] + [
+            [r"{}\([.:].*\)".format(alias), "ALIAS", "INST:{}\\1".format(expected_pv)],
+            [alias, "ALIAS", "INST:" + expected_pv],
+            [r"{}\(:[ADR]C:.*\)".format(alias.upper()), "DENY"],
+            [r"{}\([.:].*\)".format(alias.upper()), "ALIAS", "INST:{}\\1".format(expected_pv)],
+            [alias.upper(), "ALIAS", "INST:" + expected_pv],
+            [r"{}\(:[ADR]C:.*\)".format(alias), "ALIAS", "INST:BLOCK:{}\\1".format(expected_name.upper())]
+        ]
+
+        self.gateway.set_new_aliases(blocks, True, config_dir)
+
+        copyfile_mock.assert_not_called()
+        self._assert_lines_correct(mock_file.file_contents[self.gateway_file_path], expected_lines)
