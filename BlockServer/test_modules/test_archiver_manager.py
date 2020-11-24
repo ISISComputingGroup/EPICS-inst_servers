@@ -177,8 +177,8 @@ class TestArchiveManager(unittest.TestCase):
 
     @patch('BlockServer.epics.archiver_manager.copyfile')
     @patch('__builtin__.open', new_callable=mock_open, mock=FileStub)
-    def test_GIVEN_that_configuration_contains_archiver_xml_THEN_xml_for_archiver_uses_that_file(self, mock_file,
-                                                                                                 copyfile_mock):
+    def test_GIVEN_that_configuration_claims_but_does_not_contain_archiver_xml_THEN_xml_for_archiver_generates(
+            self, mock_file, copyfile_mock):
         mock_file.clear()
         expected_name = "block"
         expected_pv = "pv"
