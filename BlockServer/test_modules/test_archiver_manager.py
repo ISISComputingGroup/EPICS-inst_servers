@@ -159,3 +159,37 @@ class TestArchiveManager(unittest.TestCase):
         self.archiver_manager.update_archiver(prefix, blocks, False, self.config_dir)
 
         assert_that(mock_file.file_contents[self._setting_path], has_items(*block_str_rc_low.splitlines()))
+
+    @patch('BlockServer.epics.archiver_manager.copyfile')
+    @patch('__builtin__.open', new_callable=mock_open, mock=FileStub)
+    def test_GIVEN_that_configuration_contains_archiver_xml_THEN_xml_for_archiver_uses_that_file(self, mock_file, copyfile_mock):
+        mock_file.clear()
+        expected_name = "block"
+        expected_pv = "pv"
+        blocks = [Block(expected_name, expected_pv, log_periodic=True, log_rate=0, log_deadband=1)]
+        prefix = "prefix"
+        config_dir = os.path.join(self.config_dir, "non_empty")
+
+        self.archiver_manager.update_archiver(prefix, blocks, True, config_dir)
+
+        copyfile_mock.assert_called_once_with(os.path.join(config_dir, "block_config.xml"), self._setting_path)
+        assert_that(mock_file.file_contents, empty())
+
+    @patch('BlockServer.epics.archiver_manager.copyfile')
+    @patch('__builtin__.open', new_callable=mock_open, mock=FileStub)
+    def test_GIVEN_that_configuration_contains_archiver_xml_THEN_xml_for_archiver_uses_that_file(self, mock_file,
+                                                                                                 copyfile_mock):
+        mock_file.clear()
+        expected_name = "block"
+        expected_pv = "pv"
+        blocks = [Block(expected_name, expected_pv, log_periodic=True, log_rate=0, log_deadband=1)]
+        prefix = "prefix"
+        block_str_rc_low = SCAN_BLOCK.format(prefix=prefix, block_name=expected_name + ":RC:ENABLE.VAL", period_s=0,
+                                             period_min=5)
+
+        config_dir = os.path.join(self.config_dir, "empty")
+
+        self.archiver_manager.update_archiver(prefix, blocks, True, config_dir)
+
+        copyfile_mock.assert_not_called()
+        assert_that(mock_file.file_contents[self._setting_path], has_items(*block_str_rc_low.splitlines()))
