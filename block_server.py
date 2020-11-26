@@ -66,6 +66,7 @@ CAEN_DISCRIMINATOR_IOC_NAME = "CAENV895_01"
 # For documentation on these commands see the wiki
 initial_dbs = {
     BlockserverPVNames.BLOCKNAMES: char_waveform(16000),
+    BlockserverPVNames.HEARTBEAT: {'type': 'int', 'count': 1, 'value': [0]},
     BlockserverPVNames.BLOCK_DETAILS: char_waveform(16000),
     BlockserverPVNames.GROUPS: char_waveform(16000),
     BlockserverPVNames.COMPS: char_waveform(16000),
@@ -229,6 +230,8 @@ class BlockServer(Driver):
                 value = self._active_configserver.get_config_name()
             elif reason == BlockserverPVNames.CURR_CONFIG_NAME_SEVR:
                 value = CURR_CONFIG_NAME_SEVR_VALUE
+            elif reason == BlockserverPVNames.HEARTBEAT:
+                value = 0
             else:
                 # Check to see if it is a on-the-fly PV
                 for handler in self.on_the_fly_handlers:
@@ -371,8 +374,8 @@ class BlockServer(Driver):
         self.update_get_details_monitors()
         self.update_curr_config_name_monitors()
         self._active_configserver.update_archiver(full_init)
-        for h in self.on_the_fly_handlers:
-                h.on_config_change(full_init)
+        for handler in self.on_the_fly_handlers:
+            handler.on_config_change(full_init=full_init)
 
         # Update Web Server text
         self.server.set_config(convert_to_json(self._active_configserver.get_config_details()))
