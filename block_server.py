@@ -255,7 +255,7 @@ class BlockServer(Driver):
         """
         status = True
         try:
-            data = dehex_and_decompress(bytes(value, encoding="utf-8")).strip(b'"')
+            data = dehex_and_decompress(bytes(value, encoding="utf-8")).strip(b'"').decode("utf-8")
             if reason == BlockserverPVNames.LOAD_CONFIG:
                 self.write_queue.put((self.load_config, (data,), "LOADING_CONFIG"))
             elif reason == BlockserverPVNames.RELOAD_CURRENT_CONFIG:

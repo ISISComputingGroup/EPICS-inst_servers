@@ -109,7 +109,7 @@ class Configuration:
         Returns:
             string : The name of this configuration
         """
-        return self.meta.name
+        return self.meta.name.decode("utf-8") if isinstance(self.meta.name, bytes) else self.meta.name
 
     def set_name(self, name):
         """ Sets the configuration's name.

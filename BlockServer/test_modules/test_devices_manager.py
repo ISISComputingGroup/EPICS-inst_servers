@@ -73,7 +73,7 @@ INVALID_DEVICES = b"""<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
     </device>
 </devices>"""
 
-SCHEMA_PATH = os.path.abspath(os.path.join(".", "..","schema"))
+SCHEMA_PATH = os.path.abspath(os.path.join(".", "..", "schema"))
 
 
 def get_expected_devices_file_path():
