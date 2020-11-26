@@ -163,6 +163,7 @@ class Gateway(object):
         """
         pvlist_file = os.path.join(config_dir, "gwblock.pvlist")
         if configures_block_gateway and os.path.exists(pvlist_file):
+            print_and_log("Using {} to configure block gateway".format(pvlist_file))
             copyfile(pvlist_file, self._pvlist_file)
         elif configures_block_gateway:
             print_and_log("File: {} not found generating gwblock.pvlist".format(pvlist_file))

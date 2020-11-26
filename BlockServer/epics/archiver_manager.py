@@ -58,6 +58,7 @@ class ArchiverManager(object):
             if self._settings_path is not None:
                 block_config_xml_file = os.path.join(config_dir, "block_config.xml")
                 if configuration_contains_archiver_xml and os.path.exists(block_config_xml_file):
+                    print_and_log("Using {} to configure block archiver".format(block_config_xml_file))
                     copyfile(block_config_xml_file, self._settings_path)
                 elif configuration_contains_archiver_xml:
                     print_and_log("Could not find {} generating archive config".format(block_config_xml_file))
