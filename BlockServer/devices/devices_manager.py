@@ -122,7 +122,7 @@ class DevicesManager(OnTheFlyPvInterface):
         Returns:
 
         """
-        self._data = xml_data
+        self._data = xml_data.decode("utf-8") if isinstance(xml_data, bytes) else xml_data
         self.update_monitors()
 
     def save_devices_xml(self, xml_data):
