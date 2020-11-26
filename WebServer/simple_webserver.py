@@ -33,6 +33,7 @@ def make_app():
 
 class Server(Thread):
     def run(self):
+        # Workaround - as documented at https://github.com/tornadoweb/tornado/issues/2608
         asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
         self._lock_config = RLock()
         asyncio.set_event_loop(asyncio.new_event_loop())
@@ -50,7 +51,6 @@ class Server(Thread):
 
 
 if __name__ == '__main__':
-    # As documented at https://github.com/tornadoweb/tornado/issues/2608
     _server = Server()
     try:
         _server.start()
