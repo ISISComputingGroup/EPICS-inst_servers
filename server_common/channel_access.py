@@ -145,7 +145,7 @@ class ChannelAccess(object):
             return None
 
     @staticmethod
-    def caput(name, value, wait=False, set_pv_value=None):
+    def caput(name, value, wait=False, set_pv_value=None, safe_not_quick=True):
         """
         Uses CaChannelWrapper from genie_python to set a pv value. Waiting will put the call in a thread so the order
         is no longer guarenteed. Also if the call take time a queue will be formed of put tasks.
@@ -157,6 +157,8 @@ class ChannelAccess(object):
             value (object): The data to send to the PV
             wait (bool, optional): Wait for the PV to set before returning
             set_pv_value: function to call to set a pv, used only in testing; None to use CaChannelWrapper set value
+            safe_not_quick (bool): True run all checks while setting the pv, False don't run checks just write the value,
+                e.g. disp check
         Returns:
             None: if wait is False
             Future: if wait if True
@@ -168,7 +170,7 @@ class ChannelAccess(object):
             set_pv_value = CaChannelWrapper.set_pv_value
 
         def _put_value():
-            set_pv_value(name, value, wait)
+            set_pv_value(name, value, wait, safe_not_quick=safe_not_quick)
 
         if wait:
             # If waiting then run in this thread.
