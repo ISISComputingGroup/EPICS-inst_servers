@@ -31,6 +31,11 @@ EVALUATION ORDER ALLOW, DENY
 
 """
 
+ALIAS_FOOTER = """\
+## ignore any request not related to local blocks
+!{0}CS:SB:.*       DENY
+"""
+
 # Alias e.g. INST:CS:SB:MyMotor:RC:INRANGE to INST:CS:MYMOTOR:RC:INRANGE
 # Also handle AC (alerts) and DC (device actions, such as LOQ fast shutter)
 MATCH_RUNCONTROL_SUFFIX = "\\(:[ADR]C:.*\\)"
@@ -118,6 +123,7 @@ class Gateway(object):
                 for name, value in blocks.iteritems():
                     lines = self.generate_alias(value.name, value.pv, value.local)
                     f.write('\n'.join(lines) + '\n')
+            f.write(ALIAS_FOOTER.format(self._inst_prefix))
             # Add a blank line at the end!
             f.write("\n")
 
