@@ -225,7 +225,7 @@ class BlockServer(Driver):
             elif reason == BlockserverPVNames.BANNER_DESCRIPTION:
                 value = compress_and_hex(self.spangle_banner)
             elif reason == BlockserverPVNames.ALL_COMPONENT_DETAILS:
-                value = compress_and_hex(convert_to_json(self._config_list.all_components.values()))
+                value = compress_and_hex(convert_to_json(list(self._config_list.all_components.values())))
             elif reason == BlockserverPVNames.CURR_CONFIG_NAME:
                 value = self._active_configserver.get_config_name()
             elif reason == BlockserverPVNames.CURR_CONFIG_NAME_SEVR:
