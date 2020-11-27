@@ -230,7 +230,6 @@ class SynopticManager(OnTheFlyPvInterface):
             print_and_log(err)
             raise
 
-        # fell over here
         name = self._get_synoptic_name_from_xml(xml_data)
         save_path = FILEPATH_MANAGER.get_synoptic_path(name)
         try:
