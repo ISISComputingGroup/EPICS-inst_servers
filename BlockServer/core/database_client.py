@@ -20,7 +20,7 @@ def get_iocs(prefix):
     """
     #
     try:
-        rawjson = dehex_and_decompress(bytes(ChannelAccess.caget(prefix + DatabasePVNames.IOCS), encoding="utf-8"))
+        rawjson = dehex_and_decompress(bytes(ChannelAccess.caget(prefix + DatabasePVNames.IOCS), encoding="utf-8")).decode("utf-8")
         return json.loads(rawjson).keys()
     except Exception:
         print_and_log(f"Could not retrieve IOC list: {traceback.format_exc()}", "MAJOR")
