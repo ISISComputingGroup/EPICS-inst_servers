@@ -64,7 +64,7 @@ class ConfigurationSchemaChecker:
         schema = ConfigurationSchemaChecker._get_schema(folder, file_name)
 
         try:
-            doc = etree.fromstring(xml_data)
+            doc = etree.fromstring(xml_data if isinstance(xml_data, bytes) else bytes(xml_data, encoding="utf-8"))
             schema.assertValid(doc)
         except etree.DocumentInvalid as err:
             raise ConfigurationInvalidUnderSchema(str(err))

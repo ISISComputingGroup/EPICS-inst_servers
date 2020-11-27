@@ -198,7 +198,7 @@ class SynopticManager(OnTheFlyPvInterface):
         """Gets the XML for the default synoptic.
 
         Returns:
-            string : The XML for the synoptic
+            bytes : The XML for the synoptic
         """
         return self._default_syn_xml
 
@@ -218,6 +218,8 @@ class SynopticManager(OnTheFlyPvInterface):
         Args:
             xml_data (string): The XML to be saved
         """
+        # Convert to bytes
+        xml_data = xml_data if isinstance(xml_data, bytes) else bytes(xml_data, encoding="utf-8")
         try:
             # Check against schema
             ConfigurationSchemaChecker.check_xml_matches_schema(os.path.join(self._schema_folder, SYNOPTIC_SCHEMA_FILE),
@@ -228,6 +230,7 @@ class SynopticManager(OnTheFlyPvInterface):
             print_and_log(err)
             raise
 
+        # fell over here
         name = self._get_synoptic_name_from_xml(xml_data)
         save_path = FILEPATH_MANAGER.get_synoptic_path(name)
         try:
@@ -296,7 +299,7 @@ class SynopticManager(OnTheFlyPvInterface):
                <name>-- NONE --</name><components/></instrument>"""
 
     def load_synoptic(self, path):
-        with open(path, 'r') as synfile:
+        with open(path, 'rb') as synfile:
             xml_data = synfile.read()
 
         return xml_data

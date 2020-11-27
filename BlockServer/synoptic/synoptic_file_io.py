@@ -28,11 +28,11 @@ class SynopticFileIO:
         # If save file already exists remove first to avoid case issues
         if os.path.exists(save_path):
             os.remove(save_path)
-
         # Save the data
         with open(save_path, 'wb') as synfile:
             pretty_xml = minidom.parseString(xml_data).toprettyxml()
-            synfile.write(pretty_xml)
+            # toprettyxml() returns a string so we have to convert it to bytes in order to write out as bytes
+            synfile.write(bytes(pretty_xml, encoding="utf-8"))
             return
 
     @retry(RETRY_MAX_ATTEMPTS, RETRY_INTERVAL, (OSError, IOError))
