@@ -28,6 +28,7 @@ class MyHandler(tornado.web.RequestHandler):
 def make_app():
     return tornado.web.Application([
         (r"/", MyHandler),
+        (r'/(favicon.ico)', MyHandler),
     ])
 
 
