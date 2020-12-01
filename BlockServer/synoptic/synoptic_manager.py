@@ -15,6 +15,8 @@
 # http://opensource.org/licenses/eclipse-1.0.php
 
 import os
+from typing import List
+
 from BlockServer.core.config_list_manager import InvalidDeleteException
 from BlockServer.core.file_path_manager import FILEPATH_MANAGER
 from BlockServer.core.on_the_fly_pv_interface import OnTheFlyPvInterface
@@ -160,11 +162,11 @@ class SynopticManager(OnTheFlyPvInterface):
         Returns:
             list : Alphabetical list of synoptics files on the server, along with their associated pvs
         """
-        syn_list = list()
+        syn_list = []
         default_is_none_synoptic = True
         for k, v in self._synoptic_pvs.items():
             is_default = False
-            if "<name>" + k + "</name>" in self._default_syn_xml:
+            if f"<name>{k}</name>" in self._default_syn_xml:
                 default_is_none_synoptic = False
                 is_default = True
             syn_list.append({"name": k, "pv": v, "is_default": is_default})
@@ -239,7 +241,7 @@ class SynopticManager(OnTheFlyPvInterface):
                           f"not in use by another process.")
         print_and_log("Synoptic saved: " + name)
 
-    def delete(self, delete_list):
+    def delete(self, delete_list: List[str]):
         """Takes a list of synoptics and removes them from the file system and any relevant PVs.
 
         Args:
@@ -250,16 +252,18 @@ class SynopticManager(OnTheFlyPvInterface):
         if not delete_list.issubset(self._synoptic_pvs.keys()):
             raise InvalidDeleteException("Delete list contains unknown configurations")
         for synoptic in delete_list:
-            try:
-                fullname = synoptic + ".xml"
-                self._file_io.delete_synoptic(self._directory, fullname)
-            except MaxAttemptsExceededException:
-                print_and_log(f"Could not delete synoptic file {fullname}. Please check the file is "
-                              f"not in use by another process.", "MINOR")
-                continue
+            self._delete_synoptic(synoptic)
 
-            self._bs.delete_pv_from_db(SYNOPTIC_PRE + self._synoptic_pvs[synoptic] + SYNOPTIC_GET)
-            del self._synoptic_pvs[synoptic]
+    def _delete_synoptic(self, synoptic: str):
+        fullname = synoptic + ".xml"
+        try:
+            self._file_io.delete_synoptic(self._directory, fullname)
+        except MaxAttemptsExceededException:
+            print_and_log(f"Could not delete synoptic file {fullname}. Please check the file is "
+                          f"not in use by another process.", "MINOR")
+            return
+        self._bs.delete_pv_from_db(SYNOPTIC_PRE + self._synoptic_pvs[synoptic] + SYNOPTIC_GET)
+        del self._synoptic_pvs[synoptic]
 
     def update(self, xml_data):
         """Updates the synoptic list when modifications are made via the filesystem.
