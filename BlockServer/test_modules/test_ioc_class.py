@@ -13,7 +13,7 @@
 # along with this program; if not, you can obtain a copy from
 # https://www.eclipse.org/org/documents/epl-v10.php or
 # http://opensource.org/licenses/eclipse-1.0.php
-
+import copy
 import unittest
 from BlockServer.config.ioc import IOC
 
@@ -27,9 +27,9 @@ class TestIocClassSequence(unittest.TestCase):
         d = ioc.to_dict()
         self.assertTrue("name" in d)
         self.assertTrue("macros" in d)
-        macrotest = {"name" : "macro1", "value" : 123}
+        macrotest = {"name": "macro1", "value": 123}
         self.assertTrue(macrotest in d["macros"])
-        macrotest = {"name" : "macro2", "value" : "Hello"}
+        macrotest = {"name": "macro2", "value": "Hello"}
         self.assertTrue(macrotest in d["macros"])
 
     def test_ioc_simlevel_none_spelling(self):
@@ -41,3 +41,15 @@ class TestIocClassSequence(unittest.TestCase):
         ioc = IOC("SIMPLE1", simlevel="FOOSIM")
 
         self.assertEqual(ioc.simlevel, "foosim")
+
+    def test_dict_to_list(self):
+        macro1 = "macro1"
+        value1 = 123
+        macro2 = "macro2"
+        value2 = "hello"
+        macros = {macro1: {'value': value1}, macro2: {'value': value2}}
+        macro_copy = copy.deepcopy(macros)
+
+        self.assertEqual(IOC._dict_to_list(macros), [{"name": macro1, "value": value1}, {"name": macro2, "value": value2}])
+        # Assert that the original macros dict has not changed
+        self.assertEqual(macros, macro_copy)

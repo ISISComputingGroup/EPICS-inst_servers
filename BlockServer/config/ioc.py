@@ -73,7 +73,8 @@ class IOC:
         else:
             self.pvsets = pvsets
 
-    def _dict_to_list(self, in_dict: Dict[str, Any]) -> List[Any]:
+    @staticmethod
+    def _dict_to_list(in_dict: Dict[str, Any]) -> List[Any]:
         """ Converts into a format better for the GUI to parse, namely a list.
 
         It's messy but it's what the GUI wants.

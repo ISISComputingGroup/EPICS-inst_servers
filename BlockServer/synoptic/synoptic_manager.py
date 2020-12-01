@@ -298,7 +298,6 @@ class SynopticManager(OnTheFlyPvInterface):
                <name>-- NONE --</name><components/></instrument>"""
 
     def load_synoptic(self, path):
-        with open(path, 'rb') as synfile:
-            xml_data = synfile.read()
+        xml_data = etree.parse(path)
 
         return xml_data
