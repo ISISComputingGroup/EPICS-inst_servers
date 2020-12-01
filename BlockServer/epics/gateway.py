@@ -26,7 +26,7 @@ EVALUATION ORDER ALLOW, DENY
 
 """
 
-ALIAS_FOOTER = r"""\
+ALIAS_FOOTER = r"""
 ## serve blockserver internal variables, including Flag variables needed by blockserver process to restart gateway
 {0}CS:GATEWAY:BLOCKSERVER:.*    				    ALLOW	ANYBODY	    1
 ## allow anybody to generate gateway reports
