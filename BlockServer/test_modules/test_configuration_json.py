@@ -71,5 +71,3 @@ class TestConfigurationJsonConverterSequence(unittest.TestCase):
         self.assertIsNone(returned[1]["component"])
         self.assertEqual(returned[2]["component"], "TESTCOMPONENT1")
         self.assertIsNone(returned[3]["component"])
-
-# TODO: add tests here for blocks & IOCs
