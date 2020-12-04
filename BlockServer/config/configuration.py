@@ -43,7 +43,7 @@ class Configuration:
         """ Constructor.
 
         Args:
-            macros (dict): The dictionary containing the macros
+            macros: The dictionary containing the macros
         """
         # All dictionary keys are lowercase except iocs which is uppercase
         self.blocks = OrderedDict()
@@ -58,11 +58,11 @@ class Configuration:
         """ Add a block to the configuration.
 
         Args:
-            name (string): The name for the new block
-            pv (string): The PV that is aliased
-            group (string, optional): The group that the block belongs to
-            local (bool, optional): Is the block local
-            kwargs (dict): Keyword arguments for the other parameters
+            name: The name for the new block
+            pv: The PV that is aliased
+            group: The group that the block belongs to
+            local: Is the block local
+            kwargs: Keyword arguments for the other parameters
         """
         # Check block name is unique
         if name.lower() in self.blocks.keys():
@@ -86,14 +86,14 @@ class Configuration:
 
         Args:
             name (string): The name of the IOC to add
-            component (string, optional): The component that the IOC belongs to
-            autostart (bool, optional): Should the IOC automatically start
-            restart (bool, optional): Should the IOC automatically restart
-            macros (dict, optional): The macro sets relating to the IOC
-            pvs (dict, optional):
-            pvsets (dict, optional): Any PV values that should be set at start up
-            simlevel (str, optional): Sets the simulation level
-            remotePvPrefix (str, optional): Sets the remote PV prefix to use for this IOC
+            component: The component that the IOC belongs to
+            autostart: Should the IOC automatically start
+            restart: Should the IOC automatically restart
+            macros: The macro sets relating to the IOC
+            pvs:
+            pvsets: Any PV values that should be set at start up
+            simlevel: Sets the simulation level
+            remotePvPrefix: Sets the remote PV prefix to use for this IOC
 
         """
         # Only add it if it has not been added before
@@ -103,18 +103,18 @@ class Configuration:
             self.iocs[name.upper()] = IOC(name, autostart, restart, component, macros, pvs, pvsets, simlevel,
                                           remotePvPrefix)
 
-    def get_name(self):
+    def get_name(self) -> str:
         """ Gets the name of the configuration.
 
         Returns:
-            string : The name of this configuration
+            The name of this configuration
         """
         return self.meta.name.decode("utf-8") if isinstance(self.meta.name, bytes) else self.meta.name
 
-    def set_name(self, name):
+    def set_name(self, name: str):
         """ Sets the configuration's name.
 
         Args:
-            name (string): The new name for the configuration
+            name: The new name for the configuration
         """
         self.meta.name = name

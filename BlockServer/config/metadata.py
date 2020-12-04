@@ -30,10 +30,10 @@ class MetaData:
         """ Constructor.
 
         Args:
-            config_name (string): The name of the configuration
-            pv (string): The PV for the configuration
-            description (string): The description
-            synoptic (string): The default synoptic view for this configuration
+            config_name: The name of the configuration
+            pv: The PV for the configuration
+            description: The description
+            synoptic: The default synoptic view for this configuration
         """
         self.name = config_name
         self.pv = pv_name
@@ -46,7 +46,7 @@ class MetaData:
         """ Puts the metadata into a dictionary.
 
         Returns:
-            dict : The metadata
+            The metadata
         """
         return {'name': self.name, 'pv': self.pv, 'description': self.description, 'synoptic': self.synoptic,
                 'history': self.history, 'isProtected': self.isProtected}

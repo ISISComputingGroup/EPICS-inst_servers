@@ -40,18 +40,18 @@ class Block:
         """ Constructor.
 
         Args:
-            name (string): The block name
-            pv (string): The PV pointed at
-            local (bool): Whether the PV is local to the instrument
-            visible (bool): Whether the block should be shown
-            component (string): The component the block belongs to
-            runcontrol (bool): Whether run-control is enabled
-            lowlimit (float): The low limit for run-control
-            highlimit (float): The high limit for run-control
-            suspend_on_invalid (bool): Whether to suspend run-control on invalid values
-            log_periodic (bool): Whether the block is sampled periodically in the archiver
-            log_rate (float): Time between archive samples (in seconds)
-            log_deadband (float): Deadband for the block to be archived
+            name: The block name
+            pv: The PV pointed at
+            local: Whether the PV is local to the instrument
+            visible: Whether the block should be shown
+            component: The component the block belongs to
+            runcontrol: Whether run-control is enabled
+            lowlimit: The low limit for run-control
+            highlimit: The high limit for run-control
+            suspend_on_invalid: Whether to suspend run-control on invalid values
+            log_periodic: Whether the block is sampled periodically in the archiver
+            log_rate: Time between archive samples (in seconds)
+            log_deadband: Deadband for the block to be archived
         """
         self.name = name
         self.pv = pv
@@ -73,11 +73,11 @@ class Block:
             pv_name = PVPREFIX_MACRO + self.pv
         return pv_name
 
-    def set_visibility(self, visible):
+    def set_visibility(self, visible: bool):
         """ Toggle the visibility of the block.
 
         Args:
-            visible (bool): Whether the block is visible or not
+            visible: Whether the block is visible or not
         """
         self.visible = visible
 
@@ -89,7 +89,7 @@ class Block:
         """ Puts the block's details into a dictionary.
 
         Returns:
-            dict : The block's details
+            The block's details
         """
         return {
             "name": self.name,

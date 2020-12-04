@@ -36,16 +36,16 @@ class IOC:
         """ Constructor.
 
         Args:
-            name (string): The name of the IOC
-            autostart (bool): Whether the IOC should automatically start/restart when the configuration is
+            name: The name of the IOC
+            autostart: Whether the IOC should automatically start/restart when the configuration is
             loaded/changed
-            restart (bool): If auto start is true, then proc serv will restart the IOC if it terminates unexpectedly
-            component (string|None): The component the IOC belongs to
-            macros (dict): The IOC's macros
-            pvs (dict): The IOC's PVs
-            pvsets (dict): The IOC's PV sets
-            simlevel (string): The level of simulation
-            remotePvPrefix (str): The remote pv prefix
+            restart: If auto start is true, then proc serv will restart the IOC if it terminates unexpectedly
+            component: The component the IOC belongs to
+            macros: The IOC's macros
+            pvs: The IOC's PVs
+            pvsets: The IOC's PV sets
+            simlevel: The level of simulation
+            remotePvPrefix: The remote pv prefix
         """
         self.name = name
         self.autostart = autostart
@@ -80,10 +80,10 @@ class IOC:
         It's messy but it's what the GUI wants.
 
         Args:
-            in_dict (dict): The dictionary to be converted
+            in_dict: The dictionary to be converted
 
         Returns:
-            list : The newly created list
+            The newly created list
         """
         out_list = []
         for k, v in in_dict.items():
@@ -100,7 +100,7 @@ class IOC:
         """ Puts the IOC's details into a dictionary.
 
         Returns:
-            dict : The IOC's details
+            The IOC's details
         """
         return {
             'name': self.name,

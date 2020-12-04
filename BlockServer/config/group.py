@@ -28,8 +28,8 @@ class Group:
         """ Constructor.
 
         Args:
-            name (string): The name for the group
-            component (string): The component to which the group belongs
+            name: The name for the group
+            component: The component to which the group belongs
         """
         self.name = name
         self.blocks = []
@@ -42,6 +42,6 @@ class Group:
         """ Puts the group's details into a dictionary.
 
         Returns:
-            dict : The group's details
+            The group's details
         """
         return {'name': self.name, 'blocks': self.blocks, "component": self.component}
