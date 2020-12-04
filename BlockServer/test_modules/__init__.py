@@ -14,6 +14,7 @@
 # https://www.eclipse.org/org/documents/epl-v10.php or
 # http://opensource.org/licenses/eclipse-1.0.php
 import os
+import six
 import unittest
 from server_common.constants import IS_LINUX
 
@@ -25,7 +26,7 @@ def load_tests(loader, standard_tests, pattern):
 
     The tests in this module are only added under Python 2.
     """
-    if not IS_LINUX:
+    if six.PY3 and not IS_LINUX:
         standard_tests.addTests(loader.discover(os.path.dirname(__file__), pattern=pattern))
         return standard_tests
     else:
