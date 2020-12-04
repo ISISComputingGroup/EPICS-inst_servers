@@ -18,6 +18,8 @@
 import copy
 from collections import OrderedDict
 import re
+from typing import List
+
 from BlockServer.config.configuration import Configuration
 from BlockServer.core.constants import DEFAULT_COMPONENT, GRP_NONE
 from BlockServer.config.group import Group
@@ -208,7 +210,7 @@ class ConfigHolder:
     def _set_config_name(self, name):
         self._config.set_name(name)
 
-    def get_ioc_names(self, include_base=False):
+    def get_ioc_names(self, include_base=False) -> List[str]:
         """ Get the names of the IOCs in the configuration and any components.
 
         Args:
@@ -220,7 +222,7 @@ class ConfigHolder:
         iocs = self._config.iocs.keys()
         for cn, cv in self._components.items():
             if include_base or cn.lower() != DEFAULT_COMPONENT.lower():
-                self._config.iocs.update(cv.iocs)
+                iocs.update(cv.iocs)
         return iocs
 
     def get_ioc_details(self):
