@@ -22,10 +22,12 @@ import time
 import zlib
 import re
 import json
+import codecs
 import binascii
 from xml.etree import ElementTree
 from server_common.loggers.logger import Logger
 from server_common.common_exceptions import MaxAttemptsExceededException
+
 
 # Default to base class - does not actually log anything
 LOGGER = Logger()
@@ -83,7 +85,7 @@ def compress_and_hex(value):
     """Compresses the inputted string and encodes it as hex.
 
     Args:
-        value (str, bytes): The string to be compressed
+        value (str): The string to be compressed
     Returns:
         bytes : A compressed and hexed version of the inputted string
     """
@@ -301,7 +303,6 @@ def retry(max_attempts, interval, exception):
         The input function wrapped in a retry loop
 
     """
-
     def _tags_decorator(func):
         def _wrapper(*args, **kwargs):
             attempts = 0
@@ -314,9 +315,7 @@ def retry(max_attempts, interval, exception):
                     time.sleep(interval)
 
             raise MaxAttemptsExceededException(ex)
-
         return _wrapper
-
     return _tags_decorator
 
 
