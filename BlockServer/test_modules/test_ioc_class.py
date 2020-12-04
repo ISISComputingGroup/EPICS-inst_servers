@@ -42,7 +42,7 @@ class TestIocClassSequence(unittest.TestCase):
 
         self.assertEqual(ioc.simlevel, "foosim")
 
-    def test_dict_to_list(self):
+    def test_WHEN_calling_dict_to_list_THEN_original_list_is_not_mutated(self):
         macro1 = "macro1"
         value1 = 123
         macro2 = "macro2"
