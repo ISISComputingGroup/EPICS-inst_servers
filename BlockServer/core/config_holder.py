@@ -219,10 +219,10 @@ class ConfigHolder:
         Returns:
             list : The names of the IOCs
         """
-        iocs = self._config.iocs.keys()
+        iocs = list(self._config.iocs.keys())
         for cn, cv in self._components.items():
             if include_base or cn.lower() != DEFAULT_COMPONENT.lower():
-                iocs.update(cv.iocs)
+                iocs.extend(cv.iocs)
         return iocs
 
     def get_ioc_details(self):
