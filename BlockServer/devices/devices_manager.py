@@ -112,7 +112,7 @@ class DevicesManager(OnTheFlyPvInterface):
 
         return os.path.join(FILEPATH_MANAGER.devices_dir, SCREENS_FILE)
 
-    def update(self, xml_data, message=None):
+    def update(self, xml_data: bytes, message: str = None):
         """ Updates the current device screens with new data.
 
         Args:
@@ -122,10 +122,10 @@ class DevicesManager(OnTheFlyPvInterface):
         Returns:
 
         """
-        self._data = xml_data.decode("utf-8") if isinstance(xml_data, bytes) else xml_data
+        self._data = xml_data
         self.update_monitors()
 
-    def save_devices_xml(self, xml_data):
+    def save_devices_xml(self, xml_data: bytes):
         """ Saves the xml in the current "screens.xml" config file.
 
         Args:
