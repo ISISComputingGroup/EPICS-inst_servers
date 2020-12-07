@@ -44,10 +44,10 @@ class DevicesManager(OnTheFlyPvInterface):
         self._file_io = file_io
         self.pvs_to_write.append(SET_SCREENS)
         self._schema_folder = schema_folder
-        self._schema = ""
+        self._schema = b""
         self._devices_pvs = dict()
         self._bs = block_server
-        self._data = ""
+        self._data = b""
         self._create_standard_pvs()
         self._load_current()
         self.update_monitors()
@@ -75,8 +75,8 @@ class DevicesManager(OnTheFlyPvInterface):
         """ Writes new device screens data to PVs """
         with self._bs.monitor_lock:
             print_and_log("Updating devices monitors")
-            self._bs.setParam(GET_SCHEMA, compress_and_hex(self.get_devices_schema()))
-            self._bs.setParam(GET_SCREENS, compress_and_hex(self._data))
+            self._bs.setParam(GET_SCHEMA, compress_and_hex(self.get_devices_schema().decode("utf-8")))
+            self._bs.setParam(GET_SCREENS, compress_and_hex(self._data.decode("utf-8")))
             self._bs.updatePVs()
 
     def on_config_change(self, full_init=False):
@@ -129,7 +129,7 @@ class DevicesManager(OnTheFlyPvInterface):
         """ Saves the xml in the current "screens.xml" config file.
 
         Args:
-            xml_data (string): The XML to be saved
+            xml_data: The XML to be saved
         """
         try:
             ConfigurationSchemaChecker.check_xml_data_matches_schema(os.path.join(self._schema_folder, SCREENS_SCHEMA),
@@ -149,7 +149,7 @@ class DevicesManager(OnTheFlyPvInterface):
         self.update(xml_data, "Device screens modified by client")
         print_and_log("Devices saved to " + self.get_devices_filename())
 
-    def get_devices_schema(self) -> str:
+    def get_devices_schema(self) -> bytes:
         """ Gets the XSD data for the devices screens.
 
         Note: Only reads file once, if the file changes then the BlockServer will need to be restarted
@@ -157,33 +157,33 @@ class DevicesManager(OnTheFlyPvInterface):
         Returns:
             str : The XML for the devices screens schema
         """
-        if self._schema == "":
+        if self._schema == b"":
             # Try loading it
-            with open(os.path.join(self._schema_folder, SCREENS_SCHEMA), 'r') as schemafile:
+            with open(os.path.join(self._schema_folder, SCREENS_SCHEMA), 'rb') as schemafile:
                 self._schema = schemafile.read()
         return self._schema
 
-    def get_blank_devices(self):
+    def get_blank_devices(self) -> bytes:
         """ Gets a blank devices xml
 
         Returns:
-            string : The XML for the blank devices set
+            The XML for the blank devices set
         """
-        return """<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+        return b"""<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
                 <devices xmlns="http://epics.isis.rl.ac.uk/schema/screens/1.0/">
                 </devices>"""
 
-    def load_devices(self, path):
+    def load_devices(self, path: str) -> bytes:
         """
         Reads device screens data from an xml file at a specified location
 
         Args:
-            path (string): The location of the xml devices file
+            path: The location of the xml devices file
 
         Returns: the xml data
 
         """
-        with open(path, 'r') as synfile:
+        with open(path, 'rb') as synfile:
             xml_data = synfile.read()
 
         return xml_data

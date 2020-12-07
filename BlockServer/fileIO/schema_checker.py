@@ -48,7 +48,7 @@ class ConfigurationSchemaChecker:
     Contains utilities to check configurations against xml schema.
     """
     @staticmethod
-    def check_xml_data_matches_schema(schema_filepath, xml_data):
+    def check_xml_data_matches_schema(schema_filepath: str, xml_data: bytes):
         """ This method takes xml data and checks it against a given schema.
 
         A ConfigurationInvalidUnderSchema error is raised if the file is incorrect.
@@ -64,7 +64,7 @@ class ConfigurationSchemaChecker:
         schema = ConfigurationSchemaChecker._get_schema(folder, file_name)
 
         try:
-            doc = etree.fromstring(xml_data if isinstance(xml_data, bytes) else bytes(xml_data, encoding="utf-8"))
+            doc = etree.fromstring(xml_data)
             schema.assertValid(doc)
         except etree.DocumentInvalid as err:
             raise ConfigurationInvalidUnderSchema(str(err))

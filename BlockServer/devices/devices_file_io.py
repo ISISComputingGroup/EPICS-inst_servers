@@ -11,30 +11,30 @@ class DevicesFileIO:
     """Responsible for loading and saving the devices file."""
 
     @retry(RETRY_MAX_ATTEMPTS, RETRY_INTERVAL, (OSError, IOError))
-    def load_devices_file(self, file_name):
+    def load_devices_file(self, file_name: str):
         """Load the devices file.
 
         Args:
-            file_name (string): the devices file (full path)
+            file_name: the devices file (full path)
 
         Returns:
-            string: the XML as a string
+            the XML as bytes
         """
 
         if not os.path.exists(file_name):
             # Break retry loop if file does not exist.
             raise MaxAttemptsExceededException
-        with open(file_name, 'r') as devfile:
+        with open(file_name, 'rb') as devfile:
             data = devfile.read()
             return data
 
     @retry(RETRY_MAX_ATTEMPTS, RETRY_INTERVAL, (OSError, IOError))
-    def save_devices_file(self, file_name, data):
+    def save_devices_file(self, file_name: str, data: bytes):
         """Saves the devices info.
 
         Args:
-            file_name (string): the devices file (full path)
-            data (string): the xml to save
+            file_name: the devices file (full path)
+            data: the xml to save
         """
         # If save file already exists remove first to avoid case issues
         if os.path.exists(file_name):
