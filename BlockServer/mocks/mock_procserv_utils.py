@@ -15,7 +15,7 @@
 # http://opensource.org/licenses/eclipse-1.0.php
 
 
-class MockProcServWrapper(object):
+class MockProcServWrapper:
 
     def __init__(self, prefix):
         self.ps_status = dict()
@@ -45,7 +45,7 @@ class MockProcServWrapper(object):
 
     def get_ioc_status(self, ioc):
         if not ioc.lower() in self.ps_status.keys():
-            raise Exception("Could not find IOC ({})".format(self.prefix + ioc))
+            raise Exception(f"Could not find IOC ({self.prefix + ioc})")
         else:
             return self.ps_status[ioc.lower()]
 

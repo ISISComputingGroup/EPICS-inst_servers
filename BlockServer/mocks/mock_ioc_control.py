@@ -17,7 +17,7 @@ from server_common.constants import IOCS_NOT_TO_STOP
 from BlockServer.mocks.mock_procserv_utils import MockProcServWrapper
 
 
-class MockIocControl(object):
+class MockIocControl:
 
     def __init__(self, prefix):
         self._proc = MockProcServWrapper(prefix)

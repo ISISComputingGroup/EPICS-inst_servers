@@ -16,7 +16,7 @@
 from abc import ABCMeta, abstractmethod
 
 
-class OnTheFlyPvInterface(object):
+class OnTheFlyPvInterface:
     """ This is an abstract base class to ensure that any class that needs to handle on-the-fly PVs
     implements all the correct methods.
     """

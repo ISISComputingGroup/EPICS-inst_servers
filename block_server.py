@@ -55,7 +55,7 @@ from BlockServer.site_specific.default.general_rules import GroupRules, Configur
 from BlockServer.fileIO.file_manager import ConfigurationFileManager
 from WebServer.simple_webserver import Server
 from BlockServer.core.database_client import get_iocs
-from Queue import Queue
+from queue import Queue
 
 CURR_CONFIG_NAME_SEVR_VALUE = 0
 
@@ -225,7 +225,7 @@ class BlockServer(Driver):
             elif reason == BlockserverPVNames.BANNER_DESCRIPTION:
                 value = compress_and_hex(self.spangle_banner)
             elif reason == BlockserverPVNames.ALL_COMPONENT_DETAILS:
-                value = compress_and_hex(convert_to_json(self._config_list.all_components.values()))
+                value = compress_and_hex(convert_to_json(list(self._config_list.all_components.values())))
             elif reason == BlockserverPVNames.CURR_CONFIG_NAME:
                 value = self._active_configserver.get_config_name()
             elif reason == BlockserverPVNames.CURR_CONFIG_NAME_SEVR:
@@ -258,7 +258,7 @@ class BlockServer(Driver):
         """
         status = True
         try:
-            data = dehex_and_decompress(value).strip('"')
+            data = dehex_and_decompress(bytes(value, encoding="utf-8")).strip(b'"').decode("utf-8")
             if reason == BlockserverPVNames.LOAD_CONFIG:
                 self.write_queue.put((self.load_config, (data,), "LOADING_CONFIG"))
             elif reason == BlockserverPVNames.RELOAD_CURRENT_CONFIG:
@@ -328,8 +328,8 @@ class BlockServer(Driver):
         # Sending the details of a new config to this method, as was being done incorrectly (see #4606)
         # will save the details as a new config, but not load it. A warning is sent in case this happens again.
         if current_name != details_name:
-            print_and_log("Config details to be set ({}) did not match current config ({})"
-                          .format(details_name, current_name), "MINOR")
+            print_and_log(f"Config details to be set ({details_name}) did not match current config ({current_name})",
+                          "MINOR")
 
         # Need to save the config to file before we initialize or the changes won't be propagated to IOCS
         self.save_inactive_config(details)
@@ -354,8 +354,8 @@ class BlockServer(Driver):
             # special treatment.
             ioc = self._active_configserver.get_all_ioc_details()[CAEN_DISCRIMINATOR_IOC_NAME]
             if ioc.autostart:
-                print_and_log("{} present in configuration and set to autostart - restarting it"
-                              .format(CAEN_DISCRIMINATOR_IOC_NAME))
+                print_and_log(f"{CAEN_DISCRIMINATOR_IOC_NAME} present in configuration and set to autostart - "
+                              f"restarting it")
                 if self._ioc_control.get_ioc_status(CAEN_DISCRIMINATOR_IOC_NAME) == "RUNNING":
                     self._ioc_control.restart_iocs([CAEN_DISCRIMINATOR_IOC_NAME], reapply_auto=True)
                 else:
@@ -394,7 +394,7 @@ class BlockServer(Driver):
         # restart means the IOC should automatically restart if it stops for some reason (e.g. it crashes)
         for name, ioc in self._active_configserver.get_all_ioc_details().items():
             if ioc.remotePvPrefix not in (None, ""):
-                print_and_log("IOC '{}' is set to run remotely - not starting it.".format(name))
+                print_and_log(f"IOC '{name}' is set to run remotely - not starting it.")
                 continue
 
             try:
@@ -406,7 +406,7 @@ class BlockServer(Driver):
                     else:
                         self.start_iocs([name])
             except Exception as err:
-                print_and_log("Could not (re)start IOC {}: {}".format(name, err), "MAJOR")
+                print_and_log(f"Could not (re)start IOC {name}: {err}", "MAJOR")
 
     def load_config(self, config, full_init=True):
         """Load a configuration.
@@ -415,13 +415,13 @@ class BlockServer(Driver):
             config (string): The name of the configuration
             full_init (bool): True to restart all IOCs/services or False to restart only those required
         """
-        print_and_log("Loading configuration '{}'".format(config))
+        print_and_log(f"Loading configuration '{config}'")
         try:
             self._active_configserver.load_active(config)
             # If we get this far then assume the config is okay
             self._initialise_config(full_init=full_init)
         except Exception as err:
-            print_and_log("Exception while loading configuration '{}': {}".format(config, err), "MAJOR")
+            print_and_log(f"Exception while loading configuration '{config}': {err}", "MAJOR")
             traceback.print_exc()
 
     def reload_current_config(self):
@@ -473,18 +473,18 @@ class BlockServer(Driver):
 
         try:
             if not as_comp:
-                print_and_log("Saving configuration ({})".format(config_name))
+                print_and_log(f"Saving configuration ({config_name})")
                 inactive.save_inactive()
                 self._config_list.update_a_config_in_list(inactive)
             else:
-                print_and_log("Saving component ({})".format(config_name))
+                print_and_log(f"Saving component ({config_name})")
                 inactive.save_inactive(as_comp=True)
                 self._config_list.update_a_config_in_list(inactive, True)
 
-            print_and_log("Finished saving ({})".format(config_name))
+            print_and_log(f"Finished saving ({config_name})")
 
         except Exception:
-            print_and_log("Problem occurred saving configuration: {}".format(traceback.format_exc()), "MAJOR")
+            print_and_log(f"Problem occurred saving configuration: {traceback.format_exc()}", "MAJOR")
 
         # Reload configuration if a component has changed
         if as_comp and new_details["name"] in self._active_configserver.get_component_names():
@@ -559,10 +559,10 @@ class BlockServer(Driver):
             try:
                 cmd(*arg) if arg is not None else cmd()
             except ManagerModeRequiredException as err:
-                print_and_log("Error, operation requires manager mode: {}".format(err), "MAJOR")
+                print_and_log(f"Error, operation requires manager mode: {err}", "MAJOR")
             except Exception as err:
                 print_and_log(
-                    "Error executing write queue command %s for state %s: %s" % (cmd.__name__, state, err.message),
+                    f"Error executing write queue command {cmd.__name__} for state {state}: {err}",
                     "MAJOR")
                 traceback.print_exc()
             self.update_server_status("")
@@ -590,10 +590,10 @@ class BlockServer(Driver):
         for i in iocs:
             if i in conf_iocs and conf_iocs[i].restart:
                 if conf_iocs[i].remotePvPrefix not in (None, ""):
-                    print_and_log("IOC '{}' is set to run remotely - not applying auto-restart.".format(i))
+                    print_and_log(f"IOC '{i}' is set to run remotely - not applying auto-restart.")
                     continue
                 # Give it time to start as IOC has to be running to be able to set restart property
-                print("Re-applying auto-restart setting to {}".format(i))
+                print(f"Re-applying auto-restart setting to {i}")
                 self._ioc_control.waitfor_running(i)
                 self._ioc_control.set_autorestart(i, True)
 
@@ -603,7 +603,7 @@ class BlockServer(Driver):
 
     def delete_pv_from_db(self, name):
         if name in manager.pvs[self.port]:
-            print_and_log("Removing PV %s" % name)
+            print_and_log(f"Removing PV {name}")
             fullname = manager.pvs[self.port][name].name
             del manager.pvs[self.port][name]
             del manager.pvf[fullname]
@@ -613,14 +613,14 @@ class BlockServer(Driver):
         # Check name not already in PVDB and that a PV does not already exist
         if name not in manager.pvs[self.port]:
             try:
-                print_and_log("Adding PV {}".format(name))
+                print_and_log(f"Adding PV {name}")
                 new_pv = {name: char_waveform(count)}
                 self._cas.createPV(CONTROL_SYSTEM_PREFIX, new_pv)
                 data = Data()
                 data.value = manager.pvs[self.port][name].info.value
                 self.pvDB[name] = data
             except Exception as err:
-                print_and_log("Unable to add PV {}".format(name), "MAJOR")
+                print_and_log(f"Unable to add PV {name}", "MAJOR")
 
 
 if __name__ == '__main__':
@@ -657,32 +657,32 @@ if __name__ == '__main__':
         from server_common.loggers.isis_logger import IsisLogger
 
         set_logger(IsisLogger())
-    print_and_log("FACILITY = %s" % FACILITY)
+    print_and_log(f"FACILITY = {FACILITY}")
 
     GATEWAY_PREFIX = args.gateway_prefix[0]
     if not GATEWAY_PREFIX.endswith(':'):
         GATEWAY_PREFIX += ":"
     GATEWAY_PREFIX = GATEWAY_PREFIX.replace('%MYPVPREFIX%', MACROS["$(MYPVPREFIX)"])
-    print_and_log("BLOCK GATEWAY PREFIX = %s" % GATEWAY_PREFIX)
+    print_and_log(f"BLOCK GATEWAY PREFIX = {GATEWAY_PREFIX}")
 
     CONFIG_DIR = os.path.abspath(args.config_dir[0])
-    print_and_log("CONFIGURATION DIRECTORY %s" % CONFIG_DIR)
+    print_and_log(f"CONFIGURATION DIRECTORY {CONFIG_DIR}")
 
     SCRIPT_DIR = os.path.abspath(args.script_dir[0])
-    print_and_log("SCRIPTS DIRECTORY %s" % SCRIPT_DIR)
+    print_and_log(f"SCRIPTS DIRECTORY {SCRIPT_DIR}")
 
     SCHEMA_DIR = os.path.abspath(args.schema_dir[0])
-    print_and_log("SCHEMA DIRECTORY = %s" % SCHEMA_DIR)
+    print_and_log(f"SCHEMA DIRECTORY = {SCHEMA_DIR}")
 
     ARCHIVE_UPLOADER = args.archive_uploader[0].replace('%EPICS_KIT_ROOT%', MACROS["$(EPICS_KIT_ROOT)"])
-    print_and_log("ARCHIVE UPLOADER = %s" % ARCHIVE_UPLOADER)
+    print_and_log(f"ARCHIVE UPLOADER = {ARCHIVE_UPLOADER}")
 
     ARCHIVE_SETTINGS = args.archive_settings[0].replace('%EPICS_KIT_ROOT%', MACROS["$(EPICS_KIT_ROOT)"])
-    print_and_log("ARCHIVE SETTINGS = %s" % ARCHIVE_SETTINGS)
+    print_and_log(f"ARCHIVE SETTINGS = {ARCHIVE_SETTINGS}")
 
     PVLIST_FILE = args.pvlist_name[0]
 
-    print_and_log("BLOCKSERVER PREFIX = %s" % CONTROL_SYSTEM_PREFIX)
+    print_and_log(f"BLOCKSERVER PREFIX = {CONTROL_SYSTEM_PREFIX}")
     SERVER = SimpleServer()
     SERVER.createPV(CONTROL_SYSTEM_PREFIX, initial_dbs)
     DRIVER = BlockServer(SERVER)

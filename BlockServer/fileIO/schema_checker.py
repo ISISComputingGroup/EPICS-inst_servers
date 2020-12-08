@@ -15,8 +15,6 @@
 # http://opensource.org/licenses/eclipse-1.0.php
 
 import os
-import string
-
 from lxml import etree
 
 
@@ -44,13 +42,13 @@ class ConfigurationFileBlank(Exception):
         self.message = message
 
 
-class ConfigurationSchemaChecker(object):
+class ConfigurationSchemaChecker:
     """ The ConfigurationSchemaChecker class
 
     Contains utilities to check configurations against xml schema.
     """
     @staticmethod
-    def check_xml_data_matches_schema(schema_filepath, xml_data):
+    def check_xml_data_matches_schema(schema_filepath: str, xml_data: bytes):
         """ This method takes xml data and checks it against a given schema.
 
         A ConfigurationInvalidUnderSchema error is raised if the file is incorrect.
@@ -62,14 +60,14 @@ class ConfigurationSchemaChecker(object):
         if len(xml_data) == 0:
             raise ConfigurationFileBlank("Invalid XML: File is blank.")
 
-        folder, file_name = string.rsplit(schema_filepath, os.sep, 1)
+        folder, file_name = schema_filepath.rsplit(os.sep, 1)
         schema = ConfigurationSchemaChecker._get_schema(folder, file_name)
 
         try:
             doc = etree.fromstring(xml_data)
             schema.assertValid(doc)
         except etree.DocumentInvalid as err:
-            raise ConfigurationInvalidUnderSchema(err.message)
+            raise ConfigurationInvalidUnderSchema(str(err))
 
     @staticmethod
     def check_xml_matches_schema(schema_filepath, screen_xml_data, object_type):
@@ -77,7 +75,7 @@ class ConfigurationSchemaChecker(object):
             ConfigurationSchemaChecker.check_xml_data_matches_schema(schema_filepath, screen_xml_data)
         except ConfigurationInvalidUnderSchema as err:
             raise ConfigurationInvalidUnderSchema(
-                "{object_type} incorrectly formatted: {err}".format(object_type=object_type, err=err.message))
+                f"{object_type} incorrectly formatted: {err.message}")
 
     @staticmethod
     def _check_file_against_schema(xml_file, schema_folder, schema_file):
@@ -94,7 +92,7 @@ class ConfigurationSchemaChecker(object):
         schema = ConfigurationSchemaChecker._get_schema(schema_folder, schema_file)
 
         # Import the xml file
-        with open(xml_file, 'r') as f:
+        with open(xml_file, 'rb') as f:
             xml = f.read()
 
         doc = etree.fromstring(xml)
@@ -111,7 +109,7 @@ class ConfigurationSchemaChecker(object):
         # must move to directory to handle schema includes
         cur = os.getcwd()
         os.chdir(schema_folder)
-        with open(schema_file, 'r') as f:
+        with open(schema_file, 'rb') as f:
             schema_raw = etree.XML(f.read())
 
         schema = etree.XMLSchema(schema_raw)
