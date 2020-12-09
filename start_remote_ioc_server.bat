@@ -13,5 +13,4 @@ set EPICS_CA_MAX_ARRAY_BYTES=65536
 
 set PYTHONUNBUFFERED=TRUE
 
-:: C:\instrument\apps\python\python.exe %MYDIRBLOCK%RemoteIocServer\remote_ioc_server.py --pv_prefix %MYPVPREFIX%
-:: Disabled until converted to python 3 - https://github.com/ISISComputingGroup/IBEX/issues/5905
+C:\instrument\apps\python3\python.exe %MYDIRBLOCK%RemoteIocServer\remote_ioc_server.py --pv_prefix %MYPVPREFIX%

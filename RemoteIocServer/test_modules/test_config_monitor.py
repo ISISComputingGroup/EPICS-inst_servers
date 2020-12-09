@@ -78,7 +78,7 @@ class TestConfigMonitor(unittest.TestCase):
         monitor = ConfigurationMonitor(LOCAL_TEST_PREFIX, lambda *a, **k: None)
         write_new = MagicMock()
         monitor.write_new_config_as_xml = write_new
-        monitor._config_updated([ord(a) for a in compress_and_hex(str(""))])
+        monitor._config_updated([ord(a) for a in compress_and_hex(str("")).decode("utf-8")])
 
         write_new.assert_called_once()
         print_and_log.assert_not_called()
@@ -98,7 +98,7 @@ class TestConfigMonitor(unittest.TestCase):
         print_and_log.assert_called()
 
     @patch("RemoteIocServer.config_monitor.print_and_log")
-    @patch("__builtin__.open")
+    @patch("builtins.open")
     @patch("BlockServer.fileIO.file_manager.os")
     @patch("RemoteIocServer.config_monitor._EpicsMonitor")
     def test_GIVEN_config_dir_not_existent_WHEN_write_config_as_xml_THEN_config_dir_created(
@@ -113,7 +113,7 @@ class TestConfigMonitor(unittest.TestCase):
         os_mock.makedirs.assert_called_once()
 
     @patch("RemoteIocServer.config_monitor.print_and_log")
-    @patch("__builtin__.open")
+    @patch("builtins.open")
     @patch("BlockServer.fileIO.file_manager.os")
     @patch("RemoteIocServer.config_monitor._EpicsMonitor")
     def test_GIVEN_config_dir_exists_WHEN_write_config_as_xml_THEN_config_dir_not_recreated(
@@ -128,7 +128,7 @@ class TestConfigMonitor(unittest.TestCase):
         os_mock.mkdir.assert_not_called()
 
     @patch("RemoteIocServer.config_monitor.print_and_log")
-    @patch("__builtin__.open")
+    @patch("builtins.open")
     @patch("RemoteIocServer.config_monitor._EpicsMonitor")
     def test_GIVEN_write_ioc_xml_called_WHEN_no_iocs_from_blockserver_THEN_appropriate_empty_xml_created(
             self, epicsmonitor, mock_open, print_and_log):
@@ -143,7 +143,7 @@ class TestConfigMonitor(unittest.TestCase):
             """<?xml version="1.0" ?>\n<iocs xmlns="http://epics.isis.rl.ac.uk/schema/iocs/1.0" xmlns:ioc="http://epics.isis.rl.ac.uk/schema/iocs/1.0" xmlns:xi="http://www.w3.org/2001/XInclude"/>\n""")
 
     @patch("RemoteIocServer.config_monitor.print_and_log")
-    @patch("__builtin__.open")
+    @patch("builtins.open")
     @patch("RemoteIocServer.config_monitor._EpicsMonitor")
     def test_GIVEN_write_ioc_xml_called_WHEN_iocs_from_blockserver_THEN_appropriate_xml_created(
             self, epicsmonitor, mock_open, print_and_log):
@@ -180,7 +180,7 @@ class TestConfigMonitor(unittest.TestCase):
             '</iocs>\n'.format(pf=LOCAL_TEST_PREFIX))
 
     @patch("RemoteIocServer.config_monitor._EpicsMonitor")
-    @patch("__builtin__.open")
+    @patch("builtins.open")
     @patch("RemoteIocServer.config_monitor.print_and_log")
     def test_GIVEN_write_standard_config_files_called_THEN_standard_config_files_written(
             self, epicsmonitor, mock_open, print_and_log):
@@ -205,7 +205,7 @@ class TestConfigMonitor(unittest.TestCase):
             assert_that(all_writes, has_item(META_XML))
 
     @patch("RemoteIocServer.config_monitor.print_and_log")
-    @patch("__builtin__.open")
+    @patch("builtins.open")
     @patch("RemoteIocServer.config_monitor._EpicsMonitor")
     def test_GIVEN_update_last_config_called_THEN_standard_config_files_written(
             self, epicsmonitor, mock_open, print_and_log):

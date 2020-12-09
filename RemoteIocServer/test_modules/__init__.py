@@ -10,4 +10,8 @@ def load_tests(loader, standard_tests, pattern):
 
     The tests in this module are only added under Python 2 and don't run under linux.
     """
-    return unittest.TestSuite()
+    if six.PY3 and os.name == "nt":
+        standard_tests.addTests(loader.discover(os.path.dirname(__file__), pattern=pattern))
+        return standard_tests
+    else:
+        return unittest.TestSuite()

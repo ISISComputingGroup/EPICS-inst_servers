@@ -138,7 +138,7 @@ class ConfigurationMonitor(object):
             config_json_as_str: remote configuration on which to base the xml
         """
         print_and_log("ConfigMonitor: Got new config monitor, writing new config files")
-        config_json = json.loads(config_json_as_str, "ascii")
+        config_json = json.loads(config_json_as_str)
 
         config = self._create_config_from_instrument_config(config_json)
 

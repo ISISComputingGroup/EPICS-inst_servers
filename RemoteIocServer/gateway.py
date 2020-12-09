@@ -86,7 +86,7 @@ class GateWay(object):
     def _get_access_security_file_content(self):
         hostname = get_hostname_from_prefix(self._remote_pv_prefix)
         return textwrap.dedent("""\
-            HAG(allowed_write) { localhost, 127.0.0.1, """ + six.binary_type(hostname) + """ }
+            HAG(allowed_write) { localhost, 127.0.0.1, """ + six.binary_type(hostname).decode("utf-8") + """ }
             
             ASG(DEFAULT) {
                RULE(1, READ)
@@ -107,7 +107,7 @@ class GateWay(object):
             ASG(ANYBODY) {
                 RULE(1, READ)
             }
-            """.encode("ascii") if hostname is not None else "")
+            """ if hostname is not None else "")
 
     def _restart_gateway(self):
         with GATEWAY_RESTART_LOCK:
