@@ -155,7 +155,7 @@ def serve_forever(pv_prefix, subsystem_prefix, gateway_pvlist_path, gateway_acf_
     """
     server = SimpleServer()
 
-    server.createPV("{}{}".format(pv_prefix, subsystem_prefix).encode('ascii'), STATIC_PV_DATABASE)
+    server.createPV("{}{}".format(pv_prefix, subsystem_prefix), STATIC_PV_DATABASE)
 
     # Looks like it does nothing, but this creates *and automatically registers* the driver
     # (via metaclasses in pcaspy). See declaration of DriverType in pcaspy/driver.py for details
