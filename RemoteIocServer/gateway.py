@@ -86,7 +86,7 @@ class GateWay(object):
     def _get_access_security_file_content(self):
         hostname = get_hostname_from_prefix(self._remote_pv_prefix)
         return textwrap.dedent("""\
-            HAG(allowed_write) { localhost, 127.0.0.1, """ + six.binary_type(hostname).decode("utf-8") + """ }
+            HAG(allowed_write) { localhost, 127.0.0.1, """ + hostname + """ }
             
             ASG(DEFAULT) {
                RULE(1, READ)
