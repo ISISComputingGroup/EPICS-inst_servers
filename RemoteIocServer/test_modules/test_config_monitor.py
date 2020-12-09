@@ -161,23 +161,24 @@ class TestConfigMonitor(unittest.TestCase):
 
         mock_open.assert_any_call(os.path.join("test_dir", "iocs.xml"), "w")
         mock_open.return_value.__enter__.return_value.write.assert_any_call(
-            '<?xml version="1.0" ?>\n'
-            '<iocs xmlns="http://epics.isis.rl.ac.uk/schema/iocs/1.0" xmlns:ioc="http://epics.isis.rl.ac.uk/schema/iocs/1.0" xmlns:xi="http://www.w3.org/2001/XInclude">\n'
-            '\t<ioc autostart="true" name="INSTETC_01" remotePvPrefix="{pf}" restart="true" simlevel="none">\n'
-            '\t\t<macros>\n'
-            '\t\t\t<macro name="ACF_IH1" value="None"/>\n'
-            '\t\t</macros>\n'
-            '\t\t<pvs/>\n'
-            '\t\t<pvsets/>\n'
-            '\t</ioc>\n'
-            '\t<ioc autostart="true" name="ISISDAE_01" remotePvPrefix="{pf}" restart="true" simlevel="none">\n'
-            '\t\t<macros>\n'
-            '\t\t\t<macro name="ACF_IH1" value="None"/>\n'
-            '\t\t</macros>\n'
-            '\t\t<pvs/>\n'
-            '\t\t<pvsets/>\n'
-            '\t</ioc>\n'
-            '</iocs>\n'.format(pf=LOCAL_TEST_PREFIX))
+            """<?xml version="1.0" ?>
+<iocs xmlns="http://epics.isis.rl.ac.uk/schema/iocs/1.0" xmlns:ioc="http://epics.isis.rl.ac.uk/schema/iocs/1.0" xmlns:xi="http://www.w3.org/2001/XInclude">
+	<ioc name="INSTETC_01" autostart="true" restart="true" remotePvPrefix="{pf}" simlevel="none">
+		<macros>
+			<macro name="ACF_IH1" value="None"/>
+		</macros>
+		<pvs/>
+		<pvsets/>
+	</ioc>
+	<ioc name="ISISDAE_01" autostart="true" restart="true" remotePvPrefix="{pf}" simlevel="none">
+		<macros>
+			<macro name="ACF_IH1" value="None"/>
+		</macros>
+		<pvs/>
+		<pvsets/>
+	</ioc>
+</iocs>
+""".format(pf=LOCAL_TEST_PREFIX))
 
     @patch("RemoteIocServer.config_monitor._EpicsMonitor")
     @patch("builtins.open")
