@@ -103,7 +103,7 @@ class RemoteIocListDriver(Driver):
         self.updatePVs()  # Update PVs before any read so that they are up to date.
 
         if reason == PvNames.INSTRUMENT:
-            return six.binary_type(self._remote_pv_prefix if self._remote_pv_prefix is not None else "NONE")
+            return six.binary_type(self._remote_pv_prefix if self._remote_pv_prefix is not None else "NONE", encoding="utf-8")
         else:
             print_and_log("RemoteIocListDriver: Could not read from PV '{}': not known".format(reason), "MAJOR")
 
@@ -155,7 +155,7 @@ def serve_forever(pv_prefix, subsystem_prefix, gateway_pvlist_path, gateway_acf_
     """
     server = SimpleServer()
 
-    server.createPV("{}{}".format(pv_prefix, subsystem_prefix).encode('ascii'), STATIC_PV_DATABASE)
+    server.createPV("{}{}".format(pv_prefix, subsystem_prefix), STATIC_PV_DATABASE)
 
     # Looks like it does nothing, but this creates *and automatically registers* the driver
     # (via metaclasses in pcaspy). See declaration of DriverType in pcaspy/driver.py for details
