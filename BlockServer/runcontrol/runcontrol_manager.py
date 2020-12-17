@@ -87,7 +87,7 @@ class RunControlManager(OnTheFlyPvInterface):
         print_and_log(f"RUNCONTROL SETTINGS FILE: {self._settings_file}")
         self._intialise_runcontrol_ioc()
 
-    def handle_pv_write(self, pv, data):
+    def handle_pv_write(self, pv: str, data: str):
         """
         Unimplemented.
         """

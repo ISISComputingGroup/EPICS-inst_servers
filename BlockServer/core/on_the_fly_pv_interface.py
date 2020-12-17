@@ -50,14 +50,14 @@ class OnTheFlyPvInterface:
         return pv in self.pvs_to_write
 
     @abstractmethod
-    def handle_pv_write(self, pv, data):
+    def handle_pv_write(self, pv: str, data: str):
         """ Handles the request to write to the PV.
 
         Note: implementations of this method MUST run on a separate thread.
 
         Args:
-            pv (string): The PV's name
-            data (object): The value to write
+            pv: The PV's name
+            data: The value to write
         """
         pass
 

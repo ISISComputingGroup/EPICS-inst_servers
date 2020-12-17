@@ -22,7 +22,7 @@ import traceback
 
 from server_common.channel_access import verify_manager_mode, ManagerModeRequiredException
 
-sys.path.insert(0, os.path.abspath(os.environ["MYDIRBLOCK"]))
+sys.path.insert(0, os.path.abspath(os.path.dirname(__file__)))
 
 # Standard imports
 from pcaspy import Driver, SimpleServer
