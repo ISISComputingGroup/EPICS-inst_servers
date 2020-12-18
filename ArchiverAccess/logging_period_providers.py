@@ -29,11 +29,10 @@ MINIMUM_LOGGING_PERIOD = 0.01
 """Smallest logging period allowed"""
 
 
-class LoggingPeriodProvider(object):
+class LoggingPeriodProvider(object, metaclass=abc.ABCMeta):
     """
     Logging Period provider
     """
-    __metaclass__ = abc.ABCMeta
 
     @abc.abstractmethod
     def get_logging_period(self, archive_data_source, time):

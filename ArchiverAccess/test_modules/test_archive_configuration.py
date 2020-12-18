@@ -127,16 +127,17 @@ class TestConfiguration(TestCase):
         pvname2 = "pv_name2.VAL"
         pvname3 = "pv_name3.VAL"
         header_line1 = "{pv_name1|5.6f} but plain is {pv_name1}, {pv_name2}"
-        expected_header_line1 = "{0:5.6f} but plain is {0}, {1}"
+        expected_header_line1 = "{{{index_pv1}:5.6f}} but plain is {{{index_pv1}}}, {{{index_pv2}}}"
         header_line2 = "{pv_name2} pv_name2 pv_name1 {pv_name3}"
-        expected_header_line2 = "{1} pv_name2 pv_name1 {2}"
+        expected_header_line2 = "{{{index_pv2}}} pv_name2 pv_name1 {{{index_pv3}}}"
 
         config = ArchiveAccessConfigBuilder("filename.txt").header(header_line1).header(header_line2).build()
 
         results = config.header
+        pv_indexs = config.pv_names_in_header
+        pv_indexes = {"index_pv1": pv_indexs.index(pvname1), "index_pv2": pv_indexs.index(pvname2), "index_pv3": pv_indexs.index(pvname3)}
 
-        assert_that(results, contains(expected_header_line1, expected_header_line2))
-        assert_that(config.pv_names_in_header, contains(pvname1, pvname2, pvname3))
+        assert_that(results, contains_exactly(expected_header_line1.format(**pv_indexes), expected_header_line2.format(**pv_indexes)))
 
     def test_GIVEN_config_has_no_continuous_logging_filename_WHEN_get_filenames_THEN_nothing_returned(self):
         config = ArchiveAccessConfigBuilder("filename.txt").build()

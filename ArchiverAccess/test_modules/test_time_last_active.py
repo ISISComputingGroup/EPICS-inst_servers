@@ -91,7 +91,7 @@ class TestTimeLastActive(TestCase):
 
     def test_GIVEN_last_time_active_WHEN_set_time_last_active_THEN_file_contains_last_time_active(self):
         last_active_time = datetime(2016, 1, 5, 3, 4, 5)
-        time_last_active = TimeLastActive(file_cls=FileStub)
+        time_last_active = TimeLastActive(file_open_method=FileStub)
         sample_id = 213
 
         time_last_active.set(last_active_time, sample_id)
@@ -110,5 +110,5 @@ class TestTimeLastActive(TestCase):
             FileStub.add_file([TIME_LAST_ACTIVE_HEADER, last_active_time, max_delta_in_days, sample_id], TIME_LAST_ACTIVE_FILENAME)
 
         file_stub = FileStub
-        time_last_active = TimeLastActive(file_cls=file_stub, time_now_fn=time_now_fn)
+        time_last_active = TimeLastActive(file_open_method=file_stub, time_now_fn=time_now_fn)
         return time_last_active

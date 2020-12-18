@@ -42,14 +42,14 @@ class TimeLastActive(object):
     """
     Allow Getting and Settting of the time last active log was written. This is stored in a file.
     """
-    def __init__(self, file_cls=file, time_now_fn=utc_time_now):
+    def __init__(self, file_open_method=open, time_now_fn=utc_time_now):
         """
         Constructor
         Args:
-            file_cls: file class tp ise
+            file_open_method: file class tp ise
             time_now_fn: function to return the current time
         """
-        self._file = file_cls
+        self._file_open_method = file_open_method
         self._time_now_fn = time_now_fn
 
     def get(self):
@@ -74,7 +74,7 @@ class TimeLastActive(object):
         time_now = self._time_now_fn()
         sample_id = 0
         try:
-            with self._file(TIME_LAST_ACTIVE_FILENAME, mode="r") as time_last_active_file:
+            with self._file_open_method(TIME_LAST_ACTIVE_FILENAME, mode="r") as time_last_active_file:
                 time_last_active_file.readline()
                 last_active_time = datetime.strptime(time_last_active_file.readline().strip(), TIME_FORMAT)
                 max_delta = int(time_last_active_file.readline().strip())
@@ -102,10 +102,10 @@ class TimeLastActive(object):
 
         """
         try:
-            with self._file(TIME_LAST_ACTIVE_FILENAME, mode="w") as time_last_active_file:
+            with self._file_open_method(TIME_LAST_ACTIVE_FILENAME, mode="w") as time_last_active_file:
                 time_last_active_file.write("{0}\n".format(TIME_LAST_ACTIVE_HEADER))
                 time_last_active_file.write("{0}\n".format(last_active_time.strftime(TIME_FORMAT)))
                 time_last_active_file.write("{0}\n".format(delta))
                 time_last_active_file.write("{0}\n".format(last_sample_id))
-        except (ValueError, TypeError, IOError)as err:
+        except (ValueError, TypeError, IOError) as err:
             print_and_log("Error writing last activity file: '{0}'".format(err))

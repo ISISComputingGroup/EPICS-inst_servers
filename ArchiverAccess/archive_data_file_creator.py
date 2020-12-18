@@ -109,7 +109,7 @@ class DataFileCreatorFactory(object):
     Factory for creating a data file creator
     """
 
-    def create(self, config, archiver_data_source, filename_template, file_access_class=file,
+    def create(self, config, archiver_data_source, filename_template, file_open_method=open,
                mkdir_for_file_fn=mkdir_for_file, make_file_readonly=make_file_readonly_fn):
         """
         Create an instance of a data file creator.
@@ -118,7 +118,7 @@ class DataFileCreatorFactory(object):
                 configuration for the archive data file to create
             archiver_data_source: archiver data source
             filename_template: template for the filename
-            file_access_class: file like object that can be written to
+            file_open_method: method to open a file
             mkdir_for_file_fn: function for creating the directories needed
             make_file_readonly: function to make a file readonly
 
@@ -126,7 +126,7 @@ class DataFileCreatorFactory(object):
 
         """
         return ArchiveDataFileCreator(config, archiver_data_source, filename_template,
-                                      file_access_class=file_access_class, mkdir_for_file_fn=mkdir_for_file_fn,
+                                      file_open_method=file_open_method, mkdir_for_file_fn=mkdir_for_file_fn,
                                       make_file_readonly=make_file_readonly)
 
 
@@ -135,7 +135,7 @@ class ArchiveDataFileCreator(object):
     Archive data file creator creates the log file based on the configuration.
     """
 
-    def __init__(self, config, archiver_data_source, filename_template, file_access_class=file,
+    def __init__(self, config, archiver_data_source, filename_template, file_open_method=open,
                  mkdir_for_file_fn=mkdir_for_file, make_file_readonly=make_file_readonly_fn):
         """
         Constructor
@@ -144,12 +144,12 @@ class ArchiveDataFileCreator(object):
                 configuration for the archive data file to create
             archiver_data_source: archiver data source
             filename_template: template for the filename
-            file_access_class: file like object that can be written to
+            file_open_method: file like object that can be written to
             mkdir_for_file_fn: function for creating the directories needed
             make_file_readonly: function to make a file readonly
         """
         self._config = config
-        self._file_access_class = file_access_class
+        self._file_open_method = file_open_method
         self._archiver_data_source = archiver_data_source
         self._mkdir_for_file_fn = mkdir_for_file_fn
         self._make_file_readonly_fn = make_file_readonly
@@ -200,7 +200,7 @@ class ArchiveDataFileCreator(object):
             self._filename = template_replacer.replace(self._filename_template)
             print_and_log("Writing log file '{0}'".format(self._filename), src="ArchiverAccess")
             self._mkdir_for_file_fn(self._filename)
-            with self._file_access_class(self._filename, mode="w") as f:
+            with self._file_open_method(self._filename, mode="w") as f:
                 for header_template in self._config.header:
                     header_line = template_replacer.replace(header_template)
                     f.write("{0}\n".format(header_line))
@@ -227,7 +227,7 @@ class ArchiveDataFileCreator(object):
         try:
             assert self._filename is not None, "Called write_data_lines before writing header."
 
-            with self._file_access_class(self._filename, mode="a") as f:
+            with self._file_open_method(self._filename, mode="a") as f:
                 periodic_data = self._periodic_data_generator.get_generator(
                     self._config.pv_names_in_columns, time_period)
                 self._ignore_first_line_if_already_written(periodic_data)
@@ -251,6 +251,6 @@ class ArchiveDataFileCreator(object):
 
         """
         if self._first_line_written:
-            periodic_data.next()
+            next(periodic_data)
         else:
             self._first_line_written = True

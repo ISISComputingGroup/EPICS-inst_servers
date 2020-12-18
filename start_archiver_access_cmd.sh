@@ -14,4 +14,4 @@ export EPICS_CAS_BEACON_ADDR_LIST="127.255.255.255"
 
 export PYTHONUNBUFFERED="TRUE"
 
-python "$MYDIRBLOCK/ArchiverAccess/archiver_access.py"
+python3 "$MYDIRBLOCK/ArchiverAccess/archiver_access.py"
