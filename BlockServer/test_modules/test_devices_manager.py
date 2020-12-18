@@ -28,7 +28,7 @@ BASE_PATH = "example_base"
 SCREENS_FILE = "screens.xml"
 SCHEMA_FOLDER = "schema"
 
-EXAMPLE_DEVICES = b"""<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+EXAMPLE_DEVICES = """<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <devices xmlns="http://epics.isis.rl.ac.uk/schema/screens/1.0/">
     <device>
         <name>Eurotherm 1</name>
@@ -43,7 +43,7 @@ EXAMPLE_DEVICES = b"""<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
     </device>
 </devices>"""
 
-EXAMPLE_DEVICES_2 = b"""<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+EXAMPLE_DEVICES_2 = """<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <devices xmlns="http://epics.isis.rl.ac.uk/schema/screens/1.0/">
     <device>
         <name>Eurotherm 2</name>
@@ -58,7 +58,7 @@ EXAMPLE_DEVICES_2 = b"""<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
     </device>
 </devices>"""
 
-INVALID_DEVICES = b"""<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+INVALID_DEVICES = """<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <devices xmlns="http://epics.isis.rl.ac.uk/schema/screens/1.0/">
     <device>
         <name>Eurotherm 1</name>
@@ -142,4 +142,4 @@ class TestDevicesManagerSequence(unittest.TestCase):
 
         # Assert:
         # Device screens in blockserver should have been updated with value written to device manager
-        self.assertEqual(EXAMPLE_DEVICES, dehex_and_decompress(self.bs.pvs[GET_SCREENS]))
+        self.assertEqual(bytes(EXAMPLE_DEVICES,"utf-8"), dehex_and_decompress(self.bs.pvs[GET_SCREENS]))

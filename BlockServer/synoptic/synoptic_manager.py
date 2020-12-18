@@ -15,8 +15,11 @@
 # http://opensource.org/licenses/eclipse-1.0.php
 
 import os
-from typing import List
+from typing import List, TYPE_CHECKING
 
+if TYPE_CHECKING:
+    from block_server import BlockServer
+from BlockServer.core.active_config_holder import ActiveConfigHolder
 from BlockServer.core.config_list_manager import InvalidDeleteException
 from BlockServer.core.file_path_manager import FILEPATH_MANAGER
 from BlockServer.core.on_the_fly_pv_interface import OnTheFlyPvInterface
@@ -44,14 +47,14 @@ SYNOPTIC_SCHEMA_FILE = "synoptic.xsd"
 
 class SynopticManager(OnTheFlyPvInterface):
     """Class for managing the PVs associated with synoptics"""
-    def __init__(self, block_server, schema_folder, active_configholder, file_io=SynopticFileIO()):
+    def __init__(self, block_server: 'BlockServer', schema_folder: str, active_configholder: ActiveConfigHolder, file_io: SynopticFileIO = SynopticFileIO()):
         """Constructor.
 
         Args:
-            block_server (BlockServer): A reference to the BlockServer instance
-            schema_folder (string): The filepath for the synoptic schema
-            active_configholder (ActiveConfigHolder): A reference to the active configuration
-            file_io (SynopticFileIO): Responsible for file IO
+            block_server: A reference to the BlockServer instance
+            schema_folder: The filepath for the synoptic schema
+            active_configholder: A reference to the active configuration
+            file_io: Responsible for file IO
         """
         super(SynopticManager, self).__init__()
         self.pvs_to_write.extend([SYNOPTIC_PRE + SYNOPTIC_DELETE, SYNOPTIC_PRE + SYNOPTIC_SET_DETAILS])
@@ -65,7 +68,7 @@ class SynopticManager(OnTheFlyPvInterface):
         self._create_standard_pvs()
         self._load_initial()
 
-    def handle_pv_write(self, pv, data):
+    def handle_pv_write(self, pv: str, data: str):
         try:
             if pv == SYNOPTIC_PRE + SYNOPTIC_DELETE:
                 self.delete(convert_from_json(data))

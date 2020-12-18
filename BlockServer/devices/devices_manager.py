@@ -1,3 +1,6 @@
+"""
+Device screen manager for pvs
+"""
 # This file is part of the ISIS IBEX application.
 # Copyright (C) 2012-2016 Science & Technology Facilities Council.
 # All rights reserved.
@@ -15,6 +18,10 @@
 # http://opensource.org/licenses/eclipse-1.0.php
 
 import os
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from block_server import BlockServer
 from server_common.common_exceptions import MaxAttemptsExceededException
 from server_common.utilities import print_and_log, compress_and_hex
 from BlockServer.core.file_path_manager import FILEPATH_MANAGER
@@ -32,13 +39,13 @@ GET_SCHEMA = BlockserverPVNames.SCREENS_SCHEMA
 
 class DevicesManager(OnTheFlyPvInterface):
     """ Class for managing the PVs associated with devices"""
-    def __init__(self, block_server, schema_folder, file_io=DevicesFileIO()):
+    def __init__(self, block_server: 'BlockServer', schema_folder: str, file_io: DevicesFileIO = DevicesFileIO()):
         """ Constructor.
 
         Args:
-            block_server (BlockServer): A reference to the BlockServer instance
-            schema_folder (string): The filepath for the devices schema
-            file_io (DevicesFileIO): Object used for loading and saving files
+            block_server: A reference to the BlockServer instance
+            schema_folder: The filepath for the devices schema
+            file_io: Object used for loading and saving files
         """
         super(DevicesManager, self).__init__()
         self._file_io = file_io
@@ -58,7 +65,13 @@ class DevicesManager(OnTheFlyPvInterface):
         self._bs.add_string_pv_to_db(SET_SCREENS, 16000)
         self._bs.add_string_pv_to_db(GET_SCHEMA, 16000)
 
-    def handle_pv_write(self, pv, data):
+    def handle_pv_write(self, pv: str, data: str):
+        """ Handles the request to write device screen PVs.
+
+        Args:
+            pv: The PV's name
+            data: The value to write
+        """
         if pv == SET_SCREENS:
             try:
                 self.save_devices_xml(data)
@@ -67,8 +80,11 @@ class DevicesManager(OnTheFlyPvInterface):
                 print_and_log(f"Could not save device screens: {err} "
                               f"The PV data will not be updated.", "MINOR")
 
-    def handle_pv_read(self, pv):
-        # Nothing to do as it is all handled by monitors
+    def handle_pv_read(self, _):
+        """
+        Nothing to do as it is all handled by monitors
+        """
+
         pass
 
     def update_monitors(self):
@@ -80,7 +96,12 @@ class DevicesManager(OnTheFlyPvInterface):
             self._bs.updatePVs()
 
     def on_config_change(self, full_init=False):
-        # Devices don't need to change with config
+        """
+        Devices don't need to change with config
+
+        Args:
+            full_init: is this a full initialisation
+        """
         pass
 
     def _load_current(self):
@@ -96,8 +117,8 @@ class DevicesManager(OnTheFlyPvInterface):
 
         try:
             # Check against the schema
-            ConfigurationSchemaChecker.check_xml_data_matches_schema(os.path.join(self._schema_folder,
-                                                                                  SCREENS_SCHEMA), self._data)
+            schema_path = os.path.join(self._schema_folder, SCREENS_SCHEMA)
+            ConfigurationSchemaChecker.check_xml_data_matches_schema(schema_path, self._data)
         except ConfigurationInvalidUnderSchema as err:
             self._data = self.get_blank_devices()
             print_and_log(err.message)
@@ -119,21 +140,20 @@ class DevicesManager(OnTheFlyPvInterface):
             xml_data: The updated device screens data
             message: The commit message
 
-        Returns:
-
         """
         self._data = xml_data
         self.update_monitors()
 
-    def save_devices_xml(self, xml_data: bytes):
+    def save_devices_xml(self, xml_data: str):
         """ Saves the xml in the current "screens.xml" config file.
 
         Args:
             xml_data: The XML to be saved
         """
+        xml_data_as_bytes = bytes(xml_data, "utf-8")
         try:
             ConfigurationSchemaChecker.check_xml_data_matches_schema(os.path.join(self._schema_folder, SCREENS_SCHEMA),
-                                                                     xml_data)
+                                                                     xml_data_as_bytes)
         except ConfigurationInvalidUnderSchema as err:
             print_and_log(err)
             return
@@ -141,12 +161,12 @@ class DevicesManager(OnTheFlyPvInterface):
         try:
             if not os.path.exists(FILEPATH_MANAGER.devices_dir):
                 os.makedirs(FILEPATH_MANAGER.devices_dir)
-            self._file_io.save_devices_file(self.get_devices_filename(), xml_data)
+            self._file_io.save_devices_file(self.get_devices_filename(), xml_data_as_bytes)
         except MaxAttemptsExceededException:
             raise IOError("Unable to save devices file. Please check the file is not in use by another process.")
 
         # Update PVs
-        self.update(xml_data, "Device screens modified by client")
+        self.update(xml_data_as_bytes, "Device screens modified by client")
         print_and_log("Devices saved to " + self.get_devices_filename())
 
     def get_devices_schema(self) -> bytes:
