@@ -17,7 +17,7 @@ import copy
 from BlockServer.config.configuration import Configuration
 
 
-class MockActiveConfigHolder(object):
+class MockActiveConfigHolder:
     def __init__(self, macros):
         self.config_name = ""
         self.config = Configuration(macros)
@@ -32,10 +32,6 @@ class MockActiveConfigHolder(object):
 
     def get_block_details(self):
         blks = copy.deepcopy(self.config.blocks)
-        # for cn, cv in self.components.iteritems():
-        #     for bn, bv in cv.blocks.iteritems():
-        #         if bn not in blks:
-        #             blks[bn] = bv
         return blks
 
     def add_block(self, blockargs):

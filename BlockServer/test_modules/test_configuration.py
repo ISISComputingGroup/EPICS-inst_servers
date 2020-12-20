@@ -14,12 +14,8 @@
 # https://www.eclipse.org/org/documents/epl-v10.php or
 # http://opensource.org/licenses/eclipse-1.0.php
 import unittest
-import os
-
 from BlockServer.config.configuration import Configuration
-
 from BlockServer.mocks.mock_configuration import MockConfigurationFileManager
-from BlockServer.mocks.mock_configuration import MockConfigurationXmlConverter
 from BlockServer.mocks.mock_configuration import MockConfigurationJsonConverter
 from BlockServer.core.macros import MACROS
 
@@ -49,7 +45,7 @@ class TestConfigurationSequence(unittest.TestCase):
         blocks = cf.blocks.keys()
         # assert
         self.assertEqual(len(blocks), 1)
-        self.assertEqual(blocks[0], block_name.lower())
+        self.assertEqual(list(blocks)[0], block_name.lower())
 
     def test_adding_a_block_also_adds_its_associated_group(self):
         # arrange

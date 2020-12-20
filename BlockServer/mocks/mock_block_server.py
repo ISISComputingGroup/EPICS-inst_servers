@@ -17,11 +17,11 @@
 from threading import RLock
 
 
-class MockBlockServer(object):
+class MockBlockServer:
     def __init__(self):
-        self._comps = list()
-        self._confs = list()
-        self.pvs = dict()
+        self._comps = []
+        self._confs = []
+        self.pvs = {}
         self.monitor_lock = RLock()
 
     def set_config_list(self, cl):

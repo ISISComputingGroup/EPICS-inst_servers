@@ -18,7 +18,6 @@ import os
 import shutil
 from collections import OrderedDict
 from xml.etree import ElementTree
-
 from BlockServer.config.group import Group
 from BlockServer.config.xml_converter import ConfigurationXmlConverter
 from BlockServer.config.configuration import Configuration, MetaData
@@ -34,7 +33,7 @@ RETRY_MAX_ATTEMPTS = 20
 RETRY_INTERVAL = 0.5
 
 
-class ConfigurationFileManager(object):
+class ConfigurationFileManager:
     """ The ConfigurationFileManager class.
 
     Contains utilities to save and load configurations.
@@ -56,13 +55,13 @@ class ConfigurationFileManager(object):
             macros (dict): The BlockServer macros
             is_component (bool): Is it a component?
         """
-        print_and_log("Start loading config '{}'...".format(name))
+        print_and_log(f"Start loading config '{name}'...")
         configuration = Configuration(macros)
 
         path = self.get_path(name, is_component)
 
         if not os.path.isdir(path):
-            raise IOError("Configuration could not be found: " + name)
+            raise IOError(f"Configuration could not be found: {name}")
 
         # Create empty containers
         blocks = OrderedDict()
@@ -106,8 +105,9 @@ class ConfigurationFileManager(object):
 
             # There was a historic bug where the simlevel was saved as 'None' rather than "none".
             # Correct that here
-            correct_xml = ElementTree.tostring(root, encoding='utf8').replace('simlevel="None"',
-                                                                              'simlevel="none"')
+            correct_xml = ElementTree.tostring(root, encoding='utf8')
+
+            correct_xml = correct_xml.replace(b'simlevel="None"', b'simlevel="none"')
 
             # Check against the schema - raises if incorrect
             self._check_against_schema(correct_xml, FILENAME_IOCS)
@@ -152,7 +152,7 @@ class ConfigurationFileManager(object):
         configuration.iocs = iocs
         configuration.components = components
         configuration.meta = meta
-        print_and_log("Configuration ('{}') loaded.".format(name))
+        print_and_log(f"Configuration ('{name}') loaded.")
         return configuration
 
     @staticmethod
@@ -209,7 +209,7 @@ class ConfigurationFileManager(object):
     def delete(self, name, is_component):
         path = self.get_path(name, is_component)
         if not os.path.exists(path):
-            print_and_log("Directory {path} not found on filesystem.".format(path=path), "MINOR")
+            print_and_log(f"Directory {path} not found on filesystem.", "MINOR")
             return
         shutil.rmtree(path)
 
@@ -240,15 +240,15 @@ class ConfigurationFileManager(object):
         try:
             return ConfigurationFileManager._attempt_read(file_path)
         except MaxAttemptsExceededException:
-            raise IOError("Could not open file at {path}. Please check the file "
-                          "is not in use by another process.".format(path=file_path))
+            raise IOError(f"Could not open file at {file_path}. Please check the file "
+                          f"is not in use by another process.")
 
     def _write_to_file(self, file_path, data):
         try:
             return self._attempt_write(file_path, data)
         except MaxAttemptsExceededException:
-            raise IOError("Could not write to file at {path}. Please check the file is "
-                          "not in use by another process.".format(path=file_path))
+            raise IOError(f"Could not write to file at {file_path}. Please check the file is "
+                          f"not in use by another process.")
 
     @staticmethod
     @retry(RETRY_MAX_ATTEMPTS, RETRY_INTERVAL, (OSError, IOError))
@@ -317,7 +317,7 @@ class ConfigurationFileManager(object):
                 )
             except Exception as ex:
                 # XML failed to parse. Log the error and return an empty list
-                print_and_log("Failed to parse banner xml file. Error was {} {}".format(ex.__class__.__name__, ex))
+                print_and_log(f"Failed to parse banner xml file. Error was {ex.__class__.__name__} {ex}")
                 banner = {}
         else:
             banner = {}

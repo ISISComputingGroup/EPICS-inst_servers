@@ -88,10 +88,10 @@ class RunControlManager(OnTheFlyPvInterface):
         self.pvs_to_read.extend([RUNCONTROL_GET_PV, RUNCONTROL_OUT_PV])
         self._create_standard_pvs()
         self._channel_access = channel_access
-        print_and_log("RUNCONTROL SETTINGS FILE: {}".format(self._settings_file))
+        print_and_log(f"RUNCONTROL SETTINGS FILE: {self._settings_file}")
         self._intialise_runcontrol_ioc()
 
-    def handle_pv_write(self, pv, data):
+    def handle_pv_write(self, pv: str, data: str):
         """
         Unimplemented.
         """
@@ -241,7 +241,7 @@ class RunControlManager(OnTheFlyPvInterface):
                 if block.rc_highlimit is not None:
                     self._channel_access.caput(run_control_prefix + TAG_RC_HIGH, block.rc_highlimit)
             except Exception as err:
-                print_and_log("Problem with setting runcontrol for {}: {}".format(block.name, err))
+                print_and_log(f"Problem with setting runcontrol for {block.name}: {err}")
 
     def _get_latest_ioc_start(self):
         """
@@ -260,7 +260,7 @@ class RunControlManager(OnTheFlyPvInterface):
             print_and_log("Unable to get run control start time, IOC has not started yet", "MINOR")
         except ValueError as e:
             latest_ioc_start = None
-            print_and_log("Unable to format ioc start time: {0}".format(e), "MAJOR")
+            print_and_log(f"Unable to format ioc start time: {e}", "MAJOR")
 
         return latest_ioc_start
 
@@ -316,7 +316,7 @@ class RunControlManager(OnTheFlyPvInterface):
         try:
             self._ioc_control.start_ioc(RUNCONTROL_IOC)
         except Exception as err:
-            print_and_log("Problem with starting the run-control IOC: {}".format(err), "MAJOR")
+            print_and_log(f"Problem with starting the run-control IOC: {err}", "MAJOR")
 
     def restart_ioc(self):
         """
@@ -325,4 +325,4 @@ class RunControlManager(OnTheFlyPvInterface):
         try:
             self._ioc_control.restart_ioc(RUNCONTROL_IOC, force=True)
         except Exception as err:
-            print_and_log("Problem with restarting the run-control IOC: {}".format(err), "MAJOR")
+            print_and_log(f"Problem with restarting the run-control IOC: {err}", "MAJOR")

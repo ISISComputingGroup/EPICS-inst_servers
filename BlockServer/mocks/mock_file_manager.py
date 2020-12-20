@@ -17,7 +17,7 @@ import os
 from BlockServer.config.configuration import Configuration
 
 
-class MockConfigurationFileManager(object):
+class MockConfigurationFileManager:
 
     def __init__(self):
         self.confs = dict()

@@ -1,51 +1,64 @@
-from BaseHTTPServer import BaseHTTPRequestHandler,HTTPServer
-from threading import Thread
+import asyncio
 from time import sleep
-from server_common.utilities import print_and_log
-HOST, PORT = '', 8008
+from typing import Optional, Awaitable
+from threading import Thread, RLock
+import tornado.ioloop
+import tornado.web
 
+HOST, PORT = '', 8008
 _config = ""
 
 
-class MyHandler(BaseHTTPRequestHandler):
+class MyHandler(tornado.web.RequestHandler):
+    def data_received(self, chunk: bytes) -> Optional[Awaitable[None]]:
+        pass
 
-    def do_GET(self):
+    def get(self, *args) -> None:
         """
-        This is called by BaseHTTPRequestHandler every time a client does a GET.
-        The response is written to self.wfile
+        This is called by RequestHandler every time a client does a GET.
         """
-        if self.path == '/favicon.ico':
+        if self.request.path == '/favicon.ico':
             pass
-        self.send_response(200)
-        self.send_header('Content-type', 'text/html')
-        self.end_headers()
+        self.set_header("Content-Type", "text/html")
+        self.set_status(200)
         global _config
-        self.wfile.write(_config)
+        self.write(_config)
 
-    def log_message(self, format, *args):
-        """ By overriding this method and doing nothing we disable writing to console
-         for every client request. Remove this to re-enable """
-        return
+
+def make_app():
+    return tornado.web.Application([
+        (r"/", MyHandler),
+        (r'/(favicon.ico)', MyHandler),
+    ])
 
 
 class Server(Thread):
-
     def run(self):
-        server = HTTPServer(('', PORT), MyHandler)
-        print_and_log("Serving HTTP on port %s ..." % PORT)
-        server.serve_forever()
+        # Workaround - as documented at https://github.com/tornadoweb/tornado/issues/2608
+        asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
+        self._lock_config = RLock()
+        asyncio.set_event_loop(asyncio.new_event_loop())
+        app = make_app()
+        app.listen(PORT)
+        tornado.ioloop.IOLoop.instance().start()
 
     def set_config(self, set_to):
         """
         :param set_to: The config to serve, converted to JSON.
         """
-        global _config
-        _config = set_to
+        with self._lock_config:
+            global _config
+            _config = set_to
 
 
 if __name__ == '__main__':
-    server = Server()
-    server.start()
-    server.set_config("TEST")
-    sleep(10)
-    server.set_config("NOT TEST")
+    _server = Server()
+    try:
+        _server.start()
+        _server.set_config("TEST")
+        sleep(10)
+        _server.set_config("NOT TEST")
+    except KeyboardInterrupt:
+        print("stopping server")
+        tornado.ioloop.IOLoop.instance().stop()
+        _server.join(1)

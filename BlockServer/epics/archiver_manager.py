@@ -23,10 +23,10 @@ from subprocess import Popen
 import xml.etree.ElementTree as eTree
 from xml.dom import minidom
 from server_common.utilities import print_and_log
-from archiver_wrapper import ArchiverWrapper
+from BlockServer.epics.archiver_wrapper import ArchiverWrapper
 
 
-class ArchiverManager(object):
+class ArchiverManager:
     """This class is responsible for updating the EPICS Archiver that is responsible for logging the blocks."""
 
     RUN_CONTROL_PVS = ["LOW", "HIGH", "INRANGE", "ENABLE"]
@@ -61,10 +61,10 @@ class ArchiverManager(object):
                 print_and_log("Finished arbitrary wait")
                 self._archive_wrapper.restart_archiver()
         except Exception as err:
-            print_and_log("Could not update archiver: %s" % str(err), "MAJOR")
+            print_and_log(f"Could not update archiver: {err}", "MAJOR")
 
     def _generate_archive_config(self, block_prefix, blocks):
-        print_and_log("Generating archiver configuration file: %s" % self._settings_path)
+        print_and_log(f"Generating archiver configuration file: {self._settings_path}")
         root = eTree.Element('engineconfig')
         group = eTree.SubElement(root, 'group')
         name = eTree.SubElement(group, 'name')
@@ -83,12 +83,12 @@ class ArchiverManager(object):
     def _upload_archive_config(self):
         f = os.path.abspath(self._uploader_path)
         if os.path.isfile(f):
-            print_and_log("Running archiver settings uploader: {}".format(f))
+            print_and_log(f"Running archiver settings uploader: {f}")
             p = Popen(f)
             p.wait()
-            print_and_log("Finished running archiver settings uploader: {}".format(f))
+            print_and_log(f"Finished running archiver settings uploader: {f}")
         else:
-            print_and_log("Could not find specified archiver uploader batch file: %s" % self._uploader_path)
+            print_and_log(f"Could not find specified archiver uploader batch file: {self._uploader_path}")
 
     def _generate_archive_channel(self, group, block_prefix, block, dataweb):
         if not (block.log_periodic and block.log_rate == 0):
@@ -109,7 +109,7 @@ class ArchiverManager(object):
             self._add_block_to_dataweb(block_prefix, block, "", dataweb)
 
         for run_control_pv in ArchiverManager.RUN_CONTROL_PVS:
-            suffix = ":RC:{}.VAL".format(run_control_pv)
+            suffix = f":RC:{run_control_pv}.VAL"
             self._add_block_to_dataweb(block_prefix, block, suffix, dataweb)
 
     def _add_block_to_dataweb(self, block_prefix, block, block_suffix, dataweb):

@@ -18,7 +18,7 @@ import time
 import re
 from server_common.channel_access import ChannelAccess
 from server_common.utilities import print_and_log
-from BlockServer.core.macros import CONTROL_SYSTEM_PREFIX, BLOCK_PREFIX
+from BlockServer.core.macros import CONTROL_SYSTEM_PREFIX
 
 ALIAS_HEADER = """\
 ##
@@ -48,28 +48,28 @@ def build_block_alias_lines(full_block_pv, pv_suffix, underlying_pv, include_com
         full_block_pv = r"{}\(:SP\)?".format(full_block_pv)
 
         # Pattern match is for picking up any extras like :RBV or .EGU
-        lines.append('{}\\([.:].*\\)    ALIAS    {}\\2'.format(full_block_pv, underlying_pv))
+        lines.append(f'{full_block_pv}\\([.:].*\\)    ALIAS    {underlying_pv}\\2')
     elif pv_suffix is not None:
         # The block points at a readback value (most likely for a motor)
         if include_comments:
-            lines.append("## The block points at a {} field, so it needs entries for both reading the field "
-                         "and for the rest".format(pv_suffix))
+            lines.append(f"## The block points at a {pv_suffix} field, so it needs entries for both reading the field "
+                         f"and for the rest")
 
         # Pattern match is for picking up any extras like :RBV or .EGU
-        lines.append('{}\\([.:].*\\)    ALIAS    {}\\1'.format(full_block_pv, underlying_pv.replace(pv_suffix, "")))
-        lines.append('{}[.]VAL    ALIAS    {}'.format(full_block_pv, underlying_pv))
+        lines.append(f'{full_block_pv}\\([.:].*\\)    ALIAS    {underlying_pv.replace(pv_suffix, "")}\\1')
+        lines.append(f'{full_block_pv}[.]VAL    ALIAS    {underlying_pv}')
     else:
         # Standard case
         if include_comments:
             lines.append("## Standard block with entries for matching :SP and :SP:RBV as well as .EGU")
 
         # Pattern match is for picking up any any SP or SP:RBV
-        lines.append('{}\\([.:].*\\)    ALIAS    {}\\1'.format(full_block_pv, underlying_pv))
-    lines.append('{}    ALIAS    {}'.format(full_block_pv, underlying_pv))
+        lines.append(f'{full_block_pv}\\([.:].*\\)    ALIAS    {underlying_pv}\\1')
+    lines.append(f'{full_block_pv}    ALIAS    {underlying_pv}')
     return lines
 
 
-class Gateway(object):
+class Gateway:
     """A class for interacting with the EPICS gateway that creates the aliases used for implementing blocks"""
 
     def __init__(self, gateway_prefix, instrument_prefix, pvlist_file, block_prefix,
@@ -107,7 +107,7 @@ class Gateway(object):
                 time.sleep(1)
             print_and_log("Gateway reloaded")
         except Exception as err:
-            print_and_log("Problem with reloading the gateway %s" % err)
+            print_and_log(f"Problem with reloading the gateway {err}")
 
     def _generate_alias_file(self, blocks=None):
         # Generate blocks.pvlist for gateway
@@ -115,7 +115,7 @@ class Gateway(object):
             header = ALIAS_HEADER.format(self._inst_prefix)
             f.write(header)
             if blocks is not None:
-                for name, value in blocks.iteritems():
+                for name, value in blocks.items():
                     lines = self.generate_alias(value.name, value.pv, value.local)
                     f.write('\n'.join(lines) + '\n')
             f.write(ALIAS_FOOTER.format(self._inst_prefix))
@@ -123,7 +123,7 @@ class Gateway(object):
             f.write("\n")
 
     def generate_alias(self, block_name, underlying_pv, local):
-        print_and_log("Creating block: {} for {}".format(block_name, underlying_pv))
+        print_and_log(f"Creating block: {block_name} for {underlying_pv}")
 
         underlying_pv = underlying_pv.replace(".VAL", "")
 
@@ -133,16 +133,16 @@ class Gateway(object):
 
         # If it's local we need to add this instrument's prefix
         if local:
-            underlying_pv = "{}{}".format(self._inst_prefix, underlying_pv)
+            underlying_pv = f"{self._inst_prefix}{underlying_pv}"
 
         # Add on all the prefixes
-        full_block_pv = "{}{}".format(self._block_prefix, block_name)
+        full_block_pv = f"{self._block_prefix}{block_name}"
 
         lines = build_block_alias_lines(full_block_pv, pv_suffix, underlying_pv)
 
         # Create a case insensitive alias so clients don't have to worry about getting case right
         if full_block_pv != full_block_pv.upper():
-            lines.append("## Add full caps equivilant so clients need not be case sensitive")
+            lines.append("## Add full caps equivalent so clients need not be case sensitive")
             lines.extend(build_block_alias_lines(full_block_pv.upper(), pv_suffix, underlying_pv, False))
 
         lines.append("")  # New line to seperate out each block
