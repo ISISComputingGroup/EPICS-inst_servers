@@ -51,12 +51,12 @@ MAX_LOOPS_TO_WAIT_FOR_START = 60  # roughly 2 minutes at standard time
 def create_db_load_string(block):
     load_record_string = 'dbLoadRecords("$(RUNCONTROL)/db/{file}.db", "{macros}")\n'
     macro_string="P=$(MYPVPREFIX),PV=$(MYPVPREFIX)CS:SB:{pv},PVA=$(MYPVPREFIX)CS:SB:{pva},NOALIAS={na}"
-    if (block_name == block.name.upper()):
+    if (block.name == block.name.upper()):
         return load_record_string.format(file="runcontrol",
-                                     macros=macro_string.format(pv=block_name, pva="", na="#"))
+                                     macros=macro_string.format(pv=block.name, pva="", na="#"))
     else:
         return load_record_string.format(file="runcontrol",
-                                     macros=macro_string.format(pv=block_name, pva=block_name.upper(), na=""))
+                                     macros=macro_string.format(pv=block.name, pva=block.name.upper(), na=""))
 
 class RunControlManager(OnTheFlyPvInterface):
     """A class for taking care of setting up run-control."""
