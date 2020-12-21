@@ -92,7 +92,7 @@ def set_instlist(instruments_list, pv_address):
     if result != new_value:
         print("Warning! Entered value does not match new value.")
         print("Entered value: " + new_value)
-        print("Actual value: " + result)
+        print("Actual value: " + result.decode("utf-8"))
     else:
         print("Success! The PV now reads: {0}".format(result))
 

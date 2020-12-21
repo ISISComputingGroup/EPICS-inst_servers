@@ -25,10 +25,10 @@ except ImportError:
 
 class Log(object):
     def error(self, message):
-        print ("ERROR: {0}".format(message))
+        print("ERROR: {0}".format(message))
 
     def info(self, message):
-        print ("INFO : {0}".format(message))
+        print("INFO : {0}".format(message))
 
 
 LOG = Log()

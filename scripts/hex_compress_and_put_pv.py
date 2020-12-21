@@ -37,7 +37,7 @@ except ImportError:
 
 def compress_and_hex(value):
     compr = zlib.compress(value)
-    return compr.encode('hex');
+    return compr.encode('hex')
 
 
 def dehex_and_decompress(value):
@@ -50,14 +50,14 @@ def set_env():
     environment keys """
     if not epics_ca_addr_list in os.environ.keys():
         os.environ[epics_ca_addr_list] = "127.255.255.255 130.246.51.255"
-    print epics_ca_addr_list + " = " + str(os.environ.get(epics_ca_addr_list))
+    print(epics_ca_addr_list + " = " + str(os.environ.get(epics_ca_addr_list)))
 
 
 if __name__ == "__main__":
     set_env()
 
-    pv_address = raw_input("Enter PV name: ")
-    new_value = raw_input("Enter new PV value: ")
+    pv_address = input("Enter PV name: ")
+    new_value = input("Enter new PV value: ")
     
     new_value_compressed = compress_and_hex(new_value)
 
@@ -67,8 +67,8 @@ if __name__ == "__main__":
     result = dehex_and_decompress(result_compr)
 
     if result!=new_value:
-        print "Warning! Entered value does not match new value."
-        print "Entered value: " + new_value
-        print "Actual value: " + result
+        print("Warning! Entered value does not match new value.")
+        print("Entered value: " + new_value)
+        print("Actual value: " + result.decode("utf-8"))
     else:
-        print "Success! The PV was updated to the new value."
+        print("Success! The PV was updated to the new value.")
