@@ -7,7 +7,7 @@ import numpy as np
 import ode
 from genie_python.genie import set_pv
 
-from CollisionAvoidanceMonitor.move import move_all
+from move import move_all
 
 
 def collide(geometries, ignore, collision_func=ode.collide):

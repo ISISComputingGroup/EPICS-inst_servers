@@ -1,4 +1,4 @@
-from CollisionAvoidanceMonitor.transform import Transformation
+from transform import Transformation
 import os
 
 # Config happens here:
