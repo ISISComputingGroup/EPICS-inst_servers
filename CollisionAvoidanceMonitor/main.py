@@ -8,14 +8,14 @@ from genie_python.genie_startup import *
 
 import pv_server
 import render
-from configurations import config_zoom as config
-from collide import collide, CollisionDetector
-from geometry import GeometryBox
-from move import move_all
+from CollisionAvoidanceMonitor.configurations import config_zoom as config
+from CollisionAvoidanceMonitor.collide import collide, CollisionDetector
+from CollisionAvoidanceMonitor.geometry import GeometryBox
+from CollisionAvoidanceMonitor.move import move_all
 
 sys.path.insert(0, os.path.abspath(os.environ["MYDIRCD"]))
 
-from monitor import Monitor
+from CollisionAvoidanceMonitor.monitor import Monitor
 from server_common.loggers.isis_logger import IsisLogger
 
 
