@@ -17,7 +17,8 @@ from genie_python import genie as g
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir)))
 
-from server_common.utilities import print_and_log as _common_print_and_log, dehex_and_decompress, compress_and_hex
+from server_common.utilities import print_and_log as _common_print_and_log, dehex_and_decompress, compress_and_hex, \
+    SEVERITY
 from server_common.channel_access import ChannelAccess
 from server_common.pv_names import BlockserverPVNames
 
@@ -26,6 +27,18 @@ print_and_log = functools.partial(_common_print_and_log, src="ComponentSwitcher"
 
 
 CA_WORKER = ThreadPoolExecutor(1)
+
+
+def wait_for_blockserver_operation_to_complete() -> None:
+    while True:
+        time.sleep(1)
+        pv_data = ChannelAccess.caget(g.prefix_pv_name(f"CS:{BlockserverPVNames.SERVER_STATUS}"), as_string=True).encode("ascii")
+        status = json.loads(dehex_and_decompress(pv_data))
+        if status["status"] == "":
+            print_and_log("Blockserver operation complete")
+            break
+        else:
+            print_and_log("Waiting for blockserver operation to complete (status: {})".format(status["status"]))
 
 
 def read_config_from_pv(pv: str) -> Dict[str, Any]:
@@ -42,6 +55,7 @@ def write_config_to_pv(pv: str, config: Dict[str, Any]) -> None:
     """
     data = compress_and_hex(json.dumps(config))
     ChannelAccess.caput(g.prefix_pv_name(pv), data, wait=True)
+    wait_for_blockserver_operation_to_complete()
 
 
 def config_modifier(func: types.FunctionType) -> types.FunctionType:
@@ -56,7 +70,7 @@ def config_modifier(func: types.FunctionType) -> types.FunctionType:
             modified_config = func(config=blockserver_config, *args, **kwargs)
 
             if config["name"] == current_config_name:
-                write_config_to_pv(f"CS:{BlockserverPVNames.SAVE_NEW_CONFIG}", modified_config)
+                write_config_to_pv(f"CS:{BlockserverPVNames.SET_CURR_CONFIG_DETAILS}", modified_config)
             else:
                 write_config_to_pv(f"CS:{BlockserverPVNames.SAVE_NEW_CONFIG}", modified_config)
 
@@ -73,10 +87,20 @@ def get_configs_from_blockserver() -> List[Dict[str, str]]:
     """
     pv_data = ChannelAccess.caget(g.prefix_pv_name(f"CS:{BlockserverPVNames.CONFIGS}"), as_string=True)
     if pv_data is None:
-        print_and_log("error: unable to get config names from blockserver. Assuming no configs exist.")
+        print_and_log("unable to get config names from blockserver. Assuming no configs exist.", SEVERITY.MAJOR)
         return []
 
     return json.loads(dehex_and_decompress(pv_data.encode("ascii")))
+
+
+def remove_component_blocks(config: Dict[str, Any]) -> Dict[str, Any]:
+    """
+    Remove any blocks which come from components as opposed to the root configuration.
+    """
+    blocks = config["blocks"]
+    config = copy.deepcopy(config)
+    config["blocks"] = [block for block in blocks if block["component"] is None]
+    return config
 
 
 @config_modifier
@@ -91,7 +115,7 @@ def remove_component_from_all_configs(config: Dict[str, Any], component_name_to_
             new_components.append(component)
 
     config["components"] = new_components
-    return config
+    return remove_component_blocks(config)
 
 
 @config_modifier
@@ -99,7 +123,7 @@ def add_component_to_all_configurations(config: Dict[str, Any], component_name_t
     config = copy.deepcopy(config)
     if not any(component["name"] == component_name_to_be_added for component in config["components"]):
         config["components"].append({"name": component_name_to_be_added})
-    return config
+    return remove_component_blocks(config)
 
 
 def load_configswitcher_config_file(filename: str) -> List[Dict[str, Any]]:
@@ -107,7 +131,7 @@ def load_configswitcher_config_file(filename: str) -> List[Dict[str, Any]]:
         with open(filename) as f:
             return json.loads(f.read())
     else:
-        print("component_switcher config file does not exist - assuming empty config")
+        print("component_switcher config file does not exist - assuming empty config", SEVERITY.MAJOR)
         return []
     
 
@@ -150,7 +174,7 @@ def create_monitors(config: List[Dict[str, Any]]) -> None:
                     add_component_to_all_configurations(component_name_to_be_added=component_name)
                     break
             else:
-                print_and_log("error: pv {} had value {} but this was not mapped to any component.".format(pv, val))
+                print_and_log("pv {} had value {} but this was not mapped to any component.".format(pv, val), SEVERITY.MAJOR)
 
         ChannelAccess.add_monitor(pv, run_on_thread_and_print_exceptions(callback))
 
