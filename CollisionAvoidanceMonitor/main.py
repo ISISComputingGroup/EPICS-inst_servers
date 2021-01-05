@@ -5,15 +5,13 @@ import logging
 import threading
 from time import sleep, time
 from genie_python.genie_startup import *
-
+sys.path.insert(0, os.path.abspath(os.environ["MYDIRCD"]))
 import pv_server
 import render
 from CollisionAvoidanceMonitor.configurations import config_zoom as config
 from CollisionAvoidanceMonitor.collide import collide, CollisionDetector
 from CollisionAvoidanceMonitor.geometry import GeometryBox
 from CollisionAvoidanceMonitor.move import move_all
-
-sys.path.insert(0, os.path.abspath(os.environ["MYDIRCD"]))
 
 from CollisionAvoidanceMonitor.monitor import Monitor
 from server_common.loggers.isis_logger import IsisLogger
