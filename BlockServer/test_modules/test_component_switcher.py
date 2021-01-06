@@ -1,220 +1,183 @@
-from __future__ import print_function, unicode_literals, division, absolute_import
-
-import json
+import types
 import unittest
 import sys
 import os
+from queue import Queue
+from typing import Tuple, List, Dict, Any
 
-from hamcrest import *
-from mock import patch, MagicMock, mock_open
-from pdfrw import compress
+from mock import MagicMock
 
-from BlockServer import fileIO
-from BlockServer.core.file_path_manager import FILEPATH_MANAGER
-from RemoteIocServer.config_monitor import ConfigurationMonitor, REMOTE_IOC_CONFIG_NAME
-from server_common.utilities import compress_and_hex
+from BlockServer.component_switcher.component_switcher import ComponentSwitcher
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 
-LOCAL_TEST_PREFIX = "UNITTEST:SOMEPREFIX:"
-REMOTE_TEST_PREFIX = "UNITTEST2:SOMEOTHERPREFIX:"
+class MockChannelAccess(object):
+    MONITORS: List[Tuple[str, types.FunctionType]] = []
 
-EMPTY_COMPONENTS_XML = """<?xml version="1.0" ?>
-<components xmlns="http://epics.isis.rl.ac.uk/schema/components/1.0" xmlns:comp="http://epics.isis.rl.ac.uk/schema/components/1.0" xmlns:xi="http://www.w3.org/2001/XInclude"/>
-"""
-
-EMPTY_GROUPS_XML = """<?xml version="1.0" ?>
-<groups xmlns="http://epics.isis.rl.ac.uk/schema/groups/1.0" xmlns:grp="http://epics.isis.rl.ac.uk/schema/groups/1.0" xmlns:xi="http://www.w3.org/2001/XInclude"/>
-"""
-
-EMPTY_BLOCKS_XML = """<?xml version="1.0" ?>
-<blocks xmlns="http://epics.isis.rl.ac.uk/schema/blocks/1.0" xmlns:blk="http://epics.isis.rl.ac.uk/schema/blocks/1.0" xmlns:xi="http://www.w3.org/2001/XInclude"/>
-"""
-
-META_XML = u'<?xml version="1.0" ?>\n<meta>\n\t<description>Configuration for remote IOC</description>\n\t<synoptic/>\n\t<edits/>\n\t<isProtected>false</isProtected>\n</meta>\n'
+    @staticmethod
+    def add_monitor(pv: str, callback_func: types.FunctionType):
+        MockChannelAccess.MONITORS.append((pv, callback_func))
 
 
-class TestConfigMonitor(unittest.TestCase):
+class MockConfigListManager(object):
+    def __init__(self):
+        self.active_config_name = "active"
+        self.configs = ["active", "inactive1", "inactive2"]
+        self.components = ["comp1", "comp2"]
+        self.loaded_configs = {}  # config/comp name : returned config
 
-    @patch("RemoteIocServer.config_monitor.get_hostname_from_prefix")
-    @patch("RemoteIocServer.config_monitor._EpicsMonitor")
-    def test_WHEN_start_monitoring_THEN_monitor_called(self, epicsmonitor, get_hostname_from_prefix_mock):
-        get_hostname_from_prefix_mock.return_value = "server"
-        mon = ConfigurationMonitor(LOCAL_TEST_PREFIX, lambda *a, **k: None)
-        mon.set_remote_pv_prefix(REMOTE_TEST_PREFIX)
+    def get_configs(self):
+        return [{"name": conf_name} for conf_name in self.configs]
 
-        epicsmonitor.assert_called_with("{}CS:BLOCKSERVER:GET_CURR_CONFIG_DETAILS".format(REMOTE_TEST_PREFIX))
-        epicsmonitor.return_value.start.assert_called_once()
+    def get_components(self):
+        return [{"name": comp_name} for comp_name in self.components]
 
-    @patch("RemoteIocServer.config_monitor.get_hostname_from_prefix")
-    @patch("RemoteIocServer.config_monitor._EpicsMonitor")
-    def test_WHEN_remote_pv_prefix_changed_THEN_old_monitor_ended(self, epicsmonitor, get_hostname):
-        get_hostname.return_value = "localhost"
-        monitor = ConfigurationMonitor(LOCAL_TEST_PREFIX, lambda *a, **k: None)
-        monitor.set_remote_pv_prefix(REMOTE_TEST_PREFIX)
+    def load_config(self, name, *_, **__):
+        if name in self.loaded_configs:
+            return self.loaded_configs[name]
+        else:
+            return MagicMock()
 
-        epicsmonitor.return_value.end.assert_not_called()
-        monitor.set_remote_pv_prefix(REMOTE_TEST_PREFIX)
-        epicsmonitor.return_value.end.assert_called_once()
+    def update(self, *args, **kwargs):
+        pass
 
-    @patch("RemoteIocServer.config_monitor.get_hostname_from_prefix")
-    @patch("RemoteIocServer.config_monitor._EpicsMonitor")
-    def test_WHEN_remote_pv_prefix_changed_THEN_new_monitor_created(self, epicsmonitor, get_hostname):
-        get_hostname.return_value = "localhost"
-        monitor = ConfigurationMonitor(LOCAL_TEST_PREFIX, lambda *a, **k: None)
-        monitor.set_remote_pv_prefix(REMOTE_TEST_PREFIX)
 
-        epicsmonitor.return_value.start.assert_called_once()
-        monitor.set_remote_pv_prefix(REMOTE_TEST_PREFIX)
-        self.assertEqual(epicsmonitor.return_value.start.call_count, 2)
+class MockComponentSwitcherFileManager(object):
+    def __init__(self):
+        self.config = None
 
-    @patch("RemoteIocServer.config_monitor.print_and_log")
-    @patch("RemoteIocServer.config_monitor.dehex_and_decompress_waveform", return_value="abc")
-    @patch("RemoteIocServer.config_monitor._EpicsMonitor")
-    def test_WHEN_config_updated_called_with_valid_value_THEN_no_errors_logger_and_calls_write_config(
-            self, epicsmonitor, dehex, print_and_log):
+    def read_config(self) -> List[Dict[str, Any]]:
+        return self.config
 
-        monitor = ConfigurationMonitor(LOCAL_TEST_PREFIX, lambda *a, **k: None)
-        write_new = MagicMock()
-        monitor.write_new_config_as_xml = write_new
-        monitor._config_updated([ord(a) for a in compress_and_hex(str(""))])
 
-        write_new.assert_called_once()
-        print_and_log.assert_not_called()
+class TestComponentSwitcher(unittest.TestCase):
 
-    @patch("RemoteIocServer.config_monitor.print_and_log")
-    @patch("RemoteIocServer.config_monitor.dehex_and_decompress_waveform", side_effect=ValueError)
-    @patch("RemoteIocServer.config_monitor._EpicsMonitor")
-    def test_WHEN_config_updated_called_with_invalid_value_THEN_error_logged_and_no_call_to_write_config(
-            self, epicsmonitor, dehex, print_and_log):
+    def setUp(self) -> None:
+        MockChannelAccess.MONITORS = []
 
-        monitor = ConfigurationMonitor(LOCAL_TEST_PREFIX, lambda *a, **k: None)
-        write_new = MagicMock()
-        monitor.write_new_config_as_xml = write_new
-        monitor._config_updated([0])
+        self.config_list = MockConfigListManager()
+        self.write_queue = Queue()
+        self.reload_func = MagicMock()
+        self.file_manager = MockComponentSwitcherFileManager()
 
-        write_new.assert_not_called()
-        print_and_log.assert_called()
+        self.file_manager.config = [
+            {
+                "pv": "first",
+                "is_local": True,
+                "value_to_component_map": {
+                    "A": "comp1",
+                    "B": "comp2",
+                }
+            }
+        ]
 
-    @patch("RemoteIocServer.config_monitor.print_and_log")
-    @patch("__builtin__.open")
-    @patch("BlockServer.fileIO.file_manager.os")
-    @patch("RemoteIocServer.config_monitor._EpicsMonitor")
-    def test_GIVEN_config_dir_not_existent_WHEN_write_config_as_xml_THEN_config_dir_created(
-            self, epicsmonitor, os_mock, open_mock, print_and_log):
-        FILEPATH_MANAGER.initialise("test_dir", "", "")
-        monitor = ConfigurationMonitor(LOCAL_TEST_PREFIX, lambda *a, **k: None)
+        self.component_switcher = ComponentSwitcher(
+            config_list=self.config_list,
+            blockserver_write_queue=self.write_queue,
+            reload_current_config_func=self.reload_func,
+            file_manager=self.file_manager,
+            channel_access_class=MockChannelAccess,
+        )
 
-        os_mock.path.isdir.return_value = False
+    def test_GIVEN_empty_config_file_WHEN_call_add_monitors_THEN_no_monitors_added(self):
+        self.file_manager.config = []
 
-        monitor.write_new_config_as_xml("{}")
+        self.component_switcher.create_monitors()
 
-        os_mock.makedirs.assert_called_once()
+        self.assertEqual(len(MockChannelAccess.MONITORS), 0)
 
-    @patch("RemoteIocServer.config_monitor.print_and_log")
-    @patch("__builtin__.open")
-    @patch("BlockServer.fileIO.file_manager.os")
-    @patch("RemoteIocServer.config_monitor._EpicsMonitor")
-    def test_GIVEN_config_dir_exists_WHEN_write_config_as_xml_THEN_config_dir_not_recreated(
-            self, epicsmonitor, os_mock, open_mock, print_and_log):
+    def test_GIVEN_2_pvs_in_config_file_WHEN_call_add_monitors_THEN_2_monitors_added(self):
+        self.file_manager.config = [
+            {
+                "pv": "first",
+                "is_local": True,
+                "value_to_component_map": {}
+            },
+            {
+                "pv": "second",
+                "is_local": True,
+                "value_to_component_map": {}
+            },
+        ]
 
-        monitor = ConfigurationMonitor(LOCAL_TEST_PREFIX, lambda *a, **k: None)
+        self.component_switcher.create_monitors()
 
-        os_mock.path.isdir.return_value = True
+        self.assertEqual(len(MockChannelAccess.MONITORS), 2)
+        self.assertEqual(MockChannelAccess.MONITORS[0][0], "first")
+        self.assertEqual(MockChannelAccess.MONITORS[1][0], "second")
 
-        monitor.write_new_config_as_xml("{}")
+    def test_GIVEN_monitor_is_triggered_THEN_action_gets_appended_to_bs_write_queue(self):
+        self.component_switcher.create_monitors()
 
-        os_mock.mkdir.assert_not_called()
+        self.assertEqual(len(MockChannelAccess.MONITORS), 1)
 
-    @patch("RemoteIocServer.config_monitor.print_and_log")
-    @patch("__builtin__.open")
-    @patch("RemoteIocServer.config_monitor._EpicsMonitor")
-    def test_GIVEN_write_ioc_xml_called_WHEN_no_iocs_from_blockserver_THEN_appropriate_empty_xml_created(
-            self, epicsmonitor, mock_open, print_and_log):
+        self.assertEqual(self.write_queue.qsize(), 0)
+        # Fire the monitor with value A
+        MockChannelAccess.MONITORS[0][1]("A", 0, 0)
 
-        monitor = ConfigurationMonitor(LOCAL_TEST_PREFIX, lambda *a, **k: None)
-        FILEPATH_MANAGER.initialise("test_dir", "", "")
-        with patch.object(FILEPATH_MANAGER, 'get_config_path', return_value="test_dir"):
-            monitor.write_new_config_as_xml("{}")
+        self.assertEqual(self.write_queue.qsize(), 1)
+        func, args, status = self.write_queue.get()
 
-        mock_open.assert_any_call(os.path.join("test_dir", "iocs.xml"), "w")
-        mock_open.return_value.__enter__.return_value.write.assert_any_call(
-            """<?xml version="1.0" ?>\n<iocs xmlns="http://epics.isis.rl.ac.uk/schema/iocs/1.0" xmlns:ioc="http://epics.isis.rl.ac.uk/schema/iocs/1.0" xmlns:xi="http://www.w3.org/2001/XInclude"/>\n""")
+        self.assertEqual(func, self.component_switcher._edit_all_configurations)
+        # Component 2 should be removed, components 1 should be added as our monitor got value A
+        self.assertEqual(args, ({"comp2"}, {"comp1"}))
 
-    @patch("RemoteIocServer.config_monitor.print_and_log")
-    @patch("__builtin__.open")
-    @patch("RemoteIocServer.config_monitor._EpicsMonitor")
-    def test_GIVEN_write_ioc_xml_called_WHEN_iocs_from_blockserver_THEN_appropriate_xml_created(
-            self, epicsmonitor, mock_open, print_and_log):
+    def test_GIVEN_monitor_is_triggered_with_an_unknown_value_THEN_action_does_not_get_appended_to_bs_write_queue(self):
+        self.component_switcher.create_monitors()
 
-        FILEPATH_MANAGER.initialise("test_dir", "", "")
-        with patch.object(FILEPATH_MANAGER, 'get_config_path', return_value="test_dir"):
-            monitor = ConfigurationMonitor(LOCAL_TEST_PREFIX, lambda *a, **k: None)
-            monitor.write_new_config_as_xml(json.dumps({
-                "component_iocs": [
-                    {"macros": [], "pvs": [], "name": "INSTETC_01", "autostart": True, "pvsets": [], "component": "_base",
-                     "remotePvPrefix": LOCAL_TEST_PREFIX, "restart": True, "simlevel": "none"},
-                    {"macros": [], "pvs": [], "name": "ISISDAE_01", "autostart": True, "pvsets": [], "component": "_base",
-                     "remotePvPrefix": LOCAL_TEST_PREFIX, "restart": True, "simlevel": "none"},
-                ]}))
+        self.assertEqual(len(MockChannelAccess.MONITORS), 1)
 
-        mock_open.assert_any_call(os.path.join("test_dir", "iocs.xml"), "w")
-        mock_open.return_value.__enter__.return_value.write.assert_any_call(
-            '<?xml version="1.0" ?>\n'
-            '<iocs xmlns="http://epics.isis.rl.ac.uk/schema/iocs/1.0" xmlns:ioc="http://epics.isis.rl.ac.uk/schema/iocs/1.0" xmlns:xi="http://www.w3.org/2001/XInclude">\n'
-            '\t<ioc autostart="true" name="INSTETC_01" remotePvPrefix="{pf}" restart="true" simlevel="none">\n'
-            '\t\t<macros>\n'
-            '\t\t\t<macro name="ACF_IH1" value="None"/>\n'
-            '\t\t</macros>\n'
-            '\t\t<pvs/>\n'
-            '\t\t<pvsets/>\n'
-            '\t</ioc>\n'
-            '\t<ioc autostart="true" name="ISISDAE_01" remotePvPrefix="{pf}" restart="true" simlevel="none">\n'
-            '\t\t<macros>\n'
-            '\t\t\t<macro name="ACF_IH1" value="None"/>\n'
-            '\t\t</macros>\n'
-            '\t\t<pvs/>\n'
-            '\t\t<pvsets/>\n'
-            '\t</ioc>\n'
-            '</iocs>\n'.format(pf=LOCAL_TEST_PREFIX))
+        self.assertEqual(self.write_queue.qsize(), 0)
+        # Fire the monitor with a fake (invalid) value
+        MockChannelAccess.MONITORS[0][1]("C", 0, 0)
+        self.assertEqual(self.write_queue.qsize(), 0)
 
-    @patch("RemoteIocServer.config_monitor._EpicsMonitor")
-    @patch("__builtin__.open")
-    @patch("RemoteIocServer.config_monitor.print_and_log")
-    def test_GIVEN_write_standard_config_files_called_THEN_standard_config_files_written(
-            self, epicsmonitor, mock_open, print_and_log):
+    def test_GIVEN_active_config_is_not_in_config_list_THEN_get_valueerror(self):
+        self.config_list.active_config_name = "invalid"
+        with self.assertRaises(ValueError):
+            self.component_switcher._edit_all_configurations(set(), set())
 
-        FILEPATH_MANAGER.initialise("test_dir", "", "")
-        with patch.object(FILEPATH_MANAGER, 'get_config_path', return_value="test_dir"),\
-                patch.object(fileIO.file_manager.os.path, 'isdir', return_value=True):
-            monitor = ConfigurationMonitor(LOCAL_TEST_PREFIX, lambda *a, **k: None)
-            monitor.write_new_config_as_xml("{}")
+    def test_GIVEN_component_to_be_removed_doesnt_exist_THEN_get_valueerror(self):
+        with self.assertRaises(ValueError):
+            self.component_switcher._edit_all_configurations({"nonexistent"}, set())
 
-            all_writes = [args[0][0] for args in mock_open.return_value.__enter__.return_value.write.call_args_list]
-            mock_open.assert_any_call(os.path.join("test_dir", "groups.xml"), "w")
-            assert_that(all_writes, has_item(EMPTY_GROUPS_XML))
+    def test_GIVEN_component_to_be_added_doesnt_exist_THEN_get_valueerror(self):
+        with self.assertRaises(ValueError):
+            self.component_switcher._edit_all_configurations(set(), {"nonexistent"})
 
-            mock_open.assert_any_call(os.path.join("test_dir", "components.xml"), "w")
-            assert_that(all_writes, has_item(EMPTY_COMPONENTS_XML))
+    def test_GIVEN_no_components_to_be_added_or_removed_THEN_current_config_not_reloaded(self):
+        self.component_switcher._edit_all_configurations(set(), set())
 
-            mock_open.assert_any_call(os.path.join("test_dir", "blocks.xml"), "w")
-            assert_that(all_writes, has_item(EMPTY_BLOCKS_XML))
+        self.assertFalse(self.reload_func.called)
 
-            mock_open.assert_any_call(os.path.join("test_dir", "meta.xml"), "w")
-            assert_that(all_writes, has_item(META_XML))
+    def test_GIVEN_components_to_added_or_removed_THEN_current_config_reloaded(self):
+        self.component_switcher._edit_all_configurations({"comp1"}, {"comp2"})
 
-    @patch("RemoteIocServer.config_monitor.print_and_log")
-    @patch("__builtin__.open")
-    @patch("RemoteIocServer.config_monitor._EpicsMonitor")
-    def test_GIVEN_update_last_config_called_THEN_standard_config_files_written(
-            self, epicsmonitor, mock_open, print_and_log):
+        self.assertTrue(self.reload_func.called)
 
-        monitor = ConfigurationMonitor(LOCAL_TEST_PREFIX, lambda *a, **k: None)
-        FILEPATH_MANAGER.initialise("test_dir", "", "")
-        expected_path = "last_config.txt"
-        with patch.object(FILEPATH_MANAGER, 'get_last_config_file_path', return_value=expected_path):
-            monitor.write_new_config_as_xml("{}")
+    def test_GIVEN_active_config_already_in_correct_state_THEN_not_saved_again(self):
+        mock_conf = MagicMock()
+        mock_conf.get_component_names.return_value = ["comp1"]
 
-            mock_open.assert_called_with(expected_path, "w")
-            mock_open.return_value.__enter__.return_value.write.assert_called_with("{}\n".format(REMOTE_IOC_CONFIG_NAME))
+        self.config_list.loaded_configs = {"active": mock_conf}
+
+        self.component_switcher._edit_all_configurations(
+            components_to_be_added={"comp1"}, components_to_be_removed={"comp2"})
+
+        self.assertFalse(mock_conf.save_inactive.called)
+        self.assertFalse(self.reload_func.called)
+
+    def test_GIVEN_active_config_not_in_correct_state_THEN_edited_and_saved(self):
+        mock_conf = MagicMock()
+        mock_conf.get_component_names.return_value = ["comp1"]
+
+        self.config_list.loaded_configs = {"active": mock_conf}
+
+        self.component_switcher._edit_all_configurations(
+            components_to_be_added={"comp2"}, components_to_be_removed={"comp1"})
+
+        self.assertTrue(mock_conf.remove_comp.called_with("comp1"))
+        self.assertTrue(mock_conf.add_comp.called_with("comp2"))
+        self.assertTrue(mock_conf.save_inactive.called)
+        self.assertTrue(self.reload_func.called)

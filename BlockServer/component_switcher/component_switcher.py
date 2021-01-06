@@ -5,12 +5,16 @@ import os
 import types
 from queue import Queue
 
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Type, Union, TYPE_CHECKING
 
 from BlockServer.core.config_list_manager import ConfigListManager
 from BlockServer.core.macros import MACROS
 from server_common.utilities import print_and_log as _common_print_and_log, SEVERITY
 from server_common.channel_access import ChannelAccess
+
+if TYPE_CHECKING:
+    from test_modules.test_component_switcher import MockComponentSwitcherFileManager, MockConfigListManager, \
+        MockChannelAccess
 
 
 def print_and_log(message: str, *args, **kwargs):
@@ -34,13 +38,18 @@ class ComponentSwitcherConfigFileManager(object):
 
 
 class ComponentSwitcher(object):
-    def __init__(self, config_list: ConfigListManager, blockserver_write_queue: Queue,
+    def __init__(self,
+                 config_list: Union[ConfigListManager, "MockConfigListManager"],
+                 blockserver_write_queue: Queue,
                  reload_current_config_func: types.FunctionType,
-                 file_manager: ComponentSwitcherConfigFileManager = None):
+                 file_manager: Union[ComponentSwitcherConfigFileManager, "MockComponentSwitcherFileManager"] = None,
+                 channel_access_class: Type[Union[ChannelAccess, "MockChannelAccess"]] = None):
 
         self._config_list = config_list
         self._blockserver_write_queue = blockserver_write_queue
         self._reload_current_config = reload_current_config_func
+
+        self._ca_class = channel_access_class if channel_access_class is not None else ChannelAccess
         self._file_manager = file_manager if file_manager is not None else ComponentSwitcherConfigFileManager()
 
     def create_monitors(self) -> None:
@@ -74,7 +83,7 @@ class ComponentSwitcher(object):
                 self._blockserver_write_queue.put(
                     (self._edit_all_configurations, (comps_to_remove, comps_to_add), "COMPONENT_SWITCHER_EDIT"))
 
-            ChannelAccess.add_monitor(pv, callback)
+            self._ca_class.add_monitor(pv, callback)
 
     def _edit_all_configurations(self, components_to_be_removed: set, components_to_be_added: set):
 
@@ -98,6 +107,7 @@ class ComponentSwitcher(object):
             config_changed = False
             config = self._config_list.load_config(config_name, is_component=False)
 
+            # Remove components first to avoid any conflicts
             for component_name in components_to_be_removed:
                 if component_name in config.get_component_names():
                     print_and_log(f"Removing component {component_name} from {config_name}")
