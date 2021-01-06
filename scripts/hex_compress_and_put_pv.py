@@ -28,37 +28,30 @@ It has been placed here for tidiness. To run the script, move it to its parent d
 import zlib
 import sys
 import os
+
 try:
     from server_common.channel_access import ChannelAccess as ca
 except ImportError:
     sys.path.append(os.path.join(os.path.dirname(sys.path[0])))  # to allow server common from dir below
     from server_common.channel_access import ChannelAccess as ca
-
-
-def compress_and_hex(value):
-    compr = zlib.compress(value)
-    return compr.encode('hex');
-
-
-def dehex_and_decompress(value):
-    return zlib.decompress(value.decode("hex"))
+from server_common.utilities import dehex_and_decompress, compress_and_hex
 
 
 def set_env():
     epics_ca_addr_list = "EPICS_CA_ADDR_LIST"
     """ If we're not in an EPICS terminal, add the address list to the set of
     environment keys """
-    if not epics_ca_addr_list in os.environ.keys():
+    if epics_ca_addr_list not in os.environ.keys():
         os.environ[epics_ca_addr_list] = "127.255.255.255 130.246.51.255"
-    print epics_ca_addr_list + " = " + str(os.environ.get(epics_ca_addr_list))
+    print(epics_ca_addr_list + " = " + str(os.environ.get(epics_ca_addr_list)))
 
 
 if __name__ == "__main__":
     set_env()
 
-    pv_address = raw_input("Enter PV name: ")
-    new_value = raw_input("Enter new PV value: ")
-    
+    pv_address = input("Enter PV name: ")
+    new_value = input("Enter new PV value: ")
+
     new_value_compressed = compress_and_hex(new_value)
 
     ca.caput(pv_address, str(new_value_compressed), True)
@@ -66,9 +59,9 @@ if __name__ == "__main__":
     result_compr = ca.caget(pv_address, True)
     result = dehex_and_decompress(result_compr)
 
-    if result!=new_value:
-        print "Warning! Entered value does not match new value."
-        print "Entered value: " + new_value
-        print "Actual value: " + result
+    if result != new_value:
+        print("Warning! Entered value does not match new value.")
+        print("Entered value: " + new_value)
+        print("Actual value: " + result.decode("utf-8"))
     else:
-        print "Success! The PV was updated to the new value."
+        print("Success! The PV was updated to the new value.")
