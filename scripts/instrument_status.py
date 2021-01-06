@@ -25,10 +25,10 @@ except ImportError:
 
 class Log(object):
     def error(self, message):
-        print ("ERROR: {0}".format(message))
+        print("ERROR: {0}".format(message))
 
     def info(self, message):
-        print ("INFO : {0}".format(message))
+        print("INFO : {0}".format(message))
 
 
 LOG = Log()
@@ -52,7 +52,7 @@ class InstrumentStatus(object):
     def check(self):
 
         if not self._check_PV_compressed_hex("CS:BLOCKSERVER:SERVER_STATUS", "Check block server status",
-                                             help_text="Check C:\Instrument\Var\logs\ioc\BLOCKSVR-<todays date>.log",
+                                             help_text=r"Check C:\Instrument\Var\logs\ioc\BLOCKSVR-<todays date>.log",
                                              allowed_values=['{"status": ""}']):
             return "Blockserver not started"
         return "OK"
@@ -70,7 +70,7 @@ class InstrumentStatus(object):
         except Exception as ex:
             #TODO: untried
             LOG.error("{full_pv}={value}".format(full_pv=full_pv, value=value))
-            LOG.error("{description}: Fail to decompress PV with error - {ex}".format(ex=ex))
+            LOG.error("{description}: Fail to decompress PV with error - {ex}".format(description=description, ex=ex))
             return False
 
         if allowed_values is not None and uncompressed_val not in allowed_values:
