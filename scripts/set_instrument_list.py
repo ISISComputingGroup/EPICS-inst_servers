@@ -18,20 +18,14 @@ import json
 import zlib
 import sys
 import os
+
 try:
     from server_common.channel_access import ChannelAccess as ca
+    from server_common.utilities import compress_and_hex, dehex_and_decompress
 except ImportError:
     sys.path.append(os.path.join(os.path.dirname(sys.path[0])))  # to allow server common from dir below
     from server_common.channel_access import ChannelAccess as ca
-
-
-def compress_and_hex(value):
-    compr = zlib.compress(value)
-    return compr.encode('hex')
-
-
-def dehex_and_decompress(value):
-    return zlib.decompress(value.decode("hex"))
+    from server_common.utilities import compress_and_hex, dehex_and_decompress
 
 
 def set_env():
@@ -78,6 +72,7 @@ def inst_dictionary(instrument_name, hostname_prefix="NDX", hostname=None, pv_pr
             "groups": groups_to_use,
             }
 
+
 def set_instlist(instruments_list, pv_address):
     new_value = json.dumps(instruments_list)
     new_value_compressed = compress_and_hex(new_value)
@@ -95,6 +90,7 @@ def set_instlist(instruments_list, pv_address):
         print("Actual value: " + result.decode("utf-8"))
     else:
         print("Success! The PV now reads: {0}".format(result))
+
 
 if __name__ == "__main__":
     set_env()
