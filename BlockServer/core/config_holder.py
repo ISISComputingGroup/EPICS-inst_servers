@@ -309,7 +309,8 @@ class ConfigHolder:
             'description': self._config.meta.description,
             'synoptic': self._config.meta.synoptic,
             'history': self._config.meta.history,
-            'isProtected': self._config.meta.isProtected
+            'isProtected': self._config.meta.isProtected,
+            'isDynamic': self._config.meta.isDynamic,
         }
 
     def is_protected(self) -> bool:
@@ -320,6 +321,15 @@ class ConfigHolder:
             Whether the configuration is protected.
         """
         return self._config.meta.isProtected
+
+    def is_dynamic(self) -> bool:
+        """
+        Whether this config has been marked as "dynamic" or not.
+
+        Returns:
+            Whether the configuration is dynamic.
+        """
+        return self._config.meta.isDynamic
 
     def _comps_to_list(self):
         comps = []

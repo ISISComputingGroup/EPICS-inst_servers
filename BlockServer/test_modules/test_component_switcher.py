@@ -1,13 +1,16 @@
+import contextlib
 import types
 import unittest
 import sys
 import os
 from queue import Queue
 from typing import Tuple, List, Dict, Any
+from unittest import mock
 
 from mock import MagicMock
 
 from BlockServer.component_switcher.component_switcher import ComponentSwitcher
+from BlockServer.core.macros import MACROS, PVPREFIX_MACRO
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
@@ -107,6 +110,32 @@ class TestComponentSwitcher(unittest.TestCase):
         self.assertEqual(MockChannelAccess.MONITORS[0][0], "first")
         self.assertEqual(MockChannelAccess.MONITORS[1][0], "second")
 
+    @mock.patch.dict("BlockServer.core.macros.MACROS", {PVPREFIX_MACRO: "some_prefix:"})
+    def test_GIVEN_local_pv_monitored_THEN_monitored_pv_has_local_prefix_appended(self):
+        self.file_manager.config = [
+            {
+                "pv": "first",
+                "is_local": True,
+                "value_to_component_map": {}
+            }
+        ]
+
+        self.component_switcher.create_monitors()
+        self.assertEqual(MockChannelAccess.MONITORS[0][0], "some_prefix:first")
+
+    @mock.patch.dict("BlockServer.core.macros.MACROS", {PVPREFIX_MACRO: "some_prefix:"})
+    def test_GIVEN_non_local_pv_monitored_THEN_monitored_pv_does_not_have_local_prefix_appended(self):
+        self.file_manager.config = [
+            {
+                "pv": "first",
+                "is_local": False,
+                "value_to_component_map": {}
+            }
+        ]
+
+        self.component_switcher.create_monitors()
+        self.assertEqual(MockChannelAccess.MONITORS[0][0], "first")
+
     def test_GIVEN_monitor_is_triggered_THEN_action_gets_appended_to_bs_write_queue(self):
         self.component_switcher.create_monitors()
 
@@ -122,6 +151,28 @@ class TestComponentSwitcher(unittest.TestCase):
         self.assertEqual(func, self.component_switcher._edit_all_configurations)
         # Component 2 should be removed, components 1 should be added as our monitor got value A
         self.assertEqual(args, ({"comp2"}, {"comp1"}))
+
+    def test_GIVEN_monitor_is_triggered_with_non_zero_stat_THEN_action_is_ignored(self):
+        self.component_switcher.create_monitors()
+
+        self.assertEqual(len(MockChannelAccess.MONITORS), 1)
+
+        self.assertEqual(self.write_queue.qsize(), 0)
+        # Fire the monitor with value A and stat=1
+        MockChannelAccess.MONITORS[0][1]("A", 1, 0)
+
+        self.assertEqual(self.write_queue.qsize(), 0)
+
+    def test_GIVEN_monitor_is_triggered_with_non_zero_sevr_THEN_action_is_ignored(self):
+        self.component_switcher.create_monitors()
+
+        self.assertEqual(len(MockChannelAccess.MONITORS), 1)
+
+        self.assertEqual(self.write_queue.qsize(), 0)
+        # Fire the monitor with value A and sevr=1
+        MockChannelAccess.MONITORS[0][1]("A", 0, 1)
+
+        self.assertEqual(self.write_queue.qsize(), 0)
 
     def test_GIVEN_monitor_is_triggered_with_an_unknown_value_THEN_action_does_not_get_appended_to_bs_write_queue(self):
         self.component_switcher.create_monitors()

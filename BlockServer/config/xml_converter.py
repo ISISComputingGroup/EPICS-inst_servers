@@ -39,6 +39,7 @@ TAG_META = "meta"
 TAG_DESC = "description"
 TAG_SYNOPTIC = "synoptic"
 TAG_PROTECTED = "isProtected"
+TAG_DYNAMIC = "isDynamic"
 
 NS_TAG_BLOCK = 'blk'
 NS_TAG_IOC = 'ioc'
@@ -171,6 +172,9 @@ class ConfigurationXmlConverter:
 
         protect_xml = ElementTree.SubElement(root, TAG_PROTECTED)
         protect_xml.text = str(data.isProtected).lower()
+
+        dynamic_xml = ElementTree.SubElement(root, TAG_DYNAMIC)
+        dynamic_xml.text = str(data.isDynamic).lower()
 
         return minidom.parseString(ElementTree.tostring(root)).toprettyxml()
 
@@ -441,6 +445,13 @@ class ConfigurationXmlConverter:
                 data.isProtected = isProtected.text.lower() == "true"
             else:
                 data.isProtected = False
+
+        isDynamic = root_xml.find("./" + TAG_DYNAMIC)
+        if isDynamic is not None:
+            if isDynamic.text is not None:
+                data.isDynamic = isDynamic.text.lower() == "true"
+            else:
+                data.isDynamic = False
 
         edits = root_xml.findall("./" + TAG_EDITS + "/" + TAG_EDIT)
         data.history = [e.text for e in edits]

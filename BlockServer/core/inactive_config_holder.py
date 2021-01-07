@@ -103,6 +103,8 @@ class InactiveConfigHolder(ConfigHolder):
                     self.add_component(args['name'])
             if "isProtected" in details:
                 self._config.meta.isProtected = details["isProtected"]
+            if "isDynamic" in details:
+                self._config.meta.isDynamic = details["isDynamic"]
         except Exception:
             self._retrieve_cache()
             raise
