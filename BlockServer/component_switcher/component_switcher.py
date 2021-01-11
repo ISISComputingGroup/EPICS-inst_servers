@@ -55,11 +55,12 @@ class ComponentSwitcher(object):
     def all_components_dynamic(self, components: Iterable[str]) -> bool:
         for comp in components:
             try:
-                comp = self._config_list.load_config(comp, is_component=True)
-                if not comp.is_dynamic():
+                loaded_comp = self._config_list.load_config(comp, is_component=True)
+                if not loaded_comp.is_dynamic():
+                    print_and_log(f"Component is not dynamic: {comp}")
                     return False
             except Exception as e:
-                print_and_log("Error while checking whether component is dynamic: {e} {e.message}")
+                print_and_log(f"Error while checking whether component {comp} is dynamic: {e}")
                 return False
         return True
 
