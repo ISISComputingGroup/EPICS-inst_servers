@@ -109,7 +109,7 @@ class Gateway(object):
                 time.sleep(1)
             print_and_log("Gateway reloaded")
         except Exception as err:
-            print_and_log("Problem with reloading the gateway %s" % err)
+            print_and_log(f"Problem with reloading the gateway {err}")
 
     def _generate_alias_file(self, blocks=None):
         # Generate blocks.pvlist for gateway
@@ -117,14 +117,14 @@ class Gateway(object):
             header = ALIAS_HEADER.format(self._inst_prefix)
             f.write(header)
             if blocks is not None:
-                for name, value in blocks.iteritems():
+                for name, value in blocks.items():
                     lines = self.generate_alias(value.name, value.pv, value.local)
                     f.write('\n'.join(lines) + '\n')
             # Add a blank line at the end!
             f.write("\n")
 
     def generate_alias(self, block_name, underlying_pv, local):
-        print_and_log("Creating block: {} for {}".format(block_name, underlying_pv))
+        print_and_log(f"Creating block: {block_name} for {underlying_pv}")
 
         underlying_pv = underlying_pv.replace(".VAL", "")
 
@@ -134,18 +134,18 @@ class Gateway(object):
 
         # If it's local we need to add this instrument's prefix
         if local:
-            underlying_pv = "{}{}".format(self._inst_prefix, underlying_pv)
+            underlying_pv = f"{self._inst_prefix}{underlying_pv}"
 
         # Add on all the prefixes
-        full_block_pv = "{}{}".format(self._block_prefix, block_name)
+        full_block_pv = f"{self._block_prefix}{block_name}"
 
         lines = build_block_alias_lines(full_block_pv, pv_suffix, underlying_pv)
         lines.append("## Runcontrol settings should not be diverted to underlying PV")
-        lines.append("{}{}    DENY".format(full_block_pv.upper(), MATCH_RUNCONTROL_SUFFIX))
+        lines.append(f"{full_block_pv.upper()}{MATCH_RUNCONTROL_SUFFIX}    DENY")
 
         # Create a case insensitive alias so clients don't have to worry about getting case right
         if full_block_pv != full_block_pv.upper():
-            lines.append("## Add full caps equivilant so clients need not be case sensitive")
+            lines.append("## Add full caps equivalent so clients need not be case sensitive")
             lines.extend(build_block_alias_lines(full_block_pv.upper(), pv_suffix, underlying_pv, False))
             lines.append(RUNCONTROL_ALIAS.format(full_block_pv, full_block_pv.upper()))
 

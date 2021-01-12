@@ -15,11 +15,13 @@ from server_common.channel_access import ChannelAccess, NUMBER_OF_CAPUT_THREADS,
 thread_ids = Queue()
 thread_calls = Queue()
 
-def set_pv_value(name, value, wait=False, timeout=0):
+
+def set_pv_value(*args, **kwargs):
     """ Mock method with set pv value signature, must take some time to work"""
-    thread_calls.put((name, value, wait, timeout))
+    thread_calls.put((args, kwargs))
     thread_ids.put(threading.currentThread().ident)
     time.sleep(0.5)
+
 
 def empty_queue(queue):
     contents = []

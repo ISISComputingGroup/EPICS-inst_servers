@@ -21,7 +21,7 @@ PV_TEST_DICT = None
 PV_TEST_DICT_CALL_INDEX = None
 
 
-class MockChannelAccess(object):
+class MockChannelAccess:
     """Mock Channel Access methods."""
 
     @staticmethod
@@ -60,7 +60,7 @@ class MockChannelAccess(object):
         PVS[name] = value
 
 
-class ChannelAccessEnv(object):
+class ChannelAccessEnv:
     """
     Channel access environment setup.
 

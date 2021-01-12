@@ -70,7 +70,7 @@ def print_and_log(message, severity=SEVERITY.INFO, src="BLOCKSVR"):
     """Prints the specified message to the console and writes it to the log.
 
     Args:
-        message (string): The message to log
+        message (string|exception): The message to log
         severity (string, optional): Gives the severity of the message. Expected serverities are MAJOR, MINOR and INFO.
                                     Default severity is INFO.
         src (string, optional): Gives the source of the message. Default source is BLOCKSVR.

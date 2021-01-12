@@ -14,7 +14,7 @@
 # https://www.eclipse.org/org/documents/epl-v10.php or
 # http://opensource.org/licenses/eclipse-1.0.php
 
-class MockArchiverWrapper(object):
+class MockArchiverWrapper:
     def __init__(self):
         self.restart_count = 0
     def restart_archiver(self):

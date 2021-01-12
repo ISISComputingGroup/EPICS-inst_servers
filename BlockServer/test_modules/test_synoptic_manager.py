@@ -25,7 +25,7 @@ from BlockServer.synoptic.synoptic_file_io import SynopticFileIO
 
 TEST_DIR = os.path.abspath(".")
 
-EXAMPLE_SYNOPTIC = """<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+EXAMPLE_SYNOPTIC = b"""<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
                       <instrument xmlns="http://www.isis.stfc.ac.uk//instrument">
                       <name>%s</name>
                       </instrument>"""
@@ -72,7 +72,7 @@ class TestSynopticManagerSequence(unittest.TestCase):
         self.sm = SynopticManager(self.bs, os.path.join(self.dir, SCHEMA_FOLDER), None, self.fileIO)
 
     def _create_a_synoptic(self, name, sm):
-        sm.save_synoptic_xml(EXAMPLE_SYNOPTIC % name)
+        sm.save_synoptic_xml(EXAMPLE_SYNOPTIC % name.encode("utf-8"))
 
     def test_get_synoptic_names_returns_names_alphabetically(self):
         # Arrange
@@ -96,7 +96,7 @@ class TestSynopticManagerSequence(unittest.TestCase):
         self.sm._load_initial()
 
         # Assert
-        self.assertTrue(self.bs.does_pv_exist("%sSYNOP1%s" % (SYNOPTIC_PRE, SYNOPTIC_GET)))
+        self.assertTrue(self.bs.does_pv_exist(f"{SYNOPTIC_PRE}SYNOP1{SYNOPTIC_GET}"))
 
     def test_get_default_synoptic_xml_returns_nothing(self):
         # Arrange
@@ -110,7 +110,7 @@ class TestSynopticManagerSequence(unittest.TestCase):
         # Arrange
         self._create_a_synoptic(SYNOPTIC_1, self.sm)
         # Act
-        self.sm.save_synoptic_xml(EXAMPLE_SYNOPTIC % "synoptic0")
+        self.sm.save_synoptic_xml(EXAMPLE_SYNOPTIC % "synoptic0".encode("utf-8"))
         self.sm.set_default_synoptic("synoptic0")
 
         # Assert
@@ -118,14 +118,14 @@ class TestSynopticManagerSequence(unittest.TestCase):
 
         self.assertTrue(len(xml) > 0)
         # Check the correct name appears in the xml
-        self.assertTrue("synoptic0" in xml)
+        self.assertTrue(b"synoptic0" in xml)
 
     def test_set_current_synoptic_xml_creates_pv(self):
         # Arrange
         syn_name = "synopt"
 
         # Act
-        self.sm.save_synoptic_xml(EXAMPLE_SYNOPTIC % syn_name)
+        self.sm.save_synoptic_xml(EXAMPLE_SYNOPTIC % syn_name.encode("utf-8"))
 
         # Assert
         self.assertTrue(self.bs.does_pv_exist("%sSYNOPT%s" % (SYNOPTIC_PRE, SYNOPTIC_GET)))

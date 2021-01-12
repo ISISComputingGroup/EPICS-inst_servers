@@ -20,7 +20,7 @@ from BlockServer.core.constants import GRP_NONE
 from BlockServer.config.xml_converter import ConfigurationXmlConverter
 
 
-class MockConfiguration(object):
+class MockConfiguration:
     def __init__(self):
         # variables set when the class under test calls mock functions to be read by the testing code
         self.add_block_called = False
@@ -50,7 +50,7 @@ class MockConfiguration(object):
         return self.block_names
 
 
-class MockConfigurationFileManager(object):
+class MockConfigurationFileManager:
     def __init__(self):
         self.blocks_xml = ""
         self.groups_xml = ""
@@ -68,7 +68,7 @@ class MockConfigurationFileManager(object):
         self.components_xml = ConfigurationXmlConverter.components_to_xml(configuration.components)
 
 
-class MockConfigurationXmlConverter(object):
+class MockConfigurationXmlConverter:
     def __init__(self):
         self.blocks_xml = ""
         self.groups_xml = ""
@@ -92,7 +92,7 @@ class MockConfigurationXmlConverter(object):
         pass
 
 
-class MockConfigurationJsonConverter(object):
+class MockConfigurationJsonConverter:
     def __init__(self):
         self.blocks_json = ""
 

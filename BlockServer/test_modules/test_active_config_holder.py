@@ -62,7 +62,7 @@ def get_groups_and_blocks(jsondata):
 
 
 def create_grouping(groups):
-    return json.dumps([{"name": group, "blocks": blocks} for group, blocks in six.iteritems(groups)])
+    return json.dumps([{"name": group, "blocks": blocks} for group, blocks in groups.items()])
 
 
 def create_dummy_component():
@@ -109,7 +109,7 @@ class TestActiveConfigHolderSequence(unittest.TestCase):
         try:
             config_holder.save_active("TEST_CONFIG")
         except Exception as e:
-            self.fail("test_save_config raised Exception unexpectedly: {}".format(e))
+            self.fail(f"test_save_config raised Exception unexpectedly: {e}")
 
     @unittest.skipIf(IS_LINUX, "Location of last_config.txt not correctly configured on Linux")
     def test_load_config(self):
@@ -118,12 +118,12 @@ class TestActiveConfigHolderSequence(unittest.TestCase):
         config_holder.save_active("TEST_CONFIG")
         config_holder.clear_config()
         blocks = config_holder.get_blocknames()
-        self.assertEquals(len(blocks), 0)
+        self.assertEqual(len(blocks), 0)
         iocs = config_holder.get_ioc_names()
         self.assertEqual(len(iocs), 0)
         config_holder.load_active("TEST_CONFIG")
         blocks = config_holder.get_blocknames()
-        self.assertEquals(len(blocks), 4)
+        self.assertEqual(len(blocks), 4)
         self.assertTrue('TESTBLOCK1' in blocks)
         self.assertTrue('TESTBLOCK2' in blocks)
         self.assertTrue('TESTBLOCK3' in blocks)
@@ -141,7 +141,7 @@ class TestActiveConfigHolderSequence(unittest.TestCase):
         config_holder.save_active("TEST_CONFIG")
         config_holder.clear_config()
         blocks = config_holder.get_blocknames()
-        self.assertEquals(len(blocks), 0)
+        self.assertEqual(len(blocks), 0)
         iocs = config_holder.get_ioc_names()
         self.assertEqual(len(iocs), 0)
         config_holder.load_active("TEST_CONFIG")
@@ -162,7 +162,7 @@ class TestActiveConfigHolderSequence(unittest.TestCase):
         try:
             config_holder.save_active("TEST_CONFIG1", as_comp=True)
         except Exception as e:
-            self.fail("test_save_as_component raised Exception unexpectedly: {}".format(e))
+            self.fail(f"test_save_as_component raised Exception unexpectedly: {e}")
 
     @unittest.skipIf(IS_LINUX, "Unable to save config on Linux")
     def test_save_config_for_component(self):
@@ -171,7 +171,7 @@ class TestActiveConfigHolderSequence(unittest.TestCase):
         try:
             config_holder.save_active("TEST_CONFIG1")
         except Exception as e:
-            self.fail("test_save_config_for_component raised Exception unexpectedly: {}".format(e))
+            self.fail(f"test_save_config_for_component raised Exception unexpectedly: {e}")
 
     def test_load_component_fails(self):
         config_holder = self.active_config_holder
@@ -206,16 +206,16 @@ class TestActiveConfigHolderSequence(unittest.TestCase):
     def test_reloading_current_config_with_blank_name_does_nothing(self):
         # arrange
         config_name = self.active_config_holder.get_config_name()
-        self.assertEquals(config_name, "")
+        self.assertEqual(config_name, "")
         load_requests = self.mock_file_manager.get_load_config_history()
-        self.assertEquals(len(load_requests), 0)
+        self.assertEqual(len(load_requests), 0)
 
         # act
         self.active_config_holder.reload_current_config()
 
         # assert
         load_requests = self.mock_file_manager.get_load_config_history()
-        self.assertEquals(len(load_requests), 0)
+        self.assertEqual(len(load_requests), 0)
 
     @unittest.skipIf(IS_LINUX, "Location of last_config.txt not correctly configured on Linux")
     def test_reloading_current_config_sends_load_request_correctly(self):
@@ -226,14 +226,14 @@ class TestActiveConfigHolderSequence(unittest.TestCase):
         config_holder.save_active(config_name)
 
         load_requests = self.mock_file_manager.get_load_config_history()
-        self.assertEquals(len(load_requests), 0)
+        self.assertEqual(len(load_requests), 0)
 
         # act
         config_holder.reload_current_config()
 
         # assert
         load_requests = self.mock_file_manager.get_load_config_history()
-        self.assertEquals(load_requests.count(config_name), 1)
+        self.assertEqual(load_requests.count(config_name), 1)
         
     def _modify_active(self, config_holder, new_details, name="config1"):
         modify_active(name, MACROS, self.mock_file_manager, new_details, config_holder)

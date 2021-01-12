@@ -21,9 +21,6 @@ import shutil
 from BlockServer.core.inactive_config_holder import InactiveConfigHolder
 from BlockServer.fileIO.schema_checker import ConfigurationSchemaChecker, ConfigurationInvalidUnderSchema
 from BlockServer.core.macros import MACROS
-from BlockServer.mocks.mock_ioc_control import MockIocControl
-from BlockServer.mocks.mock_archiver_wrapper import MockArchiverWrapper
-from BlockServer.epics.archiver_manager import ArchiverManager
 from BlockServer.core.file_path_manager import FILEPATH_MANAGER
 from BlockServer.mocks.mock_file_manager import MockConfigurationFileManager
 from BlockServer.config.configuration import Configuration
@@ -115,8 +112,7 @@ class TestSchemaChecker(unittest.TestCase):
             ConfigurationSchemaChecker.check_xml_data_matches_schema(os.path.join(self.schema_dir, "groups.xsd"), xml)
         except Exception as ex:
             self.fail(
-                msg="Exception thrown from schema checker. Xml is {xml} exception is {0}".format(traceback.format_exc(),
-                                                                                                 xml=xml))
+                msg=f"Exception thrown from schema checker. Xml is {xml} exception is {traceback.format_exc()}")
 
     def test_groups_xml_does_not_match_schema_raises(self):
         self.cs.set_config_details(TEST_CONFIG)
@@ -135,7 +131,7 @@ class TestSchemaChecker(unittest.TestCase):
         try:
             ConfigurationSchemaChecker.check_xml_data_matches_schema(os.path.join(self.schema_dir, "iocs.xsd"), xml)
         except Exception as ex:
-            self.fail(msg="Exception thrown from schema checker. Xml is {xml} exception is {0}".format(traceback.format_exc(), xml=xml))
+            self.fail(msg=f"Exception thrown from schema checker. Xml is {xml} exception is {traceback.format_exc()}")
 
     def test_iocs_xml_does_not_match_schema_raises(self):
         self.cs.set_config_details(TEST_CONFIG)

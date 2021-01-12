@@ -18,29 +18,32 @@
 import copy
 from collections import OrderedDict
 import re
-import six
+from typing import List, Dict, Any
 
 from BlockServer.config.configuration import Configuration
+from BlockServer.config.metadata import MetaData
 from BlockServer.core.constants import DEFAULT_COMPONENT, GRP_NONE
 from BlockServer.config.group import Group
 from BlockServer.core.macros import PVPREFIX_MACRO
 from BlockServer.core.file_path_manager import FILEPATH_MANAGER
+from BlockServer.fileIO.file_manager import ConfigurationFileManager
 from server_common.utilities import print_and_log
 
 
-class ConfigHolder(object):
+class ConfigHolder:
     """ The ConfigHolder class.
 
     Holds a configuration which can then be manipulated via this class.
     """
-    def __init__(self, macros, file_manager, is_component=False, test_config=None):
+    def __init__(self, macros: Dict, file_manager: ConfigurationFileManager, is_component: bool = False, test_config:
+                 Configuration = None):
         """ Constructor.
 
         Args:
-            macros (dict): The dictionary containing the macros
-            is_component (bool): Defines whether the configuration held is a component or not
-            file_manager (ConfigurationFileManager): The object used to save the configuration
-            test_config (Configuration): A dummy configuration used for the unit tests :o(
+            macros: The dictionary containing the macros
+            is_component: Defines whether the configuration held is a component or not
+            file_manager: The object used to save the configuration
+            test_config: A dummy configuration used for the unit tests :o(
         """
         if test_config is None:
             self._config = Configuration(macros)
@@ -64,12 +67,12 @@ class ConfigHolder(object):
         self._components = OrderedDict()
         self._is_component = False
 
-    def add_component(self, name, component):
+    def add_component(self, name: str, component: Configuration):
         """ Add a component to the configuration.
 
         Args:
-            name (string): The name of the component being added
-            component (Component): The component object to be added
+            name: The name of the component being added
+            component: The component object to be added
         """
         # Add it to the holder
         if self._is_component:
@@ -83,13 +86,13 @@ class ConfigHolder(object):
         else:
             raise ValueError("Requested component is already part of the configuration: " + str(name))
 
-    def remove_comp(self, name):
+    def remove_comp(self, name: str):
         """ Removes a component from the configuration.
 
         This is not needed as part of the BlockServer as such, but it helps with unit testing.
 
         Args:
-            name (string): The name of the component to remove
+            name: The name of the component to remove
         """
         # Remove it from the holder
         if self._is_component:
@@ -97,11 +100,11 @@ class ConfigHolder(object):
         del self._components[name.lower()]
         del self._config.components[name.lower()]
 
-    def get_blocknames(self):
+    def get_blocknames(self) -> List[str]:
         """ Get all the blocknames including those in the components.
 
         Returns:
-            list : The names of all the blocks
+            The names of all the blocks
         """
         names = []
         for block in self._config.blocks.values():
@@ -118,20 +121,20 @@ class ConfigHolder(object):
         """ Get the configuration details for all the blocks including any in components.
 
         Returns:
-            dict : A dictionary of block objects
+            A dictionary of block objects
         """
         blocks = copy.deepcopy(self._config.blocks)
         for component in self._components.values():
-            for block_name, block in six.iteritems(component.blocks):
+            for block_name, block in component.blocks.items():
                 if block_name not in blocks:
                     blocks[block_name] = block
         return blocks
 
-    def get_group_details(self):
+    def get_group_details(self) -> Dict[str, Group]:
         """ Get the groups details for all the groups including any in components.
 
         Returns:
-            dict : A dictionary of group objects
+            A dictionary of group objects
         """
         blocks = self.get_blocknames()
         used_blocks = []
@@ -141,7 +144,7 @@ class ConfigHolder(object):
             used_blocks.extend(group.blocks)
 
         for component in self._components.values():
-            for group_name, grp in six.iteritems(component.groups):
+            for group_name, grp in component.groups.items():
                 if group_name not in groups.keys():
                     # Add the groups if they have not been used before and exist
                     blks = [x for x in grp.blocks if x not in used_blocks and x in blocks]
@@ -157,9 +160,11 @@ class ConfigHolder(object):
                             used_blocks.append(bn)
 
         # If any groups are empty now we've filled in from the components, get rid of them
-        for key in groups:
+        # This is an ordered dict so we need to copy it before iterating - throws a runtime error if it has mutated.
+        groups_copy = groups.copy()
+        for key in groups_copy.keys():
             if len(groups[key].blocks) == 0:
-                del groups[key]
+                groups.pop(key)
 
         return groups
 
@@ -197,28 +202,28 @@ class ConfigHolder(object):
             self._config.groups[GRP_NONE.lower()] = Group(GRP_NONE)
         self._config.groups[GRP_NONE.lower()].blocks = homeless_blocks
 
-    def get_config_name(self):
+    def get_config_name(self) -> str:
         """ Get the name of the configuration.
 
         Returns:
-            string : The name
+            The name
         """
         return self._config.get_name()
 
     def _set_config_name(self, name):
         self._config.set_name(name)
 
-    def get_ioc_names(self, include_base=False):
+    def get_ioc_names(self, include_base: bool = False) -> List[str]:
         """ Get the names of the IOCs in the configuration and any components.
 
         Args:
-            include_base (bool, optional): Whether to include the IOCs in base
+            include_base: Whether to include the IOCs in base
 
         Returns:
-            list : The names of the IOCs
+            The names of the IOCs
         """
-        iocs = self._config.iocs.keys()
-        for cn, cv in six.iteritems(self._components):
+        iocs = list(self._config.iocs.keys())
+        for cn, cv in self._components.items():
             if include_base or cn.lower() != DEFAULT_COMPONENT.lower():
                 iocs.extend(cv.iocs)
         return iocs
@@ -227,7 +232,7 @@ class ConfigHolder(object):
         """ Get the details of the IOCs in the configuration.
 
         Returns:
-            dict : A copy of all the configuration IOC details
+            A copy of all the configuration IOC details
         """
         return copy.deepcopy(self._config.iocs)
 
@@ -235,11 +240,11 @@ class ConfigHolder(object):
         """ Get the details of the IOCs in any components.
 
         Returns:
-            dict : A copy of all the component IOC details
+            A copy of all the component IOC details
         """
         iocs = {}
         for component in self._components.values():
-            for ioc_name, ioc in six.iteritems(component.iocs):
+            for ioc_name, ioc in component.iocs.items():
                 if ioc_name not in iocs:
                     iocs[ioc_name] = ioc
         return iocs
@@ -248,32 +253,32 @@ class ConfigHolder(object):
         """  Get the details of the IOCs in the configuration and any components.
 
         Returns:
-            dict : A copy of all the IOC details
+            A copy of all the IOC details
         """
         iocs = self.get_ioc_details()
         iocs.update(self.get_component_ioc_details())
         return iocs
 
-    def get_component_names(self, include_base=False):
+    def get_component_names(self, include_base: bool = False) -> List[str]:
         """ Get the names of the components in the configuration.
 
         Args:
-            include_base (bool, optional): Whether to include the base in the list of names
+            include_base: Whether to include the base in the list of names
 
         Returns:
-            list : A list of components in the configuration
+            A list of components in the configuration
         """
         component_names = []
-        for component_name, component in six.iteritems(self._components):
+        for component_name, component in self._components.items():
             if include_base or (component_name.lower() != DEFAULT_COMPONENT.lower()):
                 component_names.append(component.get_name())
         return component_names
 
-    def add_block(self, blockargs):
+    def add_block(self, blockargs: Dict):
         """ Add a block to the configuration.
 
         Args:
-            blockargs (dict): A dictionary of settings for the new block
+            blockargs: A dictionary of settings for the new block
         """
         self._config.add_block(**blockargs)
 
@@ -285,13 +290,13 @@ class ConfigHolder(object):
         elif component.lower() in self._components:
             self._components[component.lower()].add_ioc(name, component, autostart, restart, macros, pvs, pvsets, simlevel, remotePvPrefix)
         else:
-            raise ValueError("Can't add IOC '{}' to component '{}': component does not exist".format(name, component))
+            raise ValueError(f"Can't add IOC '{name}' to component '{component}': component does not exist")
 
-    def get_config_details(self):
+    def get_config_details(self) -> Dict[str, Any]:
         """ Get the details of the configuration.
 
         Returns:
-            dict : A dictionary containing all the details of the configuration
+            A dictionary containing all the details of the configuration
         """
         return {
             'blocks': self._blocks_to_list(True),
@@ -306,12 +311,12 @@ class ConfigHolder(object):
             'isProtected': self._config.meta.isProtected
         }
 
-    def is_protected(self):
+    def is_protected(self) -> bool:
         """
         Whether this config has been marked as "protected" or not.
 
         Returns:
-            (bool): whether the configuration is protected.
+            Whether the configuration is protected.
         """
         return self._config.meta.isProtected
 
@@ -325,7 +330,7 @@ class ConfigHolder(object):
 
     def _comps_to_list(self):
         comps = []
-        for component_name, component_value in six.iteritems(self._components):
+        for component_name, component_value in self._components.items():
             if component_name.lower() != DEFAULT_COMPONENT.lower():
                 comps.append({'name': component_value.get_name()})
         return comps
@@ -367,19 +372,14 @@ class ConfigHolder(object):
         return ioc_list
 
     def _to_dict(self, data_list):
-        if data_list is None:
-            return None
-        out = {}
-        for item in data_list:
-            out[item["name"]] = item
-        return out
+        return None if data_list is None else {item["name"]: item for item in data_list}
 
-    def set_config(self, config, is_component=False):
+    def set_config(self, config: Configuration, is_component: bool = False):
         """ Replace the existing configuration with the supplied configuration.
 
         Args:
-            config (Configuration): A configuration
-            is_component (bool, optional): Whether it is a component
+            config: A configuration
+            is_component: Whether it is a component
         """
         self._cache_config()
         self.clear_config()
@@ -387,7 +387,7 @@ class ConfigHolder(object):
         self._is_component = is_component
         self._components = OrderedDict()
         if not is_component:
-            for n, v in six.iteritems(config.components):
+            for n, v in config.components.items():
                 if n.lower() != DEFAULT_COMPONENT.lower():
                     comp = self.load_configuration(v, True)
                     self.add_component(v, comp)
@@ -404,13 +404,13 @@ class ConfigHolder(object):
         for ioc in comp.iocs.values():
             ioc.component = name
 
-    def load_configuration(self, name, is_component=False, set_component_names=True):
+    def load_configuration(self, name: str, is_component: bool = False, set_component_names: bool = True):
         """ Load a configuration.
 
         Args:
-            name (string): The name of the configuration to load
-            is_component (bool, optional): Whether it is a component
-            set_component_names (bool, optional): Whether to set the component names
+            name: The name of the configuration to load
+            is_component: Whether it is a component
+            set_component_names: Whether to set the component names
         """
         if is_component:
             comp = self._filemanager.load_config(name, self._macros, True)
@@ -420,12 +420,12 @@ class ConfigHolder(object):
         else:
             return self._filemanager.load_config(name, self._macros, False)
 
-    def save_configuration(self, name, as_component):
+    def save_configuration(self, name: str, as_component: bool):
         """ Save the configuration.
 
         Args:
-            name (string): The name to save the configuration under
-            as_component (bool): Whether to save as a component
+            name: The name to save the configuration under
+            as_component: Whether to save as a component
         """
         self._check_name(name, as_component)
         if self._is_component != as_component:
@@ -474,7 +474,7 @@ class ConfigHolder(object):
         self._config = copy.deepcopy(self._cached_config)
         self._components = copy.deepcopy(self._cached_components)
 
-    def get_config_meta(self):
+    def get_config_meta(self) -> MetaData:
         """ Fetch the configuration's metadata.
 
         Returns:
@@ -482,7 +482,7 @@ class ConfigHolder(object):
         """
         return self._config.meta
 
-    def get_cached_name(self):
+    def get_cached_name(self) -> str:
         """ Get the previous name which may be the same as the current.
 
         Returns:
@@ -490,7 +490,7 @@ class ConfigHolder(object):
         """
         return self._cached_config.get_name()
 
-    def set_history(self, history):
+    def set_history(self, history: List[Any]):
         """ Set history for configuration.
 
         Args:
@@ -498,7 +498,7 @@ class ConfigHolder(object):
         """
         self._config.meta.history = history
 
-    def get_history(self):
+    def get_history(self) -> List[Any]:
         """ Get the history for configuration.
 
         Returns:

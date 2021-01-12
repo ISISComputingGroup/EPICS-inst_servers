@@ -13,9 +13,10 @@
 # along with this program; if not, you can obtain a copy from
 # https://www.eclipse.org/org/documents/epl-v10.php or
 # http://opensource.org/licenses/eclipse-1.0.php
+from typing import List, Union, Dict
 
 
-class MetaData(object):
+class MetaData:
     """Represents the metadata from a configuration/component.
 
     Attributes:
@@ -25,14 +26,14 @@ class MetaData(object):
         synoptic (string): The default synoptic view for this configuration
         history (list): The save history of the configuration
     """
-    def __init__(self, config_name, pv_name="", description="", synoptic=""):
+    def __init__(self, config_name: str, pv_name: str = "", description: str = "", synoptic: str = ""):
         """ Constructor.
 
         Args:
-            config_name (string): The name of the configuration
-            pv (string): The PV for the configuration
-            description (string): The description
-            synoptic (string): The default synoptic view for this configuration
+            config_name: The name of the configuration
+            pv: The PV for the configuration
+            description: The description
+            synoptic: The default synoptic view for this configuration
         """
         self.name = config_name
         self.pv = pv_name
@@ -42,11 +43,11 @@ class MetaData(object):
         self.isProtected = False
         self.configuresBlockGWAndArchiver = False
 
-    def to_dict(self):
+    def to_dict(self) -> Dict[str, Union[str, bool, List]]:
         """ Puts the metadata into a dictionary.
 
         Returns:
-            dict : The metadata
+            The metadata
         """
         return {'name': self.name, 'pv': self.pv, 'description': self.description, 'synoptic': self.synoptic,
                 'history': self.history, 'isProtected': self.isProtected,

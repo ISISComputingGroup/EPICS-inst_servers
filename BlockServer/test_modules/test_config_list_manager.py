@@ -21,7 +21,7 @@ from BlockServer.core.config_list_manager import ConfigListManager, InvalidDelet
 from BlockServer.core.active_config_holder import ActiveConfigHolder
 from BlockServer.mocks.mock_channel_access import MockChannelAccess
 from server_common.channel_access import ManagerModeRequiredException
-from server_common.pv_names import BlockserverPVNames, prepend_blockserver
+from server_common.pv_names import prepend_blockserver
 from BlockServer.mocks.mock_block_server import MockBlockServer
 from BlockServer.core.inactive_config_holder import InactiveConfigHolder
 from BlockServer.core.constants import DEFAULT_COMPONENT

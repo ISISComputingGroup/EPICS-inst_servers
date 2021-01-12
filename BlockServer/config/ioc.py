@@ -15,9 +15,10 @@
 # http://opensource.org/licenses/eclipse-1.0.php
 
 import copy
+from typing import Dict, List, Union, Any
 
 
-class IOC(object):
+class IOC:
     """ Represents an IOC.
 
     Attributes:
@@ -30,21 +31,21 @@ class IOC(object):
         pvsets (dict): The IOC's PV sets
         simlevel (string): The level of simulation
     """
-    def __init__(self, name, autostart=True, restart=True, component=None, macros=None, pvs=None, pvsets=None,
-                 simlevel=None, remotePvPrefix=None):
+    def __init__(self, name: str, autostart: bool = True, restart: bool = True, component: str = None, macros: Dict =
+                 None, pvs: Dict = None, pvsets: Dict = None, simlevel: str = None, remotePvPrefix: str = None):
         """ Constructor.
 
         Args:
-            name (string): The name of the IOC
-            autostart (bool): Whether the IOC should automatically start/restart when the configuration is
+            name: The name of the IOC
+            autostart: Whether the IOC should automatically start/restart when the configuration is
             loaded/changed
-            restart (bool): If auto start is true, then proc serv will restart the IOC if it terminates unexpectedly
-            component (string|None): The component the IOC belongs to
-            macros (dict): The IOC's macros
-            pvs (dict): The IOC's PVs
-            pvsets (dict): The IOC's PV sets
-            simlevel (string): The level of simulation
-            remotePvPrefix (str): The remote pv prefix
+            restart: If auto start is true, then proc serv will restart the IOC if it terminates unexpectedly
+            component: The component the IOC belongs to
+            macros: The IOC's macros
+            pvs: The IOC's PVs
+            pvsets: The IOC's PV sets
+            simlevel: The level of simulation
+            remotePvPrefix: The remote pv prefix
         """
         self.name = name
         self.autostart = autostart
@@ -72,33 +73,34 @@ class IOC(object):
         else:
             self.pvsets = pvsets
 
-    def _dict_to_list(self, in_dict):
+    @staticmethod
+    def _dict_to_list(in_dict: Dict[str, Any]) -> List[Any]:
         """ Converts into a format better for the GUI to parse, namely a list.
 
         It's messy but it's what the GUI wants.
 
         Args:
-            in_dict (dict): The dictionary to be converted
+            in_dict: The dictionary to be converted
 
         Returns:
-            list : The newly created list
+            The newly created list
         """
         out_list = []
-        for k, v in in_dict.iteritems():
+        for k, v in in_dict.items():
             # Take a copy as we do not want to modify the original
             c = copy.deepcopy(v)
             c['name'] = k
             out_list.append(c)
         return out_list
 
-    def __str__(self):
-        return "{}(name={}, component={})".format(self.__class__.__name__, self.name, self.component)
+    def __str__(self) -> str:
+        return f"{self.__class__.__name__}(name={self.name}, component={self.component})"
 
-    def to_dict(self):
+    def to_dict(self) -> Dict[str, Union[str, bool, List[Any]]]:
         """ Puts the IOC's details into a dictionary.
 
         Returns:
-            dict : The IOC's details
+            The IOC's details
         """
         return {
             'name': self.name,

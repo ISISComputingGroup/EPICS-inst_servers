@@ -18,7 +18,7 @@ import os
 import json
 
 import traceback
-import six
+from functools import wraps
 from threading import RLock
 
 from BlockServer.core.file_path_manager import FILEPATH_MANAGER
@@ -38,7 +38,7 @@ def needs_lock(func):
     """
     Decorator which takes out the config list manager lock while the decorated function is running.
     """
-    @six.wraps(func)
+    @wraps(func)
     def wrapper(self, *args, **kwargs):
         with self._lock:
             return func(self, *args, **kwargs)
@@ -49,7 +49,7 @@ def update_monitors_when_finished(func):
     """
     Decorator which updates monitors once the decorated function has finished running.
     """
-    @six.wraps(func)
+    @wraps(func)
     def wrapper(self, *args, **kwargs):
         result = func(self, *args, **kwargs)
         self.update_monitors()
@@ -64,7 +64,7 @@ def deletion_context(func):
     return needs_lock(update_monitors_when_finished(func))
 
 
-class ConfigListManager(object):
+class ConfigListManager:
     """ Class to handle data on all available configurations and manage their associated PVs.
 
     Attributes:
@@ -134,7 +134,7 @@ class ConfigListManager(object):
             list : A list of available components
         """
         comps = list()
-        for cn, cv in six.iteritems(self._component_metas):
+        for cn, cv in self._component_metas.items():
             if cn.lower() != DEFAULT_COMPONENT.lower():
                 comps.append(cv.to_dict())
         return comps
@@ -151,7 +151,7 @@ class ConfigListManager(object):
                 config = self.load_config(comp_name, True)
                 self.update_a_config_in_list(config, True)
             except Exception as err:
-                print_and_log("Error in loading component: {}".format(err), "MINOR")
+                print_and_log(f"Error in loading component: {err}", "MINOR")
                 print_and_log(traceback.format_exc())
 
         # Create default if it does not exist
@@ -164,7 +164,7 @@ class ConfigListManager(object):
                 config = self.load_config(config_name)
                 self.update_a_config_in_list(config)
             except Exception as err:
-                print_and_log("Error in loading config: {}".format(err), "MINOR")
+                print_and_log(f"Error in loading config: {err}", "MINOR")
                 print_and_log(traceback.format_exc())
 
     def load_config(self, name, is_component=False):
@@ -268,7 +268,7 @@ class ConfigListManager(object):
 
     def _remove_config_from_dependencies(self, config):
         # Remove old config from dependencies list
-        for comp, confs in six.iteritems(self._comp_dependencies):
+        for comp, confs in self._comp_dependencies.items():
             if config in confs:
                 self._comp_dependencies[comp.lower()].remove(config)
                 self._update_component_dependencies_pv(comp.lower())
@@ -291,7 +291,7 @@ class ConfigListManager(object):
 
     @deletion_context
     def delete_configs(self, delete_list):
-        print_and_log("Deleting configurations: {}".format(', '.join(list(delete_list)), "INFO"))
+        print_and_log(f"Deleting configurations: {', '.join(list(delete_list))}", "INFO")
         lower_delete_list = lowercase_and_make_unique(delete_list)
 
         if self.active_config_name.lower() in lower_delete_list:
@@ -302,7 +302,7 @@ class ConfigListManager(object):
         for config in lower_delete_list:
             if self._config_metas[config].isProtected:
                 verify_manager_mode(self.channel_access,
-                                    message="Attempting to delete protected configuration ('{}')".format(config))
+                                    message=f"Attempting to delete protected configuration ('{config}')")
 
         for config in delete_list:
             self._delete_single_config(config)
@@ -311,8 +311,8 @@ class ConfigListManager(object):
         try:
             self.file_manager.delete(config, is_component=False)
         except MaxAttemptsExceededException:
-            print_and_log("Could not delete configuration {name} from file system. "
-                          "Make sure its files are not in use by a different process.".format(name=config),
+            print_and_log(f"Could not delete configuration {config} from file system. "
+                          f"Make sure its files are not in use by a different process.",
                           "MINOR")
 
         self._delete_pv(BlockserverPVNames.get_config_details_pv(self._config_metas[config.lower()].pv))
@@ -331,7 +331,7 @@ class ConfigListManager(object):
             None
 
         """
-        print_and_log("Deleting components: {}".format(', '.join(list(delete_list)), "INFO"))
+        print_and_log(f"Deleting components: {', '.join(list(delete_list))}", "INFO")
         lower_delete_list = lowercase_and_make_unique(delete_list)
 
         if DEFAULT_COMPONENT.lower() in lower_delete_list:
@@ -341,7 +341,7 @@ class ConfigListManager(object):
         for component in lower_delete_list:
             if self._comp_dependencies.get(component):
                 raise InvalidDeleteException(
-                    "{} is in use in: {}".format(component, ', '.join(self._comp_dependencies[component])))
+                    f"{component} is in use in: {', '.join(self._comp_dependencies[component])}")
 
         if not lower_delete_list.issubset(self._component_metas.keys()):
             raise InvalidDeleteException("Delete list contains unknown components")
@@ -349,7 +349,7 @@ class ConfigListManager(object):
         for component in lower_delete_list:
             if self._component_metas[component].isProtected:
                 verify_manager_mode(self.channel_access,
-                                    message="Attempting to delete protected component ('{}')".format(component))
+                                    message=f"Attempting to delete protected component ('{component}')")
 
         for component in lower_delete_list:
             self._delete_single_component(component)
@@ -368,8 +368,8 @@ class ConfigListManager(object):
         try:
             self.file_manager.delete(component, is_component=True)
         except MaxAttemptsExceededException:
-            print_and_log("Could not delete component {name} from file system. "
-                          "Make sure its files are not in use by a different process.".format(name=component),
+            print_and_log(f"Could not delete component {component} from file system. "
+                          f"Make sure its files are not in use by a different process.",
                           "MINOR")
         self._delete_pv(BlockserverPVNames.get_component_details_pv(self._component_metas[component].pv))
         self._delete_pv(BlockserverPVNames.get_dependencies_pv(self._component_metas[component].pv))
@@ -398,6 +398,6 @@ class ConfigListManager(object):
             self._bs.setParam(BlockserverPVNames.COMPS, compress_and_hex(convert_to_json(self.get_components())))
             # Set the available component details
             self._bs.setParam(BlockserverPVNames.ALL_COMPONENT_DETAILS,
-                              compress_and_hex(convert_to_json(self.all_components.values())))
+                              compress_and_hex(convert_to_json(list(self.all_components.values()))))
             # Update them
             self._bs.updatePVs()

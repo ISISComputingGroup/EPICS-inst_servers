@@ -13,15 +13,14 @@
 # along with this program; if not, you can obtain a copy from
 # https://www.eclipse.org/org/documents/epl-v10.php or
 # http://opensource.org/licenses/eclipse-1.0.php
+from urllib.request import ProxyHandler, urlopen, install_opener, build_opener
 
-import urllib2
 
-
-class ArchiverWrapper(object):
+class ArchiverWrapper:
     def restart_archiver(self):
         # Set to ignore proxy for localhost
-        proxy_handler = urllib2.ProxyHandler({})
-        opener = urllib2.build_opener(proxy_handler)
-        urllib2.install_opener(opener)
-        res = urllib2.urlopen("http://localhost:4813/restart")
+        proxy_handler = ProxyHandler({})
+        opener = build_opener(proxy_handler)
+        install_opener(opener)
+        res = urlopen("http://localhost:4813/restart")
         d = res.read()

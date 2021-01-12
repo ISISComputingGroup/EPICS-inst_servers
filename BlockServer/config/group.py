@@ -13,8 +13,10 @@
 # along with this program; if not, you can obtain a copy from
 # https://www.eclipse.org/org/documents/epl-v10.php or
 # http://opensource.org/licenses/eclipse-1.0.php
+from typing import List, Union, Dict
 
-class Group(object):
+
+class Group:
     """ Represents a group.
 
         Attributes:
@@ -22,25 +24,24 @@ class Group(object):
             blocks (dict): The blocks that are in the group
             component (string): The component the group belongs to
     """
-    def __init__(self, name, component=None):
+    def __init__(self, name: str, component: str = None):
         """ Constructor.
 
         Args:
-            name (string): The name for the group
-            component (string): The component to which the group belongs
+            name: The name for the group
+            component: The component to which the group belongs
         """
         self.name = name
         self.blocks = []
         self.component = component
 
-    def __str__(self):
-        data = "Name: %s, COMPONENT: %s, Blocks: %s" % (self.name, self.component, self.blocks)
-        return data
+    def __str__(self) -> str:
+        return f"Name: {self.name}, COMPONENT: {self.component}, Blocks: {self.blocks}"
 
-    def to_dict(self):
+    def to_dict(self) -> Dict[str, Union[str, List]]:
         """ Puts the group's details into a dictionary.
 
         Returns:
-            dict : The group's details
+            The group's details
         """
         return {'name': self.name, 'blocks': self.blocks, "component": self.component}

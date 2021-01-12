@@ -264,7 +264,7 @@ class ArchiverDataSource(object):
 
         pv_name_count = len(pv_names)
         if pv_name_count == 0:
-            raise StopIteration()
+            return
         sql_in_binding = SQLAbstraction.generate_in_binding(pv_name_count)
         query_with_correct_number_of_bound_ins = query.format(sql_in_binding)
 

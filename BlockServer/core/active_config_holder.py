@@ -15,8 +15,6 @@
 # https://www.eclipse.org/org/documents/epl-v10.php or
 # http://opensource.org/licenses/eclipse-1.0.php
 import os
-import six
-
 from server_common.utilities import print_and_log
 from BlockServer.core.macros import BLOCK_PREFIX, MACROS
 from BlockServer.core.config_holder import ConfigHolder
@@ -190,7 +188,7 @@ class ActiveConfigHolder(ConfigHolder):
             print_and_log("No last configuration defined")
             return None
 
-        print_and_log("Trying to load last configuration '{}'".format(last_config_name))
+        print_and_log(f"Trying to load last configuration '{last_config_name}'")
         self.load_active(last_config_name)
         return last_config_name
 
@@ -201,7 +199,7 @@ class ActiveConfigHolder(ConfigHolder):
             print_and_log("No current configuration defined. Nothing to reload.")
             return
 
-        print_and_log("Trying to reload current configuration '{}'".format(current_config_name))
+        print_and_log(f"Trying to reload current configuration '{current_config_name}'")
         self.load_active(current_config_name)
 
     def iocs_changed(self):
@@ -223,7 +221,7 @@ class ActiveConfigHolder(ConfigHolder):
         iocs_to_stop = set()
 
         # Look for any new/changed components
-        for name, component in six.iteritems(self._components):
+        for name, component in self._components.items():
             if name in self._cached_components:
                 _start, _restart = _compare_ioc_properties(
                     self._cached_components[name], self._components[name])
@@ -239,7 +237,7 @@ class ActiveConfigHolder(ConfigHolder):
             iocs_to_stop.add(ioc_name)
 
         # Look for any removed components
-        for name, component in six.iteritems(self._cached_components):
+        for name, component in self._cached_components.items():
             if name not in self._components:
                 for ioc_name in component.iocs.keys():
                     iocs_to_stop.add(ioc_name)
@@ -261,7 +259,7 @@ class ActiveConfigHolder(ConfigHolder):
 
         The checks for components containing blocks being added/removed occurs elsewhere.
         """
-        for name, component in six.iteritems(self._components):
+        for name, component in self._components.items():
             if name in self._cached_components \
                     and _blocks_changed_in_config(self._cached_components[name], self._components[name]):
                 return True
@@ -288,7 +286,7 @@ class ActiveConfigHolder(ConfigHolder):
         Returns:
             True if switching from components1 to components2 would have added any blocks.
         """
-        for new_component_name, new_component in six.iteritems(new_components):
+        for new_component_name, new_component in new_components.items():
             if new_component_name not in old_components and len(new_component.blocks) != 0:
                 return True
         return False

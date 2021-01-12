@@ -21,7 +21,7 @@ from ConfigVersionControl.version_control_exceptions import AddToVersionControlE
     CommitToVersionControlException, RemoveFromVersionControlException, UpdateFromVersionControlException
 
 
-class MockVersionControl(object):
+class MockVersionControl:
 
     def add(self, file_path):
         pass

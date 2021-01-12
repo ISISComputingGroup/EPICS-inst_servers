@@ -29,6 +29,8 @@ vcs.xml
 # Test reports
 /test-reports
 NULL
+.coverage
+schema/cobertura.xml
 
 # File generated during test-reports
 last_config.txt

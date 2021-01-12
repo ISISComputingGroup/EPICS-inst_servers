@@ -26,7 +26,7 @@ DEVICES_DIRECTORY = "devices"
 
 
 # Do not create an instance of this class, instead use FILEPATH_MANAGER as a singleton
-class FilePathManager(object):
+class FilePathManager:
     """
     Manager for file paths
     """
@@ -94,7 +94,7 @@ class FilePathManager(object):
         Returns: File path to the synoptic of the given name
 
         """
-        return os.path.join(self.synoptic_dir, "{}.xml".format(synoptic_name))
+        return os.path.join(self.synoptic_dir, f"{synoptic_name}.xml")
 
     def get_banner_path(self):
         """
