@@ -182,21 +182,22 @@ class ChannelAccess(object):
             return ChannelAccess.thread_pool.submit(_put_value)
 
     @staticmethod
-    def caput_retry_on_fail(pv_name, value, retry_count=5):
+    def caput_retry_on_fail(pv_name, value, retry_count=5, safe_not_quick=True):
         """
         Write to a pv and check the value is set, retry if not; raise if run out of retries
         Args:
             pv_name: pv name to write to
             value: value to write
             retry_count: number of retries
-
+            safe_not_quick (bool): True run all checks while setting the pv, False don't run checks just write the value,
+                e.g. disp check
         Raises:
             IOError: if pv can not be set
 
         """
         current_value = None
         for _ in range(retry_count):
-            ChannelAccess.caput(pv_name, value, wait=True)
+            ChannelAccess.caput(pv_name, value, wait=True, safe_not_quick=safe_not_quick)
             current_value = ChannelAccess.caget(pv_name)
             if current_value == value:
                 break
