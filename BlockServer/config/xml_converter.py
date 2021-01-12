@@ -424,6 +424,15 @@ class ConfigurationXmlConverter:
                 components[n.lower()] = n
 
     @staticmethod
+    def get_configuresBlockGWAndArchiver_from_xml(root_xml: ElementTree.Element) -> bool:
+        configuresBlockGWAndArchiver = root_xml.find("./" + TAG_CONFIGURES_BLOCK_GW_AND_ARCHIVER)
+        if configuresBlockGWAndArchiver is not None:
+            if configuresBlockGWAndArchiver.text is not None:
+                return configuresBlockGWAndArchiver.text.lower() == "true"
+            else:
+                return False
+
+    @staticmethod
     def meta_from_xml(root_xml: ElementTree.Element, data: MetaData):
         """Populates the supplied MetaData object based on an XML tree.
 
@@ -446,12 +455,7 @@ class ConfigurationXmlConverter:
             else:
                 data.isProtected = False
 
-        configuresBlockGWAndArchiver = root_xml.find("./" + TAG_CONFIGURES_BLOCK_GW_AND_ARCHIVER)
-        if configuresBlockGWAndArchiver is not None:
-            if configuresBlockGWAndArchiver is not None:
-                data.configuresBlockGWAndArchiver = configuresBlockGWAndArchiver.text.lower() == "true"
-            else:
-                data.configuresBlockGWAndArchiver = False
+        data.configuresBlockGWAndArchiver = ConfigurationXmlConverter.get_configuresBlockGWAndArchiver_from_xml(root_xml)
 
         edits = root_xml.findall("./" + TAG_EDITS + "/" + TAG_EDIT)
         data.history = [e.text for e in edits]
