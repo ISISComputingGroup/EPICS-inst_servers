@@ -104,8 +104,6 @@ class InactiveConfigHolder(ConfigHolder):
                     self.add_component(comp.get_name(), comp)
             if "isProtected" in details:
                 self._config.meta.isProtected = details["isProtected"]
-            if "configuresBlockGWAndArchiver" in details:
-                self._config.meta.configuresBlockGWAndArchiver = details["configuresBlockGWAndArchiver"]
         except Exception:
             self._retrieve_cache()
             raise
