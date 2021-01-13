@@ -17,7 +17,6 @@ import unittest
 import json
 import os
 
-import six
 from mock import Mock
 from parameterized import parameterized
 
@@ -26,7 +25,6 @@ from BlockServer.config.configuration import Configuration
 from BlockServer.config.ioc import IOC
 from BlockServer.core.active_config_holder import (ActiveConfigHolder, _blocks_changed, _blocks_changed_in_config,
                                                    _compare_ioc_properties)
-from BlockServer.core.inactive_config_holder import InactiveConfigHolder
 from BlockServer.mocks.mock_ioc_control import MockIocControl
 from BlockServer.core.macros import MACROS
 from BlockServer.mocks.mock_file_manager import MockConfigurationFileManager
