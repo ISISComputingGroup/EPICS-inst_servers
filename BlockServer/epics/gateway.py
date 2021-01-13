@@ -50,28 +50,28 @@ def build_block_alias_lines(full_block_pv, pv_suffix, underlying_pv, include_com
         full_block_pv = r"{}\(:SP\)?".format(full_block_pv)
 
         # Pattern match is for picking up any extras like :RBV or .EGU
-        lines.append('{}\\([.:].*\\)    ALIAS    {}\\2'.format(full_block_pv, underlying_pv))
+        lines.append(f'{full_block_pv}\\([.:].*\\)    ALIAS    {underlying_pv}\\2')
     elif pv_suffix is not None:
         # The block points at a readback value (most likely for a motor)
         if include_comments:
-            lines.append("## The block points at a {} field, so it needs entries for both reading the field "
-                         "and for the rest".format(pv_suffix))
+            lines.append(f"## The block points at a {pv_suffix} field, so it needs entries for both reading the field "
+                         f"and for the rest")
 
         # Pattern match is for picking up any extras like :RBV or .EGU
-        lines.append('{}\\([.:].*\\)    ALIAS    {}\\1'.format(full_block_pv, underlying_pv.replace(pv_suffix, "")))
-        lines.append('{}[.]VAL    ALIAS    {}'.format(full_block_pv, underlying_pv))
+        lines.append(f'{full_block_pv}\\([.:].*\\)    ALIAS    {underlying_pv.replace(pv_suffix, "")}\\1')
+        lines.append(f'{full_block_pv}[.]VAL    ALIAS    {underlying_pv}')
     else:
         # Standard case
         if include_comments:
             lines.append("## Standard block with entries for matching :SP and :SP:RBV as well as .EGU")
 
         # Pattern match is for picking up any any SP or SP:RBV
-        lines.append('{}\\([.:].*\\)    ALIAS    {}\\1'.format(full_block_pv, underlying_pv))
-    lines.append('{}    ALIAS    {}'.format(full_block_pv, underlying_pv))
+        lines.append(f'{full_block_pv}\\([.:].*\\)    ALIAS    {underlying_pv}\\1')
+    lines.append(f'{full_block_pv}    ALIAS    {underlying_pv}')
     return lines
 
 
-class Gateway(object):
+class Gateway:
     """A class for interacting with the EPICS gateway that creates the aliases used for implementing blocks"""
 
     def __init__(self, gateway_prefix, instrument_prefix, pvlist_file, block_prefix,
