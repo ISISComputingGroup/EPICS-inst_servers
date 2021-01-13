@@ -308,7 +308,8 @@ class ConfigHolder:
             'description': self._config.meta.description,
             'synoptic': self._config.meta.synoptic,
             'history': self._config.meta.history,
-            'isProtected': self._config.meta.isProtected
+            'isProtected': self._config.meta.isProtected,
+            'configuresBlockGWAndArchiver': self._config.meta.configuresBlockGWAndArchiver
         }
 
     def is_protected(self) -> bool:
