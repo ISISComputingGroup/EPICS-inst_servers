@@ -67,17 +67,18 @@ class ConfigHolder:
         self._components = OrderedDict()
         self._is_component = False
 
-    def add_component(self, name: str):
+    def add_component(self, name: str, component: Configuration = None):
         """ Add a component with the specified name to the configuration.
 
         Args:
             name: The name of the component being added
+            component: The component to be added (if not specified, the component will be loaded by name instead).
         """
         # Add it to the holder
         if self._is_component:
             raise ValueError("Can not add a component to a component")
 
-        component = self.load_configuration(name, True)
+        component = component if component is not None else self.load_configuration(name, True)
 
         if name.lower() not in self._components:
             # Add it

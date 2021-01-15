@@ -5,16 +5,12 @@ import os
 import types
 from queue import Queue
 
-from typing import List, Dict, Any, Type, Union, TYPE_CHECKING, Set, Iterable
+from typing import List, Dict, Any, Type, Set, Iterable
 
 from BlockServer.core.config_list_manager import ConfigListManager
 from BlockServer.core.macros import MACROS, PVPREFIX_MACRO
 from server_common.utilities import print_and_log as _common_print_and_log, SEVERITY
 from server_common.channel_access import ChannelAccess
-
-if TYPE_CHECKING:
-    from test_modules.test_component_switcher import MockComponentSwitcherFileManager, MockConfigListManager, \
-        MockChannelAccess
 
 
 def print_and_log(message: str, *args, **kwargs):
@@ -39,11 +35,11 @@ class ComponentSwitcherConfigFileManager(object):
 
 class ComponentSwitcher(object):
     def __init__(self,
-                 config_list: Union[ConfigListManager, "MockConfigListManager"],
+                 config_list: ConfigListManager,
                  blockserver_write_queue: Queue,
                  reload_current_config_func: types.FunctionType,
-                 file_manager: Union[ComponentSwitcherConfigFileManager, "MockComponentSwitcherFileManager"] = None,
-                 channel_access_class: Type[Union[ChannelAccess, "MockChannelAccess"]] = None):
+                 file_manager: ComponentSwitcherConfigFileManager = None,
+                 channel_access_class: Type[ChannelAccess] = None):
 
         self._config_list = config_list
         self._blockserver_write_queue = blockserver_write_queue

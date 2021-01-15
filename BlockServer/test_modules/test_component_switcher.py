@@ -94,12 +94,12 @@ class TestComponentSwitcher(unittest.TestCase):
         self.file_manager.config = [
             {
                 "pv": "first",
-                "is_local": True,
+                "is_local": False,
                 "value_to_component_map": {}
             },
             {
                 "pv": "second",
-                "is_local": True,
+                "is_local": False,
                 "value_to_component_map": {}
             },
         ]
