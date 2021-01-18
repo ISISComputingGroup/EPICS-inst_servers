@@ -236,13 +236,14 @@ class TestInactiveConfigsSequence(unittest.TestCase):
         self._create_components(["TEST_COMPONENT1", "TEST_COMPONENT2"])
         comps = self.clm.get_components()
         for comp in comps:
-            self.assertEqual(len(comp), 6)
+            self.assertEqual(len(comp), 7)
             self.assertTrue("name" in comp)
             self.assertTrue("pv" in comp)
             self.assertTrue("description" in comp)
             self.assertTrue("synoptic" in comp)
             self.assertTrue("history" in comp)
             self.assertTrue("isProtected" in comp)
+            self.assertTrue("isDynamic" in comp)
         self.assertTrue("TEST_COMPONENT1" in [comp.get('name') for comp in comps])
         self.assertTrue("TEST_COMPONENT2" in [comp.get('name') for comp in comps])
 
@@ -317,7 +318,7 @@ class TestInactiveConfigsSequence(unittest.TestCase):
         self._create_components(["TEST_COMPONENT1", "TEST_COMPONENT2", "TEST_COMPONENT3"])
         active = ActiveConfigHolder(MACROS, ArchiverManager(None, None, MockArchiverWrapper()), self.file_manager,
                                     MockIocControl(""))
-        active.add_component("TEST_COMPONENT1", Configuration(MACROS))
+        active.add_component("TEST_COMPONENT1")
         active.save_active("TEST_ACTIVE")
         self.clm.active_config_name = "TEST_ACTIVE"
 
@@ -335,7 +336,7 @@ class TestInactiveConfigsSequence(unittest.TestCase):
         self._create_components(["TEST_COMPONENT3", "TEST_COMPONENT2", "TEST_COMPONENT1"])
 
         inactive = self._create_inactive_config_holder()
-        inactive.add_component("TEST_COMPONENT1", Configuration(MACROS))
+        inactive.add_component("TEST_COMPONENT1")
         inactive.save_inactive("TEST_INACTIVE")
 
         self.clm.update_a_config_in_list(inactive)
@@ -469,7 +470,7 @@ class TestInactiveConfigsSequence(unittest.TestCase):
     def test_dependencies_updates_when_component_added_to_config(self):
         self._create_components(["TEST_COMPONENT1"])
         inactive = self._create_inactive_config_holder()
-        inactive.add_component("TEST_COMPONENT1", Configuration(MACROS))
+        inactive.add_component("TEST_COMPONENT1")
         inactive.save_inactive("TEST_INACTIVE")
         self.clm.update_a_config_in_list(inactive)
         self.assertTrue("TEST_INACTIVE" in self.clm.get_dependencies("TEST_COMPONENT1"))
@@ -477,10 +478,10 @@ class TestInactiveConfigsSequence(unittest.TestCase):
     def test_dependencies_updates_when_component_added_to_multiple_configs(self):
         self._create_components(["TEST_COMPONENT1"])
         config1 = self._create_inactive_config_holder()
-        config1.add_component("TEST_COMPONENT1", Configuration(MACROS))
+        config1.add_component("TEST_COMPONENT1")
         config1.save_inactive("TEST_CONFIG1")
         config2 = self._create_inactive_config_holder()
-        config2.add_component("TEST_COMPONENT1", Configuration(MACROS))
+        config2.add_component("TEST_COMPONENT1")
         config2.save_inactive("TEST_CONFIG2")
         self.clm.update_a_config_in_list(config1)
         self.clm.update_a_config_in_list(config2)
@@ -492,7 +493,7 @@ class TestInactiveConfigsSequence(unittest.TestCase):
 
         inactive = self._create_inactive_config_holder()
 
-        inactive.add_component("TEST_COMPONENT1", Configuration(MACROS))
+        inactive.add_component("TEST_COMPONENT1")
         inactive.save_inactive("TEST_INACTIVE", False)
         self.clm.update_a_config_in_list(inactive)
 
@@ -507,7 +508,7 @@ class TestInactiveConfigsSequence(unittest.TestCase):
 
         inactive = self._create_inactive_config_holder()
         self.clm.active_config_name = "TEST_ACTIVE"
-        inactive.add_component("TEST_COMPONENT1", Configuration(MACROS))
+        inactive.add_component("TEST_COMPONENT1")
         inactive.save_inactive("TEST_INACTIVE", False)
         self.clm.update_a_config_in_list(inactive)
         self.clm.delete_configs(["TEST_INACTIVE"])

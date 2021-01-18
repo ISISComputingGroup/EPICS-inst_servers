@@ -16,6 +16,7 @@
 """
 Utilities for running block server and related ioc's.
 """
+import datetime
 import threading
 import six
 import time
@@ -76,7 +77,7 @@ def print_and_log(message, severity=SEVERITY.INFO, src="BLOCKSVR"):
         src (string, optional): Gives the source of the message. Default source is BLOCKSVR.
     """
     with _LOGGER_LOCK:
-        message = "[{:.2f}] {}: {}".format(time.time(), severity, message)
+        message = "[{}] {}: {}".format(datetime.datetime.now(), severity, message)
         print(message)
         LOGGER.write_to_log(message, severity, src)
 
