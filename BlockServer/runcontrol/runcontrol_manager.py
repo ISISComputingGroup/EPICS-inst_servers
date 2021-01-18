@@ -27,6 +27,7 @@ from server_common.utilities import print_and_log, compress_and_hex, \
     convert_to_json, ioc_restart_pending
 from server_common.channel_access import ChannelAccess
 from server_common.pv_names import prepend_blockserver
+from shutil import copyfile
 
 TAG_RC_DICT = {
     "LOW": TAG_RC_LOW,
@@ -120,7 +121,10 @@ class RunControlManager(OnTheFlyPvInterface):
         Args:
             full_init: whether to force recreating run control PVs even if unchanged.
         """
-        self.create_runcontrol_pvs(full_init=full_init)
+        if self._active_configholder.configures_block_gateway_and_archiver() and self._active_configholder.contains_rc_settings():
+            copyfile(self._active_configholder.get_rc_settings_filepath(), self._settings_file)
+        else:
+            self.create_runcontrol_pvs(full_init=full_init)
 
     def _create_standard_pvs(self):
         self._bs.add_string_pv_to_db(RUNCONTROL_OUT_PV, 16000)

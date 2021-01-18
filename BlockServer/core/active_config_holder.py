@@ -325,3 +325,12 @@ class ActiveConfigHolder(ConfigHolder):
             or self._blocks_removed_from_top_level_config() \
             or self._new_components_containing_blocks() \
             or self._removed_components_containing_blocks()
+
+    def contains_rc_settings(self):
+        return os.path.exists(self.get_rc_settings_filepath())
+
+    def get_rc_settings_filepath(self):
+        return os.path.join(self.get_active_config_dir(), "rc_settings.cmd")
+
+    def get_active_config_dir(self):
+        return os.path.join(self._config_dir, "configurations", self.get_config_name())
