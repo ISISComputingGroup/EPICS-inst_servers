@@ -31,5 +31,5 @@ class TestVersionControl(unittest.TestCase):
     def test_WHEN_branch_begins_with_nd_THEN_branch_not_allowed(self):
         self.assertFalse(GitVersionControl.branch_allowed("NDTEST"))
 
-    def test_WHEN_branch_begins_contains_nd_THEN_branch_allowed(self):
-        self.assertTrue(GitVersionControl.branch_allowed("testNDtest"))
+    def test_WHEN_branch_is_another_random_name_THEN_branch_not_allowed(self):
+        self.assertFalse(GitVersionControl.branch_allowed("random"))
