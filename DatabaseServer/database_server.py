@@ -37,7 +37,7 @@ from DatabaseServer.procserv_utils import ProcServWrapper
 from DatabaseServer.options_holder import OptionsHolder
 from DatabaseServer.options_loader import OptionsLoader
 
-from server_common.mysql_abstraction_layer import SQLAbstraction
+from genie_python.mysql_abstraction_layer import SQLAbstraction
 from server_common.utilities import compress_and_hex, print_and_log, set_logger, convert_to_json, \
     dehex_and_decompress, char_waveform
 from server_common.channel_access_server import CAServer

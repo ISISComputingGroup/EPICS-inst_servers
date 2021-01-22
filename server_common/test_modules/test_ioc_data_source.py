@@ -19,10 +19,10 @@ from hamcrest import *
 from mock import Mock
 
 from server_common.ioc_data_source import IocDataSource
-from server_common.mysql_abstraction_layer import DatabaseError, AbstratSQLCommands
+from genie_python.mysql_abstraction_layer import DatabaseError, AbstractSQLCommands
 
 
-class SQLAbstractionStubForIOC(AbstratSQLCommands):
+class SQLAbstractionStubForIOC(AbstractSQLCommands):
     """Testing stub."""
     def __init__(self, query_return):
         self.sql_param = []
