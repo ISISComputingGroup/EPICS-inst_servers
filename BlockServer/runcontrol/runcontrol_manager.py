@@ -47,9 +47,9 @@ RUNCONTROL_GET_PV = prepend_blockserver('GET_RC_PARS')
 # number of loops to wait for assuming the run control is not going to start
 MAX_LOOPS_TO_WAIT_FOR_START = 60  # roughly 2 minutes at standard time
 
-
 def create_db_load_string(block):
     load_record_string = 'dbLoadRecords("$(RUNCONTROL)/db/{file}.db", "{macros}")\n'
+    # PVA is PV Alias, NA is NoAlias
     macro_string="P=$(MYPVPREFIX),PV=$(MYPVPREFIX)CS:SB:{pv},PVA=$(MYPVPREFIX)CS:SB:{pva},NOALIAS={na}"
     if (block.name == block.name.upper()):
         return load_record_string.format(file="runcontrol",
