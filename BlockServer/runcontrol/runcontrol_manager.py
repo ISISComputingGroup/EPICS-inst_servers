@@ -47,12 +47,16 @@ RUNCONTROL_GET_PV = prepend_blockserver('GET_RC_PARS')
 # number of loops to wait for assuming the run control is not going to start
 MAX_LOOPS_TO_WAIT_FOR_START = 60  # roughly 2 minutes at standard time
 
-
 def create_db_load_string(block):
     load_record_string = 'dbLoadRecords("$(RUNCONTROL)/db/{file}.db", "{macros}")\n'
-    return load_record_string.format(file="runcontrol",
-                                     macros=f"P=$(MYPVPREFIX),PV=$(MYPVPREFIX)CS:SB:{block.name.upper()}")
-
+    # PVA is PV Alias, NA is NoAlias
+    macro_string="P=$(MYPVPREFIX),PV=$(MYPVPREFIX)CS:SB:{pv},PVA=$(MYPVPREFIX)CS:SB:{pva},NOALIAS={na}"
+    if (block.name == block.name.upper()):
+        return load_record_string.format(file="runcontrol",
+                                     macros=macro_string.format(pv=block.name, pva="", na="#"))
+    else:
+        return load_record_string.format(file="runcontrol",
+                                     macros=macro_string.format(pv=block.name, pva=block.name.upper(), na=""))
 
 class RunControlManager(OnTheFlyPvInterface):
     """A class for taking care of setting up run-control."""
