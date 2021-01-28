@@ -135,7 +135,7 @@ if __name__ == "__main__":
         inst_dictionary("INTER", groups=["REFLECTOMETRY"]),
         inst_dictionary("POLREF", groups=["REFLECTOMETRY"]),
         inst_dictionary("SANS2D", groups=["SANS"]),
-		inst_dictionary("MUSR", groups=["MUONS"]),
+        inst_dictionary("MUSR", groups=["MUONS"]),
     ]
 
     set_instlist(instruments_list, pv_address) 
@@ -143,7 +143,7 @@ if __name__ == "__main__":
     pv_address = "CS:INSTLIST:MUONS"
     instruments_list = [
         inst_dictionary("EMU"),
-		inst_dictionary("MUSR"),
+        inst_dictionary("MUSR"),
     ]
     set_instlist(instruments_list, pv_address) 
 
