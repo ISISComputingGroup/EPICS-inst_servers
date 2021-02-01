@@ -129,11 +129,11 @@ class SynopticManager(OnTheFlyPvInterface):
             except Exception as err:
                 print_and_log(f"Error creating synoptic PV: {err}", "MAJOR")
 
-    def _create_pv(self, data: bytes):
+    def _create_pv(self, data: str):
         """Creates a single PV based on a name and data. Adds this PV to the dictionary returned on get_synoptic_list
 
         Args:
-            data (bytes): Starting data for the pv, the pv name is derived from the name tag of this
+            data (str): Starting data for the pv, the pv name is derived from the name tag of this
         """
         name = self._get_synoptic_name_from_xml(data)
         if name not in self._synoptic_pvs:
@@ -147,7 +147,7 @@ class SynopticManager(OnTheFlyPvInterface):
         # Create the PV
         self._bs.add_string_pv_to_db(SYNOPTIC_PRE + self._synoptic_pvs[name] + SYNOPTIC_GET, 16000)
         # Update the value
-        self.update_pv_value(SYNOPTIC_PRE + self._synoptic_pvs[name] + SYNOPTIC_GET, compress_and_hex(data.decode("utf-8")))
+        self.update_pv_value(SYNOPTIC_PRE + self._synoptic_pvs[name] + SYNOPTIC_GET, compress_and_hex(data))
 
     def update_pv_value(self, name, data):
         """ Updates value of a PV holding synoptic information with new data
@@ -203,7 +203,7 @@ class SynopticManager(OnTheFlyPvInterface):
         """Gets the XML for the default synoptic.
 
         Returns:
-            bytes : The XML for the synoptic
+            str : The XML for the synoptic
         """
         return self._default_syn_xml
 

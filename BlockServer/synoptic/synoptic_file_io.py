@@ -39,7 +39,7 @@ class SynopticFileIO:
     def read_synoptic_file(self, directory, fullname):
         path = os.path.join(directory, fullname)
 
-        with open(path, 'rb') as synfile:
+        with open(path, 'r') as synfile:
             data = synfile.read()
 
         return data
