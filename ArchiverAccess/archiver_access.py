@@ -33,7 +33,7 @@ from ArchiverAccess.archive_access_config_builder import ArchiverAccessDatabaseC
 from ArchiverAccess.log_file_initiator import LogFileInitiatorOnPVChange
 from ArchiverAccess.time_last_active import TimeLastActive
 from server_common.ioc_data_source import IocDataSource
-from server_common.mysql_abstraction_layer import SQLAbstraction
+from genie_python.mysql_abstraction_layer import SQLAbstraction
 
 finish = False
 """Finish the program"""

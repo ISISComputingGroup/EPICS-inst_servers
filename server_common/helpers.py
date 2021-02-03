@@ -3,7 +3,7 @@ import os
 import sys
 
 from server_common.ioc_data_source import IocDataSource
-from server_common.mysql_abstraction_layer import SQLAbstraction
+from genie_python.mysql_abstraction_layer import SQLAbstraction
 from server_common.utilities import print_and_log, SEVERITY
 
 

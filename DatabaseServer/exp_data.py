@@ -23,7 +23,7 @@ import unicodedata
 import traceback
 
 from server_common.channel_access import ChannelAccess
-from server_common.mysql_abstraction_layer import SQLAbstraction
+from genie_python.mysql_abstraction_layer import SQLAbstraction
 from server_common.utilities import compress_and_hex, char_waveform, print_and_log
 
 from typing import Type, Union
