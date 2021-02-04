@@ -53,6 +53,7 @@ from BlockServer.site_specific.default.block_rules import BlockRules
 from pcaspy.driver import manager, Data
 from BlockServer.site_specific.default.general_rules import GroupRules, ConfigurationDescriptionRules
 from BlockServer.fileIO.file_manager import ConfigurationFileManager
+from BlockServer.component_switcher.component_switcher import ComponentSwitcher
 from WebServer.simple_webserver import Server
 from BlockServer.core.database_client import get_iocs
 from queue import Queue
@@ -158,6 +159,9 @@ class BlockServer(Driver):
         # Starts the Web Server
         self.server = Server()
         self.server.start()
+
+        self._component_switcher = ComponentSwitcher(self._config_list, self.write_queue, self.reload_current_config)
+        self._component_switcher.create_monitors()
 
     def initialise_configserver(self, facility):
         """Initialises the ActiveConfigHolder.

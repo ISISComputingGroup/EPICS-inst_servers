@@ -82,16 +82,8 @@ class GitVersionControl:
         Returns:
             bool : Whether the branch is allowed
         """
-        branch_name = branch_name.lower()
-
-        if "master" in branch_name:
-            return False
-
-        if branch_name.startswith("nd") and branch_name != socket.gethostname().lower():
-            # You're trying to push to a different instrument
-            return False
-
-        return True
+        # Only automatically push branches named after your instrument
+        return branch_name.lower() == socket.gethostname().lower()
 
     def setup(self):
         """ Call when first starting the version control.

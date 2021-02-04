@@ -6,7 +6,7 @@ import os
 from hamcrest import *
 from parameterized import parameterized
 
-from server_common.autosave import AutosaveFile, FloatConversion, BoolConversion
+from server_common.autosave import AutosaveFile, FloatConversion, BoolConversion, OptionalIntConversion
 
 TEMP_FOLDER = os.path.join("C:\\", "instrument", "var", "tmp", "autosave_tests")
 
@@ -93,6 +93,18 @@ class TestAutosave(unittest.TestCase):
         result = autosave.read_parameter(key, None)
 
         assert_that(result, is_(None))
+
+    @parameterized.expand([(1,), (None,)])
+    def test_GIVEN_int_or_None_WHEN_get_parameter_from_autosave_THEN_value_returned(self, value):
+        key = "parameter"
+        autosave = AutosaveFile(service_name="unittests",
+                                file_name="test_file", folder=TEMP_FOLDER, conversion=OptionalIntConversion())
+
+        autosave.write_parameter(key, value)
+        result = autosave.read_parameter(key, "not read")
+
+        assert_that(result, is_(value))
+
 
     def tearDown(self):
         try:

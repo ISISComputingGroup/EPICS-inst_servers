@@ -41,6 +41,7 @@ class MetaData:
         self.synoptic = synoptic
         self.history = []
         self.isProtected = False
+        self.isDynamic = False
         self.configuresBlockGWAndArchiver = False
 
     def to_dict(self) -> Dict[str, Union[str, bool, List]]:
@@ -50,5 +51,5 @@ class MetaData:
             The metadata
         """
         return {'name': self.name, 'pv': self.pv, 'description': self.description, 'synoptic': self.synoptic,
-                'history': self.history, 'isProtected': self.isProtected,
+                'history': self.history, 'isProtected': self.isProtected, 'isDynamic': self.isDynamic,
                 "configuresBlockGWAndArchiver": self.configuresBlockGWAndArchiver}

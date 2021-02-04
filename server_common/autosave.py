@@ -93,6 +93,26 @@ class BoolConversion(Conversion):
         raise ValueError("String is not True or False")
 
 
+class OptionalIntConversion(Conversion):
+    """
+    Take a value and convert it to and from a integer or None
+    """
+
+    @staticmethod
+    def autosave_convert_for_read(auto_save_value_read):
+        """
+        Convert values read from autosave into given values
+        Args:
+            auto_save_value_read: value read as a string from autosave
+
+        Returns:
+            value
+        """
+        if auto_save_value_read == 'None':
+            return None
+        return int(auto_save_value_read)
+
+
 class AutosaveFile(object):
     """
     An Autosave object useful for saving values that can be read and written at sensible points in time.

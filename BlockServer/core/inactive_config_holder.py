@@ -100,10 +100,11 @@ class InactiveConfigHolder(ConfigHolder):
             if "components" in details:
                 # List of dicts
                 for args in details["components"]:
-                    comp = self.load_configuration(args['name'], True)
-                    self.add_component(comp.get_name(), comp)
+                    self.add_component(args['name'])
             if "isProtected" in details:
                 self._config.meta.isProtected = details["isProtected"]
+            if "isDynamic" in details:
+                self._config.meta.isDynamic = details["isDynamic"]
             if "configuresBlockGWAndArchiver" in details:
                 self._config.meta.configuresBlockGWAndArchiver = details["configuresBlockGWAndArchiver"]
         except Exception:

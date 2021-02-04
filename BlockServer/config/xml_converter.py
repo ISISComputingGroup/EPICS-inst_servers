@@ -39,6 +39,7 @@ TAG_META = "meta"
 TAG_DESC = "description"
 TAG_SYNOPTIC = "synoptic"
 TAG_PROTECTED = "isProtected"
+TAG_DYNAMIC = "isDynamic"
 TAG_CONFIGURES_BLOCK_GW_AND_ARCHIVER = "configuresBlockGWAndArchiver"
 
 NS_TAG_BLOCK = 'blk'
@@ -172,6 +173,9 @@ class ConfigurationXmlConverter:
 
         protect_xml = ElementTree.SubElement(root, TAG_PROTECTED)
         protect_xml.text = str(data.isProtected).lower()
+
+        dynamic_xml = ElementTree.SubElement(root, TAG_DYNAMIC)
+        dynamic_xml.text = str(data.isDynamic).lower()
 
         configure_block_gw_and_archiver_xml = ElementTree.SubElement(root, TAG_CONFIGURES_BLOCK_GW_AND_ARCHIVER)
         configure_block_gw_and_archiver_xml.text = str(data.configuresBlockGWAndArchiver).lower()
@@ -455,6 +459,13 @@ class ConfigurationXmlConverter:
                 data.isProtected = False
 
         data.configuresBlockGWAndArchiver = ConfigurationXmlConverter.get_configuresBlockGWAndArchiver_from_xml(root_xml)
+
+        isDynamic = root_xml.find("./" + TAG_DYNAMIC)
+        if isDynamic is not None:
+            if isDynamic.text is not None:
+                data.isDynamic = isDynamic.text.lower() == "true"
+            else:
+                data.isDynamic = False
 
         edits = root_xml.findall("./" + TAG_EDITS + "/" + TAG_EDIT)
         data.history = [e.text for e in edits]
