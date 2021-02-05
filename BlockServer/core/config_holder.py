@@ -311,6 +311,7 @@ class ConfigHolder:
             'history': self._config.meta.history,
             'isProtected': self._config.meta.isProtected,
             'isDynamic': self._config.meta.isDynamic,
+            'configuresBlockGWAndArchiver': self._config.meta.configuresBlockGWAndArchiver
         }
 
     def is_protected(self) -> bool:
@@ -330,6 +331,14 @@ class ConfigHolder:
             Whether the configuration is dynamic.
         """
         return self._config.meta.isDynamic
+
+    def configures_block_gateway_and_archiver(self):
+        """
+        Returns:
+            (bool): Whether this config has a gwblock.pvlist and block_config.xml to configure the
+             block gateway and archiver with.
+        """
+        return self._config.meta.configuresBlockGWAndArchiver
 
     def _comps_to_list(self):
         comps = []

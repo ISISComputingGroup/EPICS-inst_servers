@@ -105,6 +105,8 @@ class InactiveConfigHolder(ConfigHolder):
                 self._config.meta.isProtected = details["isProtected"]
             if "isDynamic" in details:
                 self._config.meta.isDynamic = details["isDynamic"]
+            if "configuresBlockGWAndArchiver" in details:
+                self._config.meta.configuresBlockGWAndArchiver = details["configuresBlockGWAndArchiver"]
         except Exception:
             self._retrieve_cache()
             raise

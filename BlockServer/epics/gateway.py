@@ -18,7 +18,9 @@ import time
 import re
 from server_common.channel_access import ChannelAccess
 from server_common.utilities import print_and_log
-from BlockServer.core.macros import CONTROL_SYSTEM_PREFIX
+from BlockServer.core.macros import CONTROL_SYSTEM_PREFIX, BLOCK_PREFIX
+import os
+from shutil import copyfile
 
 ALIAS_HEADER = """\
 ##
@@ -148,11 +150,22 @@ class Gateway:
         lines.append("")  # New line to seperate out each block
         return lines
 
-    def set_new_aliases(self, blocks):
+    def set_new_aliases(self, blocks, configures_block_gateway, config_dir):
         """Creates the aliases for the blocks and restarts the gateway.
 
         Args:
             blocks (OrderedDict): The blocks that belong to the configuration
+            configures_block_gateway (bool): If true indicates that the config contains a gwblock.pvlist to configure
+                the block gateway with.
+            config_dir (str): The directory the configuration we are loading the blocks for lives in.
         """
-        self._generate_alias_file(blocks)
+        pvlist_file = os.path.join(config_dir, "gwblock.pvlist")
+        if configures_block_gateway and os.path.exists(pvlist_file):
+            print_and_log("Using {} to configure block gateway".format(pvlist_file))
+            copyfile(pvlist_file, self._pvlist_file)
+        elif configures_block_gateway:
+            print_and_log("File: {} not found generating gwblock.pvlist".format(pvlist_file))
+            self._generate_alias_file(blocks)
+        else:
+            self._generate_alias_file(blocks)
         self._reload()

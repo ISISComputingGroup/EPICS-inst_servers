@@ -63,7 +63,8 @@ class TestRunControlSequence(unittest.TestCase):
     def _create_initial_runcontrol_manager(self):
         prefix = ""
         ioc_control = MockIocControl("")
-        config_holder = ActiveConfigHolder(MACROS, None, self.mock_file_manager, ioc_control)
+        config_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)), "settings")
+        config_holder = ActiveConfigHolder(MACROS, None, self.mock_file_manager, ioc_control, config_dir)
         run_control_manager = RunControlManager(prefix, "", "", ioc_control, config_holder, MockBlockServer(), self.cs)
 
         return config_holder, ioc_control, run_control_manager

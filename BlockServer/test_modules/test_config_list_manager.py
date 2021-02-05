@@ -15,6 +15,7 @@
 # http://opensource.org/licenses/eclipse-1.0.php
 
 import unittest
+import os
 
 from BlockServer.core.config_list_manager import ConfigListManager, InvalidDeleteException
 from BlockServer.core.active_config_holder import ActiveConfigHolder
@@ -92,6 +93,7 @@ class TestInactiveConfigsSequence(unittest.TestCase):
         self.mock_channel_access = MockChannelAccess()
         self.mock_channel_access.caput(MACROS["$(MYPVPREFIX)"] + "CS:MANAGER", "Yes")
         self.clm = ConfigListManager(self.bs, self.file_manager, channel_access=self.mock_channel_access)
+        self.config_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)), "settings")
 
     def tearDown(self):
         pass
@@ -236,7 +238,7 @@ class TestInactiveConfigsSequence(unittest.TestCase):
         self._create_components(["TEST_COMPONENT1", "TEST_COMPONENT2"])
         comps = self.clm.get_components()
         for comp in comps:
-            self.assertEqual(len(comp), 7)
+            self.assertEqual(len(comp), 8)
             self.assertTrue("name" in comp)
             self.assertTrue("pv" in comp)
             self.assertTrue("description" in comp)
@@ -244,6 +246,7 @@ class TestInactiveConfigsSequence(unittest.TestCase):
             self.assertTrue("history" in comp)
             self.assertTrue("isProtected" in comp)
             self.assertTrue("isDynamic" in comp)
+            self.assertTrue("configuresBlockGWAndArchiver" in comp)
         self.assertTrue("TEST_COMPONENT1" in [comp.get('name') for comp in comps])
         self.assertTrue("TEST_COMPONENT2" in [comp.get('name') for comp in comps])
 
@@ -300,8 +303,9 @@ class TestInactiveConfigsSequence(unittest.TestCase):
 
     def test_delete_active_config_throws(self):
         self._create_configs(["TEST_CONFIG1", "TEST_CONFIG2"], self.clm)
+
         active = ActiveConfigHolder(MACROS, ArchiverManager(None, None, MockArchiverWrapper()), self.file_manager,
-                                    MockIocControl(""))
+                                    MockIocControl(""), self.config_dir)
         active.save_active("TEST_ACTIVE")
         self.clm.update_a_config_in_list(active)
         self.clm.active_config_name = "TEST_ACTIVE"
@@ -317,7 +321,7 @@ class TestInactiveConfigsSequence(unittest.TestCase):
     def test_delete_active_component_throws(self):
         self._create_components(["TEST_COMPONENT1", "TEST_COMPONENT2", "TEST_COMPONENT3"])
         active = ActiveConfigHolder(MACROS, ArchiverManager(None, None, MockArchiverWrapper()), self.file_manager,
-                                    MockIocControl(""))
+                                    MockIocControl(""), self.config_dir)
         active.add_component("TEST_COMPONENT1")
         active.save_active("TEST_ACTIVE")
         self.clm.active_config_name = "TEST_ACTIVE"

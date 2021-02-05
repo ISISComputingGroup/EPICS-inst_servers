@@ -40,6 +40,7 @@ TAG_DESC = "description"
 TAG_SYNOPTIC = "synoptic"
 TAG_PROTECTED = "isProtected"
 TAG_DYNAMIC = "isDynamic"
+TAG_CONFIGURES_BLOCK_GW_AND_ARCHIVER = "configuresBlockGWAndArchiver"
 
 NS_TAG_BLOCK = 'blk'
 NS_TAG_IOC = 'ioc'
@@ -175,6 +176,9 @@ class ConfigurationXmlConverter:
 
         dynamic_xml = ElementTree.SubElement(root, TAG_DYNAMIC)
         dynamic_xml.text = str(data.isDynamic).lower()
+
+        configure_block_gw_and_archiver_xml = ElementTree.SubElement(root, TAG_CONFIGURES_BLOCK_GW_AND_ARCHIVER)
+        configure_block_gw_and_archiver_xml.text = str(data.configuresBlockGWAndArchiver).lower()
 
         return minidom.parseString(ElementTree.tostring(root)).toprettyxml()
 
@@ -424,6 +428,14 @@ class ConfigurationXmlConverter:
                 components[n.lower()] = n
 
     @staticmethod
+    def get_configuresBlockGWAndArchiver_from_xml(root_xml: ElementTree.Element) -> bool:
+        configuresBlockGWAndArchiver = root_xml.find("./" + TAG_CONFIGURES_BLOCK_GW_AND_ARCHIVER)
+        if configuresBlockGWAndArchiver is not None and configuresBlockGWAndArchiver.text is not None:
+            return configuresBlockGWAndArchiver.text.lower() == "true"
+        else:
+            return False
+
+    @staticmethod
     def meta_from_xml(root_xml: ElementTree.Element, data: MetaData):
         """Populates the supplied MetaData object based on an XML tree.
 
@@ -445,6 +457,8 @@ class ConfigurationXmlConverter:
                 data.isProtected = isProtected.text.lower() == "true"
             else:
                 data.isProtected = False
+
+        data.configuresBlockGWAndArchiver = ConfigurationXmlConverter.get_configuresBlockGWAndArchiver_from_xml(root_xml)
 
         isDynamic = root_xml.find("./" + TAG_DYNAMIC)
         if isDynamic is not None:

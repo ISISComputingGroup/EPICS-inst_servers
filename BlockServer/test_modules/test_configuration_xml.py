@@ -140,6 +140,7 @@ META_XML = u"""<?xml version="1.0" ?>
 </edits>
 <isProtected>false</isProtected>
 <isDynamic>false</isDynamic>
+<configuresBlockGWAndArchiver>false</configuresBlockGWAndArchiver>
 </meta>
 """
 
