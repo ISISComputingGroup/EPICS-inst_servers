@@ -55,7 +55,7 @@ class ConfigurationSchemaChecker:
 
         Args:
             schema_filepath (string): The location of the schema file
-            xml_data (string): The XML data of the configuration
+            xml_data (bytes): The XML data of the configuration
         """
         if len(xml_data) == 0:
             raise ConfigurationFileBlank("Invalid XML: File is blank.")
