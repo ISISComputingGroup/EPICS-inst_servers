@@ -14,6 +14,9 @@ PV_INFO_FIELD_NAME = "info_field"
 PV_DESCRIPTION_NAME = "description"
 """name of the description field on a pv"""
 
+DESCRIPTION_LENGTH = 40
+"""Length of descirption value"""
+
 GET_PV_INFO_QUERY = """
 SELECT s.iocname, p.pvname, lower(p.infoname), p.value
   FROM pvinfo p
