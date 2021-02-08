@@ -5,7 +5,17 @@ import six
 """
 Data source for ioc data
 """
-from genie_python.mysql_abstraction_layer import DatabaseError
+try:
+    from genie_python.mysql_abstraction_layer import DatabaseError
+except ImportError:
+    class DatabaseError(IOError):
+        """
+        Exception that is thrown if there is a problem with the database
+        """
+
+        def __init__(self, message):
+            super(DatabaseError, self).__init__(message)
+
 from server_common.utilities import print_and_log
 
 PV_INFO_FIELD_NAME = "info_field"

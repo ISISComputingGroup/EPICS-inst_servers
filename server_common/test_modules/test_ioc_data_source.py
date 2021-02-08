@@ -18,8 +18,27 @@ import unittest
 from hamcrest import *
 from mock import Mock
 
-from server_common.ioc_data_source import IocDataSource
-from genie_python.mysql_abstraction_layer import DatabaseError, AbstractSQLCommands
+from server_common.ioc_data_source import IocDataSource, DatabaseError
+
+try:
+    from genie_python.mysql_abstraction_layer import AbstractSQLCommands
+except ImportError:
+    class AbstractSQLCommands(object):
+        @staticmethod
+        def generate_in_binding(parameter_count):
+            return ", ".join(["%s"] * parameter_count)
+
+        def query_returning_cursor(self, command, bound_variables):
+            raise NotImplementedError()
+
+        def _execute_command(self, command, is_query, bound_variables):
+            raise NotImplementedError()
+
+        def query(self, command, bound_variables=None):
+            return self._execute_command(command, True, bound_variables)
+
+        def update(self, command, bound_variables=None):
+            self._execute_command(command, False, bound_variables)
 
 
 class SQLAbstractionStubForIOC(AbstractSQLCommands):
