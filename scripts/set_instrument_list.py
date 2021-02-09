@@ -109,6 +109,7 @@ if __name__ == "__main__":
         inst_dictionary("IRIS", groups=["MOLSPEC"]),
         inst_dictionary("IRIS_SETUP", groups=["MOLSPEC"], pv_prefix="IN:IRIS_S29:", is_scheduled=False),
         inst_dictionary("ENGINX_SETUP", groups=["ENGINEERING"], pv_prefix="IN:ENGINX49:", is_scheduled=False),
+        inst_dictionary("HRPD_SETUP", groups=["CRYSTALLOGRAPHY"], pv_prefix="IN:HRPD_S3D:", is_scheduled=False),
         inst_dictionary("HRPD", groups=["CRYSTALLOGRAPHY"]),
         inst_dictionary("POLARIS", groups=["CRYSTALLOGRAPHY"]),
         inst_dictionary("VESUVIO", groups=["MOLSPEC"]),
