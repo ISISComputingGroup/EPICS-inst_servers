@@ -22,18 +22,17 @@ import abc
 from datetime import timedelta
 
 from ArchiverAccess.utilities import add_default_field
-from server_common.mysql_abstraction_layer import DatabaseError
+from genie_python.mysql_abstraction_layer import DatabaseError
 from server_common.utilities import print_and_log
 
 MINIMUM_LOGGING_PERIOD = 0.01
 """Smallest logging period allowed"""
 
 
-class LoggingPeriodProvider(object):
+class LoggingPeriodProvider(object, metaclass=abc.ABCMeta):
     """
     Logging Period provider
     """
-    __metaclass__ = abc.ABCMeta
 
     @abc.abstractmethod
     def get_logging_period(self, archive_data_source, time):

@@ -15,9 +15,10 @@
 # http://opensource.org/licenses/eclipse-1.0.php
 
 import copy
+from typing import Dict, List, Union, Any
 
 
-class IOC(object):
+class IOC:
     """ Represents an IOC.
 
     Attributes:
@@ -30,25 +31,27 @@ class IOC(object):
         pvsets (dict): The IOC's PV sets
         simlevel (string): The level of simulation
     """
-    def __init__(self, name, autostart=True, restart=True, component=None, macros=None, pvs=None, pvsets=None,
-                 simlevel=None):
+    def __init__(self, name: str, autostart: bool = True, restart: bool = True, component: str = None, macros: Dict =
+                 None, pvs: Dict = None, pvsets: Dict = None, simlevel: str = None, remotePvPrefix: str = None):
         """ Constructor.
 
         Args:
-            name (string): The name of the IOC
-            autostart (bool): Whether the IOC should automatically start/restart when the configuration is
+            name: The name of the IOC
+            autostart: Whether the IOC should automatically start/restart when the configuration is
             loaded/changed
-            restart (bool): If auto start is true, then proc serv will restart the IOC if it terminates unexpectedly
-            component (string): The component the IOC belongs to
-            macros (dict): The IOC's macros
-            pvs (dict): The IOC's PVs
-            pvsets (dict): The IOC's PV sets
-            simlevel (string): The level of simulation
+            restart: If auto start is true, then proc serv will restart the IOC if it terminates unexpectedly
+            component: The component the IOC belongs to
+            macros: The IOC's macros
+            pvs: The IOC's PVs
+            pvsets: The IOC's PV sets
+            simlevel: The level of simulation
+            remotePvPrefix: The remote pv prefix
         """
         self.name = name
         self.autostart = autostart
         self.restart = restart
         self.component = component
+        self.remotePvPrefix = remotePvPrefix
 
         if simlevel is None:
             self.simlevel = "none"
@@ -56,50 +59,63 @@ class IOC(object):
             self.simlevel = simlevel.lower()
 
         if macros is None:
-            self.macros = dict()
+            self.macros = {}
         else:
             self.macros = macros
 
         if pvs is None:
-            self.pvs = dict()
+            self.pvs = {}
         else:
             self.pvs = pvs
 
         if pvsets is None:
-            self.pvsets = dict()
+            self.pvsets = {}
         else:
             self.pvsets = pvsets
 
-    def _dict_to_list(self, in_dict):
+    @staticmethod
+    def _dict_to_list(in_dict: Dict[str, Any]) -> List[Any]:
         """ Converts into a format better for the GUI to parse, namely a list.
 
         It's messy but it's what the GUI wants.
 
         Args:
-            in_dict (dict): The dictionary to be converted
+            in_dict: The dictionary to be converted
 
         Returns:
-            list : The newly created list
+            The newly created list
         """
         out_list = []
-        for k, v in in_dict.iteritems():
+        for k, v in in_dict.items():
             # Take a copy as we do not want to modify the original
             c = copy.deepcopy(v)
             c['name'] = k
             out_list.append(c)
         return out_list
 
-    def __str__(self):
-        data = "Name: %s, COMPONENT: %s" % (self.name, self.component)
-        return data
+    def __str__(self) -> str:
+        return f"{self.__class__.__name__}(name={self.name}, component={self.component})"
 
-    def to_dict(self):
+    def to_dict(self) -> Dict[str, Union[str, bool, List[Any]]]:
         """ Puts the IOC's details into a dictionary.
 
         Returns:
-            dict : The IOC's details
+            The IOC's details
         """
-        return {'name': self.name, 'autostart': self.autostart, 'restart': self.restart,
-                'simlevel': self.simlevel, 'pvs': self._dict_to_list(self.pvs),
-                'pvsets': self._dict_to_list(self.pvsets), 'macros': self._dict_to_list(self.macros),
-                'component': self.component}
+        return {
+            'name': self.name,
+            'autostart': self.autostart,
+            'restart': self.restart,
+            'simlevel': self.simlevel,
+            'pvs': self._dict_to_list(self.pvs),
+            'pvsets': self._dict_to_list(self.pvsets),
+            'macros': self._dict_to_list(self.macros),
+            'component': self.component,
+            'remotePvPrefix': self.remotePvPrefix,
+        }
+
+    def get(self, name):
+        return self.__getattribute__(name)
+
+    def __getitem__(self, name):
+        return self.__getattribute__(name)

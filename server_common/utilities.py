@@ -16,19 +16,23 @@
 """
 Utilities for running block server and related ioc's.
 """
-
+import datetime
+import threading
+import six
 import time
 import zlib
 import re
 import json
+import codecs
+import binascii
 from xml.etree import ElementTree
-
 from server_common.loggers.logger import Logger
 from server_common.common_exceptions import MaxAttemptsExceededException
 
 
 # Default to base class - does not actually log anything
 LOGGER = Logger()
+_LOGGER_LOCK = threading.RLock()  # To prevent message interleaving between different threads.
 
 
 class SEVERITY(object):
@@ -67,38 +71,63 @@ def print_and_log(message, severity=SEVERITY.INFO, src="BLOCKSVR"):
     """Prints the specified message to the console and writes it to the log.
 
     Args:
-        message (string): The message to log
+        message (string|exception): The message to log
         severity (string, optional): Gives the severity of the message. Expected serverities are MAJOR, MINOR and INFO.
                                     Default severity is INFO.
         src (string, optional): Gives the source of the message. Default source is BLOCKSVR.
     """
-    message = "[{}] {}: {}".format(time.time(), severity, message)
-    print(message)
-    LOGGER.write_to_log(message, severity, src)
+    with _LOGGER_LOCK:
+        message = "[{}] {}: {}".format(datetime.datetime.now(), severity, message)
+        print(message)
+        LOGGER.write_to_log(message, severity, src)
 
 
 def compress_and_hex(value):
     """Compresses the inputted string and encodes it as hex.
 
     Args:
-        value (string): The string to be compressed
+        value (str): The string to be compressed
     Returns:
-        string : A compressed and hexed version of the inputted string
+        bytes : A compressed and hexed version of the inputted string
     """
-    compr = zlib.compress(value)
-    return compr.encode('hex')
+    assert type(value) == str, \
+        "Non-str argument passed to compress_and_hex, maybe Python 2/3 compatibility issue\n" \
+        "Argument was type {} with value {}".format(value.__class__.__name__, value)
+    compr = zlib.compress(bytes(value) if six.PY2 else bytes(value, "utf-8"))
+    return binascii.hexlify(compr)
 
 
 def dehex_and_decompress(value):
     """Decompresses the inputted string, assuming it is in hex encoding.
 
     Args:
-        value (string): The string to be decompressed, encoded in hex
+        value (bytes): The string to be decompressed, encoded in hex
 
     Returns:
-        string : A decompressed version of the inputted string
+        bytes : A decompressed version of the inputted string
     """
-    return zlib.decompress(value.decode("hex"))
+    assert type(value) == bytes, \
+        "Non-bytes argument passed to dehex_and_decompress, maybe Python 2/3 compatibility issue\n" \
+        "Argument was type {} with value {}".format(value.__class__.__name__, value)
+    return zlib.decompress(binascii.unhexlify(value))
+
+
+def dehex_and_decompress_waveform(value):
+    """Decompresses the inputted waveform, assuming it is a array of integers representing characters (null terminated).
+
+    Args:
+        value (list[int]): The string to be decompressed
+
+    Returns:
+        bytes : A decompressed version of the inputted string
+    """
+    assert type(value) == list, \
+        "Non-list argument passed to dehex_and_decompress_waveform\n" \
+        "Argument was type {} with value {}".format(value.__class__.__name__, value)
+
+    unicode_rep = waveform_to_string(value)
+    bytes_rep = unicode_rep.encode("ascii")
+    return dehex_and_decompress(bytes_rep)
 
 
 def convert_to_json(value):
@@ -110,9 +139,7 @@ def convert_to_json(value):
     Returns:
         string : The JSON representation of the inputted object
     """
-# TODO: we may want to use 'utf-8' here in future, not needed 
-#       this time as functionality previously duplicated in exp_data.py
-    return json.dumps(value).encode('ascii', 'replace')
+    return json.dumps(value)
 
 
 def convert_from_json(value):
@@ -180,7 +207,7 @@ def check_pv_name_valid(name):
     return True
 
 
-def create_pv_name(name, current_pvs, default_pv, limit=6):
+def create_pv_name(name, current_pvs, default_pv, limit=6, allow_colon=False):
     """Uses the given name as a basis for a valid PV.
 
     Args:
@@ -188,12 +215,16 @@ def create_pv_name(name, current_pvs, default_pv, limit=6):
         current_pvs (list): List of already allocated pvs
         default_pv (string): Basis for the PV if name is unreasonable, must be a valid PV name
         limit (integer): Character limit for the PV
+        allow_colon (bool): If True, pv name is allowed to contain colons; if False, remove the colons
 
     Returns:
         string : A valid PV
     """
     pv_text = name.upper().replace(" ", "_")
-    pv_text = re.sub(r'\W', '', pv_text)
+
+    replacement_string = r'[^:a-zA-Z0-9_]' if allow_colon else r'\W'
+    pv_text = re.sub(replacement_string, '', pv_text)
+
     # Check some edge cases of unreasonable names
     if re.search(r"[^0-9_]", pv_text) is None or pv_text == '':
         pv_text = default_pv
@@ -239,11 +270,11 @@ def waveform_to_string(data):
     Returns: waveform as a sting
 
     """
-    output = ""
+    output = six.text_type()
     for i in data:
         if i == 0:
             break
-        output += str(unichr(i))
+        output += six.unichr(i)
     return output
 
 
@@ -252,12 +283,12 @@ def ioc_restart_pending(ioc_pv, channel_access):
 
     Args:
         ioc_pv: The base PV for the IOC with instrument PV prefix
-        channel_access: The channel access object to be used for accessing PVs
+        channel_access (ChannelAccess): The channel access object to be used for accessing PVs
 
     Return
         bool: True if restarting, else False
     """
-    return True if channel_access.caget(ioc_pv + ":RESTART", as_string=True) is "Busy" else False
+    return channel_access.caget(ioc_pv + ":RESTART", as_string=True) == "Busy"
 
 
 def retry(max_attempts, interval, exception):
@@ -302,3 +333,16 @@ def remove_from_end(string, text_to_remove):
     if string is not None and string.endswith(text_to_remove):
         return string[:-len(text_to_remove)]
     return string
+
+
+def lowercase_and_make_unique(in_list):
+    """
+    Takes a collection of strings, and returns it with all strings lowercased and with duplicates removed.
+
+    Args:
+        in_list (List[str]): the collection of strings to operate on
+
+    Returns:
+        set[str]: the lowercased unique set of strings.
+    """
+    return {x.lower() for x in in_list}

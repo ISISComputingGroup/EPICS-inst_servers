@@ -16,12 +16,13 @@
 
 import os
 import socket
-import six
+from functools import wraps
 from git import *
-from version_control_exceptions import *
 from threading import Thread, RLock
 from time import sleep
-from git_message_provider import GitMessageProvider
+
+from ConfigVersionControl.git_message_provider import GitMessageProvider
+from ConfigVersionControl.version_control_exceptions import NotUnderVersionControl, NotUnderAllowedBranchException
 from server_common.utilities import print_and_log, retry
 from server_common.common_exceptions import MaxAttemptsExceededException
 
@@ -49,12 +50,12 @@ def check_branch_allowed(func):
     """
     Decorator which only runs the function if the branch is allowed
     """
-    @six.wraps(func)
+    @wraps(func)
     def wrapper(self, *args, **kwargs):
         if self.branch_allowed(str(self.repo.active_branch)):
             func(self, *args, **kwargs)
         else:
-            raise NotUnderAllowedBranchException("Access to branch {} is not allowed".format(self.repo.active_branch))
+            raise NotUnderAllowedBranchException(f"Access to branch {self.repo.active_branch} is not allowed")
     return wrapper
 
 
@@ -81,16 +82,8 @@ class GitVersionControl:
         Returns:
             bool : Whether the branch is allowed
         """
-        branch_name = branch_name.lower()
-
-        if "master" in branch_name:
-            return False
-
-        if branch_name.startswith("nd") and branch_name != socket.gethostname().lower():
-            # You're trying to push to a different instrument
-            return False
-
-        return True
+        # Only automatically push branches named after your instrument
+        return branch_name.lower() == socket.gethostname().lower()
 
     def setup(self):
         """ Call when first starting the version control.
@@ -116,7 +109,7 @@ class GitVersionControl:
         """
         lock_file_path = os.path.join(self.repo.git_dir, "index.lock")
         if os.path.exists(lock_file_path):
-            print_and_log("Found lock for version control repository, trying to remove: {}".format(lock_file_path))
+            print_and_log(f"Found lock for version control repository, trying to remove: {lock_file_path}")
             os.remove(lock_file_path)
             print_and_log("Lock removed from version control repository")
 
@@ -131,7 +124,7 @@ class GitVersionControl:
 
         commit_comment = self._message_provider.get_commit_message(self.repo.index.diff("HEAD"))
         self.repo.index.commit(commit_comment)
-        print_and_log("GIT: Committed {changed} changes".format(changed=num_files_changed))
+        print_and_log(f"GIT: Committed {num_files_changed} changes")
 
     def _commit_and_push(self):
         """ Frequently adds, commits and pushes all file currently in the repository. """
@@ -148,16 +141,16 @@ class GitVersionControl:
                     first_failure = True
 
                 except MaxAttemptsExceededException:
-                    print_and_log("{}, maximum tries exceeded.".format(ERROR_PREFIX))
+                    print_and_log(f"{ERROR_PREFIX}, maximum tries exceeded.")
 
                 except GitCommandError as e:
                     # Most likely issue connecting to server, increase timeout, notify if it's the first time
                     push_interval = PUSH_RETRY_INTERVAL
                     if first_failure:
-                        print_and_log("{}, will retry in {} seconds".format(ERROR_PREFIX, PUSH_RETRY_INTERVAL), "MINOR")
+                        print_and_log(f"{ERROR_PREFIX}, will retry in {PUSH_RETRY_INTERVAL} seconds", "MINOR")
                         first_failure = False
                 except NotUnderAllowedBranchException as e:
-                    print_and_log("{}, {}".format(ERROR_PREFIX, e.message))
+                    print_and_log(f"{ERROR_PREFIX}, {e.message}")
 
             sleep(push_interval)
 

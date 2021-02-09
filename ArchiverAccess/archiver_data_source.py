@@ -20,7 +20,7 @@ Module for defining a data source from the archiver
 from datetime import timedelta, datetime
 
 from ArchiverAccess.archive_time_period import ArchiveTimePeriod
-from server_common.mysql_abstraction_layer import SQLAbstraction
+from genie_python.mysql_abstraction_layer import SQLAbstraction
 
 SAMPLE_ID_EPOCH = 0
 """first possible sample id in the database"""
@@ -264,7 +264,7 @@ class ArchiverDataSource(object):
 
         pv_name_count = len(pv_names)
         if pv_name_count == 0:
-            raise StopIteration()
+            return
         sql_in_binding = SQLAbstraction.generate_in_binding(pv_name_count)
         query_with_correct_number_of_bound_ins = query.format(sql_in_binding)
 

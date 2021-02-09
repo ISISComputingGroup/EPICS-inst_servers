@@ -23,7 +23,7 @@ from mock import Mock
 from ArchiverAccess.logging_period_providers import LoggingPeriodProviderConst, LoggingPeriodProviderPV, \
     MINIMUM_LOGGING_PERIOD
 from ArchiverAccess.test_modules.stubs import ArchiverDataStub
-from server_common.mysql_abstraction_layer import DatabaseError
+from genie_python.mysql_abstraction_layer import DatabaseError
 
 
 class TestLogPeriodProvider(unittest.TestCase):

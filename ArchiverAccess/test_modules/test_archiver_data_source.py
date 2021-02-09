@@ -23,7 +23,7 @@ from mock import Mock
 from ArchiverAccess.archive_time_period import ArchiveTimePeriod
 from ArchiverAccess.archiver_data_source import ArchiverDataSource, ArchiverDataValue, \
     VALUE_WHEN_ERROR_ON_RETRIEVAL
-from server_common.mysql_abstraction_layer import DatabaseError
+from genie_python.mysql_abstraction_layer import DatabaseError
 
 
 class SQLAbstractionStub(object):
@@ -169,7 +169,7 @@ class TestArchiverDataSource(unittest.TestCase):
         gen = self._data_source.changes_generator([channel_name, ], ArchiveTimePeriod(datetime(2017, 1, 2, 3, 4, 5),
                                                                                       timedelta(seconds=1), 10))
 
-        assert_that(calling(gen.next), raises(DatabaseError))
+        assert_that(calling(gen.__next__), raises(DatabaseError))
 
     def test_GIVEN_nothing_WHEN_get_latest_sample_time_THEN_latest_sample_id_returned(self):
         self.set_up_data_source()

@@ -1,0 +1,19 @@
+<?xml version="1.0" ?>
+<engineconfig>
+	<group>
+		<name>BLOCKS</name>
+		<channel>
+			<name>PREFIXMYTESTBLOCK</name>
+			<period>0:00:30</period>
+			<scan/>
+		</channel>
+	</group>
+	<group>
+		<name>DATAWEB</name>
+		<channel>
+			<name>PREFIXTESTRCVAL:RC:LOW.VAL</name>
+			<period>0:05:00</period>
+			<scan/>
+		</channel>
+	</group>
+</engineconfig>

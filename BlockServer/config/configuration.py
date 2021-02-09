@@ -16,6 +16,7 @@
 
 """ Contains all the code for defining a configuration or component"""
 from collections import OrderedDict
+from typing import Dict
 
 from BlockServer.config.group import Group
 from BlockServer.config.block import Block
@@ -23,9 +24,10 @@ from BlockServer.config.ioc import IOC
 from BlockServer.config.metadata import MetaData
 from BlockServer.core.constants import GRP_NONE
 from BlockServer.core.macros import PVPREFIX_MACRO
+from server_common.utilities import print_and_log
 
 
-class Configuration(object):
+class Configuration:
     """ The Configuration class.
 
     Attributes:
@@ -37,11 +39,11 @@ class Configuration(object):
         components (OrderedDict): The components which are part of the configuration
         is_component (bool): Whether it is actually a component
     """
-    def __init__(self, macros):
+    def __init__(self, macros: Dict):
         """ Constructor.
 
         Args:
-            macros (dict): The dictionary containing the macros
+            macros: The dictionary containing the macros
         """
         # All dictionary keys are lowercase except iocs which is uppercase
         self.blocks = OrderedDict()
@@ -52,78 +54,67 @@ class Configuration(object):
         self.components = OrderedDict()
         self.is_component = False
 
-    def add_block(self, name, pv, group=GRP_NONE, local=True, **kwargs):
+    def add_block(self, name: str, pv: str, group: str = GRP_NONE, local: bool = True, **kwargs):
         """ Add a block to the configuration.
 
         Args:
-            name (string): The name for the new block
-            pv (string): The PV that is aliased
-            group (string, optional): The group that the block belongs to
-            local (bool, optional): Is the block local
-            kwargs (dict): Keyword arguments for the other parameters
+            name: The name for the new block
+            pv: The PV that is aliased
+            group: The group that the block belongs to
+            local: Is the block local
+            kwargs: Keyword arguments for the other parameters
         """
         # Check block name is unique
         if name.lower() in self.blocks.keys():
-            raise Exception("Failed to add block as name is not unique")
+            raise ValueError("Failed to add block as name is not unique")
 
         if local:
             # Strip off the MYPVPREFIX in the PV name (not the block name!)
             pv = pv.replace(self.macros[PVPREFIX_MACRO], "")
+
         self.blocks[name.lower()] = Block(name, pv, local, **kwargs)
 
         if group is not None:
             # If group does not exists then add it
-            if not group.lower() in self.groups.keys():
+            if group.lower() not in self.groups.keys():
                 self.groups[group.lower()] = Group(group)
             self.groups[group.lower()].blocks.append(name)
 
-    def add_ioc(self, name, component=None, autostart=None, restart=None, macros=None, pvs=None, pvsets=None,
-                simlevel=None):
+    def add_ioc(self, name: str, component: str = None, autostart: bool = None, restart: bool = None, macros: Dict = None, pvs: Dict = None, pvsets: Dict = None,
+                simlevel: str = None, remotePvPrefix: str = None):
         """ Add an IOC to the configuration.
 
         Args:
             name (string): The name of the IOC to add
-            component (string, optional): The component that the IOC belongs to
-            autostart (bool, optional): Should the IOC automatically start
-            restart (bool, optional): Should the IOC automatically restart
-            macros (dict, optional): The macro sets relating to the IOC
-            pvs (, optional):
-            pvsets (, optional): Any PV values that should be set at start up
-            simlevel (, optional): Sets the simulation level
+            component: The component that the IOC belongs to
+            autostart: Should the IOC automatically start
+            restart: Should the IOC automatically restart
+            macros: The macro sets relating to the IOC
+            pvs:
+            pvsets: Any PV values that should be set at start up
+            simlevel: Sets the simulation level
+            remotePvPrefix: Sets the remote PV prefix to use for this IOC
 
         """
         # Only add it if it has not been added before
-        if not name.upper() in self.iocs.keys():
-            self.iocs[name.upper()] = IOC(name, autostart, restart, component, macros, pvs, pvsets, simlevel)
+        if name.upper() in self.iocs.keys():
+            print_and_log(f"Warning: IOC '{name}' is already part of the configuration. Not adding it again.")
+        else:
+            self.iocs[name.upper()] = IOC(name, autostart, restart, component, macros, pvs, pvsets, simlevel,
+                                          remotePvPrefix)
 
-    def update_runcontrol_settings_for_saving(self, rc_data):
-        """ Updates the run-control settings for the configuration's blocks.
-
-        Args:
-            rc_data (dict): A dictionary containing all the run-control settings
-        """
-        # Only do it for blocks that are not in a component
-        for bn, blk in self.blocks.iteritems():
-            if blk.component is None:
-                if blk.name in rc_data.keys():
-                    blk.rc_enabled = rc_data[blk.name]['ENABLE']
-                    blk.rc_lowlimit = rc_data[blk.name]['LOW']
-                    blk.rc_highlimit = rc_data[blk.name]['HIGH']
-
-    def get_name(self):
+    def get_name(self) -> str:
         """ Gets the name of the configuration.
 
         Returns:
-            string : The name of this configuration
+            The name of this configuration
         """
-        return self.meta.name
+        return self.meta.name.decode("utf-8") if isinstance(self.meta.name, bytes) else self.meta.name
 
-    def set_name(self, name):
+    def set_name(self, name: str):
         """ Sets the configuration's name.
 
         Args:
-            name (string): The new name for the configuration
+            name: The new name for the configuration
         """
         self.meta.name = name
-
-

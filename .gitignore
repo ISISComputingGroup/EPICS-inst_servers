@@ -29,7 +29,12 @@ vcs.xml
 # Test reports
 /test-reports
 NULL
+.coverage
+schema/cobertura.xml
 
 # File generated during test-reports
 last_config.txt
 rc_settings.cmd
+**/NONSENSICAL_PATH
+**/test_modules/refl
+ReflectometryServer/test_modules/test_config/NONSENSICAL_PATH.txt

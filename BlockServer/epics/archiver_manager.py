@@ -17,16 +17,17 @@
 """
 
 import os
+from shutil import copyfile
 import datetime
 import time
 from subprocess import Popen
 import xml.etree.ElementTree as eTree
 from xml.dom import minidom
 from server_common.utilities import print_and_log
-from archiver_wrapper import ArchiverWrapper
+from BlockServer.epics.archiver_wrapper import ArchiverWrapper
 
 
-class ArchiverManager(object):
+class ArchiverManager:
     """This class is responsible for updating the EPICS Archiver that is responsible for logging the blocks."""
 
     RUN_CONTROL_PVS = ["LOW", "HIGH", "INRANGE", "ENABLE"]
@@ -43,28 +44,63 @@ class ArchiverManager(object):
         self._settings_path = settings_path
         self._archive_wrapper = archiver
 
-    def update_archiver(self, block_prefix, blocks):
+    def update_archiver(self, block_prefix, blocks, configuration_wants_to_use_own_block_config_xml, config_dir):
         """Update the archiver to log the blocks specified.
 
         Args:
             block_prefix (string): The block prefix
             blocks (list): The blocks to archive
+            configuration_wants_to_use_own_block_config_xml (bool): True if the configuration
+                claims it contains the block_config.xml
+            config_dir (str): The directory of the current configuration.
         """
         try:
             if self._settings_path is not None:
-                self._generate_archive_config(block_prefix, blocks)
+                self._if_config_contains_archiver_xml_then_copy_archive_config_else_generate_archive_config(
+                    config_dir, configuration_wants_to_use_own_block_config_xml, block_prefix, blocks
+                )
             if self._uploader_path is not None:
-                self._upload_archive_config()
-                # Needs a second delay
-                print_and_log("Arbitrary wait after running archive settings uploader")
-                time.sleep(1)
-                print_and_log("Finished arbitrary wait")
-                self._archive_wrapper.restart_archiver()
+                self._upload_archive_config_then_wait_1_second_then_restart_archiver()
         except Exception as err:
-            print_and_log("Could not update archiver: %s" % str(err), "MAJOR")
+            print_and_log(f"Could not update archiver: {err}", "MAJOR")
+
+    def _upload_archive_config_then_wait_1_second_then_restart_archiver(self):
+        """
+        Upload the archive config, then wait 1 second, then restart the archiver.
+        """
+        self._upload_archive_config()
+        # Needs a second delay
+        print_and_log("Arbitrary wait after running archive settings uploader")
+        time.sleep(1)
+        print_and_log("Finished arbitrary wait")
+        self._archive_wrapper.restart_archiver()
+
+    def _if_config_contains_archiver_xml_then_copy_archive_config_else_generate_archive_config(
+            self, config_dir, configuration_wants_to_use_own_block_config_xml, block_prefix, blocks
+    ):
+        """
+        If the configuration contains the block_config.xml file and configuration_wants_to_use_own_block_config_xml
+         is true then copy the xml file across.
+         Otherwise, generate the config xml.
+
+        Args:
+            config_dir (str): The directory that contains the block_config.xml file.
+            configuration_wants_to_use_own_block_config_xml (bool): Whether the configuration is set to use the block_config.xml file.
+            block_prefix (str): The prefix to prefix blocks PV addresses with.
+            blocks (List[Block]): The blocks to create the archive config with.
+        """
+        block_config_xml_file = os.path.join(config_dir, "block_config.xml")
+        if configuration_wants_to_use_own_block_config_xml and os.path.exists(block_config_xml_file):
+            print_and_log("Using {} to configure block archiver".format(block_config_xml_file))
+            copyfile(block_config_xml_file, self._settings_path)
+        elif configuration_wants_to_use_own_block_config_xml:
+            print_and_log("Could not find {} generating archive config".format(block_config_xml_file))
+            self._generate_archive_config(block_prefix, blocks)
+        else:
+            self._generate_archive_config(block_prefix, blocks)
 
     def _generate_archive_config(self, block_prefix, blocks):
-        print_and_log("Generating archiver configuration file: %s" % self._settings_path)
+        print_and_log(f"Generating archiver configuration file: {self._settings_path}")
         root = eTree.Element('engineconfig')
         group = eTree.SubElement(root, 'group')
         name = eTree.SubElement(group, 'name')
@@ -83,12 +119,12 @@ class ArchiverManager(object):
     def _upload_archive_config(self):
         f = os.path.abspath(self._uploader_path)
         if os.path.isfile(f):
-            print_and_log("Running archiver settings uploader: {}".format(f))
+            print_and_log(f"Running archiver settings uploader: {f}")
             p = Popen(f)
             p.wait()
-            print_and_log("Finished running archiver settings uploader: {}".format(f))
+            print_and_log(f"Finished running archiver settings uploader: {f}")
         else:
-            print_and_log("Could not find specified archiver uploader batch file: %s" % self._uploader_path)
+            print_and_log(f"Could not find specified archiver uploader batch file: {self._uploader_path}")
 
     def _generate_archive_channel(self, group, block_prefix, block, dataweb):
         if not (block.log_periodic and block.log_rate == 0):
@@ -109,7 +145,7 @@ class ArchiverManager(object):
             self._add_block_to_dataweb(block_prefix, block, "", dataweb)
 
         for run_control_pv in ArchiverManager.RUN_CONTROL_PVS:
-            suffix = ":RC:{}.VAL".format(run_control_pv)
+            suffix = f":RC:{run_control_pv}.VAL"
             self._add_block_to_dataweb(block_prefix, block, suffix, dataweb)
 
     def _add_block_to_dataweb(self, block_prefix, block, block_suffix, dataweb):

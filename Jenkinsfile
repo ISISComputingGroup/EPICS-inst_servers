@@ -10,7 +10,27 @@ pipeline {
   triggers {
     pollSCM('H/2 * * * *')
   }
-  
+
+  // The options directive is for configuration that applies to the whole job.
+  options {
+    buildDiscarder(logRotator(numToKeepStr:'10'))
+    timeout(time: 60, unit: 'MINUTES')
+    disableConcurrentBuilds()
+    office365ConnectorWebhooks([[
+                    name: "Office 365",
+                    notifyBackToNormal: true,
+                    startNotification: false,
+                    notifyFailure: true,
+                    notifySuccess: false,
+                    notifyNotBuilt: false,
+                    notifyAborted: false,
+                    notifyRepeatedFailure: true,
+                    notifyUnstable: true,
+                    url: "${env.MSTEAMS_URL}"
+            ]]
+    )
+  }
+
   stages {  
     stage("Checkout") {
       steps {
@@ -31,8 +51,14 @@ pipeline {
     stage("Run All Tests") {
       steps {
         bat """
+            robocopy "\\\\isis\\inst\$\\Kits\$\\CompGroup\\ICP\\EPICS_UTILS" "C:\\Instrument\\Apps\\EPICS_UTILS" /E /PURGE /R:2 /MT /XF "install.log" /NFL /NDL /NP
+            set "PATH=%PATH%;C:\\Instrument\\Apps\\EPICS_UTILS"
+            
             set PYTHON_PATH=${env.PYTHON_PATH}
             %PYTHON_PATH%\\Python\\python run_all_tests.py --output_dir ./test-reports
+            
+            set PYTHON3_PATH=${env.PYTHON3_PATH}
+            %PYTHON3_PATH%\\Python\\python run_all_tests.py --output_dir ./test-reports
          """
       }
     }
@@ -40,7 +66,11 @@ pipeline {
     stage("Collate Unit Tests") {
       steps {
         junit '**/test-reports/TEST-*.xml'
-        cobertura coberturaReportFile: '**/cobertura.xml'
+        script {
+          if (fileExists('**/cobertura.xml')) {
+            cobertura coberturaReportFile: '**/cobertura.xml'
+          }
+        }
       }
     }
 
@@ -64,20 +94,7 @@ pipeline {
         }
     }
     
-  }
-  
-  post {
-    failure {
-      step([$class: 'Mailer', notifyEveryUnstableBuild: true, recipients: 'icp-buildserver@lists.isis.rl.ac.uk', sendToIndividuals: true])
-    }
-  }
-  
-  // The options directive is for configuration that applies to the whole job.
-  options {
-    buildDiscarder(logRotator(numToKeepStr:'10'))
-    timeout(time: 60, unit: 'MINUTES')
-    disableConcurrentBuilds()
-  }
+  }  
 }
 
 def setLatestGeniePath() {
@@ -85,5 +102,10 @@ def setLatestGeniePath() {
     def fileContents = readFile basePath + 'LATEST_BUILD.txt'
     def pythonPath = basePath + "BUILD-$fileContents"
     env.PYTHON_PATH = pythonPath
+    
+    def basePath3 = '\\\\isis\\inst$\\Kits\$\\CompGroup\\ICP\\genie_python_3\\'
+    def fileContents3 = readFile basePath + 'LATEST_BUILD.txt'
+    def pythonPath3 = basePath + "BUILD-$fileContents"
+    env.PYTHON3_PATH = pythonPath
 }
 

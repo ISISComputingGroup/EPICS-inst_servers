@@ -31,7 +31,7 @@ class TestGroupRulesSequence(unittest.TestCase):
         self.group_rules = GroupRules(self.bs)
 
     def get_block_rules_json(self):
-        return json.loads(dehex_and_decompress(self.bs.pvs[BlockserverPVNames.GROUP_RULES]))
+        return json.loads(bytes(dehex_and_decompress(self.bs.pvs[BlockserverPVNames.GROUP_RULES]), encoding="utf-8"))
 
     def get_regex(self):
         regex_string = self.group_rules.rules["regex"]

@@ -13,12 +13,12 @@
 # along with this program; if not, you can obtain a copy from
 # https://www.eclipse.org/org/documents/epl-v10.php or
 # http://opensource.org/licenses/eclipse-1.0.php
+from typing import Dict, Union
 
 from BlockServer.core.macros import PVPREFIX_MACRO
-import copy
 
 
-class Block(object):
+class Block:
     """ Contains all the information about a block.
 
         Attributes:
@@ -27,33 +27,31 @@ class Block(object):
             local (bool): Whether the PV is local to the instrument
             visible (bool): Whether the block should be shown
             component (string): The component the block belongs to
-
             runcontrol (bool): Whether run-control is enabled
-            lowlimt (float): The low limit for run-control
+            lowlimit (float): The low limit for run-control
             highlimit (float): The high limit for run-control
-
-            arch_periodic (bool): Whether the block is sampled periodically in the archiver
-            arch_rate (float): Time between archive samples (in seconds)
-            arch_deadband (float): Deadband for the block to be archived
+            log_periodic (bool): Whether the block is sampled periodically in the archiver
+            log_rate (float): Time between archive samples (in seconds)
+            log_deadband (float): Deadband for the block to be archived
     """
-    def __init__(self, name, pv, local=True, visible=True, component=None, runcontrol=False, lowlimit=None,
-                 highlimit=None, log_periodic=False, log_rate=5, log_deadband=0):
+    def __init__(self, name: str, pv: str, local: bool = True, visible: bool = True, component: str = None, runcontrol:
+                 bool = False, lowlimit: float = None, highlimit: float = None, suspend_on_invalid: bool = False,
+                 log_periodic: bool = False, log_rate: float = 5, log_deadband: float = 0):
         """ Constructor.
 
         Args:
-            name (string): The block name
-            pv (string): The PV pointed at
-            local (bool): Whether the PV is local to the instrument
-            visible (bool): Whether the block should be shown
-            component (string): The component the block belongs to
-
-            runcontrol (bool): Whether run-control is enabled
-            lowlimt (float): The low limit for run-control
-            highlimit (float): The high limit for run-control
-
-            arch_periodic (bool): Whether the block is sampled periodically in the archiver
-            arch_rate (float): Time between archive samples (in seconds)
-            arch_deadband (float): Deadband for the block to be archived
+            name: The block name
+            pv: The PV pointed at
+            local: Whether the PV is local to the instrument
+            visible: Whether the block should be shown
+            component: The component the block belongs to
+            runcontrol: Whether run-control is enabled
+            lowlimit: The low limit for run-control
+            highlimit: The high limit for run-control
+            suspend_on_invalid: Whether to suspend run-control on invalid values
+            log_periodic: Whether the block is sampled periodically in the archiver
+            log_rate: Time between archive samples (in seconds)
+            log_deadband: Deadband for the block to be archived
         """
         self.name = name
         self.pv = pv
@@ -63,40 +61,47 @@ class Block(object):
         self.rc_lowlimit = lowlimit
         self.rc_highlimit = highlimit
         self.rc_enabled = runcontrol
+        self.rc_suspend_on_invalid = suspend_on_invalid
         self.log_periodic = log_periodic
         self.log_rate = log_rate
         self.log_deadband = log_deadband
 
-    def _get_pv(self):
+    def _get_pv(self) -> str:
         pv_name = self.pv
         # Check starts with as may have already been provided
         if self.local and not pv_name.startswith(PVPREFIX_MACRO):
             pv_name = PVPREFIX_MACRO + self.pv
         return pv_name
 
-    def set_visibility(self, visible):
+    def set_visibility(self, visible: bool):
         """ Toggle the visibility of the block.
 
         Args:
-            visible (bool): Whether the block is visible or not
+            visible: Whether the block is visible or not
         """
         self.visible = visible
 
     def __str__(self):
-        data = "Name: %s, PV: %s, Local: %s, Visible: %s, Component: %s" \
-               % (self.name, self.pv, self.local, self.visible, self.component)
-        data += ", RCEnabled: %s, RCLow: %s, RCHigh: %s" \
-                % (self.rc_enabled, self.rc_lowlimit, self.rc_highlimit)
-        return data
+        return f"Name: {self.name}, PV: {self.pv}, Local: {self.local}, Visible: {self.visible}, Component: {self.component}" \
+               f", RCEnabled: {self.rc_enabled}, RCLow: {self.rc_lowlimit}, RCHigh: {self.rc_highlimit}"
 
-    def to_dict(self):
+    def to_dict(self) -> Dict[str, Union[str, float, bool]]:
         """ Puts the block's details into a dictionary.
 
         Returns:
-            dict : The block's details
+            The block's details
         """
-        return {"name": self.name, "pv": self._get_pv(), "local": self.local,
-                "visible": self.visible, "component": self.component, "runcontrol": self.rc_enabled,
-                "lowlimit": self.rc_lowlimit, "highlimit": self.rc_highlimit,
-                "log_periodic": self.log_periodic, "log_rate": self.log_rate, "log_deadband": self.log_deadband}
-
+        return {
+            "name": self.name,
+            "pv": self._get_pv(),
+            "local": self.local,
+            "visible": self.visible,
+            "component": self.component,
+            "runcontrol": self.rc_enabled,
+            "lowlimit": self.rc_lowlimit,
+            "highlimit": self.rc_highlimit,
+            "log_periodic": self.log_periodic,
+            "log_rate": self.log_rate,
+            "log_deadband": self.log_deadband,
+            "suspend_on_invalid": self.rc_suspend_on_invalid,
+        }

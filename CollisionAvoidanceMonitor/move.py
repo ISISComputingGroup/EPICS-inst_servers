@@ -1,5 +1,5 @@
 from collections import Sequence
-from transform import Transformation
+from CollisionAvoidanceMonitor.transform import Transformation
 
 
 def move_all(geometries, moves, monitors=None, values=None):

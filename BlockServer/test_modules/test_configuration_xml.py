@@ -14,7 +14,6 @@
 # https://www.eclipse.org/org/documents/epl-v10.php or
 # http://opensource.org/licenses/eclipse-1.0.php
 
-import os
 import re
 import unittest
 from xml.etree import ElementTree
@@ -40,6 +39,7 @@ BLOCKS_XML = u"""
         <rc_enabled>True</rc_enabled>
         <rc_lowlimit>1</rc_lowlimit>
         <rc_highlimit>2</rc_highlimit>
+        <rc_suspend_on_invalid>False</rc_suspend_on_invalid>
         <log_periodic>False</log_periodic>
         <log_rate>5</log_rate>
         <log_deadband>0</log_deadband>
@@ -52,6 +52,7 @@ BLOCKS_XML = u"""
         <rc_enabled>True</rc_enabled>
         <rc_lowlimit>1</rc_lowlimit>
         <rc_highlimit>2</rc_highlimit>
+        <rc_suspend_on_invalid>False</rc_suspend_on_invalid>
         <log_periodic>False</log_periodic>
         <log_rate>5</log_rate>
         <log_deadband>0</log_deadband>
@@ -64,6 +65,7 @@ BLOCKS_XML = u"""
         <rc_enabled>True</rc_enabled>
         <rc_lowlimit>1</rc_lowlimit>
         <rc_highlimit>2</rc_highlimit>
+        <rc_suspend_on_invalid>False</rc_suspend_on_invalid>
         <log_periodic>False</log_periodic>
         <log_rate>5</log_rate>
         <log_deadband>0</log_deadband>
@@ -76,6 +78,7 @@ BLOCKS_XML = u"""
         <rc_enabled>True</rc_enabled>
         <rc_lowlimit>1</rc_lowlimit>
         <rc_highlimit>2</rc_highlimit>
+        <rc_suspend_on_invalid>False</rc_suspend_on_invalid>
         <log_periodic>False</log_periodic>
         <log_rate>5</log_rate>
         <log_deadband>0</log_deadband>
@@ -98,32 +101,32 @@ GROUPS_XML = u"""
 IOCS_XML = u"""
 <?xml version="1.0" ?>
 <iocs xmlns="http://epics.isis.rl.ac.uk/schema/iocs/1.0" xmlns:ioc="http://epics.isis.rl.ac.uk/schema/iocs/1.0" xmlns:xi="http://www.w3.org/2001/XInclude">
-    <ioc autostart="true" name="TESTIOC1" restart="false" simlevel="recsim">
+    <ioc name="TESTIOC1" autostart="true" restart="false" simlevel="recsim">
         <macros>
-            <macro name="TESTIOC2MACRO" value="1"/>
             <macro name="TESTIOC1MACRO" value="1"/>
+            <macro name="TESTIOC2MACRO" value="1"/>
         </macros>
         <pvs>
             <pv name="TESTIOC1PV" value="1"/>
             <pv name="TESTIOC2PV" value="1"/>
         </pvs>
         <pvsets>
-            <pvset enabled="True" name="TESTIOC2PVSET"/>
-            <pvset enabled="True" name="TESTIOC1PVSET"/>
+            <pvset name="TESTIOC1PVSET" enabled="True"/>
+            <pvset name="TESTIOC2PVSET" enabled="True"/>
         </pvsets>
     </ioc>
-    <ioc autostart="true" name="TESTIOC2" restart="false" simlevel="devsim">
+    <ioc name="TESTIOC2" autostart="true" restart="false" simlevel="devsim">
         <macros>
-            <macro name="TESTIOC2MACRO" value="2"/>
             <macro name="TESTIOC1MACRO" value="2"/>
+            <macro name="TESTIOC2MACRO" value="2"/>
         </macros>
         <pvs>
             <pv name="TESTIOC1PV" value="2"/>
             <pv name="TESTIOC2PV" value="2"/>
         </pvs>
         <pvsets>
-            <pvset enabled="True" name="TESTIOC2PVSET"/>
-            <pvset enabled="True" name="TESTIOC1PVSET"/>
+            <pvset name="TESTIOC1PVSET" enabled="True"/>
+            <pvset name="TESTIOC2PVSET" enabled="True"/>
         </pvsets>
     </ioc>
 </iocs>"""
@@ -135,6 +138,9 @@ META_XML = u"""<?xml version="1.0" ?>
 <edits>
 <edit>1992-02-07</edit>
 </edits>
+<isProtected>false</isProtected>
+<isDynamic>false</isDynamic>
+<configuresBlockGWAndArchiver>false</configuresBlockGWAndArchiver>
 </meta>
 """
 
@@ -290,7 +296,7 @@ class TestConfigurationXmlConverterSequence(unittest.TestCase):
 
         # Assert
         self.assertEqual(len(blocks), len(expected_blocks))
-        for key, value in blocks.iteritems():
+        for key, value in blocks.items():
             self.assertTrue(key in expected_blocks)
             expected = expected_blocks[key]
             self.assertEqual(value.name, expected.name)
@@ -329,7 +335,7 @@ class TestConfigurationXmlConverterSequence(unittest.TestCase):
 
         # Assert
         self.assertEqual(len(groups), len(expected_groups))
-        for key, value in expected_groups.iteritems():
+        for key, value in expected_groups.items():
             self.assertTrue(key in groups)
             grp = groups[key]
             self.assertEqual(value.name, grp.name)
@@ -348,7 +354,7 @@ class TestConfigurationXmlConverterSequence(unittest.TestCase):
 
         # Assert
         self.assertEqual(len(iocs), len(expected_iocs))
-        for n, ioc in iocs.iteritems():
+        for n, ioc in iocs.items():
             self.assertTrue(n in expected_iocs)
 
             self.assertEqual(ioc.autostart, True)
@@ -408,7 +414,7 @@ class TestConfigurationXmlConverterSequence(unittest.TestCase):
 
         # Assert
         self.assertEqual(len(blocks), len(expected_blocks))
-        for key, value in blocks.iteritems():
+        for key, value in blocks.items():
             self.assertTrue(key in expected_blocks)
             expected = expected_blocks[key]
             self.assertEqual(value.name, expected.name)
@@ -433,7 +439,7 @@ class TestConfigurationXmlConverterSequence(unittest.TestCase):
 
         # Assert
         self.assertEqual(len(iocs), len(expected_iocs))
-        for n, ioc in iocs.iteritems():
+        for n, ioc in iocs.items():
             self.assertTrue(n in expected_iocs)
 
             self.assertEqual(ioc.autostart, True)
@@ -464,7 +470,7 @@ class TestConfigurationXmlConverterSequence(unittest.TestCase):
 
         # Assert
         self.assertEqual(len(groups), len(expected_groups))
-        for key, value in groups.iteritems():
+        for key, value in groups.items():
             self.assertTrue(key in expected_groups)
             expected = expected_groups[key]
             self.assertEqual(value.name, expected.name)
@@ -499,7 +505,7 @@ class TestConfigurationXmlConverterSequence(unittest.TestCase):
 
         # Assert
         self.assertEqual(len(blocks), len(initial_blocks))
-        for key, value in blocks.iteritems():
+        for key, value in blocks.items():
             self.assertTrue(key in initial_blocks)
             expected = initial_blocks[key]
             self.assertEqual(value.name, expected.name)
@@ -526,7 +532,7 @@ class TestConfigurationXmlConverterSequence(unittest.TestCase):
 
         # Assert
         self.assertEqual(len(groups), len(initial_groups))
-        for key, value in groups.iteritems():
+        for key, value in groups.items():
             self.assertTrue(key in initial_groups)
             expected = initial_groups[key]
             self.assertEqual(value.name, expected.name)
@@ -546,7 +552,7 @@ class TestConfigurationXmlConverterSequence(unittest.TestCase):
 
         # Assert
         self.assertEqual(len(iocs), len(initial_iocs))
-        for n, ioc in iocs.iteritems():
+        for n, ioc in iocs.items():
             self.assertTrue(n in initial_iocs)
 
             self.assertEqual(ioc.autostart, True)

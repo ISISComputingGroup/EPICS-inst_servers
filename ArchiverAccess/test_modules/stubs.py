@@ -120,4 +120,4 @@ class FileStub(object):
     def contents_of_only_file(cls):
         assert len(FileStub.file_contents) == 1, \
             "Number of files created is not 1. Filenames are {0}".format(FileStub.file_contents.keys())
-        return FileStub.file_contents.values()[0]
+        return next(iter(FileStub.file_contents.values()))  # get the one and only value

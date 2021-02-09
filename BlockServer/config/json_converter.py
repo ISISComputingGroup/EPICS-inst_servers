@@ -16,11 +16,11 @@
 
 import json
 from collections import OrderedDict
-
+from typing import List, Any, Dict
 from BlockServer.core.constants import GRP_NONE
 
 
-class ConfigurationJsonConverter(object):
+class ConfigurationJsonConverter:
     """Helper class for converting configuration data to and from JSON.
 
     Consists of static methods only.
@@ -28,8 +28,8 @@ class ConfigurationJsonConverter(object):
     """
 
     @staticmethod
-    def _groups_to_list(groups):
-        grps = list()
+    def _groups_to_list(groups: OrderedDict) -> List[Dict[str, Any]]:
+        grps = []
         if groups is not None:
             for group in groups.values():
                 if group.name.lower() != GRP_NONE.lower():
@@ -41,7 +41,7 @@ class ConfigurationJsonConverter(object):
         return grps
 
     @staticmethod
-    def groups_to_json(groups):
+    def groups_to_json(groups: OrderedDict) -> str:
         """ Converts the groups dictionary to a JSON list
 
         Args:

@@ -30,7 +30,7 @@ except ImportError:
 from ArchiverAccess.archive_time_period import ArchiveTimePeriod
 from ArchiverAccess.archiver_data_source import ArchiverDataSource
 from ArchiverAccess.archive_access_configuration import ArchiveAccessConfigBuilder
-from server_common.mysql_abstraction_layer import SQLAbstraction
+from genie_python.mysql_abstraction_layer import SQLAbstraction
 
 finish = False
 """Finish the program"""

@@ -28,6 +28,7 @@ class DatabasePVNames:
     IOCS = prepend_blockserver('IOCS')
     HIGH_INTEREST = prepend_blockserver('PVS:INTEREST:HIGH')
     MEDIUM_INTEREST = prepend_blockserver('PVS:INTEREST:MEDIUM')
+    LOW_INTEREST = prepend_blockserver('PVS:INTEREST:LOW')
     FACILITY = prepend_blockserver('PVS:INTEREST:FACILITY')
     ACTIVE_PVS = prepend_blockserver('PVS:ACTIVE')
     ALL_PVS = prepend_blockserver('PVS:ALL')
@@ -47,7 +48,6 @@ class BlockserverPVNames:
     GROUP_RULES = prepend_blockserver('GROUP_RULES')
     COMPS = prepend_blockserver('COMPS')
     LOAD_CONFIG = prepend_blockserver('LOAD_CONFIG')
-    SAVE_CONFIG = prepend_blockserver('SAVE_CONFIG')
     CLEAR_CONFIG = prepend_blockserver('CLEAR_CONFIG')
     RELOAD_CURRENT_CONFIG = prepend_blockserver('RELOAD_CURRENT_CONFIG')
     CONF_DESC_RULES = prepend_blockserver('CONF_DESC_RULES')
@@ -68,6 +68,9 @@ class BlockserverPVNames:
     SET_SCREENS = prepend_blockserver('SET_SCREENS')
     BANNER_DESCRIPTION = prepend_blockserver('BANNER_DESCRIPTION')
     SCREENS_SCHEMA = prepend_blockserver('SCREENS_SCHEMA')
+    CURR_CONFIG_NAME = prepend_blockserver('CURR_CONFIG_NAME')
+    CURR_CONFIG_NAME_SEVR = prepend_blockserver('CURR_CONFIG_NAME.SEVR')
+    HEARTBEAT = "IOC:BLOCKSVR:DEVIOS:HEARTBEAT"
     
     @staticmethod
     def get_config_details_pv(pv_key):

@@ -16,13 +16,16 @@
 from abc import ABCMeta, abstractmethod
 
 
-class OnTheFlyPvInterface(object):
-    """ This is essentially an abstract base class to ensure that any class that needs to handle on-the-fly PVs
+class OnTheFlyPvInterface:
+    """ This is an abstract base class to ensure that any class that needs to handle on-the-fly PVs
     implements all the correct methods.
     """
     __metaclass__ = ABCMeta
 
-    @abstractmethod
+    def __init__(self):
+        self.pvs_to_read = []
+        self.pvs_to_write = []
+
     def read_pv_exists(self, pv):
         """ Checks whether the read PV is handled by this class.
         If the read PV is handled by a monitor then this MUST return False
@@ -33,9 +36,8 @@ class OnTheFlyPvInterface(object):
         Returns:
             bool: Whether the PV exists for reading
         """
-        pass
+        return pv in self.pvs_to_read
 
-    @abstractmethod
     def write_pv_exists(self, pv):
         """ Checks whether the write PV is handled by this class.
 
@@ -45,17 +47,17 @@ class OnTheFlyPvInterface(object):
         Returns:
             bool: Whether the PV exists for writing
         """
-        pass
+        return pv in self.pvs_to_write
 
     @abstractmethod
-    def handle_pv_write(self, pv, data):
+    def handle_pv_write(self, pv: str, data: str):
         """ Handles the request to write to the PV.
 
         Note: implementations of this method MUST run on a separate thread.
 
         Args:
-            pv (string): The PV's name
-            data (object): The value to write
+            pv: The PV's name
+            data: The value to write
         """
         pass
 

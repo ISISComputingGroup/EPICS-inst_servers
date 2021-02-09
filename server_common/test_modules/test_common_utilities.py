@@ -1,5 +1,5 @@
 import unittest
-from server_common.utilities import create_pv_name, remove_from_end
+from server_common.utilities import create_pv_name, remove_from_end, lowercase_and_make_unique
 
 
 class TestCreatePVName(unittest.TestCase):
@@ -93,6 +93,20 @@ class TestCreatePVName(unittest.TestCase):
         self.assertEquals(pv_01, "CONFIG")
         self.assertEquals(pv_02, "CONF01")
 
+    def test_GIVEN_pv_name_contains_a_colon_WHEN_colons_not_allowed_THEN_colons_removed(self):
+        # Act
+        pv = create_pv_name("BL:AH:BL:", [], "PEEVEE", allow_colon=False)
+
+        # Assert
+        self.assertEquals(pv, "BLAHBL")
+
+    def test_GIVEN_pv_name_contains_a_colon_WHEN_colons_allowed_THEN_colons_retained(self):
+        # Act
+        pv = create_pv_name("BL:AH:BL:", [], "PEEVEE", allow_colon=True)
+
+        # Assert
+        self.assertEquals(pv, "BL:AH:BL"[:6])
+
     def test_WHEN_string_contains_ending_THEN_ending_removed(self):
         # Arrange
         ending = "END"
@@ -136,3 +150,24 @@ class TestCreatePVName(unittest.TestCase):
 
         # Assert
         self.assertIsNone(result)
+
+
+class TestMakeUniqueAndLowercase(unittest.TestCase):
+    def test_WHEN_called_with_empty_list_THEN_result_is_empty(self):
+        self.assertEqual(0, len(lowercase_and_make_unique([])))
+
+    def test_WHEN_called_with_duplicates_THEN_duplicates_are_removed(self):
+        self.assertEqual(1, len(lowercase_and_make_unique(["a", "a"])))
+
+    def test_WHEN_called_without_duplicates_THEN_nothing_removed(self):
+        self.assertEqual(2, len(lowercase_and_make_unique(["a", "b"])))
+
+    def test_WHEN_called_with_uppercase_strings_THEN_strings_made_lowercase(self):
+        result = lowercase_and_make_unique(["A", "B"])
+        self.assertIn("a", result)
+        self.assertIn("b", result)
+
+    def test_WHEN_called_with_same_string_in_both_upper_and_lower_case_THEN_only_lowercase_version_kept(self):
+        result = lowercase_and_make_unique(["a", "A"])
+        self.assertEqual(1, len(result))
+        self.assertIn("a", result)
