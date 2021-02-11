@@ -29,7 +29,7 @@ except ImportError:
     from ArchiverAccess.archive_data_file_creator import ArchiveDataFileCreator
 from ArchiverAccess.archive_time_period import ArchiveTimePeriod
 from ArchiverAccess.archiver_data_source import ArchiverDataSource
-from server_common.mysql_abstraction_layer import SQLAbstraction
+from genie_python.mysql_abstraction_layer import SQLAbstraction
 
 
 def create_log(pv_names, time_period, filename, host="127.0.0.1"):
@@ -55,14 +55,13 @@ def create_log(pv_names, time_period, filename, host="127.0.0.1"):
 
 if __name__ == '__main__':
     description = "Create a log of events from the archive. E.g. python log_event_generator.py " \
-                  "--start_time 2018-01-10T09:00:00 --point_count 1000 --delta_time 1 --host ndximat " \
+                  "--start_time 2018-01-10T09:00:00 --end_time 2018-01-11T8:10:00 --host ndximat " \
                   "--filename.csv  " \
                   "IN:IMAT:MOT:MTR0101.RBV IN:IMAT:MOT:MTR0102.RBV"
     parser = argparse.ArgumentParser(description=description)
 
-    parser.add_argument("--point_count", "-c", type=int, help="Number of sample points", required=True)
+    parser.add_argument("--end_time", "-e", help="End time", required=True)
     parser.add_argument("--start_time", "-s", help="Start time for sample iso date, 2018-12-20T16:01:02", required=True)
-    parser.add_argument("--delta_time", "-d", type=float, help="The time between points in seconds", required=True)
     parser.add_argument("--host", default="localhost", help="Host to get data from defaults to localhost")
     parser.add_argument("--filename", "-f", default="log.log",
                         help="Filename to use for the log file.")
@@ -79,6 +78,13 @@ if __name__ == '__main__':
         print("Can not interpret date '{}' error: {}".format(args.start_time, ex))
         exit(1)
 
-    the_time_period = ArchiveTimePeriod(data_start_time, timedelta(seconds=args.delta_time), args.point_count)
+    try:
+        data_end_time = datetime.strptime(args.end_time, "%Y-%m-%dT%H:%M:%S")
+    except (ValueError, TypeError) as ex:
+        print("Can not interpret date '{}' error: {}".format(args.end_time, ex))
+        exit(1)
+
+    # in the time period the time delta sets how close the change record end time is to the date end time
+    the_time_period = ArchiveTimePeriod(data_start_time, timedelta(seconds=1), finish_time=data_end_time)
 
     create_log(args.pv_names, the_time_period, filename=args.filename, host=args.host)
