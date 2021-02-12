@@ -173,18 +173,19 @@ def print_summary(db_values, pv_values, data_time, log_file):
                       f"{next_change_str:10} {Severity.get(pv_value.severity_id) :5}", log_file)
 
 
-def define_position_as(pv_name, value, pv_value, log_file):
+def define_position_as(pv_name, value, current_pos, motor_name, log_file):
     """
     Define motor position
     Args:
         pv_name: name of the motor pv
         value: value to set
-        pv_value: current pv value
+        current_pos: current pv value
         log_file: log file to write message to
+        motor_name: motor name/description
 
     """
     try:
-        print_and_log(f"Defining motor position {pv_name} from {pv_value} to {value} at {datetime.now()}", log_file)
+        print_and_log(f"Defining motor position {pv_name} ({motor_name}) from {current_pos} to {value} at {datetime.now()}", log_file)
         with motor_in_set_mode(pv_name):
                 g.set_pv(pv_name, value)
     except ValueError:
@@ -220,7 +221,7 @@ def restore_motor_position(pv_name: str, new_position: ArchiverDataValue, next_c
     while True:
         answer = input("Set motor to record position? [Y/N]")
         if answer.upper() == "Y":
-            define_position_as(pv_name, new_position.value, new_position.value, log_file)
+            define_position_as(pv_name, new_position.value, current_pos, motor_name, log_file)
             break
         elif answer.upper() == "N":
             break
