@@ -11,6 +11,8 @@ from typing import List, Tuple, Optional, Any, TextIO
 from genie_python import genie as g
 from genie_python.mysql_abstraction_layer import SQLAbstraction
 
+SECONDS_IN_A_DAY = 24 * 60 * 60
+
 try:
     LOG_DIR = os.path.join(os.environ["ICPVARDIR"], "logs")
 except KeyError:
@@ -134,8 +136,10 @@ def print_summary(db_values, pv_values, data_time, log_file):
         log_file: log file to write summary to
     """
     print_and_log(f"PVs at time {data_time}", log_file)
-    print_and_log(f'{"name":12} {"motor":7}: {"db value":12} {"diff to now":12} - {"last update":19} '
-                  f'{"next move":10} {"alarm":5} {"diff from current"}', log_file)
+    print_and_log(f'{"name":12} {"motor":7}: {"db value":12} {"diff from":12} - {"last update":19} '
+                  f'{"next update":19} {"alarm":5}', log_file)
+    print_and_log(f'{"":12} {"":7}: {"":12} {"current val":12} - {"(sample time)":19} '
+                  f'{"(within window)":19} {"":5}', log_file)
 
     diff_from_current = 0.0
     for pv_name, pv_value, next_change in db_values:
@@ -148,7 +152,7 @@ def print_summary(db_values, pv_values, data_time, log_file):
             try:
                 val_as_float = float(pv_value.value)
                 diff_from_current = val_as_float - value
-                val = f"{val_as_float :12.3}"
+                val = f"{val_as_float :12.3f}"
             except ValueError:
                 val = f"{pv_value.value:12}"
             except TypeError:
@@ -158,19 +162,16 @@ def print_summary(db_values, pv_values, data_time, log_file):
         if next_change is None:
             next_change_str = "-"
         else:
-            time_diff = next_change - data_time
-            next_change_str = str(time_diff)
+            next_change_str = next_change.strftime("%Y-%M-%d %H:%m:%S")
 
         # sample time
         if pv_value.sample_time is None:
             last_change = "-"
         else:
-            time_diff = data_time - pv_value.sample_time
+            last_change = pv_value.sample_time.strftime("%Y-%M-%d %H:%m:%S")
 
-            last_change = str(time_diff)
-
-        print_and_log(f"{motor_name[:12]:12} {pv_name[-7:]}: {val} {diff_from_current:12.3} - {last_change:19} "
-                      f"{next_change_str:10} {Severity.get(pv_value.severity_id) :5}", log_file)
+        print_and_log(f"{motor_name[:12]:12} {pv_name[-7:]}: {val} {diff_from_current:12.3f} - {last_change[:19]:19} "
+                      f"{next_change_str:19} {Severity.get(pv_value.severity_id) :5}", log_file)
 
 
 def define_position_as(pv_name, value, current_pos, motor_name, log_file):
