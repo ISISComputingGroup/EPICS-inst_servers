@@ -259,7 +259,7 @@ def summarise_and_restore_positions(data_time, prefix, controllers, host):
 if __name__ == '__main__':
     description = "Find positions of motors in the past and restore those to current positions " \
                   "--time 2018-01-10T09:00:00 --host ndximat " \
-                  "--prefix IN:IMAT:MOT --contoller 01"
+                  "--prefix IN:IMAT:MOT --controller 01"
 
     parser = argparse.ArgumentParser(description=description)
 
