@@ -346,3 +346,21 @@ def lowercase_and_make_unique(in_list):
         set[str]: the lowercased unique set of strings.
     """
     return {x.lower() for x in in_list}
+
+
+def parse_date_time_arg_exit_on_fail(date_arg, error_code=1):
+    """
+    Parse a date argument and exit the program with an error code if that argument is not a date
+    Args:
+        date_arg: date argument to parse
+        error_code: the error code to exit with if it is not a date
+
+    Returns:
+        a date time of the argument
+
+    """
+    try:
+        return datetime.datetime.strptime(date_arg, "%Y-%m-%dT%H:%M:%S")
+    except (ValueError, TypeError) as ex:
+        print(f"Can not interpret date '{date_arg}' error: {ex}")
+        exit(error_code)
