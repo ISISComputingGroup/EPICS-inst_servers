@@ -17,7 +17,7 @@
 Script for generating a log file from the archive.
 """
 import argparse
-from datetime import datetime, timedelta
+from datetime import timedelta
 
 import os
 import sys
@@ -31,6 +31,7 @@ from ArchiverAccess.archive_time_period import ArchiveTimePeriod
 from ArchiverAccess.archiver_data_source import ArchiverDataSource
 from ArchiverAccess.archive_access_configuration import ArchiveAccessConfigBuilder
 from genie_python.mysql_abstraction_layer import SQLAbstraction
+from server_common.utilities import parse_date_time_arg_exit_on_fail
 
 finish = False
 """Finish the program"""
@@ -89,11 +90,7 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
 
-    try:
-        data_start_time = datetime.strptime(args.start_time, "%Y-%m-%dT%H:%M:%S")
-    except (ValueError, TypeError) as ex:
-        print("Can not interpret date '{}' error: {}".format(args.start_time, ex))
-        exit(1)
+    data_start_time = parse_date_time_arg_exit_on_fail(args.start_time)
 
     the_time_period = ArchiveTimePeriod(data_start_time, timedelta(seconds=args.delta_time), args.point_count)
     header_line = ["Data from {}".format(args.host)]

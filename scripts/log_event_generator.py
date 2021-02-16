@@ -30,6 +30,7 @@ except ImportError:
 from ArchiverAccess.archive_time_period import ArchiveTimePeriod
 from ArchiverAccess.archiver_data_source import ArchiverDataSource
 from genie_python.mysql_abstraction_layer import SQLAbstraction
+from server_common.utilities import parse_date_time_arg_exit_on_fail
 
 
 def create_log(pv_names, time_period, filename, host="127.0.0.1"):
@@ -72,17 +73,8 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
 
-    try:
-        data_start_time = datetime.strptime(args.start_time, "%Y-%m-%dT%H:%M:%S")
-    except (ValueError, TypeError) as ex:
-        print("Can not interpret date '{}' error: {}".format(args.start_time, ex))
-        exit(1)
-
-    try:
-        data_end_time = datetime.strptime(args.end_time, "%Y-%m-%dT%H:%M:%S")
-    except (ValueError, TypeError) as ex:
-        print("Can not interpret date '{}' error: {}".format(args.end_time, ex))
-        exit(1)
+    data_start_time = parse_date_time_arg_exit_on_fail(args.start_time)
+    data_end_time = parse_date_time_arg_exit_on_fail(args.end_time)
 
     # in the time period the time delta sets how close the change record end time is to the date end time
     the_time_period = ArchiveTimePeriod(data_start_time, timedelta(seconds=1), finish_time=data_end_time)

@@ -13,6 +13,13 @@ from genie_python.mysql_abstraction_layer import SQLAbstraction
 
 SECONDS_IN_A_DAY = 24 * 60 * 60
 
+
+# Default maximum controller to restore on
+MAX_CONTROLLER = 10
+
+# max axes number on a controller
+MAX_AXIS = 8
+
 try:
     LOG_DIR = os.path.join(os.environ["ICPVARDIR"], "logs")
 except KeyError:
@@ -27,6 +34,7 @@ except ImportError:
 from ArchiverAccess.archive_time_period import ArchiveTimePeriod
 from ArchiverAccess.archiver_data_source import ArchiverDataSource, ArchiverDataValue
 from server_common.helpers import motor_in_set_mode
+from server_common.utilities import parse_date_time_arg_exit_on_fail
 
 
 class Severity:
@@ -74,8 +82,9 @@ def print_and_log(message, log_file):
     log_file.write(message + "\n")
 
 
-def get_motor_values(pv_names: List[str], data_time: datetime, host: str = "127.0.0.1",
-                     check_movement_for=timedelta(hours=1)) -> List[Tuple[str, ArchiverDataValue, Optional[datetime]]]:
+def get_archived_positions(pv_names: List[str], data_time: datetime, host: str = "127.0.0.1",
+                           check_movement_for=timedelta(hours=1)) \
+                            -> List[Tuple[str, ArchiverDataValue, Optional[datetime]]]:
     """
     Get the values for the motors from the database
     Args:
@@ -101,7 +110,7 @@ def get_motor_values(pv_names: List[str], data_time: datetime, host: str = "127.
 
     values_at_data_time = archiver_data_source.initial_archiver_data_values(pv_names_rbv, data_time)
 
-    return [archive_data_value for archive_data_value in zip(pv_names, values_at_data_time, first_change)]
+    return list(zip(pv_names, values_at_data_time, first_change))
 
 
 def get_current_motor_values(pv_names):
@@ -126,28 +135,28 @@ def get_current_motor_values(pv_names):
     return pv_values
 
 
-def print_summary(db_values, pv_values, data_time, log_file):
+def print_summary(archive_values, pv_values, data_time, log_file):
     """
     Print a summary of collected information
     Args:
-        db_values: values from the database
+        archive_values: values from the database
         pv_values: values from cachannel
         data_time: time data was asked for
         log_file: log file to write summary to
     """
     print_and_log(f"PVs at time {data_time}", log_file)
-    print_and_log(f'{"name":12} {"motor":7}: {"db value":12} {"diff from":12} - {"last update":19} '
+    print_and_log(f'{"name":12} {"motor":7}: {"archive val":12} {"diff from":12} - {"last update":19} '
                   f'{"next update":19} {"alarm":5}', log_file)
     print_and_log(f'{"":12} {"":7}: {"":12} {"current val":12} - {"(sample time)":19} '
                   f'{"(within window)":19} {"":5}', log_file)
 
     diff_from_current = 0.0
-    for pv_name, pv_value, next_change in db_values:
+    for pv_name, pv_value, next_change in archive_values:
         is_enabled, motor_name, value = pv_values[pv_name]
 
-        # value from db
+        # value from archive db
         if pv_value.retrieval_error:
-            val = f"{'db error':12}"
+            val = f"{'archive err.':12}"
         else:
             try:
                 val_as_float = float(pv_value.value)
@@ -202,7 +211,7 @@ def restore_motor_position(pv_name: str, new_position: ArchiverDataValue, next_c
     Args:
         pv_name: name of the pv
         new_position: new position for the motor from teh database
-        next_change: from db what the next change of the pv was
+        next_change: from archive what the next change of the pv was
         is_enabled: is the motor enabled
         motor_name: the name of the motor
         current_pos: the current position
@@ -231,7 +240,7 @@ def restore_motor_position(pv_name: str, new_position: ArchiverDataValue, next_c
 
 def summarise_and_restore_positions(data_time, prefix, controllers, host):
     """
-    Summarise and restore positions for motors based on value in db at given time
+    Summarise and restore positions for motors based on value in the archive at given time
     Args:
         data_time: time to get data for
         prefix: prefix for pvs
@@ -241,17 +250,16 @@ def summarise_and_restore_positions(data_time, prefix, controllers, host):
     """
     pvs = []
     for controller in controllers:
-        for axis in range(1, 9):
-            motor_name = "MTR{:02}{:02}".format(controller, axis)
-            pvs.append(f"{prefix}MOT:{motor_name}")
+        for axis in range(1, MAX_AXIS+1):
+            pvs.append(f"{prefix}MOT:MTR{controller:02}{axis:02}")
 
     pv_values = get_current_motor_values(pvs)
-    db_values = get_motor_values(pvs, data_time, host=host)
+    archive_values = get_archived_positions(pvs, data_time, host=host)
     with open(LOG_FILENAME, "w") as log_file:
         print(f"Log being written to {LOG_FILENAME}")
-        print_summary(db_values, pv_values, data_time, log_file)  # test pv_values and print in here
+        print_summary(archive_values, pv_values, data_time, log_file)  # test pv_values and print in here
 
-        for pv_name, pv_value, next_change in db_values:
+        for pv_name, pv_value, next_change in archive_values:
             is_enabled, motor_name, value = pv_values[pv_name]
             restore_motor_position(pv_name, pv_value, next_change, is_enabled, motor_name, value, log_file)
 
@@ -259,35 +267,31 @@ def summarise_and_restore_positions(data_time, prefix, controllers, host):
 if __name__ == '__main__':
     description = "Find positions of motors in the past and restore those to current positions " \
                   "--time 2018-01-10T09:00:00 --host ndximat " \
-                  "--prefix IN:IMAT:MOT --controller 01"
+                  "--prefix IN:IMAT --controller 01"
 
     parser = argparse.ArgumentParser(description=description)
 
     parser.add_argument("--time", "-t", help="Time to restore from iso date, 2018-12-20T16:01:02", required=True)
     parser.add_argument("--host", help="Host to get data from defaults to localhost")
     parser.add_argument("--prefix", "-p", help="Prefix for motor controller, if not specified current instrument.")
-    parser.add_argument("--controller", "-c", help="Controller number, for single controller get")
+    parser.add_argument("--controller", "-c", help="Controller number, for single controller get "
+                                                   f"default to controllers 1-{MAX_CONTROLLER}")
 
     args = parser.parse_args()
 
-    data_time = None
-    try:
-        data_time = datetime.strptime(args.time, "%Y-%m-%dT%H:%M:%S")
-    except (ValueError, TypeError) as ex:
-        print("Can not interpret date '{}' error: {}".format(args.start_time, ex))
-        exit(1)
+    data_time = parse_date_time_arg_exit_on_fail(args.time)
 
-    # if args,host is none then this defaults to the current instrument
+    # if args.host is none then this defaults to the current instrument
     g.set_instrument(args.host, import_instrument_init=False)
-
-    if args.controller is None:
-        controllers = range(1, 11)
-    else:
-        controllers = [int(args.controller)]
 
     if args.prefix is None:
         prefix = g.prefix_pv_name("")
     else:
         prefix = args.prefix
+
+    if args.controller is None:
+        controllers = range(1, MAX_CONTROLLER + 1)
+    else:
+        controllers = [int(args.controller)]
 
     summarise_and_restore_positions(data_time, prefix, controllers, args.host)
