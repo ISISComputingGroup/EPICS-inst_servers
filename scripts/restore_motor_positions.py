@@ -11,6 +11,8 @@ from typing import List, Tuple, Optional, Any, TextIO
 from genie_python import genie as g
 from genie_python.mysql_abstraction_layer import SQLAbstraction
 
+DATA_TIME_DISPLAY_FORMAT = "%Y-%m-%d %H:%M:%S"
+
 SECONDS_IN_A_DAY = 24 * 60 * 60
 
 
@@ -171,13 +173,13 @@ def print_summary(archive_values, pv_values, data_time, log_file):
         if next_change is None:
             next_change_str = "-"
         else:
-            next_change_str = next_change.strftime("%Y-%M-%d %H:%m:%S")
+            next_change_str = next_change.strftime(DATA_TIME_DISPLAY_FORMAT)
 
         # sample time
         if pv_value.sample_time is None:
             last_change = "-"
         else:
-            last_change = pv_value.sample_time.strftime("%Y-%M-%d %H:%m:%S")
+            last_change = pv_value.sample_time.strftime(DATA_TIME_DISPLAY_FORMAT)
 
         print_and_log(f"{motor_name[:12]:12} {pv_name[-7:]}: {val} {diff_from_current:12.3f} - {last_change[:19]:19} "
                       f"{next_change_str:19} {Severity.get(pv_value.severity_id) :5}", log_file)
