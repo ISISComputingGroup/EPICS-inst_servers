@@ -102,7 +102,7 @@ def setLatestGeniePath() {
     
     def basePath3 = '\\\\isis\\inst$\\Kits\$\\CompGroup\\ICP\\genie_python_3\\'
     def fileContents3 = readFile basePath3 + 'LATEST_BUILD.txt'
-    def pythonPath3 = basePath3 + "BUILD-$fileContents"
+    def pythonPath3 = basePath3 + "BUILD-$fileContents3"
     env.PYTHON3_PATH = pythonPath3
 }
 
