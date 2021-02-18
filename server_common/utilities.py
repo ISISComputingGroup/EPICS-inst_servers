@@ -362,5 +362,5 @@ def parse_date_time_arg_exit_on_fail(date_arg, error_code=1):
     try:
         return datetime.datetime.strptime(date_arg, "%Y-%m-%dT%H:%M:%S")
     except (ValueError, TypeError) as ex:
-        print(f"Can not interpret date '{date_arg}' error: {ex}")
+        print("Can not interpret date '{}' error: {}".format(date_arg, ex))
         exit(error_code)
