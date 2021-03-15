@@ -53,10 +53,7 @@ pipeline {
         bat """
             robocopy "\\\\isis\\inst\$\\Kits\$\\CompGroup\\ICP\\EPICS_UTILS" "C:\\Instrument\\Apps\\EPICS_UTILS" /E /PURGE /R:2 /MT /XF "install.log" /NFL /NDL /NP
             set "PATH=%PATH%;C:\\Instrument\\Apps\\EPICS_UTILS"
-            
-            set PYTHON_PATH=${env.PYTHON_PATH}
-            %PYTHON_PATH%\\Python\\python run_all_tests.py --output_dir ./test-reports
-            
+                        
             set PYTHON3_PATH=${env.PYTHON3_PATH}
             %PYTHON3_PATH%\\Python\\python run_all_tests.py --output_dir ./test-reports
          """
@@ -104,8 +101,8 @@ def setLatestGeniePath() {
     env.PYTHON_PATH = pythonPath
     
     def basePath3 = '\\\\isis\\inst$\\Kits\$\\CompGroup\\ICP\\genie_python_3\\'
-    def fileContents3 = readFile basePath + 'LATEST_BUILD.txt'
-    def pythonPath3 = basePath + "BUILD-$fileContents"
-    env.PYTHON3_PATH = pythonPath
+    def fileContents3 = readFile basePath3 + 'LATEST_BUILD.txt'
+    def pythonPath3 = basePath3 + "BUILD-$fileContents3"
+    env.PYTHON3_PATH = pythonPath3
 }
 

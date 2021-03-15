@@ -1,9 +1,11 @@
 import json
 import os
 import sys
+from contextlib2 import contextmanager
 
+from server_common.channel_access import ChannelAccess
 from server_common.ioc_data_source import IocDataSource
-from server_common.mysql_abstraction_layer import SQLAbstraction
+from genie_python.mysql_abstraction_layer import SQLAbstraction
 from server_common.utilities import print_and_log, SEVERITY
 
 
@@ -38,3 +40,34 @@ def get_macro_values():
     macros = {key: value for (key, value) in macros.items()}
     print("Defined macros: " + str(macros))
     return macros
+
+
+@contextmanager
+def motor_in_set_mode(motor_pv):
+    """
+    Uses a context to place motor into set mode and ensure that it leaves set mode after context has ended. If it
+    can not set the mode correctly will not run the yield.
+    Args:
+        motor_pv: motor pv on which to set the mode
+
+    Returns:
+    """
+
+    calibration_set_pv = "{}.SET".format(motor_pv)
+    offset_freeze_switch_pv = "{}.FOFF".format(motor_pv)
+
+    try:
+        ChannelAccess.caput_retry_on_fail(calibration_set_pv, "Set")
+        offset_freeze_switch = ChannelAccess.caget(offset_freeze_switch_pv)
+        ChannelAccess.caput_retry_on_fail(offset_freeze_switch_pv, "Frozen")
+    except IOError as ex:
+        raise ValueError("Can not set motor set and frozen offset mode: {}".format(ex))
+
+    try:
+        yield
+    finally:
+        try:
+            ChannelAccess.caput_retry_on_fail(calibration_set_pv, "Use")
+            ChannelAccess.caput_retry_on_fail(offset_freeze_switch_pv, offset_freeze_switch)
+        except IOError as ex:
+            raise ValueError("Can not reset motor set and frozen offset mode: {}".format(ex))

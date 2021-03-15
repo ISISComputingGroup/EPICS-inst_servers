@@ -32,7 +32,7 @@ EMPTY_BLOCKS_XML = """<?xml version="1.0" ?>
 <blocks xmlns="http://epics.isis.rl.ac.uk/schema/blocks/1.0" xmlns:blk="http://epics.isis.rl.ac.uk/schema/blocks/1.0" xmlns:xi="http://www.w3.org/2001/XInclude"/>
 """
 
-META_XML = u'<?xml version="1.0" ?>\n<meta>\n\t<description>Configuration for remote IOC</description>\n\t<synoptic/>\n\t<edits/>\n\t<isProtected>false</isProtected>\n</meta>\n'
+META_XML = u'<?xml version="1.0" ?>\n<meta>\n\t<description>Configuration for remote IOC</description>\n\t<synoptic/>\n\t<edits/>\n\t<isProtected>false</isProtected>\n\t<isDynamic>false</isDynamic>\n\t<configuresBlockGWAndArchiver>false</configuresBlockGWAndArchiver>\n</meta>\n'
 
 
 class TestConfigMonitor(unittest.TestCase):

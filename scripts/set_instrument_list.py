@@ -77,10 +77,10 @@ def set_instlist(instruments_list, pv_address):
     new_value = json.dumps(instruments_list)
     new_value_compressed = compress_and_hex(new_value)
 
-    ca.caput(pv_address, str(new_value_compressed), True)
+    ca.caput(pv_address, new_value_compressed, True)
 
     result_compr = ca.caget(pv_address, True)
-    result = dehex_and_decompress(result_compr)
+    result = dehex_and_decompress(bytes(result_compr, encoding="utf8"))
 
     print(result)
 
@@ -109,6 +109,7 @@ if __name__ == "__main__":
         inst_dictionary("IRIS", groups=["MOLSPEC"]),
         inst_dictionary("IRIS_SETUP", groups=["MOLSPEC"], pv_prefix="IN:IRIS_S29:", is_scheduled=False),
         inst_dictionary("ENGINX_SETUP", groups=["ENGINEERING"], pv_prefix="IN:ENGINX49:", is_scheduled=False),
+        inst_dictionary("HRPD_SETUP", groups=["CRYSTALLOGRAPHY"], pv_prefix="IN:HRPD_S3D:", is_scheduled=False),
         inst_dictionary("HRPD", groups=["CRYSTALLOGRAPHY"]),
         inst_dictionary("POLARIS", groups=["CRYSTALLOGRAPHY"]),
         inst_dictionary("VESUVIO", groups=["MOLSPEC"]),
@@ -135,6 +136,7 @@ if __name__ == "__main__":
         inst_dictionary("INTER", groups=["REFLECTOMETRY"]),
         inst_dictionary("POLREF", groups=["REFLECTOMETRY"]),
         inst_dictionary("SANS2D", groups=["SANS"]),
+        inst_dictionary("MUSR", groups=["MUONS"]),
     ]
 
     set_instlist(instruments_list, pv_address) 
@@ -142,6 +144,7 @@ if __name__ == "__main__":
     pv_address = "CS:INSTLIST:MUONS"
     instruments_list = [
         inst_dictionary("EMU"),
+        inst_dictionary("MUSR"),
     ]
     set_instlist(instruments_list, pv_address) 
 

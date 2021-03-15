@@ -27,6 +27,7 @@ from server_common.utilities import print_and_log, compress_and_hex, \
     convert_to_json, ioc_restart_pending
 from server_common.channel_access import ChannelAccess
 from server_common.pv_names import prepend_blockserver
+from shutil import copyfile
 
 TAG_RC_DICT = {
     "LOW": TAG_RC_LOW,
@@ -47,12 +48,16 @@ RUNCONTROL_GET_PV = prepend_blockserver('GET_RC_PARS')
 # number of loops to wait for assuming the run control is not going to start
 MAX_LOOPS_TO_WAIT_FOR_START = 60  # roughly 2 minutes at standard time
 
-
 def create_db_load_string(block):
     load_record_string = 'dbLoadRecords("$(RUNCONTROL)/db/{file}.db", "{macros}")\n'
-    return load_record_string.format(file="runcontrol",
-                                     macros=f"P=$(MYPVPREFIX),PV=$(MYPVPREFIX)CS:SB:{block.name.upper()}")
-
+    # PVA is PV Alias, NA is NoAlias
+    macro_string="P=$(MYPVPREFIX),PV=$(MYPVPREFIX)CS:SB:{pv},PVA=$(MYPVPREFIX)CS:SB:{pva},NOALIAS={na}"
+    if (block.name == block.name.upper()):
+        return load_record_string.format(file="runcontrol",
+                                     macros=macro_string.format(pv=block.name, pva="", na="#"))
+    else:
+        return load_record_string.format(file="runcontrol",
+                                     macros=macro_string.format(pv=block.name, pva=block.name.upper(), na=""))
 
 class RunControlManager(OnTheFlyPvInterface):
     """A class for taking care of setting up run-control."""
@@ -120,7 +125,10 @@ class RunControlManager(OnTheFlyPvInterface):
         Args:
             full_init: whether to force recreating run control PVs even if unchanged.
         """
-        self.create_runcontrol_pvs(full_init=full_init)
+        if self._active_configholder.configures_block_gateway_and_archiver() and self._active_configholder.contains_rc_settings():
+            copyfile(self._active_configholder.get_rc_settings_filepath(), self._settings_file)
+        else:
+            self.create_runcontrol_pvs(full_init=full_init)
 
     def _create_standard_pvs(self):
         self._bs.add_string_pv_to_db(RUNCONTROL_OUT_PV, 16000)

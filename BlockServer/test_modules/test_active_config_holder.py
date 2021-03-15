@@ -15,6 +15,8 @@
 # http://opensource.org/licenses/eclipse-1.0.php
 import unittest
 import json
+import os
+
 from mock import Mock
 from parameterized import parameterized
 
@@ -66,6 +68,7 @@ def create_dummy_component():
     config.add_block("COMPBLOCK1", "PV1", "GROUP1", True)
     config.add_block("COMPBLOCK2", "PV2", "COMPGROUP", True)
     config.add_ioc("COMPSIMPLE1")
+    config.is_component = True
     return config
 
 
@@ -85,7 +88,8 @@ class TestActiveConfigHolderSequence(unittest.TestCase):
         self.active_config_holder = self.create_active_config_holder()
 
     def create_active_config_holder(self):
-        return ActiveConfigHolder(MACROS, self.mock_archive, self.mock_file_manager, MockIocControl(""))
+        config_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)), "settings")
+        return ActiveConfigHolder(MACROS, self.mock_archive, self.mock_file_manager, MockIocControl(""), config_dir)
 
     def test_add_ioc(self):
         config_holder = self.active_config_holder
@@ -283,8 +287,12 @@ class TestActiveConfigHolderSequence(unittest.TestCase):
         component.iocs = {"DUMMY_IOC": IOC("dummyname")}
 
         self.mock_file_manager.comps["component_name"] = component
-        config_holder.add_component("component_name", component)
-        self._modify_active(config_holder, config_holder.get_config_details())
+        config_holder.add_component("component_name")
+
+        details = config_holder.get_config_details()
+        details["blocks"] = [block for block in details["blocks"] if block["component"] is None]
+
+        self._modify_active(config_holder, details)
 
         # Act
         config_holder.remove_comp("component_name")
@@ -304,16 +312,19 @@ class TestActiveConfigHolderSequence(unittest.TestCase):
         component.iocs = {"DUMMY_IOC": IOC("dummyname", simlevel="devsim")}
 
         self.mock_file_manager.comps["component_name"] = component
-        config_holder.add_component("component_name", component)
+        config_holder.add_component("component_name")
 
-        self._modify_active(config_holder, config_holder.get_config_details())
+        details = config_holder.get_config_details()
+        details["blocks"] = [block for block in details["blocks"] if block["component"] is None]
+
+        self._modify_active(config_holder, details)
 
         # Act
         config_holder.remove_comp("component_name")
         new_component = create_dummy_component()
         new_component.iocs = {"DUMMY_IOC": IOC("dummyname", simlevel="recsim")}  # Change simlevel
         self.mock_file_manager.comps["component_name"] = new_component
-        config_holder.add_component("component_name", new_component)
+        config_holder.add_component("component_name")
 
         # Assert
         start, restart, stop = config_holder.iocs_changed()
@@ -330,16 +341,19 @@ class TestActiveConfigHolderSequence(unittest.TestCase):
         component.iocs = {"DUMMY_IOC": IOC("dummyname", macros={"macros": {"A_MACRO": "VALUE1"}})}
 
         self.mock_file_manager.comps["component_name"] = component
-        config_holder.add_component("component_name", component)
+        config_holder.add_component("component_name")
 
-        self._modify_active(config_holder, config_holder.get_config_details())
+        details = config_holder.get_config_details()
+        details["blocks"] = [block for block in details["blocks"] if block["component"] is None]
+
+        self._modify_active(config_holder, details)
 
         # Act
         config_holder.remove_comp("component_name")
         new_component = create_dummy_component()
         new_component.iocs = {"DUMMY_IOC": IOC("dummyname", macros={"macros": {"A_MACRO": "VALUE2"}})}
         self.mock_file_manager.comps["component_name"] = new_component
-        config_holder.add_component("component_name", new_component)
+        config_holder.add_component("component_name")
 
         # Assert
         start, restart, stop = config_holder.iocs_changed()
@@ -356,16 +370,19 @@ class TestActiveConfigHolderSequence(unittest.TestCase):
         component.iocs = {"DUMMY_IOC": IOC("dummyname", macros={"macros": {"A_MACRO": "VALUE1"}})}
 
         self.mock_file_manager.comps["component_name"] = component
-        config_holder.add_component("component_name", component)
+        config_holder.add_component("component_name")
 
-        self._modify_active(config_holder, config_holder.get_config_details())
+        details = config_holder.get_config_details()
+        details["blocks"] = [block for block in details["blocks"] if block["component"] is None]
+
+        self._modify_active(config_holder, details)
 
         # Act
         config_holder.remove_comp("component_name")
         new_component = create_dummy_component()
         new_component.iocs = {"DUMMY_IOC": IOC("dummyname", macros={"macros": {"A_MACRO": "VALUE1"}})}
         self.mock_file_manager.comps["component_name"] = new_component
-        config_holder.add_component("component_name", new_component)
+        config_holder.add_component("component_name")
 
         # Assert
         start, restart, stop = config_holder.iocs_changed()
@@ -430,7 +447,9 @@ class TestActiveConfigHolderSequence(unittest.TestCase):
         # Arrange
         config_holder = self.create_active_config_holder()
         # Act
-        config_holder.add_component(name="TESTCOMPONENT", component=create_dummy_component())
+
+        self.mock_file_manager.comps["component_name"] = create_dummy_component()
+        config_holder.add_component("component_name")
         # Assert
         self.assertTrue(config_holder.blocks_changed())
 

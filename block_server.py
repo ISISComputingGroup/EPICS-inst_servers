@@ -53,6 +53,7 @@ from BlockServer.site_specific.default.block_rules import BlockRules
 from pcaspy.driver import manager, Data
 from BlockServer.site_specific.default.general_rules import GroupRules, ConfigurationDescriptionRules
 from BlockServer.fileIO.file_manager import ConfigurationFileManager
+from BlockServer.component_switcher.component_switcher import ComponentSwitcher
 from WebServer.simple_webserver import Server
 from BlockServer.core.database_client import get_iocs
 from queue import Queue
@@ -159,6 +160,9 @@ class BlockServer(Driver):
         self.server = Server()
         self.server.start()
 
+        self._component_switcher = ComponentSwitcher(self._config_list, self.write_queue, self.reload_current_config)
+        self._component_switcher.create_monitors()
+
     def initialise_configserver(self, facility):
         """Initialises the ActiveConfigHolder.
 
@@ -169,7 +173,7 @@ class BlockServer(Driver):
         arch = ArchiverManager(ARCHIVE_UPLOADER, ARCHIVE_SETTINGS)
 
         self._active_configserver = ActiveConfigHolder(MACROS, arch, ConfigurationFileManager(),
-                                                       self._ioc_control)
+                                                       self._ioc_control, CONFIG_DIR)
 
         if facility == "ISIS":
             self._run_control = RunControlManager(self.instrument_prefix, MACROS["$(ICPCONFIGROOT)"],
@@ -363,7 +367,11 @@ class BlockServer(Driver):
 
         # Set up the gateway
         if self._active_configserver.blocks_changed() or full_init:
-            self._gateway.set_new_aliases(self._active_configserver.get_block_details())
+            self._gateway.set_new_aliases(
+                self._active_configserver.get_block_details(),
+                self._active_configserver.configures_block_gateway_and_archiver(),
+                os.path.join(CONFIG_DIR, "configurations", self._active_configserver.get_config_name())
+            )
 
         self._config_list.active_config_name = self._active_configserver.get_config_name()
         self._config_list.active_components = self._active_configserver.get_component_names()

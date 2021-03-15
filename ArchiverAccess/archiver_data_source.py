@@ -20,7 +20,7 @@ Module for defining a data source from the archiver
 from datetime import timedelta, datetime
 
 from ArchiverAccess.archive_time_period import ArchiveTimePeriod
-from server_common.mysql_abstraction_layer import SQLAbstraction
+from genie_python.mysql_abstraction_layer import SQLAbstraction
 
 SAMPLE_ID_EPOCH = 0
 """first possible sample id in the database"""
@@ -84,7 +84,7 @@ class ArchiverDataValue:
                 self.sample_time]
 
 
-ARCHIVER_DATA_VALUE_QUERY = "severity_id, status_id, num_val, float_val, str_val, array_val, smpl_time"
+ARCHIVER_DATA_VALUE_QUERY = "severity_id, status_id, num_val, float_val, str_val, array_val, addtime(smpl_time, nanosecs * 10e-10)"
 """Field which are part of the archiver data value query string"""
 
 INITIAL_VALUES_QUERY = """
@@ -98,11 +98,11 @@ INITIAL_VALUES_QUERY = """
                   FROM archive.channel
                  WHERE name = %s)
            AND s.smpl_time <= %s
-         ORDER BY s.smpl_time DESC
+         ORDER BY s.smpl_time DESC, s.nanosecs DESC
          LIMIT 1
      )
 """.format(ARCHIVER_DATA_VALUE_QUERY)
-""" SQL Query to return the values at a specific time by lookking for the latest sampled value for the 
+""" SQL Query to return the values at a specific time by looking for the latest sampled value for the 
 pv before the given time"""
 
 GET_CHANGES_QUERY = """
@@ -116,7 +116,7 @@ GET_CHANGES_QUERY = """
              WHERE name in ({in_clause}))
       AND s.smpl_time > %s
       AND s.smpl_time <= %s
-      ORDER BY s.smpl_time
+      ORDER BY s.smpl_time, s.nanosecs
 """.format(arc_data_query=ARCHIVER_DATA_VALUE_QUERY, in_clause="{0}")
 """SQL query to get a list of changes between given times for certain pvs"""
 
@@ -256,7 +256,7 @@ class ArchiverDataSource(object):
         Args:
             query: query template
             pv_names: pv name to bind as an in expression into the template
-            result_bounds: the results bound, i.e. smple ids or time
+            result_bounds: the results bound, i.e. sample ids or time
 
         Returns: generator for changes
 

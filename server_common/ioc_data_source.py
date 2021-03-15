@@ -5,7 +5,7 @@ import six
 """
 Data source for ioc data
 """
-from server_common.mysql_abstraction_layer import DatabaseError
+from genie_python.mysql_abstraction_layer import DatabaseError
 from server_common.utilities import print_and_log
 
 PV_INFO_FIELD_NAME = "info_field"
@@ -13,6 +13,9 @@ PV_INFO_FIELD_NAME = "info_field"
 
 PV_DESCRIPTION_NAME = "description"
 """name of the description field on a pv"""
+
+DESCRIPTION_LENGTH = 40
+"""Length of descirption value"""
 
 GET_PV_INFO_QUERY = """
 SELECT s.iocname, p.pvname, lower(p.infoname), p.value
@@ -91,7 +94,7 @@ class IocDataSource(object):
         Constructor.
 
         Args:
-            mysql_abstraction_layer(server_common.mysql_abstraction_layer.AbstratSQLCommands): contact database with sql
+            mysql_abstraction_layer(genie_python.mysql_abstraction_layer.AbstractSQLCommands): contact database with sql
         """
         self.mysql_abstraction_layer = mysql_abstraction_layer
 

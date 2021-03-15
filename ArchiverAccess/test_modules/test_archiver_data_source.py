@@ -23,7 +23,7 @@ from mock import Mock
 from ArchiverAccess.archive_time_period import ArchiveTimePeriod
 from ArchiverAccess.archiver_data_source import ArchiverDataSource, ArchiverDataValue, \
     VALUE_WHEN_ERROR_ON_RETRIEVAL
-from server_common.mysql_abstraction_layer import DatabaseError
+from genie_python.mysql_abstraction_layer import DatabaseError
 
 
 class SQLAbstractionStub(object):

@@ -67,16 +67,17 @@ class ConfigHolder:
         self._components = OrderedDict()
         self._is_component = False
 
-    def add_component(self, name: str, component: Configuration):
-        """ Add a component to the configuration.
+    def add_component(self, name: str):
+        """ Add a component with the specified name to the configuration.
 
         Args:
             name: The name of the component being added
-            component: The component object to be added
         """
         # Add it to the holder
         if self._is_component:
             raise ValueError("Can not add a component to a component")
+
+        component = self.load_configuration(name, True)
 
         if name.lower() not in self._components:
             # Add it
@@ -308,7 +309,9 @@ class ConfigHolder:
             'description': self._config.meta.description,
             'synoptic': self._config.meta.synoptic,
             'history': self._config.meta.history,
-            'isProtected': self._config.meta.isProtected
+            'isProtected': self._config.meta.isProtected,
+            'isDynamic': self._config.meta.isDynamic,
+            'configuresBlockGWAndArchiver': self._config.meta.configuresBlockGWAndArchiver
         }
 
     def is_protected(self) -> bool:
@@ -319,6 +322,23 @@ class ConfigHolder:
             Whether the configuration is protected.
         """
         return self._config.meta.isProtected
+
+    def is_dynamic(self) -> bool:
+        """
+        Whether this config has been marked as "dynamic" or not.
+
+        Returns:
+            Whether the configuration is dynamic.
+        """
+        return self._config.meta.isDynamic
+
+    def configures_block_gateway_and_archiver(self):
+        """
+        Returns:
+            (bool): Whether this config has a gwblock.pvlist and block_config.xml to configure the
+             block gateway and archiver with.
+        """
+        return self._config.meta.configuresBlockGWAndArchiver
 
     def _comps_to_list(self):
         comps = []
@@ -381,11 +401,9 @@ class ConfigHolder:
         if not is_component:
             for n, v in config.components.items():
                 if n.lower() != DEFAULT_COMPONENT.lower():
-                    comp = self.load_configuration(v, True)
-                    self.add_component(v, comp)
+                    self.add_component(v)
             # add default component to list of components
-            basecomp = self.load_configuration(DEFAULT_COMPONENT, True)
-            self.add_component(DEFAULT_COMPONENT, basecomp)
+            self.add_component(DEFAULT_COMPONENT)
 
     def _set_component_names(self, comp, name):
         # Set the component for blocks, groups and IOCs

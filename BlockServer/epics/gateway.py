@@ -18,24 +18,26 @@ import time
 import re
 from server_common.channel_access import ChannelAccess
 from server_common.utilities import print_and_log
-from BlockServer.core.macros import CONTROL_SYSTEM_PREFIX
+from BlockServer.core.macros import CONTROL_SYSTEM_PREFIX, BLOCK_PREFIX
+import os
+from shutil import copyfile
 
 ALIAS_HEADER = """\
 ##
 EVALUATION ORDER ALLOW, DENY
 
+"""
+
+ALIAS_FOOTER = r"""
 ## serve blockserver internal variables, including Flag variables needed by blockserver process to restart gateway
 {0}CS:GATEWAY:BLOCKSERVER:.*    				    ALLOW	ANYBODY	    1
 ## allow anybody to generate gateway reports
 {0}CS:GATEWAY:BLOCKSERVER:report[1-9]Flag		ALLOW	ANYBODY		1
-
+## ignore any request related to run control/alerts etc. (RC,AC,DC) on blocks, these are handled by RUNCTRL ioc
+{0}CS:SB:[^:]*:[ADR]C:.*                     DENY
+## ignore any request not related to local blocks or gateway itself
+!{0}CS:\(SB\|GATEWAY\):.*                    DENY
 """
-
-# Alias e.g. INST:CS:SB:MyMotor:RC:INRANGE to INST:CS:MYMOTOR:RC:INRANGE
-# Also handle AC (alerts) and DC (device actions, such as LOQ fast shutter)
-MATCH_RUNCONTROL_SUFFIX = "\\(:[ADR]C:.*\\)"
-RUNCONTROL_ALIAS = '{}{}    ALIAS    {}\\1'.format("{}", MATCH_RUNCONTROL_SUFFIX, "{}")
-
 
 def build_block_alias_lines(full_block_pv, pv_suffix, underlying_pv, include_comments=True):
     lines = list()
@@ -118,6 +120,7 @@ class Gateway:
                 for name, value in blocks.items():
                     lines = self.generate_alias(value.name, value.pv, value.local)
                     f.write('\n'.join(lines) + '\n')
+            f.write(ALIAS_FOOTER.format(self._inst_prefix))
             # Add a blank line at the end!
             f.write("\n")
 
@@ -138,23 +141,31 @@ class Gateway:
         full_block_pv = f"{self._block_prefix}{block_name}"
 
         lines = build_block_alias_lines(full_block_pv, pv_suffix, underlying_pv)
-        lines.append("## Runcontrol settings should not be diverted to underlying PV")
-        lines.append(f"{full_block_pv.upper()}{MATCH_RUNCONTROL_SUFFIX}    DENY")
 
         # Create a case insensitive alias so clients don't have to worry about getting case right
         if full_block_pv != full_block_pv.upper():
             lines.append("## Add full caps equivalent so clients need not be case sensitive")
             lines.extend(build_block_alias_lines(full_block_pv.upper(), pv_suffix, underlying_pv, False))
-            lines.append(RUNCONTROL_ALIAS.format(full_block_pv, full_block_pv.upper()))
 
         lines.append("")  # New line to seperate out each block
         return lines
 
-    def set_new_aliases(self, blocks):
+    def set_new_aliases(self, blocks, configures_block_gateway, config_dir):
         """Creates the aliases for the blocks and restarts the gateway.
 
         Args:
             blocks (OrderedDict): The blocks that belong to the configuration
+            configures_block_gateway (bool): If true indicates that the config contains a gwblock.pvlist to configure
+                the block gateway with.
+            config_dir (str): The directory the configuration we are loading the blocks for lives in.
         """
-        self._generate_alias_file(blocks)
+        pvlist_file = os.path.join(config_dir, "gwblock.pvlist")
+        if configures_block_gateway and os.path.exists(pvlist_file):
+            print_and_log("Using {} to configure block gateway".format(pvlist_file))
+            copyfile(pvlist_file, self._pvlist_file)
+        elif configures_block_gateway:
+            print_and_log("File: {} not found generating gwblock.pvlist".format(pvlist_file))
+            self._generate_alias_file(blocks)
+        else:
+            self._generate_alias_file(blocks)
         self._reload()
