@@ -1,7 +1,7 @@
 import numpy as np
 import ode
 
-from transform import Transformation
+from CollisionAvoidanceMonitor.transform import Transformation
 
 
 class GeometryBox(object):

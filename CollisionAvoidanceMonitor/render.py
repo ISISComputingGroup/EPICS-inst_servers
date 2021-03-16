@@ -19,9 +19,9 @@ import threading
 import logging
 
 import numpy as np
-from transform import Transformation
+from CollisionAvoidanceMonitor.transform import Transformation
 
-from move import move_all
+from CollisionAvoidanceMonitor.move import move_all
 
 
 # Camera transform matrix
@@ -237,7 +237,7 @@ def text(x, y, string, color=(0.4, 0.4, 0.4), align="left"):
     text_surface = font.render(string, True, color, (0, 0, 0, 255))
     text_data = pygame.image.tostring(text_surface, "RGBA", True)
 
-    if align is "right":
+    if align == "right":
         glRasterPos2d(x - text_surface.get_width(), y)
     else:
         glRasterPos2d(x, y)
@@ -303,7 +303,7 @@ def render_box(geometry, color=None, fill=True):
         glBegin(GL_QUADS)
 
         # Draw all 6 faces of the cube
-        for face_no in xrange(num_faces):
+        for face_no in range(num_faces):
             # Calculate and apply the normal - for lighting
             normal = np.array(normals[face_no]).T
             rotated = np.dot(normal, rot)
@@ -323,7 +323,7 @@ def render_box(geometry, color=None, fill=True):
         glBegin(GL_LINES)
 
         # Draw all 12 edges of the cube
-        for edge_no in xrange(num_edges):
+        for edge_no in range(num_edges):
             # Get the vertices for each edge
             vertex_index = edge_indices[edge_no]
 
