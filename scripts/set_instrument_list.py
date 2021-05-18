@@ -127,7 +127,7 @@ if __name__ == "__main__":
         inst_dictionary("LOQ", groups=["SANS"]),
         inst_dictionary("LET", groups=["EXCITATIONS"]),
         inst_dictionary("MARI", groups=["EXCITATIONS"]),
-        inst_dictionary("CRISP", groups=["REFLECTOMETRY"]),
+        inst_dictionary("CRISP", groups=["REFLECTOMETRY"], is_scheduled=False),
         inst_dictionary("SOFTMAT", groups=["SUPPORT"], is_scheduled=False),
         inst_dictionary("SURF", groups=["REFLECTOMETRY"]),
         inst_dictionary("NIMROD", groups=["DISORDERED"]),
