@@ -11,5 +11,4 @@ set EPICS_CAS_BEACON_ADDR_LIST=127.255.255.255
 set PYTHONUNBUFFERED=TRUE
 
 echo on
-rem %PYTHONW% %MYDIRCD%\CollisionAvoidanceMonitor\main.py
 %PYTHON3% %MYDIRCD%\CollisionAvoidanceMonitor\main.py
