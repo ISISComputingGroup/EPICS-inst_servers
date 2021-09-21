@@ -137,6 +137,7 @@ if __name__ == "__main__":
         inst_dictionary("POLREF", groups=["REFLECTOMETRY"]),
         inst_dictionary("SANS2D", groups=["SANS"]),
         inst_dictionary("MUSR", groups=["MUONS"]),
+        inst_dictionary("WISH", groups=["CRYSTALLOGRAPHY"]),
     ]
 
     set_instlist(instruments_list, pv_address) 
