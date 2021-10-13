@@ -137,6 +137,7 @@ if __name__ == "__main__":
         inst_dictionary("POLREF", groups=["REFLECTOMETRY"]),
         inst_dictionary("SANS2D", groups=["SANS"]),
         inst_dictionary("MUSR", groups=["MUONS"]),
+        inst_dictionary("WISH", groups=["CRYSTALLOGRAPHY"]),
     ]
 
     set_instlist(instruments_list, pv_address) 
@@ -195,5 +196,17 @@ if __name__ == "__main__":
     instruments_list = [
         inst_dictionary("IMAT"),
         inst_dictionary("ENGINX"),
+    ]
+    set_instlist(instruments_list, pv_address)
+
+    pv_address = "CS:INSTLIST:CRYSTALLOGRAPHY"
+    instruments_list = [
+        inst_dictionary("HRPD_SETUP"),
+        inst_dictionary("HRPD"),
+        inst_dictionary("POLARIS"),
+        inst_dictionary("ENGINX"),
+        inst_dictionary("GEM"),
+        inst_dictionary("INES"),
+        inst_dictionary("WISH"),
     ]
     set_instlist(instruments_list, pv_address)
