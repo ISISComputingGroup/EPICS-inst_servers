@@ -53,15 +53,12 @@ pipeline {
             echo pylint exited with %errorlevel%
          """
       }
-      steps([
-        $class                     : 'WarningsPublisher',
-        parserConfigurations       : [[
-                                              parserName: 'PYLint',
-                                              pattern   : 'pylint.log'
-                                      ]],
-        unstableTotalAll           : '0',
-        usePreviousBuildAsReference: true
-])
+      steps {
+        recordIssues(
+            tool: pyLint(pattern: '**/pylint.log'),
+            unstableTotalAll: 0,
+        )
+    }
     }
         
     
