@@ -7,26 +7,6 @@ pipeline {
     label "windows"
   }
   
-  triggers {
-        GenericTrigger(
-             genericVariables: [
-                [key: 'ref', value: '$.ref']
-             ],
-
-             causeString: 'Triggered on $ref',
-
-             token: 'GitHub_API_Token',
-
-             printContributedVariables: true,
-             printPostContent: true,
-
-             silentResponse: false,
-
-             regexpFilterText: '$ref',
-             regexpFilterExpression: 'refs/head/' + env.JOB_BASE_NAME
-        )
-        pollSCM('')
-    }
 
   // The options directive is for configuration that applies to the whole job.
   options {
@@ -73,7 +53,7 @@ pipeline {
             echo pylint exited with %errorlevel%
          """
       }
-      step([
+      steps([
         $class                     : 'WarningsPublisher',
         parserConfigurations       : [[
                                               parserName: 'PYLint',
