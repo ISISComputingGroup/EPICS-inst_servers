@@ -52,8 +52,6 @@ pipeline {
             %PYTHON3_PATH%\\Python\\python -m pylint %cd% --output-format=parseable --reports=no module > pylint.log
             echo pylint exited with %errorlevel%
          """
-      }
-      steps {
         recordIssues(
             tool: pyLint(pattern: '**/pylint.log'),
             unstableTotalAll: 0,
