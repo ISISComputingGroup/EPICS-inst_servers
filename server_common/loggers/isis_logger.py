@@ -108,6 +108,7 @@ class IsisLogger(Logger):
                 sock.sendall(codecs.encode(xml, "utf-8"))
             except Exception:
                 traceback.print_exc()
+                print("While trying to log: \"{}\"".format(message))
 
 
 class IsisPutLog:
