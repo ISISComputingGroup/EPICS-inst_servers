@@ -80,16 +80,14 @@ def set_instlist(instruments_list, pv_address):
     ca.caput(pv_address, new_value_compressed, True)
 
     result_compr = ca.caget(pv_address, True)
-    result = dehex_and_decompress(bytes(result_compr, encoding="utf8"))
-
-    print(result)
+    result = dehex_and_decompress(bytes(result_compr, encoding="utf8")).decode("utf-8")
 
     if result != new_value:
-        print("Warning! Entered value does not match new value.")
+        print("Warning! Entered value does not match new value for {0}".format(pv_address))
         print("Entered value: " + new_value)
-        print("Actual value: " + result.decode("utf-8"))
+        print("Actual value: " + result)
     else:
-        print("Success! The PV now reads: {0}".format(result))
+        print("Success! Updated value for {0}".format(pv_address))
 
 
 if __name__ == "__main__":
@@ -142,71 +140,12 @@ if __name__ == "__main__":
 
     set_instlist(instruments_list, pv_address) 
 
-    pv_address = "CS:INSTLIST:MUONS"
-    instruments_list = [
-        inst_dictionary("EMU"),
-        inst_dictionary("MUSR"),
-    ]
-    set_instlist(instruments_list, pv_address) 
+    ## set group based PVs
+    groups = set()
+    for inst in instruments_list:
+        groups.update(inst["groups"])
 
-    pv_address = "CS:INSTLIST:EXCITATIONS"
-    instruments_list = [
-        inst_dictionary("MAPS"),
-        inst_dictionary("MERLIN"),
-        inst_dictionary("LET"),
-        inst_dictionary("MARI"),
-    ]
-    set_instlist(instruments_list, pv_address) 
-
-    pv_address = "CS:INSTLIST:DISORDERED"
-    instruments_list = [
-        inst_dictionary("SANDALS"),
-        inst_dictionary("NIMROD"),
-        inst_dictionary("GEM"),
-    ]
-    set_instlist(instruments_list, pv_address) 
-
-    pv_address = "CS:INSTLIST:REFLECTOMETRY"
-    instruments_list = [
-        inst_dictionary("CRISP"),
-        inst_dictionary("SURF"),
-        inst_dictionary("POLREF"),
-    ]
-    set_instlist(instruments_list, pv_address) 
-
-    pv_address = "CS:INSTLIST:SANS"
-    instruments_list = [
-        inst_dictionary("ZOOM"),
-        inst_dictionary("LOQ"),
-        inst_dictionary("SANS2D"),
-        inst_dictionary("LARMOR"),
-    ]
-    set_instlist(instruments_list, pv_address)
-
-    pv_address = "CS:INSTLIST:MOLSPEC"
-    instruments_list = [
-        inst_dictionary("IRIS"),
-        inst_dictionary("OSIRIS"),
-        inst_dictionary("TOSCA"),
-        inst_dictionary("VESUVIO"),
-    ]
-    set_instlist(instruments_list, pv_address)
-
-    pv_address = "CS:INSTLIST:ENGINEERING"
-    instruments_list = [
-        inst_dictionary("IMAT"),
-        inst_dictionary("ENGINX"),
-    ]
-    set_instlist(instruments_list, pv_address)
-
-    pv_address = "CS:INSTLIST:CRYSTALLOGRAPHY"
-    instruments_list = [
-        inst_dictionary("HRPD_SETUP"),
-        inst_dictionary("HRPD"),
-        inst_dictionary("POLARIS"),
-        inst_dictionary("ENGINX"),
-        inst_dictionary("GEM"),
-        inst_dictionary("INES"),
-        inst_dictionary("WISH"),
-    ]
-    set_instlist(instruments_list, pv_address)
+    for g in sorted(groups):
+        pv_address = f"CS:INSTLIST:{g}"
+        inst_list = [ x for x in instruments_list if g in x["groups"] ] 
+        set_instlist(inst_list, pv_address)
