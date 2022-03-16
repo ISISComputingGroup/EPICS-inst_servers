@@ -120,8 +120,13 @@ class ArchiverManager:
         f = os.path.abspath(self._uploader_path)
         if os.path.isfile(f):
             print_and_log(f"Running archiver settings uploader: {f}")
-            p = Popen(f)
-            p.wait()
+            p = Popen(f, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+            if p.wait() != 0:
+                print_and_log("Retrying as error {} returned from Popen".format(p.returncode))
+                time.sleep(1)
+                p = Popen(f, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+                if p.wait() != 0:
+                    raise Exception("Error {} returned from Popen when running {}".format(p.returncode, f))
             print_and_log(f"Finished running archiver settings uploader: {f}")
         else:
             print_and_log(f"Could not find specified archiver uploader batch file: {self._uploader_path}")
