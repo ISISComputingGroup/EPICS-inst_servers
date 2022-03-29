@@ -20,7 +20,7 @@ from streaming_data_types.fbschemas.forwarder_config_update_rf5k.Protocol import
 )
 from kafka import KafkaProducer, errors, KafkaConsumer
 from server_common.utilities import print_and_log
-
+from time import sleep
 
 class ProducerWrapper:
     """
@@ -46,17 +46,19 @@ class ProducerWrapper:
                 print_and_log(f"WARNING: topic {self.topic} does not exist. It will be created by default.")
         except errors.NoBrokersAvailable:
             print_and_log(f"No brokers found on server: {server[0]}")
-            quit()
         except errors.ConnectionError:
             print_and_log("No server found, connection error")
-            quit()
         except errors.InvalidConfigurationError:
             print_and_log("Invalid configuration")
             quit()
         except errors.InvalidTopicError:
             print_and_log("Invalid topic, to enable auto creation of topics set"
                           " auto.create.topics.enable to false in broker configuration")
-            quit()
+        finally:
+            print_and_log("Retrying in 10s")
+            sleep(10)
+            # Recursive call after waiting
+            self._set_up_producer(server)
 
     def add_config(self, pvs: List[str]):
         """
