@@ -20,7 +20,7 @@ import os
 from shutil import copyfile
 import datetime
 import time
-from subprocess import Popen, PIPE, STDOUT
+from subprocess import run, PIPE, STDOUT
 import xml.etree.ElementTree as eTree
 from xml.dom import minidom
 from server_common.utilities import print_and_log
@@ -120,13 +120,18 @@ class ArchiverManager:
         f = os.path.abspath(self._uploader_path)
         if os.path.isfile(f):
             print_and_log(f"Running archiver settings uploader: {f}")
-            p = Popen(f, stdout=PIPE, stderr=STDOUT)
-            if p.wait() != 0:
-                print_and_log("Retrying as error {} returned from Popen".format(p.returncode))
+            p = run(f, stdout=PIPE, stderr=STDOUT)
+            print_and_log(p.stdout)
+            if p.returncode != 0:
+                print_and_log("Retrying as status {} returned from subproccess.run".format(p.returncode))
                 time.sleep(1)
-                p = Popen(f, stdout=PIPE, stderr=STDOUT)
-                if p.wait() != 0:
-                    raise Exception("Error {} returned from Popen when running {}".format(p.returncode, f))
+                p = run(f, stdout=PIPE, stderr=STDOUT)
+                print_and_log(p.stdout)
+                ## this would throw a CalledProcessError exception, but may cause more harm than good at moment
+                # p.check_returncode()
+                ## for the moment just print an error like before, so rest of config change happens
+                if p.returncode != 0:
+                    print_and_log("Error {} returned from subproccess.run for {}".format(p.returncode, f))
             print_and_log(f"Finished running archiver settings uploader: {f}")
         else:
             print_and_log(f"Could not find specified archiver uploader batch file: {self._uploader_path}")
