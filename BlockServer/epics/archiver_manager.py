@@ -20,12 +20,12 @@ import os
 from shutil import copyfile
 import datetime
 import time
+from sys import platform
 from subprocess import run, PIPE, STDOUT
 import xml.etree.ElementTree as eTree
 from xml.dom import minidom
 from server_common.utilities import print_and_log
 from BlockServer.epics.archiver_wrapper import ArchiverWrapper
-
 
 class ArchiverManager:
     """This class is responsible for updating the EPICS Archiver that is responsible for logging the blocks."""
@@ -117,15 +117,22 @@ class ArchiverManager:
             f.write(xml)
 
     def _upload_archive_config(self):
+        extra_args = {}
+        if platform == "win32":
+            from subprocess import STARTUPINFO, STARTF_USESHOWWINDOW, SW_HIDE
+            extra_args = {
+                'startupinfo' : STARTUPINFO(dwFlags = STARTF_USESHOWWINDOW,
+                                wShowWindow = SW_HIDE)
+            }
         f = os.path.abspath(self._uploader_path)
         if os.path.isfile(f):
             print_and_log(f"Running archiver settings uploader: {f}")
-            p = run(f, stdout=PIPE, stderr=STDOUT)
+            p = run(f, stdout=PIPE, stderr=STDOUT, **extra_args)
             print_and_log(p.stdout)
             if p.returncode != 0:
                 print_and_log("Retrying as status {} returned from subproccess.run".format(p.returncode))
                 time.sleep(1)
-                p = run(f, stdout=PIPE, stderr=STDOUT)
+                p = run(f, stdout=PIPE, stderr=STDOUT, **extra_args)
                 print_and_log(p.stdout)
                 ## this would throw a CalledProcessError exception, but may cause more harm than good at moment
                 # p.check_returncode()
