@@ -9,7 +9,7 @@ if "%CSPID%" == "" (
     @echo dbserver procServ is not running
 ) else (
     @echo Killing dbserver procServ PID %CSPID%
-    %ICPTOOLS%\cygwin_bin\cygwin_kill.exe %CSPID%
+    %ICPCYGBIN%\kill.exe %CSPID%
     del c:\windows\temp\EPICS_DBSVR.pid
 )
 

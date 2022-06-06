@@ -11,7 +11,7 @@ if "%CSPID%" == "" (
     @echo Killing Collision Avoidance Monitor procServ PID %CSPID%
     caput %MYPVPREFIX%COLLIDE:MODE 4
 	sleep 5
-	%ICPTOOLS%\cygwin_bin\cygwin_kill.exe %CSPID%
+	%ICPCYGBIN%\kill.exe %CSPID%
     del c:\windows\temp\EPICS_CDSVR.pid
 )
 
