@@ -17,6 +17,7 @@ import unittest
 import json
 import os
 
+import mock.mock
 from mock import Mock
 from parameterized import parameterized
 
@@ -408,6 +409,49 @@ class TestActiveConfigHolderSequence(unittest.TestCase):
         self.assertEqual(len(start), 0)
         self.assertEqual(len(restart), 0)
         self.assertEqual(len(stop), 1)
+
+    def test_GIVEN_a_manually_started_ioc_WHEN_config_not_containing_that_ioc_is_loaded_THEN_the_ioc_is_stopped(self):
+
+        with mock.mock.patch("BlockServer.core.active_config_holder.get_iocs") as mock_get_iocs:
+            mock_get_iocs.return_value = ["IOCNAME1", "IOCNAME2"]
+
+            # Arrange
+            config_holder = self.create_active_config_holder()
+
+            details = config_holder.get_config_details()
+            self._modify_active(config_holder, details)
+
+            # Act
+            self._modify_active(config_holder, details)
+            config_holder._ioc_control._proc.start_ioc("IOCNAME1")
+
+            # Assert
+            start, restart, stop = config_holder.iocs_changed()
+            self.assertEqual(start, set())
+            self.assertEqual(restart, set())
+            self.assertEqual(stop, {"IOCNAME1"})
+
+    def test_GIVEN_a_manually_started_ioc_WHEN_config_containing_that_ioc_is_loaded_THEN_the_ioc_is_restarted(self):
+
+        with mock.mock.patch("BlockServer.core.active_config_holder.get_iocs") as mock_get_iocs:
+            mock_get_iocs.return_value = ["IOCNAME1", "IOCNAME2"]
+
+            # Arrange
+            config_holder = self.create_active_config_holder()
+
+            details = config_holder.get_config_details()
+            self._modify_active(config_holder, details)
+
+            # Act
+            details['iocs'].append(IOC("IOCNAME1"))
+            self._modify_active(config_holder, details)
+            config_holder._ioc_control._proc.start_ioc("IOCNAME1")
+
+            # Assert
+            start, restart, stop = config_holder.iocs_changed()
+            self.assertEqual(start, set())
+            self.assertEqual(stop, set())
+            self.assertEqual(restart, {"IOCNAME1"})
 
     def test_given_empty_config_when_block_added_then_blocks_changed_returns_true(self):
         # Arrange

@@ -45,7 +45,7 @@ class MockProcServWrapper:
 
     def get_ioc_status(self, ioc):
         if not ioc.lower() in self.ps_status.keys():
-            raise Exception(f"Could not find IOC ({self.prefix + ioc})")
+            return "SHUTDOWN"
         else:
             return self.ps_status[ioc.lower()]
 

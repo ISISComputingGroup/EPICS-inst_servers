@@ -15,10 +15,13 @@
 # https://www.eclipse.org/org/documents/epl-v10.php or
 # http://opensource.org/licenses/eclipse-1.0.php
 import os
+
+from server_common.constants import IOCS_NOT_TO_STOP
 from server_common.utilities import print_and_log
-from BlockServer.core.macros import BLOCK_PREFIX, MACROS
+from BlockServer.core.macros import BLOCK_PREFIX, MACROS, CONTROL_SYSTEM_PREFIX
 from BlockServer.core.config_holder import ConfigHolder
 from BlockServer.core.file_path_manager import FILEPATH_MANAGER
+from BlockServer.core.database_client import get_iocs
 
 
 def _blocks_changed(block1, block2):
@@ -113,7 +116,6 @@ class ActiveConfigHolder(ConfigHolder):
         super(ActiveConfigHolder, self).__init__(macros, file_manager)
         self._archive_manager = archive_manager
         self._ioc_control = ioc_control
-        self._db = None
         self._config_dir = config_dir
 
     def save_active(self, name, as_comp=False):
@@ -241,6 +243,34 @@ class ActiveConfigHolder(ConfigHolder):
             if name not in self._components:
                 for ioc_name in component.iocs.keys():
                     iocs_to_stop.add(ioc_name)
+
+        # Look for manually-started IOCS, which have been started with unknown macros and therefore should be assumed
+        # to need stopping or restarting on config change.
+        for ioc_name in get_iocs(CONTROL_SYSTEM_PREFIX):
+            # IOCS which shouldn't be stopped.
+            if any(ioc_name.startswith(x) for x in IOCS_NOT_TO_STOP):
+                continue
+
+            # IOCS which have already been considered as they're part of the cached config or components
+            if ioc_name in self._cached_config.iocs \
+                    or any(ioc_name in comp.iocs for comp in self._cached_components.values()):
+                continue
+
+            if self._ioc_control.get_ioc_status(ioc_name) == "RUNNING":
+                if ioc_name in self.get_all_ioc_details():
+                    # If the IOC is in the new config, we need to restart it as the new config may have macros which
+                    # were not used when the IOC was manually started outside the config.
+                    if ioc_name in iocs_to_start:
+                        iocs_to_start.remove(ioc_name)
+                    iocs_to_restart.add(ioc_name)
+                else:
+                    # If the IOC is not in the new config, we should stop the IOC to ensure it does not accidentally
+                    # interfere with any items being loaded in the new config.
+                    iocs_to_stop.add(ioc_name)
+
+        print_and_log(f"IOCS to start = {iocs_to_start}")
+        print_and_log(f"IOCS to restart = {iocs_to_restart}")
+        print_and_log(f"IOCS to stop = {iocs_to_stop}")
 
         return iocs_to_start, iocs_to_restart, iocs_to_stop
 
