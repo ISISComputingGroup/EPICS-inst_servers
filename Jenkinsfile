@@ -37,7 +37,7 @@ pipeline {
         echo "Branch: ${env.BRANCH_NAME}"
         checkout scm
         setLatestGeniePath()
-        echo "python path: ${env.PYTHON_PATH}"
+        echo "python3 path: ${env.PYTHON3_PATH}"
         script {
             env.GIT_COMMIT = bat(returnStdout: true, script: '@git rev-parse HEAD').trim()
             echo "git commit: ${env.GIT_COMMIT}"
@@ -51,7 +51,7 @@ pipeline {
     stage("Run All Tests") {
       steps {
         bat """
-            robocopy "\\\\isis\\inst\$\\Kits\$\\CompGroup\\ICP\\EPICS_UTILS" "C:\\Instrument\\Apps\\EPICS_UTILS" /E /PURGE /R:2 /MT /XF "install.log" /NFL /NDL /NP
+            robocopy "\\\\isis.cclrc.ac.uk\\inst\$\\Kits\$\\CompGroup\\ICP\\EPICS_UTILS" "C:\\Instrument\\Apps\\EPICS_UTILS" /E /PURGE /R:2 /MT /XF "install.log" /NFL /NDL /NP
             set "PATH=%PATH%;C:\\Instrument\\Apps\\EPICS_UTILS"
                         
             set PYTHON3_PATH=${env.PYTHON3_PATH}
@@ -95,12 +95,12 @@ pipeline {
 }
 
 def setLatestGeniePath() {
-    def basePath = '\\\\isis\\inst$\\Kits\$\\CompGroup\\ICP\\genie_python\\'
+    def basePath = '\\\\isis.cclrc.ac.uk\\inst$\\Kits\$\\CompGroup\\ICP\\genie_python\\'
     def fileContents = readFile basePath + 'LATEST_BUILD.txt'
     def pythonPath = basePath + "BUILD-$fileContents"
     env.PYTHON_PATH = pythonPath
     
-    def basePath3 = '\\\\isis\\inst$\\Kits\$\\CompGroup\\ICP\\genie_python_3\\'
+    def basePath3 = '\\\\isis.cclrc.ac.uk\\inst$\\Kits\$\\CompGroup\\ICP\\genie_python_3\\'
     def fileContents3 = readFile basePath3 + 'LATEST_BUILD.txt'
     def pythonPath3 = basePath3 + "BUILD-$fileContents3"
     env.PYTHON3_PATH = pythonPath3
