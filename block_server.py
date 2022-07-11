@@ -347,10 +347,10 @@ class BlockServer(Driver):
             full_init (bool, optional): whether this requires a full initialisation, e.g. on loading a new
                 configuration
         """
-        iocs_to_start, iocs_to_restart, iocs_to_stop = self._active_configserver.iocs_changed()
+        new_iocs, changed_iocs, removed_iocs = self._active_configserver.iocs_changed()
 
-        self._ioc_control.stop_iocs(iocs_to_stop)
-        self._start_config_iocs(iocs_to_start, iocs_to_restart)
+        self._ioc_control.stop_iocs(removed_iocs)
+        self._start_config_iocs(new_iocs, changed_iocs)
 
         if CAEN_DISCRIMINATOR_IOC_NAME in self._active_configserver.get_ioc_names():
             # See https://github.com/ISISComputingGroup/IBEX/issues/5590 for justification of why this ioc gets
