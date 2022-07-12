@@ -256,12 +256,14 @@ class ActiveConfigHolder(ConfigHolder):
                 if ioc_name in iocs_in_new_config:
                     # If the IOC is in the new config, we need to restart it as the new config may have macros which
                     # were not used when the IOC was manually started outside the config.
+                    print_and_log(f"Found manually-started IOC {ioc_name}. Restarting as present in new config.")
                     if ioc_name in new_iocs:
                         new_iocs.remove(ioc_name)
                     changed_iocs.add(ioc_name)
                 else:
                     # If the IOC is not in the new config, we should stop the IOC to ensure it does not accidentally
                     # interfere with any items being loaded in the new config.
+                    print_and_log(f"Found manually-started IOC {ioc_name}. Stopping as not present in new config")
                     removed_iocs.add(ioc_name)
 
         print_and_log(f"New IOCS = {new_iocs}")
