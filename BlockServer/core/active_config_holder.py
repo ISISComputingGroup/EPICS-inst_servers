@@ -259,6 +259,7 @@ class ActiveConfigHolder(ConfigHolder):
                     print_and_log(f"Found manually-started IOC {ioc_name}. Restarting as present in new config.")
                     if ioc_name in new_iocs:
                         new_iocs.remove(ioc_name)
+
                     changed_iocs.add(ioc_name)
                 else:
                     # If the IOC is not in the new config, we should stop the IOC to ensure it does not accidentally

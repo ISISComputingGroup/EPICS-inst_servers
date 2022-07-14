@@ -391,16 +391,22 @@ class BlockServer(Driver):
         # Start the IOCs, if they are available and if they are flagged for autostart
         # Note: autostart means the IOC is started when the config is loaded,
         # restart means the IOC should automatically restart if it stops for some reason (e.g. it crashes)
+        def _ioc_from_name(ioc_name):
+            return self._active_configserver.get_all_ioc_details()[ioc_name]
+
+        def _is_remote(ioc_name):
+            return _ioc_from_name(ioc_name).remotePvPrefix not in (None, "")
 
         def _should_start(ioc_name):
-            ioc = self._active_configserver.get_all_ioc_details()[ioc_name]
-            if ioc.remotePvPrefix not in (None, ""):
-                print_and_log(f"IOC '{ioc_name}' is set to run remotely - not starting it.")
-                return False
-            return ioc.autostart
+            ioc = _ioc_from_name(ioc_name)
+            return ioc.autostart and not _is_remote(ioc_name)
 
         self._ioc_control.start_iocs([ioc for ioc in iocs_to_start if _should_start(ioc)])
         self._ioc_control.restart_iocs([ioc for ioc in iocs_to_restart if _should_start(ioc)])
+
+        # If an IOC is told to restart but autostart was not set, then it should be stopped instead. This doesn't
+        # apply to remote IOCs, who are controlled by the RemoteIOCServer instead.
+        self._ioc_control.stop_iocs([ioc for ioc in iocs_to_restart if not _ioc_from_name(ioc).autostart and not _is_remote(ioc)])
 
     def load_config(self, config, full_init=True):
         """Load a configuration.
