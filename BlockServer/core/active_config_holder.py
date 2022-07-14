@@ -15,10 +15,15 @@
 # https://www.eclipse.org/org/documents/epl-v10.php or
 # http://opensource.org/licenses/eclipse-1.0.php
 import os
+from typing import Dict
+
+from BlockServer.config.ioc import IOC
+from server_common.constants import IOCS_NOT_TO_STOP
 from server_common.utilities import print_and_log
-from BlockServer.core.macros import BLOCK_PREFIX, MACROS
+from BlockServer.core.macros import BLOCK_PREFIX, MACROS, CONTROL_SYSTEM_PREFIX
 from BlockServer.core.config_holder import ConfigHolder
 from BlockServer.core.file_path_manager import FILEPATH_MANAGER
+from BlockServer.core.database_client import get_iocs
 
 
 def _blocks_changed(block1, block2):
@@ -70,7 +75,7 @@ def _blocks_changed_in_config(old_config, new_config, block_comparator=_blocks_c
     return False
 
 
-def _compare_ioc_properties(old, new):
+def _compare_ioc_properties(old: Dict[str, IOC], new: Dict[str, IOC]):
     """
     Compares the properties of IOCs in a component/configuration.
 
@@ -79,22 +84,27 @@ def _compare_ioc_properties(old, new):
         new: The corresponding new configuration or component
 
     Returns:
-        set, set : IOCs to start, IOCs to restart
+        set, set, set : added IOCs, changed IOCs, removed IOCs
     """
-    iocs_to_start = set()
-    iocs_to_restart = set()
+    new_iocs = set()
+    changed_iocs = set()
+    removed_iocs = set()
 
-    _attributes = ["macros", "pvs", "pvsets", "simlevel", "restart"]
+    _attributes = ["macros", "pvs", "pvsets", "simlevel", "restart", "autostart"]
 
-    for ioc_name in new.iocs.keys():
-        if ioc_name not in old.iocs.keys():
-            # If not in previously then add it to start
-            iocs_to_start.add(ioc_name)
-        elif any(getattr(old.iocs[ioc_name], attr) != getattr(new.iocs[ioc_name], attr) for attr in _attributes):
-            # If any attributes have changed, restart the IOC
-            iocs_to_restart.add(ioc_name)
+    for ioc_name in new.keys():
+        if ioc_name not in old.keys():
+            # If not in previously then add it to new iocs
+            new_iocs.add(ioc_name)
+        elif any(getattr(old[ioc_name], attr) != getattr(new[ioc_name], attr) for attr in _attributes):
+            # If any attributes have changed, add to changed iocs
+            changed_iocs.add(ioc_name)
 
-    return iocs_to_start, iocs_to_restart
+    for ioc_name in old.keys():
+        if ioc_name not in new:
+            removed_iocs.add(ioc_name)
+
+    return new_iocs, changed_iocs, removed_iocs
 
 
 class ActiveConfigHolder(ConfigHolder):
@@ -113,7 +123,6 @@ class ActiveConfigHolder(ConfigHolder):
         super(ActiveConfigHolder, self).__init__(macros, file_manager)
         self._archive_manager = archive_manager
         self._ioc_control = ioc_control
-        self._db = None
         self._config_dir = config_dir
 
     def save_active(self, name, as_comp=False):
@@ -216,33 +225,53 @@ class ActiveConfigHolder(ConfigHolder):
         Returns:
             set, set, set : IOCs to start, IOCs to restart, IOCs to stop.
         """
-        # Look for modified IOCs
-        iocs_to_start, iocs_to_restart = _compare_ioc_properties(self._cached_config, self._config)
-        iocs_to_stop = set()
+        def _get_config_iocs(config, components):
+            iocs = {}
+            for ioc_name, ioc in config.iocs.items():
+                iocs[ioc_name] = ioc
 
-        # Look for any new/changed components
-        for name, component in self._components.items():
-            if name in self._cached_components:
-                _start, _restart = _compare_ioc_properties(
-                    self._cached_components[name], self._components[name])
+            for name, component in components.items():
+                for ioc_name, ioc in component.iocs.items():
+                    iocs[ioc_name] = ioc
+            return iocs
 
-                iocs_to_start |= _start
-                iocs_to_restart |= _restart
-            else:
-                for ioc_name in component.iocs.keys():
-                    iocs_to_start.add(ioc_name)
+        iocs_in_current_config = _get_config_iocs(self._cached_config, self._cached_components)
+        iocs_in_new_config = _get_config_iocs(self._config, self._components)
 
-        # Look for removed IOCs
-        for ioc_name in set(self._cached_config.iocs.keys()).difference(self._config.iocs.keys()):
-            iocs_to_stop.add(ioc_name)
+        new_iocs, changed_iocs, removed_iocs = _compare_ioc_properties(old=iocs_in_current_config,
+                                                                       new=iocs_in_new_config)
 
-        # Look for any removed components
-        for name, component in self._cached_components.items():
-            if name not in self._components:
-                for ioc_name in component.iocs.keys():
-                    iocs_to_stop.add(ioc_name)
+        # Look for manually-started IOCS, which have been started with unknown macros and therefore should be assumed
+        # to need stopping or restarting on config change.
+        for ioc_name in get_iocs(CONTROL_SYSTEM_PREFIX):
+            # IOCS which shouldn't be stopped.
+            if any(ioc_name.startswith(x) for x in IOCS_NOT_TO_STOP):
+                continue
 
-        return iocs_to_start, iocs_to_restart, iocs_to_stop
+            # IOCS which have already been considered as they're part of the cached config or components
+            if ioc_name in iocs_in_current_config:
+                continue
+
+            if self._ioc_control.get_ioc_status(ioc_name) == "RUNNING":
+                if ioc_name in iocs_in_new_config:
+                    # If the IOC is in the new config, we need to restart it as the new config may have macros which
+                    # were not used when the IOC was manually started outside the config.
+                    print_and_log(f"Found manually-started IOC {ioc_name}. Restarting as present in new config.")
+                    if ioc_name in new_iocs:
+                        new_iocs.remove(ioc_name)
+
+                    changed_iocs.add(ioc_name)
+                else:
+                    # If the IOC is not in the new config, we should stop the IOC to ensure it does not accidentally
+                    # interfere with any items being loaded in the new config.
+                    print_and_log(f"Found manually-started IOC {ioc_name}. Stopping as not present in new config")
+                    removed_iocs.add(ioc_name)
+
+        print_and_log(f"New IOCS = {new_iocs}")
+        print_and_log(f"Changed IOCS = {changed_iocs}")
+        print_and_log(f"Removed IOCS = {removed_iocs}")
+
+        return new_iocs, changed_iocs, removed_iocs
 
     def _blocks_in_top_level_config_changed(self):
         """

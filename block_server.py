@@ -347,13 +347,12 @@ class BlockServer(Driver):
             full_init (bool, optional): whether this requires a full initialisation, e.g. on loading a new
                 configuration
         """
-        iocs_to_start, iocs_to_restart, iocs_to_stop = self._active_configserver.iocs_changed()
+        new_iocs, changed_iocs, removed_iocs = self._active_configserver.iocs_changed()
 
-        self._ioc_control.stop_iocs(iocs_to_stop)
+        self._ioc_control.stop_iocs(removed_iocs)
+        self._start_config_iocs(new_iocs, changed_iocs)
 
-        if full_init or any(len(x) > 0 for x in (iocs_to_start, iocs_to_stop, iocs_to_restart)):
-            self._stop_iocs_and_start_config_iocs()
-        elif CAEN_DISCRIMINATOR_IOC_NAME in self._active_configserver.get_ioc_names():
+        if CAEN_DISCRIMINATOR_IOC_NAME in self._active_configserver.get_ioc_names():
             # See https://github.com/ISISComputingGroup/IBEX/issues/5590 for justification of why this ioc gets
             # special treatment.
             ioc = self._active_configserver.get_all_ioc_details()[CAEN_DISCRIMINATOR_IOC_NAME]
@@ -388,33 +387,26 @@ class BlockServer(Driver):
         # Update Web Server text
         self.server.set_config(convert_to_json(self._active_configserver.get_config_details()))
 
-    def _stop_iocs_and_start_config_iocs(self):
-        """ Stop all IOCs and start the IOCs that are part of the configuration."""
-        # iocs_to_start, iocs_to_restart are not used at the moment, but longer term they could be used
-        # for only restarting IOCs for which the setting have changed.
-        non_conf_iocs = [x for x in get_iocs(CONTROL_SYSTEM_PREFIX) if x not in self._active_configserver.get_ioc_names()]
-        self._ioc_control.stop_iocs(non_conf_iocs)
-        self._start_config_iocs()
-
-    def _start_config_iocs(self):
+    def _start_config_iocs(self, iocs_to_start, iocs_to_restart):
         # Start the IOCs, if they are available and if they are flagged for autostart
         # Note: autostart means the IOC is started when the config is loaded,
         # restart means the IOC should automatically restart if it stops for some reason (e.g. it crashes)
-        for name, ioc in self._active_configserver.get_all_ioc_details().items():
-            if ioc.remotePvPrefix not in (None, ""):
-                print_and_log(f"IOC '{name}' is set to run remotely - not starting it.")
-                continue
+        def _ioc_from_name(ioc_name):
+            return self._active_configserver.get_all_ioc_details()[ioc_name]
 
-            try:
-                # IOCs are restarted if and only if auto start is True. Note that auto restart instructs proc serv to
-                # restart an IOC if it terminates unexpectedly and does not apply here.
-                if ioc.autostart:
-                    if self._ioc_control.get_ioc_status(name) == "RUNNING":
-                        self._ioc_control.restart_iocs([name], reapply_auto=True)
-                    else:
-                        self.start_iocs([name])
-            except Exception as err:
-                print_and_log(f"Could not (re)start IOC {name}: {err}", "MAJOR")
+        def _is_remote(ioc_name):
+            return _ioc_from_name(ioc_name).remotePvPrefix not in (None, "")
+
+        def _should_start(ioc_name):
+            ioc = _ioc_from_name(ioc_name)
+            return ioc.autostart and not _is_remote(ioc_name)
+
+        self._ioc_control.start_iocs([ioc for ioc in iocs_to_start if _should_start(ioc)])
+        self._ioc_control.restart_iocs([ioc for ioc in iocs_to_restart if _should_start(ioc)])
+
+        # If an IOC is told to restart but autostart was not set, then it should be stopped instead. This doesn't
+        # apply to remote IOCs, who are controlled by the RemoteIOCServer instead.
+        self._ioc_control.stop_iocs([ioc for ioc in iocs_to_restart if not _ioc_from_name(ioc).autostart and not _is_remote(ioc)])
 
     def load_config(self, config, full_init=True):
         """Load a configuration.

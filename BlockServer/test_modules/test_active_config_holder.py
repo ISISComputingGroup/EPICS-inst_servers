@@ -17,6 +17,7 @@ import unittest
 import json
 import os
 
+import mock.mock
 from mock import Mock
 from parameterized import parameterized
 
@@ -409,6 +410,49 @@ class TestActiveConfigHolderSequence(unittest.TestCase):
         self.assertEqual(len(restart), 0)
         self.assertEqual(len(stop), 1)
 
+    def test_GIVEN_a_manually_started_ioc_WHEN_config_not_containing_that_ioc_is_loaded_THEN_the_ioc_is_stopped(self):
+
+        with mock.mock.patch("BlockServer.core.active_config_holder.get_iocs") as mock_get_iocs:
+            mock_get_iocs.return_value = ["IOCNAME1", "IOCNAME2"]
+
+            # Arrange
+            config_holder = self.create_active_config_holder()
+
+            details = config_holder.get_config_details()
+            self._modify_active(config_holder, details)
+
+            # Act
+            self._modify_active(config_holder, details)
+            config_holder._ioc_control._proc.start_ioc("IOCNAME1")
+
+            # Assert
+            start, restart, stop = config_holder.iocs_changed()
+            self.assertEqual(start, set())
+            self.assertEqual(restart, set())
+            self.assertEqual(stop, {"IOCNAME1"})
+
+    def test_GIVEN_a_manually_started_ioc_WHEN_config_containing_that_ioc_is_loaded_THEN_the_ioc_is_restarted(self):
+
+        with mock.mock.patch("BlockServer.core.active_config_holder.get_iocs") as mock_get_iocs:
+            mock_get_iocs.return_value = ["IOCNAME1", "IOCNAME2"]
+
+            # Arrange
+            config_holder = self.create_active_config_holder()
+
+            details = config_holder.get_config_details()
+            self._modify_active(config_holder, details)
+
+            # Act
+            details['iocs'].append(IOC("IOCNAME1"))
+            self._modify_active(config_holder, details)
+            config_holder._ioc_control._proc.start_ioc("IOCNAME1")
+
+            # Assert
+            start, restart, stop = config_holder.iocs_changed()
+            self.assertEqual(start, set())
+            self.assertEqual(stop, set())
+            self.assertEqual(restart, {"IOCNAME1"})
+
     def test_given_empty_config_when_block_added_then_blocks_changed_returns_true(self):
         # Arrange
         config_holder = self.create_active_config_holder()
@@ -574,13 +618,10 @@ class TestActiveConfigHolderSequence(unittest.TestCase):
         self.assertFalse(_blocks_changed_in_config(config1, config2, block_comparator=lambda block1, block2: False))
 
     def test_WHEN_compare_ioc_properties_called_with_the_same_ioc_then_returns_empty_set_of_iocs_to_start_restart(self):
-        old_config = Mock()
-        old_config.iocs = {"a": IOC("a")}
+        old_config = {"a": IOC("a")}
+        new_config = {"a": IOC("a")}
 
-        new_config = Mock()
-        new_config.iocs = {"a": IOC("a")}
-
-        start, restart = _compare_ioc_properties(old_config, new_config)
+        start, restart, stop = _compare_ioc_properties(old_config, new_config)
         self.assertEqual(len(start), 0)
         self.assertEqual(len(restart), 0)
 
@@ -590,28 +631,29 @@ class TestActiveConfigHolderSequence(unittest.TestCase):
         ({"a": IOC("a", pvsets=True)}, {"a": IOC("a", pvsets=False)}),
         ({"a": IOC("a", simlevel="recsim")}, {"a": IOC("a", simlevel="devsim")}),
         ({"a": IOC("a", restart=True)}, {"a": IOC("a", restart=False)}),
+        ({"a": IOC("a", autostart=True)}, {"a": IOC("a", autostart=False)}),
     ])
     def test_WHEN_compare_ioc_properties_called_with_different_then_restarts_ioc(self, old_iocs, new_iocs):
-        old_config = Mock()
-        old_config.iocs = old_iocs
-
-        new_config = Mock()
-        new_config.iocs = new_iocs
-
-        start, restart = _compare_ioc_properties(old_config, new_config)
+        start, restart, stop = _compare_ioc_properties(old_iocs, new_iocs)
         self.assertEqual(len(start), 0)
         self.assertEqual(len(restart), 1)
 
     def test_WHEN_compare_ioc_properties_called_with_new_ioc_then_starts_new_ioc(self):
-        old_config = Mock()
-        old_config.iocs = {}
+        old_iocs = {}
+        new_iocs = {"a": IOC("a", macros=True)}
 
-        new_config = Mock()
-        new_config.iocs = {"a": IOC("a", macros=True)}
-
-        start, restart = _compare_ioc_properties(old_config, new_config)
+        start, restart, stop = _compare_ioc_properties(old_iocs, new_iocs)
         self.assertEqual(len(start), 1)
         self.assertEqual(len(restart), 0)
+
+    def test_WHEN_compare_ioc_properties_called_with_new_ioc_then_stops_old_ioc(self):
+        old_iocs = {"a": IOC("a", macros=True)}
+        new_iocs = {}
+
+        start, restart, stop = _compare_ioc_properties(old_iocs, new_iocs)
+        self.assertEqual(len(start), 0)
+        self.assertEqual(len(restart), 0)
+        self.assertEqual(len(stop), 1)
 
 
 if __name__ == '__main__':
