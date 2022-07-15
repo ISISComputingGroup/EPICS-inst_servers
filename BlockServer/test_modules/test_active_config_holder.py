@@ -73,6 +73,14 @@ def create_dummy_component():
     return config
 
 
+def patch_get_iocs_empty(f):
+    def _wrapper(*args, **kwargs):
+        with mock.mock.patch("BlockServer.core.active_config_holder.get_iocs") as mock_get_iocs:
+            mock_get_iocs.return_value = []
+            return f(*args, **kwargs)
+    return _wrapper
+
+
 # Note that the ActiveConfigServerManager contains an instance of the Configuration class and hands a lot of
 #   work off to this object. Rather than testing whether the functionality in the configuration class works
 #   correctly (e.g. by checking that a block has been edited properly after calling configuration.edit_block),
@@ -133,6 +141,7 @@ class TestActiveConfigHolderSequence(unittest.TestCase):
         self.assertTrue("SIMPLE2" in iocs)
 
     @unittest.skipIf(IS_LINUX, "Location of last_config.txt not correctly configured on Linux")
+    @patch_get_iocs_empty
     def test_GIVEN_load_config_WHEN_load_config_again_THEN_no_ioc_changes(self):
         # This test is checking that a load will correctly cache the IOCs that are running so that a comparison will
         # return no change
@@ -238,6 +247,7 @@ class TestActiveConfigHolderSequence(unittest.TestCase):
     def _modify_active(self, config_holder, new_details, name="config1"):
         modify_active(name, MACROS, self.mock_file_manager, new_details, config_holder)
 
+    @patch_get_iocs_empty
     def test_iocs_changed_no_changes(self):
         # Arrange
         config_holder = self.create_active_config_holder()
@@ -251,6 +261,7 @@ class TestActiveConfigHolderSequence(unittest.TestCase):
         self.assertEqual(len(restart), 0)
         self.assertEqual(len(stop), 0)
 
+    @patch_get_iocs_empty
     def test_iocs_changed_ioc_added(self):
         # Arrange
         config_holder = self.create_active_config_holder()
@@ -264,6 +275,7 @@ class TestActiveConfigHolderSequence(unittest.TestCase):
         self.assertEqual(len(restart), 0)
         self.assertEqual(len(stop), 0)
 
+    @patch_get_iocs_empty
     def test_iocs_changed_ioc_removed(self):
         # Arrange
         config_holder = self.create_active_config_holder()
@@ -279,6 +291,7 @@ class TestActiveConfigHolderSequence(unittest.TestCase):
         self.assertEqual(len(restart), 0)
         self.assertEqual(len(stop), 1)
 
+    @patch_get_iocs_empty
     def test_GIVEN_an_ioc_defined_in_a_component_WHEN_the_component_is_removed_THEN_the_ioc_is_stopped(self):
 
         # Arrange
@@ -304,6 +317,7 @@ class TestActiveConfigHolderSequence(unittest.TestCase):
         self.assertEqual(len(restart), 0)
         self.assertEqual(len(stop), 1)
 
+    @patch_get_iocs_empty
     def test_GIVEN_an_ioc_defined_in_a_component_WHEN_the_ioc_simlevel_is_changed_THEN_the_ioc_is_restarted(self):
 
         # Arrange
@@ -333,6 +347,7 @@ class TestActiveConfigHolderSequence(unittest.TestCase):
         self.assertEqual(len(restart), 1)
         self.assertEqual(len(stop), 0)
 
+    @patch_get_iocs_empty
     def test_GIVEN_an_ioc_defined_in_a_component_WHEN_the_ioc_macros_are_changed_THEN_the_ioc_is_restarted(self):
 
         # Arrange
@@ -362,6 +377,7 @@ class TestActiveConfigHolderSequence(unittest.TestCase):
         self.assertEqual(len(restart), 1)
         self.assertEqual(len(stop), 0)
 
+    @patch_get_iocs_empty
     def test_GIVEN_an_ioc_defined_in_a_component_WHEN_the_ioc_macros_are_not_changed_THEN_the_ioc_is_not_restarted(self):
 
         # Arrange
@@ -391,8 +407,8 @@ class TestActiveConfigHolderSequence(unittest.TestCase):
         self.assertEqual(len(restart), 0)
         self.assertEqual(len(stop), 0)
 
+    @patch_get_iocs_empty
     def test_GIVEN_an_ioc_defined_in_the_top_level_config_WHEN_the_ioc_is_removed_THEN_the_ioc_is_stopped(self):
-
         # Arrange
         config_holder = self.create_active_config_holder()
 
