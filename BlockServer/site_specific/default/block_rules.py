@@ -19,7 +19,7 @@ from server_common.pv_names import BlockserverPVNames
 
 import json
 
-ALLOWED_BLOCK_NAME_REGEX = r"^[a-zA-Z]\w*$"
+ALLOWED_BLOCK_NAME_REGEX = r"^[a-zA-Z]\w{0,19}$"
 DISALLOWED_BLOCK_NAMES = ["lowlimit", "highlimit", "runcontrol", "wait"]
 BLOCK_REGEX_ERROR_MESSAGE = REGEX_ERROR_TEMPLATE_PV_NAME.format("Block name")
 
