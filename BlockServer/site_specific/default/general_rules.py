@@ -29,7 +29,7 @@ REGEX_ALLOW_EVERYTHING = r".*$"
 
 """Standard Error message template for when regex for PV like names failes.
 Usage REGEX_ERROR_TEMPLATE_PV_NAME.format(<object name>)"""
-REGEX_ERROR_TEMPLATE_PV_NAME = "{0} must start with a letter and only contain letters, numbers and underscores"
+REGEX_ERROR_TEMPLATE_PV_NAME = "{0} must start with a letter and only contain letters, numbers and underscores, and be 25 characters or less."
 REGEX_ERROR_TEMPLATE_ALLOW_EVERYTHING = "{0} should allow all characters"
 
 DISALLOWED_NAMES = ["lowlimit", "highlimit", "runcontrol", "wait"]
