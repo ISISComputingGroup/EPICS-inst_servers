@@ -490,6 +490,10 @@ class BlockServer(Driver):
         if as_comp and new_details["name"] in self._active_configserver.get_component_names():
             self.load_last_config()
 
+        # If the configuration we are trying to save is the currently active one, we need to reload it.
+        if config_name == self._active_configserver.get_config_name():
+            self.load_config(config_name, full_init=False)
+
     def _get_inactive_history(self, name, is_component=False):
         # If it already exists load it
         try:
