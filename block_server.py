@@ -276,9 +276,9 @@ class BlockServer(Driver):
             elif reason == BlockserverPVNames.SET_CURR_CONFIG_DETAILS:
                 self.write_queue.put((self._set_curr_config, (data,), "SETTING_CONFIG"))
             elif reason == BlockserverPVNames.SAVE_NEW_CONFIG:
-                self.write_queue.put((self.save_inactive_config, (data,), "SAVING_NEW_CONFIG"))
+                self.write_queue.put((self.save_config, (data,), "SAVING_NEW_CONFIG"))
             elif reason == BlockserverPVNames.SAVE_NEW_COMPONENT:
-                self.write_queue.put((self.save_inactive_config, (data, True), "SAVING_NEW_COMP"))
+                self.write_queue.put((self.save_config, (data, True), "SAVING_NEW_COMP"))
             elif reason == BlockserverPVNames.DELETE_CONFIGS:
                 self.write_queue.put((self._config_list.delete_configs, (convert_from_json(data),), "DELETE_CONFIGS"))
             elif reason == BlockserverPVNames.DELETE_COMPONENTS:
@@ -335,9 +335,7 @@ class BlockServer(Driver):
             print_and_log(f"Config details to be set ({details_name}) did not match current config ({current_name})",
                           "MINOR")
 
-        # Need to save the config to file before we initialize or the changes won't be propagated to IOCS
-        self.save_inactive_config(details)
-        self.load_config(current_name, full_init=False)
+        self.save_config(details)
 
     def _initialise_config(self, full_init=False):
         """Responsible for initialising the configuration.
@@ -434,8 +432,8 @@ class BlockServer(Driver):
             print_and_log("Exception while reloading current configuration: {}".format(err), "MAJOR")
             traceback.print_exc()
 
-    def save_inactive_config(self, json_data, as_comp=False):
-        """Save an inactive configuration.
+    def save_config(self, json_data, as_comp=False):
+        """Save a configuration.
 
         Args:
             json_data (string): The JSON data containing the configuration/component
