@@ -228,7 +228,7 @@ class TestComponentSwitcher(unittest.TestCase):
         self.component_switcher._edit_all_configurations(
             components_to_be_added={"comp2"}, components_to_be_removed={"comp1"})
 
-        self.assertTrue(mock_conf.remove_comp.called_with("comp1"))
-        self.assertTrue(mock_conf.add_comp.called_with("comp2"))
+        mock_conf.remove_comp.assert_called_with("comp1")
+        mock_conf.add_component.assert_called_with("comp2")
         self.assertTrue(mock_conf.save_inactive.called)
         self.assertTrue(self.reload_func.called)
