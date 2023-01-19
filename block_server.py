@@ -402,10 +402,13 @@ class BlockServer(Driver):
         self._ioc_control.start_iocs([ioc for ioc in iocs_to_start if _should_start(ioc)])
         self._ioc_control.restart_iocs([ioc for ioc in iocs_to_restart if _should_start(ioc)])
 
+
         for ioc in iocs_to_start:
+            self._ioc_control.waitfor_running(ioc)
             self._ioc_control.set_autorestart(ioc, _ioc_from_name(ioc).restart)
         
         for ioc in iocs_to_restart:
+            self._ioc_control.waitfor_running(ioc)
             self._ioc_control.set_autorestart(ioc, _ioc_from_name(ioc).restart)
 
         # If an IOC is told to restart but autostart was not set, then it should be stopped instead. This doesn't
