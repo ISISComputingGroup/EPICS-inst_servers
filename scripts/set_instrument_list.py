@@ -136,6 +136,7 @@ if __name__ == "__main__":
         inst_dictionary("SANS2D", groups=["SANS"]),
         inst_dictionary("MUSR", groups=["MUONS"]),
         inst_dictionary("WISH", groups=["CRYSTALLOGRAPHY"]),
+        inst_dictionary("WISH_SETUP", groups=["CRYSTALLOGRAPHY"], pv_prefix="IN:WISH_S9C:", is_scheduled=False),
     ]
 
     set_instlist(instruments_list, pv_address) 
