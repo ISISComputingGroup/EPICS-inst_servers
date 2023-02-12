@@ -350,7 +350,8 @@ class BlockServer(Driver):
         self._ioc_control.stop_iocs(removed_iocs)
         self._start_config_iocs(new_iocs, changed_iocs)
 
-        if CAEN_DISCRIMINATOR_IOC_NAME in self._active_configserver.get_ioc_names():
+        if CAEN_DISCRIMINATOR_IOC_NAME in self._active_configserver.get_ioc_names() \
+                and CAEN_DISCRIMINATOR_IOC_NAME not in new_iocs:
             # See https://github.com/ISISComputingGroup/IBEX/issues/5590 for justification of why this ioc gets
             # special treatment.
             ioc = self._active_configserver.get_all_ioc_details()[CAEN_DISCRIMINATOR_IOC_NAME]
