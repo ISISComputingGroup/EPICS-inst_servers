@@ -40,7 +40,6 @@ from genie_python.mysql_abstraction_layer import SQLAbstraction
 from server_common.utilities import compress_and_hex, print_and_log, set_logger, convert_to_json, \
     dehex_and_decompress, char_waveform
 from server_common.channel_access_server import CAServer
-from server_common.common_exceptions import MaxAttemptsExceededException
 from server_common.constants import IOCS_NOT_TO_STOP
 from server_common.ioc_data import IOCData
 from server_common.ioc_data_source import IocDataSource
