@@ -38,7 +38,7 @@ from DatabaseServer.options_loader import OptionsLoader
 
 from genie_python.mysql_abstraction_layer import SQLAbstraction
 from server_common.utilities import compress_and_hex, print_and_log, set_logger, convert_to_json, \
-    dehex_and_decompress, char_waveform, retry
+    dehex_and_decompress, char_waveform
 from server_common.channel_access_server import CAServer
 from server_common.common_exceptions import MaxAttemptsExceededException
 from server_common.constants import IOCS_NOT_TO_STOP
@@ -310,15 +310,6 @@ class DatabaseServer(Driver):
         """
         return IOCS_NOT_TO_STOP
 
-@retry(max_attempts=5, interval=10, exception=Exception)
-def init_ioc_database_connection():
-    return IOCData(IocDataSource(SQLAbstraction("iocdb", "iocdb", "$iocdb")), ProcServWrapper(),
-                   MACROS["$(MYPVPREFIX)"])
-
-@retry(max_attempts=5, interval=10, exception=Exception)
-def init_experimental_database_connection():
-    return ExpData(MACROS["$(MYPVPREFIX)"], ExpDataSource())
-
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
@@ -348,23 +339,29 @@ if __name__ == '__main__':
     SERVER.createPV(BLOCKSERVER_PREFIX, DatabaseServer.generate_pv_info())
     SERVER.createPV(MACROS["$(MYPVPREFIX)"], ExpData.EDPV)
 
-    # Initialise IOC database connection
-    try:
-        ioc_data = init_ioc_database_connection()
-        print_and_log("Connected to IOCData database", INFO_MSG, LOG_TARGET)
-    except MaxAttemptsExceededException as ex:
-        ioc_data = None
-        exception_info = "".join(traceback.format_exception(type(ex.args[0]), ex.args[0], ex.args[0].__traceback__))
-        print_and_log(f"Problem initialising IOCData DB connection: {exception_info}", MAJOR_MSG, LOG_TARGET)
 
-    # Initialise experimental database connection
-    try:
-        exp_data = init_experimental_database_connection()
-        print_and_log("Connected to experimental details database", INFO_MSG, LOG_TARGET)
-    except MaxAttemptsExceededException as ex:
-        exp_data = None
-        exception_info = "".join(traceback.format_exception(type(ex.args[0]), ex.args[0], ex.args[0].__traceback__))
-        print_and_log(f"Problem connecting to experimental details database: {exception_info}", MAJOR_MSG, LOG_TARGET)
+    ioc_data = None
+    exp_data = None
+
+    while ioc_data is None or exp_data is None:
+        # Initialise IOC database connection
+        if ioc_data is None:
+            try:
+                ioc_data = IOCData(IocDataSource(SQLAbstraction("iocdb", "iocdb", "$iocdb")), ProcServWrapper(), MACROS["$(MYPVPREFIX)"])
+                print_and_log("Connected to IOCData database", INFO_MSG, LOG_TARGET)
+            except Exception:
+                print_and_log("Problem initialising IOCData DB connection: {}".format(traceback.format_exc()), MAJOR_MSG, LOG_TARGET)
+
+        # Initialise experimental database connection
+        if exp_data is None:
+            try:
+                exp_data = ExpData(MACROS["$(MYPVPREFIX)"], ExpDataSource())
+                print_and_log("Connected to experimental details database", INFO_MSG, LOG_TARGET)
+            except Exception:
+                print_and_log("Problem connecting to experimental details database: {}".format(traceback.format_exc()), MAJOR_MSG, LOG_TARGET)
+        
+        # Wait before trying to connect again.
+        sleep(15)
 
     DRIVER = DatabaseServer(SERVER, ioc_data, exp_data, OPTIONS_DIR, BLOCKSERVER_PREFIX)
 
