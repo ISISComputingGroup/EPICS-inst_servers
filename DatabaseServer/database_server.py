@@ -342,7 +342,7 @@ if __name__ == '__main__':
     ioc_data = None
     exp_data = None
 
-    while ioc_data is None or exp_data is None:
+    while True:
         # Initialise IOC database connection
         if ioc_data is None:
             try:
@@ -360,7 +360,10 @@ if __name__ == '__main__':
                 print_and_log("Problem connecting to experimental details database: {}".format(traceback.format_exc()), MAJOR_MSG, LOG_TARGET)
         
         # Wait before trying to connect again.
-        sleep(15)
+        if ioc_data is not None and exp_data is not None:
+            break
+        else:
+            sleep(15)
 
     DRIVER = DatabaseServer(SERVER, ioc_data, exp_data, OPTIONS_DIR, BLOCKSERVER_PREFIX)
 
