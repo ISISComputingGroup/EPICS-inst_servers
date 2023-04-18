@@ -23,7 +23,6 @@ import six
 import sys
 import json
 import argparse
-import codecs
 
 from functools import partial
 from pcaspy import Driver
@@ -339,24 +338,32 @@ if __name__ == '__main__':
     SERVER.createPV(BLOCKSERVER_PREFIX, DatabaseServer.generate_pv_info())
     SERVER.createPV(MACROS["$(MYPVPREFIX)"], ExpData.EDPV)
 
-    # Initialise IOC database connection
-    try:
-        ioc_data = IOCData(IocDataSource(SQLAbstraction("iocdb", "iocdb", "$iocdb")), ProcServWrapper(),
-                           MACROS["$(MYPVPREFIX)"])
-        print_and_log("Connected to IOCData database", INFO_MSG, LOG_TARGET)
-    except Exception as e:
-        ioc_data = None
-        print_and_log("Problem initialising IOCData DB connection: {}".format(traceback.format_exc()),
-                      MAJOR_MSG, LOG_TARGET)
 
-    # Initialise experimental database connection
-    try:
-        exp_data = ExpData(MACROS["$(MYPVPREFIX)"], ExpDataSource())
-        print_and_log("Connected to experimental details database", INFO_MSG, LOG_TARGET)
-    except Exception as e:
-        exp_data = None
-        print_and_log("Problem connecting to experimental details database: {}".format(traceback.format_exc()),
-                      MAJOR_MSG, LOG_TARGET)
+    ioc_data = None
+    exp_data = None
+
+    while True:
+        # Initialise IOC database connection
+        if ioc_data is None:
+            try:
+                ioc_data = IOCData(IocDataSource(SQLAbstraction("iocdb", "iocdb", "$iocdb")), ProcServWrapper(), MACROS["$(MYPVPREFIX)"])
+                print_and_log("Connected to IOCData database", INFO_MSG, LOG_TARGET)
+            except Exception:
+                print_and_log("Problem initialising IOCData DB connection: {}".format(traceback.format_exc()), MAJOR_MSG, LOG_TARGET)
+
+        # Initialise experimental database connection
+        if exp_data is None:
+            try:
+                exp_data = ExpData(MACROS["$(MYPVPREFIX)"], ExpDataSource())
+                print_and_log("Connected to experimental details database", INFO_MSG, LOG_TARGET)
+            except Exception:
+                print_and_log("Problem connecting to experimental details database: {}".format(traceback.format_exc()), MAJOR_MSG, LOG_TARGET)
+        
+        # Wait before trying to connect again.
+        if ioc_data is not None and exp_data is not None:
+            break
+        else:
+            sleep(15)
 
     DRIVER = DatabaseServer(SERVER, ioc_data, exp_data, OPTIONS_DIR, BLOCKSERVER_PREFIX)
 

@@ -307,15 +307,16 @@ def retry(max_attempts, interval, exception):
     def _tags_decorator(func):
         def _wrapper(*args, **kwargs):
             attempts = 0
-            ex = ValueError("Max attempts should be > 0, it is {}".format(max_attempts))
+            last_exception = ValueError("Max attempts should be > 0, it is {}".format(max_attempts))
             while attempts < max_attempts:
                 try:
                     return func(*args, **kwargs)
                 except exception as ex:
+                    last_exception = ex
                     attempts += 1
                     time.sleep(interval)
 
-            raise MaxAttemptsExceededException(ex)
+            raise MaxAttemptsExceededException(last_exception)
         return _wrapper
     return _tags_decorator
 
