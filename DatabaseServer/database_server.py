@@ -35,6 +35,7 @@ from DatabaseServer.exp_data import ExpData, ExpDataSource
 from DatabaseServer.procserv_utils import ProcServWrapper
 from DatabaseServer.options_holder import OptionsHolder
 from DatabaseServer.options_loader import OptionsLoader
+from DatabaseServer.moxa_data import MoxaData, MoxaDataSource
 
 from genie_python.mysql_abstraction_layer import SQLAbstraction
 from server_common.utilities import compress_and_hex, print_and_log, set_logger, convert_to_json, \
@@ -64,7 +65,7 @@ class DatabaseServer(Driver):
     """
     The class for handling all the static PV access and monitors etc.
     """
-    def __init__(self, ca_server: CAServer, ioc_data: IOCData, exp_data: ExpData, options_folder: str,
+    def __init__(self, ca_server: CAServer, ioc_data: IOCData, exp_data: ExpData, moxa_data: MoxaData, options_folder: str,
                  blockserver_prefix: str, test_mode: bool = False):
         """
         Constructor.
@@ -86,6 +87,7 @@ class DatabaseServer(Driver):
         self._pv_info = self._generate_pv_acquisition_info()
         self._iocs = ioc_data
         self._ed = exp_data
+        self._moxa_data = moxa_data
 
         if self._iocs is not None and not test_mode:
             # Start a background thread for keeping track of running IOCs
@@ -117,6 +119,7 @@ class DatabaseServer(Driver):
         add_get_method(DbPVNames.BEAMLINE_PARS, self._get_beamline_par_names)
         add_get_method(DbPVNames.USER_PARS, self._get_user_par_names)
         add_get_method(DbPVNames.IOCS_NOT_TO_STOP, DatabaseServer._get_iocs_not_to_stop)
+        add_get_method(DbPVNames.MOXA_MAPPINGS, self._get_moxa_mappings)
         return enhanced_info
 
     @staticmethod
@@ -136,7 +139,7 @@ class DatabaseServer(Driver):
                    DbPVNames.FACILITY, DbPVNames.ACTIVE_PVS, DbPVNames.ALL_PVS, DbPVNames.IOCS_NOT_TO_STOP]:
             pv_info[pv] = char_waveform(pv_size_256k)
 
-        for pv in [DbPVNames.SAMPLE_PARS, DbPVNames.BEAMLINE_PARS, DbPVNames.USER_PARS]:
+        for pv in [DbPVNames.SAMPLE_PARS, DbPVNames.BEAMLINE_PARS, DbPVNames.USER_PARS, DbPVNames.MOXA_MAPPINGS]:
             pv_info[pv] = char_waveform(pv_size_10k)
 
         return pv_info
@@ -299,6 +302,15 @@ class DatabaseServer(Driver):
         """
         return self._get_pvs(self._iocs.get_user_pars, True)
 
+    def _get_moxa_mappings(self) -> list:
+        """
+        Returns the user parameters from the database, replacing the MYPVPREFIX macro.
+
+        Returns:
+            An ordered dict of moxa models and their respective COM mappings
+        """
+        return self._get_pvs(self._moxa_data._get_mappings, True)
+
     @staticmethod
     def _get_iocs_not_to_stop() -> list:
         """
@@ -341,6 +353,7 @@ if __name__ == '__main__':
 
     ioc_data = None
     exp_data = None
+    moxa_data = None
 
     while True:
         # Initialise IOC database connection
@@ -358,14 +371,21 @@ if __name__ == '__main__':
                 print_and_log("Connected to experimental details database", INFO_MSG, LOG_TARGET)
             except Exception:
                 print_and_log("Problem connecting to experimental details database: {}".format(traceback.format_exc()), MAJOR_MSG, LOG_TARGET)
-        
+
+        if moxa_data is None: 
+            try:
+                moxa_data = MoxaData(MoxaDataSource(SQLAbstraction("moxa_details", "iocdb", "$iocdb")), MACROS["$(MYPVPREFIX)"])
+                print_and_log("Connected to moxa details database", INFO_MSG, LOG_TARGET)
+            except Exception:
+                print_and_log("Problem connecting to moxa details database: {}".format(traceback.format_exc()), MAJOR_MSG, LOG_TARGET)
+
         # Wait before trying to connect again.
-        if ioc_data is not None and exp_data is not None:
+        if ioc_data is not None and exp_data is not None and moxa_data is not None:
             break
         else:
             sleep(15)
 
-    DRIVER = DatabaseServer(SERVER, ioc_data, exp_data, OPTIONS_DIR, BLOCKSERVER_PREFIX)
+    DRIVER = DatabaseServer(SERVER, ioc_data, exp_data, moxa_data, OPTIONS_DIR, BLOCKSERVER_PREFIX)
 
     # Process CA transactions
     while True:

@@ -36,6 +36,8 @@ class DatabasePVNames:
     BEAMLINE_PARS = prepend_blockserver('BEAMLINE_PARS')
     USER_PARS = prepend_blockserver('USER_PARS')
     IOCS_NOT_TO_STOP = prepend_blockserver('IOCS_NOT_TO_STOP')
+    MOXA_MAPPINGS = prepend_blockserver('MOXA_MAPPINGS')
+    UPDATE_MOXA_MAPPINGS = prepend_blockserver('UPDATE_MM')
 
 
 class BlockserverPVNames:
