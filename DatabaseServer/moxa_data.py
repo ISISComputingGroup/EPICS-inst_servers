@@ -1,5 +1,5 @@
 from collections import OrderedDict
-from typing import Dict, Tuple
+from typing import Dict, Tuple, List
 import winreg as wrg
 import socket
 
@@ -15,6 +15,18 @@ FROM moxa_details.port_mappings
 WHERE moxa_name = %s;
 """
 
+INSERT_TO_IPS = """
+INSERT INTO moxa_details.moxa_ips (moxa_name, moxa_ip) VALUES (%s, %s);
+"""
+
+INSERT_TO_PORTS = """
+INSERT INTO moxa_details.port_mappings (moxa_name, moxa_port, com_port) VALUES (%s, %s, %s);"""
+
+DELETE_IPS = """
+DELETE FROM moxa_details.moxa_ips;"""
+
+DELETE_PORTS = """
+DELETE FROM moxa_details.port_mappings;"""
 
 class MoxaDataSource(object):
     """
@@ -45,9 +57,25 @@ class MoxaDataSource(object):
                 if type(element) == bytearray:
                     values[i][j] = element.decode("utf-8")
         return values
+    
+    def _delete_all(self):
+        self.mysql_abstraction_layer.update(DELETE_PORTS)
+        self.mysql_abstraction_layer.update(DELETE_IPS)
 
     def insert_mappings(self, moxa_ip_name_dict, moxa_ports_dict):
-        pass
+        self._delete_all()
+        for moxa_name, moxa_ip in moxa_ip_name_dict.items():
+            print(f"moxa name: {moxa_name} - IP: {moxa_ip}")
+            self.mysql_abstraction_layer.update(INSERT_TO_IPS, (moxa_name, moxa_ip))
+
+        for moxa_name, ports in moxa_ports_dict.items():
+            print(f"got here for {moxa_name} and {ports}")
+            
+            for phys_port, com_port in ports:
+            # phys_port = ports[0]
+            # com_port = ports[1]
+                print(f"moxa name: {moxa_name}, phys port: {phys_port}, com_port: {com_port}")
+                self.mysql_abstraction_layer.update(INSERT_TO_PORTS, (moxa_name, str(phys_port), str(com_port)))
 
 class MoxaData():
 
@@ -65,9 +93,9 @@ class MoxaData():
         # insert mappings initially
         self._moxa_data_source.insert_mappings(*self._get_mappings())
 
-    def _get_mappings(self) -> Tuple[Dict[str, str], Dict[int, int]]:
+    def _get_mappings(self) -> Tuple[Dict[str, str], Dict[int, List[Tuple[int, int]]]]:
         # moxa_name_ip_dict: HOSTNAME:IPADDR
-        # moxa_ports_dict: HOSTNAME:{PHYSPORT:COMPORT}
+        # moxa_ports_dict: HOSTNAME:[(PHYSPORT:COMPORT),...]
         moxa_name_ip_dict = dict()
         moxa_ports_dict = dict()
 
@@ -84,7 +112,7 @@ class MoxaData():
             print(f"IP {ip_addr} hostname {hostname}")
             start_num_com = 1
             com_nums = enumerate(wrg.QueryValueEx(soft,"COMNO")[0], start_num_com)
-            moxa_ports_dict[hostname] = com_nums
+            moxa_ports_dict[hostname] = list(com_nums)
             for count, value in com_nums: 
                 print(f"physical port {count} COM number {value}")
 
