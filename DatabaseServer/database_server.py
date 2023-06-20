@@ -309,7 +309,7 @@ class DatabaseServer(Driver):
         Returns:
             An ordered dict of moxa models and their respective COM mappings
         """
-        return self._get_pvs(self._moxa_data._get_mappings, True)
+        return self._get_pvs(self._moxa_data._get_mappings_str, True)
 
     @staticmethod
     def _get_iocs_not_to_stop() -> list:

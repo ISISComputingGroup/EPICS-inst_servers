@@ -93,6 +93,9 @@ class MoxaData():
         # insert mappings initially
         self._moxa_data_source.insert_mappings(*self._get_mappings())
 
+    def _get_mappings_str(self):
+        return str(self._get_mappings())
+
     def _get_mappings(self) -> Tuple[Dict[str, str], Dict[int, List[Tuple[int, int]]]]:
         # moxa_name_ip_dict: HOSTNAME:IPADDR
         # moxa_ports_dict: HOSTNAME:[(PHYSPORT:COMPORT),...]
