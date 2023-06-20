@@ -3,7 +3,7 @@ from typing import Dict, Tuple, List
 import winreg as wrg
 import socket
 
-
+REG_KEY = r"SYSTEM\\CurrentControlSet\\Services\\npdrv\\Parameters"
 GET_MOXA_IPS = """
 SELECT moxa_name, moxa_ip
 FROM moxa_details.moxa_ips;
@@ -103,11 +103,11 @@ class MoxaData():
         moxa_ports_dict = dict()
 
         location = wrg.HKEY_LOCAL_MACHINE
-        params = wrg.OpenKeyEx(location,r"SYSTEM\\CurrentControlSet\\Services\\npdrv\\Parameters")
+        params = wrg.OpenKeyEx(location,REG_KEY)
         server_count = wrg.QueryValueEx(params, "Servers")[0]
 
         for server_num in range(1, server_count+1):
-            soft = wrg.OpenKeyEx(location,f"SYSTEM\\CurrentControlSet\\Services\\npdrv\\Parameters\\Server{server_num}")
+            soft = wrg.OpenKeyEx(location,f"{REG_KEY}\\Server{server_num}")
             ip_addr_bytes = wrg.QueryValueEx(soft,"IPAddress")[0].to_bytes(4)
             ip_addr = ".".join([str(int(x)) for x in ip_addr_bytes])
             hostname = socket.gethostbyaddr(ip_addr)[0]
