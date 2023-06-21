@@ -79,6 +79,10 @@ class MoxaDataSource(object):
 
 class MoxaData():
 
+    MDPV = {
+        "UPDATE_MM": {'type': 'int'}
+    }
+
     def __init__(self, data_source, prefix):
         """Constructor
 
@@ -91,10 +95,19 @@ class MoxaData():
         self._prefix = prefix
         self.moxa_map = OrderedDict()
         # insert mappings initially
+        self.update_mappings()
+
+    def update_mappings(self):
+        print("updating moxa mappings")
+        self._mappings = self._get_mappings()
         self._moxa_data_source.insert_mappings(*self._get_mappings())
 
     def _get_mappings_str(self):
-        return str(self._get_mappings())
+        return str(self._mappings)
+    
+    def _get_moxa_num(self):
+        return str(len(self._mappings[0].keys()))
+
 
     def _get_mappings(self) -> Tuple[Dict[str, str], Dict[int, List[Tuple[int, int]]]]:
         # moxa_name_ip_dict: HOSTNAME:IPADDR

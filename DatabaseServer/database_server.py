@@ -120,6 +120,7 @@ class DatabaseServer(Driver):
         add_get_method(DbPVNames.USER_PARS, self._get_user_par_names)
         add_get_method(DbPVNames.IOCS_NOT_TO_STOP, DatabaseServer._get_iocs_not_to_stop)
         add_get_method(DbPVNames.MOXA_MAPPINGS, self._get_moxa_mappings)
+        add_get_method(DbPVNames.NUM_MOXAS, self._get_num_of_moxas)
         return enhanced_info
 
     @staticmethod
@@ -139,7 +140,7 @@ class DatabaseServer(Driver):
                    DbPVNames.FACILITY, DbPVNames.ACTIVE_PVS, DbPVNames.ALL_PVS, DbPVNames.IOCS_NOT_TO_STOP]:
             pv_info[pv] = char_waveform(pv_size_256k)
 
-        for pv in [DbPVNames.SAMPLE_PARS, DbPVNames.BEAMLINE_PARS, DbPVNames.USER_PARS, DbPVNames.MOXA_MAPPINGS]:
+        for pv in [DbPVNames.SAMPLE_PARS, DbPVNames.BEAMLINE_PARS, DbPVNames.USER_PARS, DbPVNames.MOXA_MAPPINGS, DbPVNames.NUM_MOXAS]:
             pv_info[pv] = char_waveform(pv_size_10k)
 
         return pv_info
@@ -187,6 +188,8 @@ class DatabaseServer(Driver):
                 self._ed.update_experiment_id(value)
             elif reason == 'ED:USERNAME:SP':
                 self._ed.update_username(dehex_and_decompress(value.encode('utf-8')).decode('utf-8'))
+            elif reason == 'UPDATE_MM':
+                self._moxa_data.update_mappings()
         except Exception as e:
             value = compress_and_hex(convert_to_json("Error: " + str(e)))
             print_and_log(str(e), MAJOR_MSG)
@@ -310,6 +313,9 @@ class DatabaseServer(Driver):
             An ordered dict of moxa models and their respective COM mappings
         """
         return self._get_pvs(self._moxa_data._get_mappings_str, True)
+    
+    def _get_num_of_moxas(self):
+        return self._get_pvs(self._moxa_data._get_moxa_num, True)
 
     @staticmethod
     def _get_iocs_not_to_stop() -> list:
@@ -349,6 +355,7 @@ if __name__ == '__main__':
     SERVER = CAServer(BLOCKSERVER_PREFIX)
     SERVER.createPV(BLOCKSERVER_PREFIX, DatabaseServer.generate_pv_info())
     SERVER.createPV(MACROS["$(MYPVPREFIX)"], ExpData.EDPV)
+    SERVER.createPV(MACROS["$(MYPVPREFIX)"], MoxaData.MDPV)
 
 
     ioc_data = None

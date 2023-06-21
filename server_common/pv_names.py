@@ -38,6 +38,7 @@ class DatabasePVNames:
     IOCS_NOT_TO_STOP = prepend_blockserver('IOCS_NOT_TO_STOP')
     MOXA_MAPPINGS = prepend_blockserver('MOXA_MAPPINGS')
     UPDATE_MOXA_MAPPINGS = prepend_blockserver('UPDATE_MM')
+    NUM_MOXAS = prepend_blockserver('NUM_MOXAS')
 
 
 class BlockserverPVNames:
