@@ -109,8 +109,9 @@ class MoxaData():
         for hostname, mappings in self._mappings[1].items():
             ip_addr = self._mappings[0][hostname]
             newkey = f"{hostname}({ip_addr})"
-            newmap[newkey] = mappings
-
+            newmap[newkey] = []
+            for map in mappings:
+                newmap[newkey].append([str(map[0]), f"COM{map[1]}"])
         return newmap
     
     def _get_moxa_num(self):
@@ -131,7 +132,10 @@ class MoxaData():
             soft = wrg.OpenKeyEx(location,f"{REG_KEY}\\Server{server_num}")
             ip_addr_bytes = wrg.QueryValueEx(soft,"IPAddress")[0].to_bytes(4)
             ip_addr = ".".join([str(int(x)) for x in ip_addr_bytes])
-            hostname = socket.gethostbyaddr(ip_addr)[0]
+            try:
+                hostname = socket.gethostbyaddr(ip_addr)[0]
+            except socket.herror:
+                hostname = "unknown"
             moxa_name_ip_dict[hostname] = ip_addr
             print(f"IP {ip_addr} hostname {hostname}")
             start_num_com = 1
