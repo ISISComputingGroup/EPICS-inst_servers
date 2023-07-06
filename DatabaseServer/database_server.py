@@ -312,7 +312,7 @@ class DatabaseServer(Driver):
         Returns:
             An ordered dict of moxa models and their respective COM mappings
         """
-        return self._get_pvs(self._moxa_data._get_mappings_str, True)
+        return self._get_pvs(self._moxa_data._get_mappings_str, False)
     
     def _get_num_of_moxas(self):
         return self._get_pvs(self._moxa_data._get_moxa_num, True)

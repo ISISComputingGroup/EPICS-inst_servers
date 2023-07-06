@@ -2,6 +2,7 @@ from collections import OrderedDict
 from typing import Dict, Tuple, List
 import winreg as wrg
 import socket
+import json 
 
 REG_KEY = r"SYSTEM\\CurrentControlSet\\Services\\npdrv\\Parameters"
 GET_MOXA_IPS = """
@@ -103,7 +104,10 @@ class MoxaData():
         self._moxa_data_source.insert_mappings(*self._get_mappings())
 
     def _get_mappings_str(self):
-        return str(self._mappings)
+        return self._mappings
+        print("mappings before")
+        print(self._mappings)
+        return json.dumps(self._mappings)
     
     def _get_moxa_num(self):
         return str(len(self._mappings[0].keys()))
