@@ -104,10 +104,14 @@ class MoxaData():
         self._moxa_data_source.insert_mappings(*self._get_mappings())
 
     def _get_mappings_str(self):
-        return self._mappings
-        print("mappings before")
-        print(self._mappings)
-        return json.dumps(self._mappings)
+        #it is much easier to parse the mappings if they just look like a key:{key, val} list, so lets do that now rather than in the GUI
+        newmap = dict()
+        for hostname, mappings in self._mappings[1].items():
+            ip_addr = self._mappings[0][hostname]
+            newkey = f"{hostname}({ip_addr})"
+            newmap[newkey] = mappings
+
+        return newmap
     
     def _get_moxa_num(self):
         return str(len(self._mappings[0].keys()))
