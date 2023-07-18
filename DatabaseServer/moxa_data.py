@@ -2,7 +2,8 @@ from collections import OrderedDict
 from typing import Dict, Tuple, List
 import winreg as wrg
 import socket
-import json 
+
+from server_common.utilities import print_and_log
 
 REG_KEY = r"SYSTEM\\CurrentControlSet\\Services\\npdrv\\Parameters"
 GET_MOXA_IPS = """
@@ -64,18 +65,17 @@ class MoxaDataSource(object):
         self.mysql_abstraction_layer.update(DELETE_IPS)
 
     def insert_mappings(self, moxa_ip_name_dict, moxa_ports_dict):
+        print_and_log("inserting moxa mappings to SQL")
         self._delete_all()
         for moxa_name, moxa_ip in moxa_ip_name_dict.items():
-            print(f"moxa name: {moxa_name} - IP: {moxa_ip}")
+            print_and_log(f"moxa name: {moxa_name} - IP: {moxa_ip}")
             self.mysql_abstraction_layer.update(INSERT_TO_IPS, (moxa_name, moxa_ip))
 
-        for moxa_name, ports in moxa_ports_dict.items():
-            print(f"got here for {moxa_name} and {ports}")
-            
+        for moxa_name, ports in moxa_ports_dict.items():           
             for phys_port, com_port in ports:
             # phys_port = ports[0]
             # com_port = ports[1]
-                print(f"moxa name: {moxa_name}, phys port: {phys_port}, com_port: {com_port}")
+                print_and_log(f"moxa name: {moxa_name}, phys port: {phys_port}, com_port: {com_port}")
                 self.mysql_abstraction_layer.update(INSERT_TO_PORTS, (moxa_name, str(phys_port), str(com_port)))
 
 class MoxaData():
@@ -99,7 +99,7 @@ class MoxaData():
         self.update_mappings()
 
     def update_mappings(self):
-        print("updating moxa mappings")
+        print_and_log("updating moxa mappings")
         self._mappings = self._get_mappings()
         self._moxa_data_source.insert_mappings(*self._get_mappings())
 
@@ -137,12 +137,12 @@ class MoxaData():
             except socket.herror:
                 hostname = "unknown"
             moxa_name_ip_dict[hostname] = ip_addr
-            print(f"IP {ip_addr} hostname {hostname}")
+            print_and_log(f"IP {ip_addr} hostname {hostname}")
             start_num_com = 1
             com_nums = enumerate(wrg.QueryValueEx(soft,"COMNO")[0], start_num_com)
             moxa_ports_dict[hostname] = list(com_nums)
             for count, value in com_nums: 
-                print(f"physical port {count} COM number {value}")
+                print_and_log(f"physical port {count} COM number {value}")
 
         return moxa_name_ip_dict, moxa_ports_dict
 
