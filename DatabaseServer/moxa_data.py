@@ -159,13 +159,13 @@ class MoxaData():
                 hostname = self._get_hostname(ip_addr)
 
                 moxa_name_ip_dict[hostname] = ip_addr
+
                 if hostname not in moxa_ports_dict.keys():
                     moxa_ports_dict[hostname] = list()
-                
                 # Modulo by 16 here as we want the 2nd moxa's first port_num to be 1 rather
                 # than 17 as it's the first port on the second moxa
                 port_num_respective = port_num % 16 
-                moxa_ports_dict[hostname].append((port_num_respective, com_num))
+                moxa_ports_dict[hostname].append((port_num_respective + 1, com_num))
 
         else: 
             # This is what Nport Administrator uses. It lays out each Moxa that is added to "Servers" which contains a few bytes
