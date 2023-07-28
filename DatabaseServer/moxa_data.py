@@ -47,9 +47,13 @@ class MoxaDataSource(object):
     def _query_and_normalise(self, sqlquery, bind_vars=None):
         """
         Executes the given query to the database and converts the data in each row from bytearray to a normal string.
-        :param sqlquery: The query to execute.
-        :param bind_vars: Any variables to bind to query. Defaults to None.
-        :return: A list of lists of strings, representing the data from the table.
+
+        Args:
+            sqlquery: The query to execute.
+            bind_vars: Any variables to bind to query. Defaults to None.
+
+        Returns:
+            A list of lists of strings, representing the data from the table.
         """
         # Get as a plain list of lists
         values = [list(element) for element in self.mysql_abstraction_layer.query(sqlquery, bind_vars)]
@@ -65,6 +69,13 @@ class MoxaDataSource(object):
         self.mysql_abstraction_layer.update(DELETE_PORTS)
         self.mysql_abstraction_layer.update(DELETE_IPS)
 
+    """
+    Iterates through the map of ip to hostname and physical port to COM ports and inserts the mappings into the sql instance. 
+
+    Args:
+        moxa_ip_name_dict: The map of IP addresses to hostnames of Moxa Nports
+        moxa_ports_dict: The map of IP addresses to physical and COM port mappings
+    """
     def insert_mappings(self, moxa_ip_name_dict, moxa_ports_dict):
         print_and_log("inserting moxa mappings to SQL")
         self._delete_all()
@@ -99,11 +110,17 @@ class MoxaData():
         # insert mappings initially
         self.update_mappings()
 
+    """
+    Gets the mappings and inserts them into SQL
+    """
     def update_mappings(self):
         print_and_log("updating moxa mappings")
         self._mappings = self._get_mappings()
         self._moxa_data_source.insert_mappings(*self._get_mappings())
 
+    """
+    Returns the IP to hostname and IP to port mappings as a string representation for use with the MOXA_MAPPINGS PV
+    """
     def _get_mappings_str(self):
         #it is much easier to parse the mappings if they just look like a key:{key, val} list, so lets do that now rather than in the GUI
         newmap = dict()
