@@ -145,46 +145,48 @@ class MoxaData():
             ports_count = wrg.QueryInfoKey(ports_path)[0]
         except FileNotFoundError: 
             print_and_log("using old style registry for moxas", severity=SEVERITY.MINOR)
+        try:
+            if using_npdrv2:
+                # This is what Nport Windows Driver manager uses. It uses a subkey for each port mappping,
+                # each of which has an ip address referenced. It doesn't seem to have a physical port number
+                # as the ports are added individually, so we have to modulo the port number. 
+                for port_num in range(0, ports_count):
+                    port_subkey = f"{port_num:04d}"
+                    port_reg = wrg.OpenKeyEx(ports_path, port_subkey)
+                    device_params = wrg.OpenKeyEx(port_reg, "Device Parameters")
+                    ip_addr = wrg.QueryValueEx(device_params, "IPAddress1")[0]
+                    com_num = wrg.QueryValueEx(device_params, "COMNO")[0]
+                    hostname = self._get_hostname(ip_addr)
 
-        if using_npdrv2:
-            # This is what Nport Windows Driver manager uses. It uses a subkey for each port mappping,
-            # each of which has an ip address referenced. It doesn't seem to have a physical port number
-            # as the ports are added individually, so we have to modulo the port number. 
-            for port_num in range(0, ports_count):
-                port_subkey = f"{port_num:04d}"
-                port_reg = wrg.OpenKeyEx(ports_path, port_subkey)
-                device_params = wrg.OpenKeyEx(port_reg, "Device Parameters")
-                ip_addr = wrg.QueryValueEx(device_params, "IPAddress1")[0]
-                com_num = wrg.QueryValueEx(device_params, "COMNO")[0]
-                hostname = self._get_hostname(ip_addr)
+                    moxa_name_ip_dict[hostname] = ip_addr
 
-                moxa_name_ip_dict[hostname] = ip_addr
+                    if hostname not in moxa_ports_dict.keys():
+                        moxa_ports_dict[hostname] = list()
+                    # Modulo by 16 here as we want the 2nd moxa's first port_num to be 1 rather
+                    # than 17 as it's the first port on the second moxa
+                    port_num_respective = port_num % 16 
+                    moxa_ports_dict[hostname].append((port_num_respective + 1, com_num))
 
-                if hostname not in moxa_ports_dict.keys():
-                    moxa_ports_dict[hostname] = list()
-                # Modulo by 16 here as we want the 2nd moxa's first port_num to be 1 rather
-                # than 17 as it's the first port on the second moxa
-                port_num_respective = port_num % 16 
-                moxa_ports_dict[hostname].append((port_num_respective + 1, com_num))
+            else: 
+                # This is what Nport Administrator uses. It lays out each Moxa that is added to "Servers" which contains a few bytes
+                # and lays things out in a subkey for each.
+                params = wrg.OpenKeyEx(location,REG_KEY_NPDRV)
+                server_count = wrg.QueryValueEx(params, "Servers")[0]
 
-        else: 
-            # This is what Nport Administrator uses. It lays out each Moxa that is added to "Servers" which contains a few bytes
-            # and lays things out in a subkey for each.
-            params = wrg.OpenKeyEx(location,REG_KEY_NPDRV)
-            server_count = wrg.QueryValueEx(params, "Servers")[0]
-
-            for server_num in range(1, server_count+1):
-                soft = wrg.OpenKeyEx(location,f"{REG_KEY_NPDRV}\\Server{server_num}")
-                ip_addr_bytes = wrg.QueryValueEx(soft,"IPAddress")[0].to_bytes(4)
-                ip_addr = ".".join([str(int(x)) for x in ip_addr_bytes])
-                hostname = self._get_hostname(ip_addr)
-                moxa_name_ip_dict[hostname] = ip_addr
-                print_and_log(f"IP {ip_addr} hostname {hostname}")
-                start_num_com = 1
-                com_nums = enumerate(wrg.QueryValueEx(soft,"COMNO")[0], start_num_com)
-                moxa_ports_dict[hostname] = list(com_nums)
-                for count, value in com_nums: 
-                    print_and_log(f"physical port {count} COM number {value}")
+                for server_num in range(1, server_count+1):
+                    soft = wrg.OpenKeyEx(location,f"{REG_KEY_NPDRV}\\Server{server_num}")
+                    ip_addr_bytes = wrg.QueryValueEx(soft,"IPAddress")[0].to_bytes(4)
+                    ip_addr = ".".join([str(int(x)) for x in ip_addr_bytes])
+                    hostname = self._get_hostname(ip_addr)
+                    moxa_name_ip_dict[hostname] = ip_addr
+                    print_and_log(f"IP {ip_addr} hostname {hostname}")
+                    start_num_com = 1
+                    com_nums = enumerate(wrg.QueryValueEx(soft,"COMNO")[0], start_num_com)
+                    moxa_ports_dict[hostname] = list(com_nums)
+                    for count, value in com_nums: 
+                        print_and_log(f"physical port {count} COM number {value}")
+        except FileNotFoundError as e:
+            print_and_log(f"Error reading registry for moxa mapping information: {str(e)}", severity=SEVERITY.MAJOR)
 
         return moxa_name_ip_dict, moxa_ports_dict
 
