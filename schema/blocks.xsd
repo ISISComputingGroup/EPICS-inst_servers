@@ -38,4 +38,5 @@
   <xs:element name="log_periodic" type="xs:string"/>
   <xs:element name="log_rate" type="xs:decimal"/>
   <xs:element name="log_deadband" type="xs:double"/>
+  <xs:element name="initial_value" type="xs:string"/>
 </xs:schema>

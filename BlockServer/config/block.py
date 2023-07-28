@@ -36,7 +36,7 @@ class Block:
     """
     def __init__(self, name: str, pv: str, local: bool = True, visible: bool = True, component: str = None, runcontrol:
                  bool = False, lowlimit: float = None, highlimit: float = None, suspend_on_invalid: bool = False,
-                 log_periodic: bool = False, log_rate: float = 5, log_deadband: float = 0):
+                 log_periodic: bool = False, log_rate: float = 5, log_deadband: float = 0, initial_value = None):
         """ Constructor.
 
         Args:
@@ -65,6 +65,7 @@ class Block:
         self.log_periodic = log_periodic
         self.log_rate = log_rate
         self.log_deadband = log_deadband
+        self.initial_value = initial_value
 
     def _get_pv(self) -> str:
         pv_name = self.pv
@@ -83,7 +84,7 @@ class Block:
 
     def __str__(self):
         return f"Name: {self.name}, PV: {self.pv}, Local: {self.local}, Visible: {self.visible}, Component: {self.component}" \
-               f", RCEnabled: {self.rc_enabled}, RCLow: {self.rc_lowlimit}, RCHigh: {self.rc_highlimit}"
+               f", RCEnabled: {self.rc_enabled}, RCLow: {self.rc_lowlimit}, RCHigh: {self.rc_highlimit}, Initial Val: {self.initial_value}"
 
     def to_dict(self) -> Dict[str, Union[str, float, bool]]:
         """ Puts the block's details into a dictionary.
@@ -104,4 +105,5 @@ class Block:
             "log_rate": self.log_rate,
             "log_deadband": self.log_deadband,
             "suspend_on_invalid": self.rc_suspend_on_invalid,
+            "initial_value": "" if self.initial_value is None else self.initial_value,
         }
