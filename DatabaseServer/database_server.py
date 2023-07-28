@@ -381,7 +381,7 @@ if __name__ == '__main__':
 
         if moxa_data is None: 
             try:
-                moxa_data = MoxaData(MoxaDataSource(SQLAbstraction("moxa_details", "iocdb", "$iocdb")), MACROS["$(MYPVPREFIX)"])
+                moxa_data = MoxaData(MoxaDataSource(SQLAbstraction("moxa_details", "moxas", "$moxas")), MACROS["$(MYPVPREFIX)"])
                 print_and_log("Connected to moxa details database", INFO_MSG, LOG_TARGET)
             except Exception:
                 print_and_log("Problem connecting to moxa details database: {}".format(traceback.format_exc()), MAJOR_MSG, LOG_TARGET)
