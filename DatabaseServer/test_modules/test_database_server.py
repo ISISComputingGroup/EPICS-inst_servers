@@ -17,6 +17,9 @@ from __future__ import print_function, absolute_import, division, unicode_litera
 
 import json
 import os
+
+import mock
+
 os.environ['MYDIRBLOCK'] = os.path.abspath('..')
 os.environ['MYPVPREFIX'] = ""
 os.environ['EPICS_KIT_ROOT'] = ""
@@ -46,8 +49,9 @@ class TestDatabaseServer(unittest.TestCase):
         self.proc_server = MockProcServWrapper()
         self.exp_data = MockExpData()
         self.ioc_data = IOCData(self.ioc_source, self.proc_server, "")
+        self.moxa_data = mock.Mock()
         test_files_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "test_files")
-        self.db_server = DatabaseServer(self.ms, self.ioc_data, self.exp_data, test_files_dir, "block_prefix", True)
+        self.db_server = DatabaseServer(self.ms, self.ioc_data, self.exp_data, self.moxa_data, test_files_dir, "block_prefix", True)
 
     @unittest.skipIf(IS_LINUX, "DB server not configured to run properly on Linux build")
     def test_interest_high_pvs_correct(self):
