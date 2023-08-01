@@ -1,6 +1,8 @@
+import os
 from collections import OrderedDict
 from typing import Dict, Tuple, List
-import winreg as wrg
+if os.name == "nt":
+    import winreg as wrg
 import socket
 
 from server_common.utilities import print_and_log, SEVERITY
