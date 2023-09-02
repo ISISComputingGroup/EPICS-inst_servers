@@ -102,7 +102,7 @@ if __name__ == "__main__":
         inst_dictionary("ALF", groups=["EXCITATIONS"]),
         inst_dictionary("DEMO", groups=[], is_scheduled=False),
         inst_dictionary("IMAT", groups=["ENGINEERING"]),
-        inst_dictionary("MUONFE", groups=["MUONS"], hostname_prefix="NDE", is_scheduled=False),
+        inst_dictionary("MUONFE", groups=["MUONS"], is_scheduled=False),
         inst_dictionary("ZOOM", groups=["SANS"]),
         inst_dictionary("IRIS", groups=["MOLSPEC"]),
         inst_dictionary("IRIS_SETUP", groups=["MOLSPEC"], pv_prefix="IN:IRIS_S29:", is_scheduled=False),
@@ -137,6 +137,8 @@ if __name__ == "__main__":
         inst_dictionary("MUSR", groups=["MUONS"]),
         inst_dictionary("WISH", groups=["CRYSTALLOGRAPHY"]),
         inst_dictionary("WISH_SETUP", groups=["CRYSTALLOGRAPHY"], pv_prefix="IN:WISH_S9C:", is_scheduled=False),
+        inst_dictionary("PEARL", groups=["CRYSTALLOGRAPHY"]),
+        inst_dictionary("PEARL_SETUP", groups=["CRYSTALLOGRAPHY"], pv_prefix="IN:PEARL_5B:", is_scheduled=False),
     ]
 
     set_instlist(instruments_list, pv_address) 
