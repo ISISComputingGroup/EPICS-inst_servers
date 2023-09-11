@@ -31,8 +31,8 @@
   <xs:element name="read_pv" type="xs:NMTOKEN"/>
   <xs:element name="local" type="xs:string"/>
   <xs:element name="visible" type="xs:string"/>
-  <xs:element name="rc_lowlimit" type="xs:decimal"/>
-  <xs:element name="rc_highlimit" type="xs:decimal"/>
+  <xs:element name="rc_lowlimit" type="xs:double"/>
+  <xs:element name="rc_highlimit" type="xs:double"/>
   <xs:element name="rc_enabled" type="xs:string"/>
   <xs:element name="rc_suspend_on_invalid" type="xs:string"/>
   <xs:element name="log_periodic" type="xs:string"/>
