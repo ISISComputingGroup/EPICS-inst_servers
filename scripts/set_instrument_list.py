@@ -75,7 +75,7 @@ def inst_dictionary(instrument_name, hostname_prefix="NDX", hostname=None, pv_pr
             "pvPrefix": pv_prefix_to_use,
             "isScheduled": is_scheduled,
             "groups": groups_to_use,
-            "SECI": seci_to_use
+            "seci": seci_to_use
             }
 
 
