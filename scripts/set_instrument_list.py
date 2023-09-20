@@ -15,7 +15,6 @@
 # http://opensource.org/licenses/eclipse-1.0.php
 
 import json
-import zlib
 import sys
 import os
 
@@ -101,7 +100,7 @@ if __name__ == "__main__":
     set_env()
 
     # The PV address list
-    pv_address = "TE:NDW2455:CS:INSTLIST"
+    pv_address = "CS:INSTLIST"
     # Any instrument on here that has a EPICS/genie/GUI version other than 12.0.01 or 13.0.1 http://beamlog.nd.rl.ac.uk/inst_summary.xml, plus OFFSPEC and MUSR for the moment
     # instrument list values to set (uses utility to return the dictionary but you can use a dictionary directly)
     instruments_list = [
