@@ -139,6 +139,7 @@ if __name__ == "__main__":
         inst_dictionary("WISH_SETUP", groups=["CRYSTALLOGRAPHY"], pv_prefix="IN:WISH_S9C:", is_scheduled=False),
         inst_dictionary("PEARL", groups=["CRYSTALLOGRAPHY"]),
         inst_dictionary("PEARL_SETUP", groups=["CRYSTALLOGRAPHY"], pv_prefix="IN:PEARL_5B:", is_scheduled=False),
+        inst_dictionary("HIFI-CRYOMAG", groups=["MUONS"], pv_prefix="IN:HIFI-C11:", is_scheduled=False),
     ]
 
     set_instlist(instruments_list, pv_address) 
