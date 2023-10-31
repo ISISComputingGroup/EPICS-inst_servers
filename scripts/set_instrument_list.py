@@ -15,7 +15,6 @@
 # http://opensource.org/licenses/eclipse-1.0.php
 
 import json
-import zlib
 import sys
 import os
 
@@ -37,7 +36,7 @@ def set_env():
     print(epics_ca_addr_list + " = " + str(os.environ.get(epics_ca_addr_list)))
 
 
-def inst_dictionary(instrument_name, hostname_prefix="NDX", hostname=None, pv_prefix=None, is_scheduled=True, groups=None):
+def inst_dictionary(instrument_name, hostname_prefix="NDX", hostname=None, pv_prefix=None, is_scheduled=True, groups=None, seci=False):
     """
     Generate the instrument dictionary for the instrument list
     Args:
@@ -64,12 +63,19 @@ def inst_dictionary(instrument_name, hostname_prefix="NDX", hostname=None, pv_pr
         groups_to_use = []
     else:
         groups_to_use = groups
+
+    if seci is True:
+        seci_to_use = True
+    else:
+        seci_to_use = False
+
         
     return {"name": instrument_name,
             "hostName": hostname_to_use,
             "pvPrefix": pv_prefix_to_use,
             "isScheduled": is_scheduled,
             "groups": groups_to_use,
+            "seci": seci_to_use
             }
 
 
@@ -95,9 +101,14 @@ if __name__ == "__main__":
 
     # The PV address list
     pv_address = "CS:INSTLIST"
-
+    # Any instrument on here that has a EPICS/genie/GUI version other than 12.0.01 or 13.0.1 http://beamlog.nd.rl.ac.uk/inst_summary.xml, plus OFFSPEC and MUSR for the moment
     # instrument list values to set (uses utility to return the dictionary but you can use a dictionary directly)
     instruments_list = [
+        inst_dictionary("ARGUS", seci=True),
+        inst_dictionary("CHRONUS", seci=True),
+        inst_dictionary("HIFI", seci=True),
+        inst_dictionary("CHIPIR", seci=True),
+        inst_dictionary("CRYOLAB_R80", seci=True),
         inst_dictionary("LARMOR", groups=["SANS"]),
         inst_dictionary("ALF", groups=["EXCITATIONS"]),
         inst_dictionary("DEMO", groups=[], is_scheduled=False),
