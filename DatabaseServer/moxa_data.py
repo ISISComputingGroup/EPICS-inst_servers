@@ -5,6 +5,8 @@ import socket
 
 from server_common.utilities import print_and_log, SEVERITY
 
+from server_common.snmpWalker import walk
+
 REG_KEY_NPDRV = r"SYSTEM\\CurrentControlSet\\Services\\npdrv\\Parameters"
 REG_DIR_NPDRV2 = r"SYSTEM\\CurrentControlSet\\Enum\\ROOT\\PORTS"
 GET_MOXA_IPS = """
@@ -30,6 +32,9 @@ DELETE FROM moxa_details.moxa_ips;"""
 
 DELETE_PORTS = """
 DELETE FROM moxa_details.port_mappings;"""
+
+SYSTEM_MIBS = ["DISMAN-EXPRESSION-MIB::sysUpTimeInstance", "SNMPv2-MIB::sysName"]
+PORT_MIBS = ["IF-MIB::ifOperStatus", "IF-MIB::ifSpeed", "IF-MIB::ifInOctets", "IF-MIB::ifOutOctets"]
 
 class MoxaDataSource(object):
     """
@@ -126,10 +131,19 @@ class MoxaData():
         newmap = dict()
         for hostname, mappings in self._mappings[1].items():
             ip_addr = self._mappings[0][hostname]
-            newkey = f"{hostname}({ip_addr})"
+            mibmap = walk(ip_addr, '1.3.6.1.2.1', SYSTEM_MIBS + PORT_MIBS)
+            upTime = mibmap["DISMAN-EXPRESSION-MIB::sysUpTimeInstance"]
+            sysName = mibmap["SNMPv2-MIB::sysName.0"]
+            newkey = f"{hostname}({ip_addr} - {sysName})({upTime})"
             newmap[newkey] = []
-            for map in mappings:
-                newmap[newkey].append([str(map[0]), f"COM{map[1]}"])
+            for coms in mappings:
+                additionalInfo = ""
+                for mib in PORT_MIBS:
+                    portMIB = int(str(coms[0])) + 1
+                    key = mib + "." + str(portMIB)
+                    additionalInfo += mib + "=" + mibmap[key] + "~"
+                
+                newmap[newkey].append([str(coms[0]), f"COM{coms[1]}~{additionalInfo}"])
         return newmap
     
     def _get_moxa_num(self):
