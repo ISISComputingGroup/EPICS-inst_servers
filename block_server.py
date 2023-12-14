@@ -59,6 +59,8 @@ from BlockServer.core.database_client import get_iocs
 from queue import Queue
 
 CURR_CONFIG_NAME_SEVR_VALUE = 0
+CONFIG_PUSH_TIME = 300 # 5 minutes
+INST_SCRIPT_PUSH_TIME = 604800 # 7 days
 
 # This IOC gets special treatment as it needs to be reloaded on every single config change, regardless of whether
 # it's macros have changed or not. For details see https://github.com/ISISComputingGroup/IBEX/issues/5590
@@ -109,6 +111,8 @@ class BlockServer(Driver):
         self.write_queue = Queue()
 
         FILEPATH_MANAGER.initialise(CONFIG_DIR, SCRIPT_DIR, SCHEMA_DIR)
+        drive = os.path.abspath('.').split(os.path.sep)[0]+os.path.sep
+        self.instrument_scripts = os.path.join(drive,"Instrument","scripts")
 
         self.instrument_prefix = MACROS["$(MYPVPREFIX)"]
         self._cas = ca_server
@@ -127,18 +131,34 @@ class BlockServer(Driver):
 
         # Connect to version control
         try:
-            self._vc = GitVersionControl(CONFIG_DIR, RepoFactory.get_repo(CONFIG_DIR))
-            self._vc.setup()
-            print_and_log("Version control initialised correctly", "INFO")
+            self._config_vc = GitVersionControl(CONFIG_DIR, RepoFactory.get_repo(CONFIG_DIR), "config",
+                                                CONFIG_PUSH_TIME)
+            self._config_vc.setup()
+            print_and_log("Config version control initialised correctly", "INFO")
         except NotUnderVersionControl as err:
             print_and_log("Configurations not under version control: %s" % err, "MINOR")
-            self._vc = MockVersionControl()
+            self._config_vc = MockVersionControl()
         except VersionControlException as err:
-            print_and_log("Unable to initialise version control: %s" % err, "MINOR")
-            self._vc = MockVersionControl()
+            print_and_log("Unable to initialise config version control: %s" % err, "MINOR")
+            self._config_vc = MockVersionControl()
         except Exception as err:
-            print_and_log("Unable to initialise version control: %s" % err, "MINOR")
-            self._vc = MockVersionControl()
+            print_and_log("Unable to initialise config version control: %s" % err, "MINOR")
+            self._config_vc = MockVersionControl()
+
+        try:
+            self._script_vc = GitVersionControl(self.instrument_scripts, RepoFactory.get_repo(self.instrument_scripts),
+                                                "instrument scripts", INST_SCRIPT_PUSH_TIME)
+            self._script_vc.setup()
+            print_and_log("Scripting version control initialised correctly", "INFO")
+        except NotUnderVersionControl as err:
+            print_and_log("Scripts not under version control: %s" % err, "MINOR")
+            self._script_vc = MockVersionControl()
+        except VersionControlException as err:
+            print_and_log("Unable to initialise script version control: %s" % err, "MINOR")
+            self._script_vc = MockVersionControl()
+        except Exception as err:
+            print_and_log("Unable to initialise script version control: %s" % err, "MINOR")
+            self._script_vc = MockVersionControl()
 
         # Import data about all configs
         try:
