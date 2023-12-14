@@ -27,9 +27,7 @@ from server_common.utilities import print_and_log, retry
 from server_common.common_exceptions import MaxAttemptsExceededException
 
 SYSTEM_TEST_PREFIX = "rcptt_"
-GIT_REMOTE_LOCATION = 'http://control-svcs.isis.cclrc.ac.uk/gitroot/instconfigs/test.git'
 ERROR_PREFIX = "Unable to commit to version control"
-PUSH_BASE_INTERVAL = 300
 PUSH_RETRY_INTERVAL = 10
 RETRY_INTERVAL = 0.1
 RETRY_MAX_ATTEMPTS = 100
@@ -61,11 +59,13 @@ def check_branch_allowed(func):
 
 class GitVersionControl:
     """Version Control class for dealing with git file operations"""
-    def __init__(self, working_directory, repo, is_local=False):
+    def __init__(self, working_directory, repo, repo_name, push_interval, is_local=False):
         self._wd = working_directory
         self.repo = repo
         self._is_local = is_local
+        self._repo_name = repo_name
         self._message_provider = GitMessageProvider()
+        self.push_interval = push_interval
 
         if not is_local:
             self.remote = self.repo.remotes.origin
@@ -128,7 +128,7 @@ class GitVersionControl:
 
     def _commit_and_push(self):
         """ Frequently adds, commits and pushes all file currently in the repository. """
-        push_interval = PUSH_BASE_INTERVAL
+        push_interval = self.push_interval
         first_failure = True
 
         while True:
@@ -137,20 +137,20 @@ class GitVersionControl:
                     self._add_all_files()
                     self._commit()
                     self.remote.push()
-                    push_interval = PUSH_BASE_INTERVAL
+                    push_interval = self.push_interval
                     first_failure = True
 
                 except MaxAttemptsExceededException:
-                    print_and_log(f"{ERROR_PREFIX}, maximum tries exceeded.")
+                    print_and_log(f"{ERROR_PREFIX} for {self._repo_name}, maximum tries exceeded.")
 
                 except GitCommandError as e:
                     # Most likely issue connecting to server, increase timeout, notify if it's the first time
                     push_interval = PUSH_RETRY_INTERVAL
                     if first_failure:
-                        print_and_log(f"{ERROR_PREFIX}, will retry in {PUSH_RETRY_INTERVAL} seconds", "MINOR")
+                        print_and_log(f"{ERROR_PREFIX} for {self._repo_name}, will retry in {PUSH_RETRY_INTERVAL} seconds", "MINOR")
                         first_failure = False
                 except NotUnderAllowedBranchException as e:
-                    print_and_log(f"{ERROR_PREFIX}, {e.message}")
+                    print_and_log(f"{ERROR_PREFIX} for {self._repo_name}, {e.message}")
 
             sleep(push_interval)
 
