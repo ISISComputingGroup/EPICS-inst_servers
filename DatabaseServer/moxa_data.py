@@ -132,18 +132,29 @@ class MoxaData():
         for hostname, mappings in self._mappings[1].items():
             ip_addr = self._mappings[0][hostname]
             mibmap = walk(ip_addr, '1.3.6.1.2.1', SYSTEM_MIBS + PORT_MIBS)
-            upTime = mibmap["DISMAN-EXPRESSION-MIB::sysUpTimeInstance"]
-            sysName = mibmap["SNMPv2-MIB::sysName.0"]
-            newkey = f"{hostname}({ip_addr} - {sysName})({upTime})"
+            #Some defensive coding to avoid errors if SNMP walk fails
+            upTime = ''
+            if "DISMAN-EXPRESSION-MIB::sysUpTimeInstance" in mibmap:
+                upTime = mibmap["DISMAN-EXPRESSION-MIB::sysUpTimeInstance"]
+            sysName = ''
+            if "SNMPv2-MIB::sysName.0" in mibmap:
+                sysName = mibmap["SNMPv2-MIB::sysName.0"]
+            newkey = f"{hostname}({ip_addr})"
+            if len(upTime) > 0 :
+                newkey = f"{hostname}({ip_addr} - {sysName})({upTime})"
             newmap[newkey] = []
             for coms in mappings:
                 additionalInfo = ""
                 for mib in PORT_MIBS:
                     portMIB = int(str(coms[0])) + 1
                     key = mib + "." + str(portMIB)
-                    additionalInfo += mib + "=" + mibmap[key] + "~"
+                    if key in mibmap:
+                        additionalInfo += mib + "=" + mibmap[key] + "~"
+                if len(additionalInfo) > 0:
+                    newmap[newkey].append([str(coms[0]), f"COM{coms[1]}~{additionalInfo}"])
+                else:
+                    newmap[newkey].append([str(coms[0]), f"COM{coms[1]}"])
                 
-                newmap[newkey].append([str(coms[0]), f"COM{coms[1]}~{additionalInfo}"])
         return newmap
     
     def _get_moxa_num(self):
