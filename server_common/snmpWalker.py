@@ -7,14 +7,14 @@ from server_common.utilities import print_and_log, SEVERITY
 # Assemble MIB browser
 mibBuilder = builder.MibBuilder()
 mibViewController = view.MibViewController(mibBuilder)
-compiler.addMibCompiler(mibBuilder, sources=['file:///usr/share/snmp/mibs',
-                                             'https://mibs.pysnmp.com/asn1/@mib@'])
 
+#compiler.addMibCompiler(mibBuilder, sources=['https://mibs.pysnmp.com/asn1/@mib@'], destination='snmp/mibs')
+# The below code needs MIBS to have been downloaded in the below subfolder.
+compiler.addMibCompiler(mibBuilder, sources=['file://snmp/mibs'])
 # Pre-load MIB modules we expect to work with
 mibBuilder.loadModules("SNMPv2-MIB", "SNMP-COMMUNITY-MIB", "DISMAN-EXPRESSION-MIB", "RFC1213-MIB", "IF-MIB")
 
 INTERESTING_MIBS = ["DISMAN-EXPRESSION-MIB::sysUpTimeInstance", "SNMPv2-MIB::sysName", "IF-MIB::ifOperStatus", "IF-MIB::ifSpeed", "IF-MIB::ifInOctets", "IF-MIB::ifOutOctets"]
-                                             
 def walk(host, oid, requestedMIBs=INTERESTING_MIBS):
     mibmap = dict()
     for (errorIndication,
@@ -22,7 +22,7 @@ def walk(host, oid, requestedMIBs=INTERESTING_MIBS):
          errorIndex,
          varBinds) in nextCmd(SnmpEngine(),
                               CommunityData('public', mpModel=0),
-                              UdpTransportTarget((host, 161)),
+                              UdpTransportTarget((host, 161), timeout=3, retries=0),
                               ContextData(),
                               ObjectType(ObjectIdentity(oid)),
                               lookupMib=False,
@@ -38,7 +38,7 @@ def walk(host, oid, requestedMIBs=INTERESTING_MIBS):
             print_and_log('%s at %s' % (errorStatus.prettyPrint(),
                                 errorIndex and varBinds[int(errorIndex) - 1][0] or '?'), severity=SEVERITY.MAJOR)
             #print('%s at %s' % (errorStatus.prettyPrint(),
-             #                   errorIndex and varBinds[int(errorIndex) - 1][0] or '?'), file=sys.stderr)
+            #                    errorIndex and varBinds[int(errorIndex) - 1][0] or '?'), file=sys.stderr)
             break
 
         else:
@@ -49,7 +49,6 @@ def walk(host, oid, requestedMIBs=INTERESTING_MIBS):
                 for x in varBinds
             ]
             for name, value in varBinds:
-                #name, value = varBind[0]
                 mib, exists, port = name.prettyPrint().partition(".")
                 if not exists: port = ''
                 #print(name.prettyPrint(), ' = ', value.prettyPrint())
