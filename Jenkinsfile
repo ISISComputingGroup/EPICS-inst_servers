@@ -94,13 +94,15 @@ pipeline {
   } 
 
   post {
-    logParser ([
-            projectRulePath: 'parse_rules',
-            parsingRulesPath: '',
-            showGraphs: true, 
-            unstableOnWarning: true,
-            useProjectRule: true,
-    ])
+    always {
+        logParser ([
+                projectRulePath: 'parse_rules',
+                parsingRulesPath: '',
+                showGraphs: true, 
+                unstableOnWarning: true,
+                useProjectRule: true,
+        ])
+    }
   } 
 }
 
