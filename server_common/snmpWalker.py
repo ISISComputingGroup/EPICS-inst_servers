@@ -30,15 +30,14 @@ def walk(host, oid, requestedMIBs=INTERESTING_MIBS):
                               lookupNames=True, lookupValues=True):
 
         if errorIndication:
-            print_and_log("Error:: %s" % errorIndication, severity=SEVERITY.MINOR)
-            #print(errorIndication, file=sys.stderr)
+            ## we need to look at later - currently will print forever for a moxa that is
+            ## not on the network. Maybe return status and let caller decide whether to print
+            #print_and_log(f"Error:: for {host}: {errorIndication}", severity=SEVERITY.MINOR)
             break
 
         elif errorStatus:
-            print_and_log('%s at %s' % (errorStatus.prettyPrint(),
+            print_and_log('host %s: %s at %s' % (host, errorStatus.prettyPrint(),
                                 errorIndex and varBinds[int(errorIndex) - 1][0] or '?'), severity=SEVERITY.MAJOR)
-            #print('%s at %s' % (errorStatus.prettyPrint(),
-            #                    errorIndex and varBinds[int(errorIndex) - 1][0] or '?'), file=sys.stderr)
             break
 
         else:
@@ -57,7 +56,6 @@ def walk(host, oid, requestedMIBs=INTERESTING_MIBS):
                     #print('MIB-->', mib, ' port-->', port, ' = ', value.prettyPrint())
                     #print_and_log('MIB -->%s, port --> %s, = %s' % (mib, port, value)) 
             
-    print_and_log(mibmap)
     return mibmap
 
 #walk('130.246.49.46', '1.3.6.1.2.1')

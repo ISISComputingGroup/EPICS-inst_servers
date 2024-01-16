@@ -1,7 +1,8 @@
 import os
 from collections import OrderedDict
 from typing import Dict, Tuple, List
-import socket
+import socket, time
+from threading import Thread, RLock
 
 from server_common.utilities import print_and_log, SEVERITY
 
@@ -114,6 +115,11 @@ class MoxaData():
         self.moxa_map = OrderedDict()
         # insert mappings initially
         self.update_mappings()
+        self._snmp_lock = RLock()
+        self._snmp_map = {}
+        snmp_thread = Thread(target=self._update_snmp, args=())
+        snmp_thread.daemon = True  # Daemonise thread
+        snmp_thread.start()
 
     """
     Gets the mappings and inserts them into SQL
@@ -127,35 +133,46 @@ class MoxaData():
     Returns the IP to hostname and IP to port mappings as a string representation for use with the MOXA_MAPPINGS PV
     """
     def _get_mappings_str(self):
-        #it is much easier to parse the mappings if they just look like a key:{key, val} list, so lets do that now rather than in the GUI
-        newmap = dict()
-        for hostname, mappings in self._mappings[1].items():
-            ip_addr = self._mappings[0][hostname]
-            mibmap = walk(ip_addr, '1.3.6.1.2.1', SYSTEM_MIBS + PORT_MIBS)
-            #Some defensive coding to avoid errors if SNMP walk fails
-            upTime = ''
-            if "DISMAN-EXPRESSION-MIB::sysUpTimeInstance" in mibmap:
-                upTime = mibmap["DISMAN-EXPRESSION-MIB::sysUpTimeInstance"]
-            sysName = ''
-            if "SNMPv2-MIB::sysName.0" in mibmap:
-                sysName = mibmap["SNMPv2-MIB::sysName.0"]
-            newkey = f"{hostname}({ip_addr})"
-            if len(upTime) > 0 :
-                newkey = f"{hostname}({ip_addr} - {sysName})({upTime})"
-            newmap[newkey] = []
-            for coms in mappings:
-                additionalInfo = ""
-                for mib in PORT_MIBS:
-                    portMIB = int(str(coms[0])) + 1
-                    key = mib + "." + str(portMIB)
-                    if key in mibmap:
-                        additionalInfo += mib + "=" + mibmap[key] + "~"
-                if len(additionalInfo) > 0:
-                    newmap[newkey].append([str(coms[0]), f"COM{coms[1]}~{additionalInfo}"])
-                else:
-                    newmap[newkey].append([str(coms[0]), f"COM{coms[1]}"])
-                
-        return newmap
+        with self._snmp_lock:
+            return self._snmp_map
+
+    """
+    ran as background thread to update _snmp_map
+    """
+    def _update_snmp(self):
+        while True:
+            #it is much easier to parse the mappings if they just look like a key:{key, val} list, so lets do that now rather than in the GUI
+            newmap = dict()
+            for hostname, mappings in self._mappings[1].items():
+                ip_addr = self._mappings[0][hostname]
+                mibmap = walk(ip_addr, '1.3.6.1.2.1', SYSTEM_MIBS + PORT_MIBS)
+                #Some defensive coding to avoid errors if SNMP walk fails
+                upTime = ''
+                if "DISMAN-EXPRESSION-MIB::sysUpTimeInstance" in mibmap:
+                    upTime = mibmap["DISMAN-EXPRESSION-MIB::sysUpTimeInstance"]
+                sysName = ''
+                if "SNMPv2-MIB::sysName.0" in mibmap:
+                    sysName = mibmap["SNMPv2-MIB::sysName.0"]
+                newkey = f"{hostname}({ip_addr})"
+                if len(upTime) > 0 :
+                    newkey = f"{hostname}({ip_addr} - {sysName})({upTime})"
+                newmap[newkey] = []
+                for coms in mappings:
+                    additionalInfo = ""
+                    for mib in PORT_MIBS:
+                        portMIB = int(str(coms[0])) + 1
+                        key = mib + "." + str(portMIB)
+                        if key in mibmap:
+                            additionalInfo += mib + "=" + mibmap[key] + "~"
+                    if len(additionalInfo) > 0:
+                        newmap[newkey].append([str(coms[0]), f"COM{coms[1]}~{additionalInfo}"])
+                    else:
+                        newmap[newkey].append([str(coms[0]), f"COM{coms[1]}"])
+                    
+            with self._snmp_lock:
+                self._snmp_map = newmap
+            
+            time.sleep(15)
     
     def _get_moxa_num(self):
         return str(len(self._mappings[0].keys()))
