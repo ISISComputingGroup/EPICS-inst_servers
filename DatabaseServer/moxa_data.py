@@ -172,7 +172,7 @@ class MoxaData():
             with self._snmp_lock:
                 self._snmp_map = newmap
             
-            time.sleep(15)
+            time.sleep(30)
     
     def _get_moxa_num(self):
         return str(len(self._mappings[0].keys()))
