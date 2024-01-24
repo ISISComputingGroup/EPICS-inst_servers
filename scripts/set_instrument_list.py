@@ -108,7 +108,7 @@ if __name__ == "__main__":
         inst_dictionary("CHRONUS", seci=True),
         inst_dictionary("HIFI", seci=True),
         inst_dictionary("CHIPIR", seci=True),
-        inst_dictionary("CRYOLAB_R80", seci=True),
+        inst_dictionary("CRYOLAB_R80", groups=["SUPPORT"], pv_prefix="IN:CRYOLA7E:", is_scheduled=False),
         inst_dictionary("LARMOR", groups=["SANS"]),
         inst_dictionary("ALF", groups=["EXCITATIONS"]),
         inst_dictionary("DEMO", groups=[], is_scheduled=False),
