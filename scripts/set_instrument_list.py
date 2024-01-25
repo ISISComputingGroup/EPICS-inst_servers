@@ -153,6 +153,8 @@ if __name__ == "__main__":
         inst_dictionary("HIFI-CRYOMAG", groups=["MUONS"], pv_prefix="IN:HIFI-C11:", is_scheduled=False),
         inst_dictionary("OFFSPEC", groups=["REFLECTOMETRY"]),
         inst_dictionary("MOTION", groups=["SUPPORT"], is_scheduled=False),
+        inst_dictionary("SCIDEMO", groups=["SUPPORT"], is_scheduled=False),
+        inst_dictionary("IBEXGUITEST", groups=["SUPPORT"], pv_prefix="IN:IBEXGUAD:", is_scheduled=False),
     ]
 
     set_instlist(instruments_list, pv_address) 
