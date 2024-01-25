@@ -108,7 +108,7 @@ if __name__ == "__main__":
         inst_dictionary("CHRONUS", seci=True),
         inst_dictionary("HIFI", seci=True),
         inst_dictionary("CHIPIR", seci=True),
-        inst_dictionary("CRYOLAB_R80", seci=True),
+        inst_dictionary("CRYOLAB_R80", groups=["SUPPORT"], pv_prefix="IN:CRYOLA7E:", is_scheduled=False),
         inst_dictionary("LARMOR", groups=["SANS"]),
         inst_dictionary("ALF", groups=["EXCITATIONS"]),
         inst_dictionary("DEMO", groups=[], is_scheduled=False),
@@ -153,6 +153,8 @@ if __name__ == "__main__":
         inst_dictionary("HIFI-CRYOMAG", groups=["MUONS"], pv_prefix="IN:HIFI-C11:", is_scheduled=False),
         inst_dictionary("OFFSPEC", groups=["REFLECTOMETRY"]),
         inst_dictionary("MOTION", groups=["SUPPORT"], is_scheduled=False),
+        inst_dictionary("SCIDEMO", groups=["SUPPORT"], is_scheduled=False),
+        inst_dictionary("IBEXGUITEST", groups=["SUPPORT"], pv_prefix="IN:IBEXGUAD:", is_scheduled=False),
     ]
 
     set_instlist(instruments_list, pv_address) 
