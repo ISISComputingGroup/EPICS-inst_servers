@@ -28,7 +28,7 @@ sys.path.insert(0, os.path.abspath(os.path.dirname(__file__)))
 from pcaspy import Driver, SimpleServer
 import argparse
 from threading import Thread, RLock
-from time import sleep
+from time import sleep, time
 import datetime
 from BlockServer.core.file_path_manager import FILEPATH_MANAGER
 from BlockServer.epics.gateway import Gateway
@@ -37,7 +37,7 @@ from BlockServer.core.inactive_config_holder import InactiveConfigHolder
 from server_common.channel_access_server import CAServer
 from server_common.utilities import compress_and_hex, dehex_and_decompress, print_and_log, set_logger, \
     convert_to_json, convert_from_json, char_waveform
-from BlockServer.core.macros import MACROS, CONTROL_SYSTEM_PREFIX, BLOCK_PREFIX
+from BlockServer.core.macros import MACROS, CONTROL_SYSTEM_PREFIX, BLOCK_PREFIX, PVPREFIX_MACRO
 from server_common.pv_names import BlockserverPVNames
 from BlockServer.core.config_list_manager import ConfigListManager
 from BlockServer.synoptic.synoptic_manager import SynopticManager
@@ -57,6 +57,7 @@ from BlockServer.component_switcher.component_switcher import ComponentSwitcher
 from WebServer.simple_webserver import Server
 from BlockServer.core.database_client import get_iocs
 from queue import Queue
+from server_common.channel_access import ChannelAccess
 
 CURR_CONFIG_NAME_SEVR_VALUE = 0
 CONFIG_PUSH_TIME = 300 # 5 minutes
@@ -405,6 +406,7 @@ class BlockServer(Driver):
 
         # Update Web Server text
         self.server.set_config(convert_to_json(self._active_configserver.get_config_details()))
+        self.write_queue.put((self.set_config_block_values, (), "LOADING_BLOCK_SETS"))
 
     def _start_config_iocs(self, iocs_to_start, iocs_to_restart):
         # Start the IOCs, if they are available and if they are flagged for autostart
@@ -632,6 +634,23 @@ class BlockServer(Driver):
     # Code for handling on-the-fly PVs
     def does_pv_exist(self, name):
         return name in manager.pvs[self.port]
+
+    # Code for handling block-sets
+    def set_config_block_values(self):
+        blocks = {block_details for block_details in self._active_configserver.get_block_details().values() if
+                  block_details.set_block}
+        start = time()
+        timeout = 30
+        prefix =MACROS[PVPREFIX_MACRO]
+        for block_details in blocks:
+            pv = f'{prefix}{block_details.pv}'
+            while not ChannelAccess.pv_exists(pv):
+                sleep(0.5)
+                if time() - start >= timeout:
+                    print_and_log(f"Gave up waiting for block {block_details.name} to be running", "MAJOR")
+                    break
+            ChannelAccess.caput(pv,block_details.set_block_val)
+
 
     def delete_pv_from_db(self, name):
         if name in manager.pvs[self.port]:

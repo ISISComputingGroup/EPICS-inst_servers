@@ -36,7 +36,8 @@ class Block:
     """
     def __init__(self, name: str, pv: str, local: bool = True, visible: bool = True, component: str = None, runcontrol:
                  bool = False, lowlimit: float = None, highlimit: float = None, suspend_on_invalid: bool = False,
-                 log_periodic: bool = False, log_rate: float = 5, log_deadband: float = 0):
+                 log_periodic: bool = False, log_rate: float = 5, log_deadband: float = 0, set_block: bool = False,
+                 set_block_val: str = None):
         """ Constructor.
 
         Args:
@@ -52,6 +53,8 @@ class Block:
             log_periodic: Whether the block is sampled periodically in the archiver
             log_rate: Time between archive samples (in seconds)
             log_deadband: Deadband for the block to be archived
+            set_block: whether the block should be set upon config change
+            set_block_val: what the block should be set to upon config change
         """
         self.name = name
         self.pv = pv
@@ -65,6 +68,8 @@ class Block:
         self.log_periodic = log_periodic
         self.log_rate = log_rate
         self.log_deadband = log_deadband
+        self.set_block = set_block
+        self.set_block_val = set_block_val
 
     def _get_pv(self) -> str:
         pv_name = self.pv
@@ -82,8 +87,11 @@ class Block:
         self.visible = visible
 
     def __str__(self):
+        set_block_str = ""
+        if self.set_block:
+            set_block_str =f", SetBlockVal: {self.set_block_val}"
         return f"Name: {self.name}, PV: {self.pv}, Local: {self.local}, Visible: {self.visible}, Component: {self.component}" \
-               f", RCEnabled: {self.rc_enabled}, RCLow: {self.rc_lowlimit}, RCHigh: {self.rc_highlimit}"
+               f", RCEnabled: {self.rc_enabled}, RCLow: {self.rc_lowlimit}, RCHigh: {self.rc_highlimit}{set_block_str}"
 
     def to_dict(self) -> Dict[str, Union[str, float, bool]]:
         """ Puts the block's details into a dictionary.
@@ -104,4 +112,6 @@ class Block:
             "log_rate": self.log_rate,
             "log_deadband": self.log_deadband,
             "suspend_on_invalid": self.rc_suspend_on_invalid,
+            "set_block": self.set_block,
+            "set_block_val": self.set_block_val
         }
