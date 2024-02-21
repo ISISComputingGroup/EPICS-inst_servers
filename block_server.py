@@ -649,7 +649,12 @@ class BlockServer(Driver):
                 if time() - start >= timeout:
                     print_and_log(f"Gave up waiting for block {block_details.name}, {block_details.pv} to exist", "MAJOR")
                     break
-            ChannelAccess.caput(pv,block_details.set_block_val)
+            # check for existence of set-point pv
+            pv_with_setpoint = f"{pv}:SP"
+            if ChannelAccess.pv_exists(pv_with_setpoint):
+                ChannelAccess.caput(pv_with_setpoint, block_details.set_block_val)
+            else:
+                ChannelAccess.caput(pv, block_details.set_block_val)
 
 
     def delete_pv_from_db(self, name):
