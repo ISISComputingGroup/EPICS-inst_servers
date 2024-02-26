@@ -28,6 +28,7 @@ from BlockServer.config.xml_converter import ConfigurationXmlConverter
 from BlockServer.core.macros import MACROS
 
 
+
 BLOCKS_XML = u"""
 <?xml version="1.0" ?>
 <blocks xmlns="http://epics.isis.rl.ac.uk/schema/blocks/1.0" xmlns:blk="http://epics.isis.rl.ac.uk/schema/blocks/1.0" xmlns:xi="http://www.w3.org/2001/XInclude">
