@@ -24,6 +24,8 @@
         <xs:element ref="blk:log_periodic" minOccurs="0"/>
         <xs:element ref="blk:log_rate" minOccurs="0"/>
         <xs:element ref="blk:log_deadband" minOccurs="0"/>
+        <xs:element ref="blk:set_block" minOccurs="0"/>
+        <xs:element ref="blk:set_block_val" minOccurs="0"/>
       </xs:sequence>
     </xs:complexType>
   </xs:element>
@@ -38,4 +40,6 @@
   <xs:element name="log_periodic" type="xs:string"/>
   <xs:element name="log_rate" type="xs:decimal"/>
   <xs:element name="log_deadband" type="xs:double"/>
+  <xs:element name="set_block" type="xs:string"/>
+  <xs:element name="set_block_val" type="xs:string"/>
 </xs:schema>

@@ -230,6 +230,12 @@ class ConfigurationXmlConverter:
         log_deadband = ElementTree.SubElement(block_xml, TAG_LOG_DEADBAND)
         log_deadband.text = str(block.log_deadband)
 
+        set_block = ElementTree.SubElement(block_xml, TAG_SET_BLOCK)
+        set_block.text = str(block.set_block)
+
+        set_block_val = ElementTree.SubElement(block_xml, TAG_SET_BLOCK_VAL)
+        set_block_val.text = str(block.set_block_val)
+
     @staticmethod
     def _group_to_xml(root_xml: ElementTree, group: Group):
         """Generates the XML for a group"""
@@ -331,6 +337,14 @@ class ConfigurationXmlConverter:
                 log_deadband = ConfigurationXmlConverter._find_single_node(b, NS_TAG_BLOCK, TAG_LOG_DEADBAND)
                 if not (log_deadband is None):
                     blocks[name.lower()].log_deadband = float(log_deadband.text)
+
+                set_block = ConfigurationXmlConverter._find_single_node(b, NS_TAG_BLOCK, TAG_SET_BLOCK)
+                if not (set_block is None):
+                    blocks[name.lower()].set_block = eval(set_block.text)
+
+                set_block_val = ConfigurationXmlConverter._find_single_node(b, NS_TAG_BLOCK, TAG_SET_BLOCK_VAL)
+                if not (set_block_val is None):
+                    blocks[name.lower()].set_block_val = set_block_val.text
 
     @staticmethod
     def groups_from_xml(root_xml: ElementTree.Element, groups: OrderedDict, blocks: OrderedDict):

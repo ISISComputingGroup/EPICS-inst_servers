@@ -50,6 +50,8 @@ TAG_RUNCONTROL_SUSPEND_ON_INVALID = 'rc_suspend_on_invalid'
 TAG_LOG_PERIODIC = 'log_periodic'
 TAG_LOG_RATE = 'log_rate'
 TAG_LOG_DEADBAND = 'log_deadband'
+TAG_SET_BLOCK = "set_block"
+TAG_SET_BLOCK_VAL = "set_block_val"
 
 TAG_AUTOSTART = 'autostart'
 TAG_RESTART = 'restart'

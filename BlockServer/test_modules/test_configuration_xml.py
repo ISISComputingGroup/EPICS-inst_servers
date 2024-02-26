@@ -43,6 +43,8 @@ BLOCKS_XML = u"""
         <log_periodic>False</log_periodic>
         <log_rate>5</log_rate>
         <log_deadband>0</log_deadband>
+        <set_block>False</set_block>
+		<set_block_val>None</set_block_val>
     </block>
     <block>
         <name>TESTBLOCK2</name>
@@ -56,6 +58,8 @@ BLOCKS_XML = u"""
         <log_periodic>False</log_periodic>
         <log_rate>5</log_rate>
         <log_deadband>0</log_deadband>
+        <set_block>False</set_block>
+		<set_block_val>None</set_block_val>
     </block>
     <block>
         <name>TESTBLOCK3</name>
@@ -69,6 +73,8 @@ BLOCKS_XML = u"""
         <log_periodic>False</log_periodic>
         <log_rate>5</log_rate>
         <log_deadband>0</log_deadband>
+        <set_block>False</set_block>
+		<set_block_val>None</set_block_val>
     </block>
     <block>
         <name>TESTBLOCK4</name>
@@ -82,6 +88,8 @@ BLOCKS_XML = u"""
         <log_periodic>False</log_periodic>
         <log_rate>5</log_rate>
         <log_deadband>0</log_deadband>
+        <set_block>False</set_block>
+		<set_block_val>None</set_block_val>
     </block>
 </blocks>"""
 
