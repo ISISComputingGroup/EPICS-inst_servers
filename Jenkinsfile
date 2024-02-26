@@ -62,7 +62,7 @@ pipeline {
         
     stage("Collate Unit Tests") {
       steps {
-        junit skipPublishingChecks: true, testResults: '**/test-reports/TEST-*.xml'
+        junit '**/test-reports/TEST-*.xml'
         script {
           if (fileExists('**/cobertura.xml')) {
             cobertura coberturaReportFile: '**/cobertura.xml'
