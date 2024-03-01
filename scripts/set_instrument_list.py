@@ -105,7 +105,7 @@ if __name__ == "__main__":
     # instrument list values to set (uses utility to return the dictionary but you can use a dictionary directly)
     instruments_list = [
         inst_dictionary("ARGUS", seci=True),
-        inst_dictionary("CHRONUS", seci=True),
+        inst_dictionary("CHRONUS", groups=["MUONS"]),
         inst_dictionary("HIFI", seci=True),
         inst_dictionary("CHIPIR", seci=True),
         inst_dictionary("CRYOLAB_R80", groups=["SUPPORT"], pv_prefix="IN:CRYOLA7E:", is_scheduled=False),
