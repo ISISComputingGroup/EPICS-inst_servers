@@ -41,7 +41,7 @@ ignore = []
 
 def moves(axes):
 
-    baffle_to_detector_zero = 5789.74
+    baffle_to_detector_zero = 6089.74
 
     # Detector
     t = Transformation()
