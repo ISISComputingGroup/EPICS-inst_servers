@@ -84,7 +84,7 @@ def print_and_log(message, log_file):
     log_file.write(message + "\n")
 
 
-def get_archived_positions(pv_names: List[str], data_time: datetime, host: str = "127.0.0.1",
+def get_archived_positions(pv_names: List[str], data_time: datetime, host: str,
                            check_movement_for=timedelta(hours=1)) \
                             -> List[Tuple[str, ArchiverDataValue, Optional[datetime]]]:
     """
@@ -274,7 +274,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=description)
 
     parser.add_argument("--time", "-t", help="Time to restore from iso date, 2018-12-20T16:01:02", required=True)
-    parser.add_argument("--host", help="Host to get data from defaults to localhost")
+    parser.add_argument("--host", help="Host to get data from e.g. localhost", required=True)
     parser.add_argument("--prefix", "-p", help="Prefix for motor controller, if not specified current instrument.")
     parser.add_argument("--controller", "-c", help="Controller number, for single controller get "
                                                    f"default to controllers 1-{MAX_CONTROLLER}")
