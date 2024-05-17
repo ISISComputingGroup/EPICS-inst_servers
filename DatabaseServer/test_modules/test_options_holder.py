@@ -17,8 +17,6 @@ from __future__ import print_function, absolute_import, division, unicode_litera
 import os
 import unittest
 
-import six
-
 from DatabaseServer.options_holder import OptionsHolder
 from DatabaseServer.options_loader import OptionsLoader
 
@@ -33,7 +31,7 @@ class TestOptionsHolderSequence(unittest.TestCase):
         options = oh.get_config_options()
 
         self.assertTrue(len(options) > 1, "No options found")
-        for n, ioc in six.iteritems(options):
+        for n, ioc in options.items():
             self.assertTrue(len(ioc) == 3, "Unexpected details in config")
             self.assertTrue("macros" in ioc)
             self.assertTrue("pvsets" in ioc)

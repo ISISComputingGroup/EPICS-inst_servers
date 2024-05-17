@@ -7,8 +7,6 @@ import textwrap
 import threading
 import traceback
 
-import six
-
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir)))
 from RemoteIocServer.utilities import print_and_log, get_hostname_from_prefix, THREADPOOL
 

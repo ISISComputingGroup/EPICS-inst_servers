@@ -7,8 +7,6 @@ import logging
 import os
 import threading
 
-import six
-
 from server_common.utilities import print_and_log
 
 logger = logging.getLogger(__name__)
@@ -216,7 +214,7 @@ class AutosaveFile(object):
             os.makedirs(self._folder)
 
         file_content = "\n".join("{}{}{}".format(param, self.autosave_separator, value)
-                                 for param, value in six.iteritems(parameters))
+                                 for param, value in parameters.items())
         with self._file_lock, open(self._filepath, "w+") as f:
             return f.write(file_content)
 

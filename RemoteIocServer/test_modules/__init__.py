@@ -1,5 +1,4 @@
 import os
-import six
 import unittest
 
 
@@ -10,7 +9,7 @@ def load_tests(loader, standard_tests, pattern):
 
     The tests in this module are only added under Python 2 and don't run under linux.
     """
-    if six.PY3 and os.name == "nt":
+    if  os.name == "nt":
         standard_tests.addTests(loader.discover(os.path.dirname(__file__), pattern=pattern))
         return standard_tests
     else:

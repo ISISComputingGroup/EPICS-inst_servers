@@ -4,7 +4,7 @@ import argparse
 import sys
 import os
 import traceback
-import six
+import functools
 
 from pcaspy import SimpleServer, Driver
 
@@ -25,7 +25,7 @@ DEFAULT_GATEWAY_START_BAT = os.path.join(os.getenv("EPICS_KIT_ROOT"), "gateway",
 
 
 def _error_handler(func):
-    @six.wraps(func)
+    @functools.wraps(func)
     def _wrapper(*args, **kwargs):
         try:
             return func(*args, **kwargs)
@@ -103,7 +103,7 @@ class RemoteIocListDriver(Driver):
         self.updatePVs()  # Update PVs before any read so that they are up to date.
 
         if reason == PvNames.INSTRUMENT:
-            return six.binary_type(self._remote_pv_prefix if self._remote_pv_prefix is not None else "NONE", encoding="utf-8")
+            return str.encode(self._remote_pv_prefix if self._remote_pv_prefix is not None else "NONE", encoding="utf-8")
         else:
             print_and_log("RemoteIocListDriver: Could not read from PV '{}': not known".format(reason), "MAJOR")
 
@@ -179,20 +179,20 @@ def main():
         description="Runs a remote IOC server.",
     )
 
-    parser.add_argument("--pv_prefix", required=True, type=six.text_type,
+    parser.add_argument("--pv_prefix", required=True, type=str,
                         help="The PV prefix of this instrument.")
-    parser.add_argument("--subsystem_prefix", type=six.text_type,
+    parser.add_argument("--subsystem_prefix", type=str,
                         default="REMIOC:",
                         help="The subsystem prefix to use for this remote IOC server")
-    parser.add_argument("--gateway_pvlist_path", type=six.text_type,
+    parser.add_argument("--gateway_pvlist_path", type=str,
                         default=os.path.normpath(
                             os.path.join(os.getenv("ICPCONFIGROOT"), "AccessSecurity", "gwremoteioc.pvlist")),
                         help="The path to the gateway pvlist file to generate")
-    parser.add_argument("--gateway_acf_path", type=six.text_type,
+    parser.add_argument("--gateway_acf_path", type=str,
                         default=os.path.normpath(
                             os.path.join(os.getenv("ICPCONFIGROOT"), "AccessSecurity", "gwremoteioc.acf")),
                         help="The path to the gateway access security file to generate")
-    parser.add_argument("--gateway_restart_script_path", type=six.text_type,
+    parser.add_argument("--gateway_restart_script_path", type=str,
                         default=DEFAULT_GATEWAY_START_BAT,
                         help="The path to the script to call to restart the remote ioc gateway")
 

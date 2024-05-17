@@ -1,5 +1,4 @@
 import os
-import six
 import unittest
 
 
@@ -10,8 +9,6 @@ def load_tests(loader, standard_tests, pattern):
 
     The tests in this module are only added under Python 3.
     """
-    if six.PY3:
-        standard_tests.addTests(loader.discover(os.path.dirname(__file__), pattern=pattern))
-        return standard_tests
-    else:
-        return unittest.TestSuite()
+    standard_tests.addTests(loader.discover(os.path.dirname(__file__), pattern=pattern))
+    return standard_tests
+
