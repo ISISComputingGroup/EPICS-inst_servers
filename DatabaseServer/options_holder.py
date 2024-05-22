@@ -14,7 +14,6 @@ from __future__ import print_function, absolute_import, division, unicode_litera
 # along with this program; if not, you can obtain a copy from
 # https://www.eclipse.org/org/documents/epl-v10.php or
 # http://opensource.org/licenses/eclipse-1.0.php
-import six
 from DatabaseServer.options_loader import OptionsLoader
 
 
@@ -35,4 +34,4 @@ class OptionsHolder(object):
         Returns:
             IOCs and their associated options as a dictionary
         """
-        return {name: options.to_dict() for name, options in six.iteritems(self._config_options)}
+        return {name: options.to_dict() for name, options in self._config_options.items()}
