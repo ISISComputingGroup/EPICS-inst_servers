@@ -107,12 +107,7 @@ pipeline {
 }
 
 def setLatestGeniePath() {
-    def basePath = '\\\\isis.cclrc.ac.uk\\inst$\\Kits\$\\CompGroup\\ICP\\genie_python\\'
-    def fileContents = readFile basePath + 'LATEST_BUILD.txt'
-    def pythonPath = basePath + "BUILD-$fileContents"
-    env.PYTHON_PATH = pythonPath
-    
-    def basePath3 = '\\\\isis.cclrc.ac.uk\\inst$\\Kits\$\\CompGroup\\ICP\\genie_python_3\\'
+        def basePath3 = '\\\\isis.cclrc.ac.uk\\inst$\\Kits\$\\CompGroup\\ICP\\genie_python_3\\'
     def fileContents3 = readFile basePath3 + 'LATEST_BUILD.txt'
     def pythonPath3 = basePath3 + "BUILD-$fileContents3"
     env.PYTHON3_PATH = pythonPath3
