@@ -74,7 +74,7 @@ pipeline {
     }
 
     stage("Record Coverage") {
-        when { branch 'master' }
+        when { environment name: 'GIT_BRANCH', value: 'origin/master' }
         steps {            
             script {
                 currentBuild.result = 'SUCCESS'
@@ -84,7 +84,7 @@ pipeline {
     }
 
     stage("PR Coverage to Github") {
-        when { not { branch 'master' }}
+        when { not { environment name: 'GIT_BRANCH', value: 'origin/master' }}
         steps {
             script {
                 currentBuild.result = 'SUCCESS'
