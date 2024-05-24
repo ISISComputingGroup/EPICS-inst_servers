@@ -41,7 +41,9 @@ pipeline {
         script {
             env.GIT_COMMIT = bat(returnStdout: true, script: '@git rev-parse HEAD').trim()
             echo "git commit: ${env.GIT_COMMIT}"
-            echo "git branch: ${env.BRANCH_NAME}"
+            echo "git branch name: ${env.BRANCH_NAME}"
+            echo "git branch: ${env.GIT_BRANCH}"
+            echo "git local branch: ${env.GIT_LOCAL_BRANCH}"
             echo "git change id: ${env.CHANGE_ID}"
             echo "git change url: ${env.CHANGE_URL}"
         }
