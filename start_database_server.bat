@@ -18,4 +18,4 @@ set DBSERVER_CMD=%MYDIRBLOCK%start_database_server_cmd.bat
 
 REM Unlike IOC we are not using "--noautorestart --wait" so gateway will start immediately and also automatically restart on exit
 
-%ICPCYGBIN%\procServ.exe --logstamp --logfile="%IOCCYGLOGROOT%/DBSVR-%%Y%%m%%d.log" --timefmt="%%c" --restrict --ignore="^D^C" --name=DBSVR --pidfile="/cygdrive/c/windows/temp/EPICS_DBSVR.pid" %DBSERVER_CONSOLEPORT% %DBSERVER_CMD% 
+%ICPCYGBIN%\procServ.exe --logstamp --logfile="%IOCCYGLOGROOT%/DBSVR-%%Y%%m%%d.log" --timefmt="%%c" --restrict --ignore="^D^C" --name=DBSVR --pidfile="/cygdrive/c/instrument/var/run/EPICS_DBSVR.pid" %DBSERVER_CONSOLEPORT% %DBSERVER_CMD% 

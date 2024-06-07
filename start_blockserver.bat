@@ -18,4 +18,4 @@ set BLOCKSERVER_CMD=%MYDIRBLOCK%start_blockserver_cmd.bat
 
 REM Unlike IOC we are not using "--noautorestart --wait" so gateway will start immediately and also automatically restart on exit
 
-%ICPCYGBIN%\procServ.exe --logstamp --logfile="%IOCCYGLOGROOT%/BLOCKSVR-%%Y%%m%%d.log" --timefmt="%%c" --restrict --ignore="^D^C" --name=BLOCKSVR --pidfile="/cygdrive/c/windows/temp/EPICS_BLOCKSVR.pid" %BLOCKSERVER_CONSOLEPORT% %BLOCKSERVER_CMD% 
+%ICPCYGBIN%\procServ.exe --logstamp --logfile="%IOCCYGLOGROOT%/BLOCKSVR-%%Y%%m%%d.log" --timefmt="%%c" --restrict --ignore="^D^C" --name=BLOCKSVR --pidfile="/cygdrive/c/instrument/var/run/EPICS_BLOCKSVR.pid" %BLOCKSERVER_CONSOLEPORT% %BLOCKSERVER_CMD% 

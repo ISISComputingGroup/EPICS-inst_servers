@@ -18,4 +18,4 @@ set CDSVR_CMD=%MYDIRCDSVR%start_collision_avoidance_monitor_cmd.bat
 
 REM Unlike IOC we are not using "--noautorestart --wait" so gateway will start immediately and also automatically restart on exit
 
-%ICPCYGBIN%\procServ.exe --logstamp --logfile="%IOCCYGLOGROOT%/CDSVR-%%Y%%m%%d.log" --timefmt="%%c" --restrict --ignore="^D^C" --name=CDSVR --pidfile="/cygdrive/c/windows/temp/EPICS_CDSVR.pid" %CDSVR_CONSOLEPORT% %CDSVR_CMD% 
+%ICPCYGBIN%\procServ.exe --logstamp --logfile="%IOCCYGLOGROOT%/CDSVR-%%Y%%m%%d.log" --timefmt="%%c" --restrict --ignore="^D^C" --name=CDSVR --pidfile="/cygdrive/c/instrument/var/run/EPICS_CDSVR.pid" %CDSVR_CONSOLEPORT% %CDSVR_CMD% 
