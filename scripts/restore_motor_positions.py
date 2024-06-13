@@ -7,6 +7,7 @@ from datetime import datetime, timedelta
 import os
 import sys
 from typing import List, Tuple, Optional, Any, TextIO
+import socket
 
 from genie_python import genie as g
 from genie_python.mysql_abstraction_layer import SQLAbstraction
@@ -21,6 +22,7 @@ MAX_CONTROLLER = 10
 
 # max axes number on a controller
 MAX_AXIS = 8
+
 
 try:
     LOG_DIR = os.path.join(os.environ["ICPVARDIR"], "logs")
@@ -264,20 +266,33 @@ def summarise_and_restore_positions(data_time, prefix, controllers, host):
         for pv_name, pv_value, next_change in archive_values:
             is_enabled, motor_name, value = pv_values[pv_name]
             restore_motor_position(pv_name, pv_value, next_change, is_enabled, motor_name, value, log_file)
+    
+    for controller in controllers:
+        while True:
+            answer = input(f"Reset Galil controller power check for controller {controller}? [Y/N]")
+            if answer.upper() == "Y":
+                reset_pv = f"{prefix}MOT:DMC{controller:02}:PWRDET:RESET:SP"
+                print(f"resetting {reset_pv}")
+                g.set_pv(reset_pv, 1)
+                break
+            elif answer.upper() == "N":
+                break
+            print("Answer must be Y and N")
+
 
 
 if __name__ == '__main__':
-    description = "Find positions of motors in the past and restore those to current positions " \
-                  "--time 2018-01-10T09:00:00 --host ndximat " \
-                  "--prefix IN:IMAT: --controller 01"
+    description = "Find positions of motors in the past and restore those to current positions" \
+                  "\n\nExample: restore_motor_positions.py --time 2018-01-10T09:00:00 "
 
-    parser = argparse.ArgumentParser(description=description)
+    parser = argparse.ArgumentParser(description=description, formatter_class=argparse.RawTextHelpFormatter)
 
-    parser.add_argument("--time", "-t", help="Time to restore from iso date, 2018-12-20T16:01:02", required=True)
-    parser.add_argument("--host", help="Host to get data from e.g. localhost", required=True)
-    parser.add_argument("--prefix", "-p", help="Prefix for motor controller, if not specified current instrument.")
-    parser.add_argument("--controller", "-c", help="Controller number, for single controller get "
-                                                   f"default to controllers 1-{MAX_CONTROLLER}")
+    parser.add_argument("--host", help="(optional) Host to get data from e.g. NDXPOLREF. defaults to current instrument host name.")
+    parser.add_argument("--prefix", "-p", help="(optional) PV prefix for motor controller, defaults to current instrument prefix.")
+    parser.add_argument("--controller", "-c", help="(optional) Controller number, for single controller restoring."
+                                                   f"defaults to restoring controllers 1-{MAX_CONTROLLER}")
+    parser.add_argument("--time", "-t", help="(Required) Time to restore from iso date, 2018-12-20T16:01:02", required=True)
+
 
     args = parser.parse_args()
 
@@ -291,9 +306,14 @@ if __name__ == '__main__':
     else:
         prefix = args.prefix
 
+    if args.host is None:
+        host = socket.gethostname()
+    else:
+        host = args.host
+
     if args.controller is None:
         controllers = range(1, MAX_CONTROLLER + 1)
     else:
         controllers = [int(args.controller)]
 
-    summarise_and_restore_positions(data_time, prefix, controllers, args.host)
+    summarise_and_restore_positions(data_time, prefix, controllers, host)
