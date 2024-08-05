@@ -14,14 +14,15 @@
 # https://www.eclipse.org/org/documents/epl-v10.php or
 # http://opensource.org/licenses/eclipse-1.0.php
 
+import re
+import unittest
+
 from BlockServer.mocks.mock_block_server import MockBlockServer
 from BlockServer.site_specific.default.block_rules import BlockRules
-import unittest
-import re
 
 
 class TestBlockRulesSequence(unittest.TestCase):
-    """ Unit tests for block rules, note that changes here may have to be propagated to clients """
+    """Unit tests for block rules, note that changes here may have to be propagated to clients"""
 
     def setUp(self):
         self.bs = MockBlockServer()

@@ -15,6 +15,7 @@
 # http://opensource.org/licenses/eclipse-1.0.php
 import os
 from xml.dom import minidom
+
 from server_common.utilities import print_and_log, retry
 
 RETRY_MAX_ATTEMPTS = 20
@@ -22,14 +23,13 @@ RETRY_INTERVAL = 0.5
 
 
 class SynopticFileIO:
-
     @retry(RETRY_MAX_ATTEMPTS, RETRY_INTERVAL, (OSError, IOError))
     def write_synoptic_file(self, name, save_path, xml_data):
         # If save file already exists remove first to avoid case issues
         if os.path.exists(save_path):
             os.remove(save_path)
         # Save the data
-        with open(save_path, 'wb') as synfile:
+        with open(save_path, "wb") as synfile:
             pretty_xml = minidom.parseString(xml_data).toprettyxml()
             # toprettyxml() returns a string so we have to convert it to bytes in order to write out as bytes
             synfile.write(bytes(pretty_xml, encoding="utf-8"))
@@ -39,7 +39,7 @@ class SynopticFileIO:
     def read_synoptic_file(self, directory, fullname):
         path = os.path.join(directory, fullname)
 
-        with open(path, 'rb') as synfile:
+        with open(path, "rb") as synfile:
             data = synfile.read()
 
         return data

@@ -1,4 +1,5 @@
-from __future__ import print_function, absolute_import, division, unicode_literals
+from __future__ import absolute_import, division, print_function, unicode_literals
+
 # This file is part of the ISIS IBEX application.
 # Copyright (C) 2012-2016 Science & Technology Facilities Council.
 # All rights reserved.
@@ -20,11 +21,10 @@ import unittest
 from DatabaseServer.options_holder import OptionsHolder
 from DatabaseServer.options_loader import OptionsLoader
 
-OPTIONS_PATH = os.path.join(os.path.dirname(__file__), os.path.pardir,  "test_files")
+OPTIONS_PATH = os.path.join(os.path.dirname(__file__), os.path.pardir, "test_files")
 
 
 class TestOptionsHolderSequence(unittest.TestCase):
-
     def test_get_config_options(self):
         oh = OptionsHolder(OPTIONS_PATH, OptionsLoader())
 
@@ -50,4 +50,3 @@ class TestOptionsHolderSequence(unittest.TestCase):
             for pv in ioc["pvs"]:
                 self.assertTrue("description" in pv)
                 self.assertTrue("pattern" not in pv)
-

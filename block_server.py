@@ -20,48 +20,61 @@ import os
 import sys
 import traceback
 
-from server_common.channel_access import verify_manager_mode, ManagerModeRequiredException
+from server_common.channel_access import ManagerModeRequiredException, verify_manager_mode
 
 sys.path.insert(0, os.path.abspath(os.path.dirname(__file__)))
 
 # Standard imports
-from pcaspy import Driver, SimpleServer
 import argparse
-from threading import Thread, RLock
-from time import sleep, time
 import datetime
-from BlockServer.core.file_path_manager import FILEPATH_MANAGER
-from BlockServer.epics.gateway import Gateway
-from BlockServer.core.active_config_holder import ActiveConfigHolder
-from BlockServer.core.inactive_config_holder import InactiveConfigHolder
-from server_common.channel_access_server import CAServer
-from server_common.utilities import compress_and_hex, dehex_and_decompress, print_and_log, set_logger, \
-    convert_to_json, convert_from_json, char_waveform
-from BlockServer.core.macros import MACROS, CONTROL_SYSTEM_PREFIX, BLOCK_PREFIX, PVPREFIX_MACRO
-from server_common.pv_names import BlockserverPVNames
-from BlockServer.core.config_list_manager import ConfigListManager
-from BlockServer.synoptic.synoptic_manager import SynopticManager
-from BlockServer.devices.devices_manager import DevicesManager
-from BlockServer.config.json_converter import ConfigurationJsonConverter
-from ConfigVersionControl.git_version_control import GitVersionControl, RepoFactory
-from ConfigVersionControl.version_control_exceptions import NotUnderVersionControl, VersionControlException
-from BlockServer.mocks.mock_version_control import MockVersionControl
-from BlockServer.core.ioc_control import IocControl
-from BlockServer.runcontrol.runcontrol_manager import RunControlManager
-from BlockServer.epics.archiver_manager import ArchiverManager
-from BlockServer.site_specific.default.block_rules import BlockRules
-from pcaspy.driver import manager, Data
-from BlockServer.site_specific.default.general_rules import GroupRules, ConfigurationDescriptionRules
-from BlockServer.fileIO.file_manager import ConfigurationFileManager
-from BlockServer.component_switcher.component_switcher import ComponentSwitcher
-from WebServer.simple_webserver import Server
-from BlockServer.core.database_client import get_iocs
 from queue import Queue
+from threading import RLock, Thread
+from time import sleep, time
+
+from pcaspy import Driver, SimpleServer
+from pcaspy.driver import Data, manager
+
+from BlockServer.component_switcher.component_switcher import ComponentSwitcher
+from BlockServer.config.json_converter import ConfigurationJsonConverter
+from BlockServer.core.active_config_holder import ActiveConfigHolder
+from BlockServer.core.config_list_manager import ConfigListManager
+from BlockServer.core.file_path_manager import FILEPATH_MANAGER
+from BlockServer.core.inactive_config_holder import InactiveConfigHolder
+from BlockServer.core.ioc_control import IocControl
+from BlockServer.core.macros import BLOCK_PREFIX, CONTROL_SYSTEM_PREFIX, MACROS, PVPREFIX_MACRO
+from BlockServer.devices.devices_manager import DevicesManager
+from BlockServer.epics.archiver_manager import ArchiverManager
+from BlockServer.epics.gateway import Gateway
+from BlockServer.fileIO.file_manager import ConfigurationFileManager
+from BlockServer.mocks.mock_version_control import MockVersionControl
+from BlockServer.runcontrol.runcontrol_manager import RunControlManager
+from BlockServer.site_specific.default.block_rules import BlockRules
+from BlockServer.site_specific.default.general_rules import (
+    ConfigurationDescriptionRules,
+    GroupRules,
+)
+from BlockServer.synoptic.synoptic_manager import SynopticManager
+from ConfigVersionControl.git_version_control import GitVersionControl, RepoFactory
+from ConfigVersionControl.version_control_exceptions import (
+    NotUnderVersionControl,
+    VersionControlException,
+)
 from server_common.channel_access import ChannelAccess
+from server_common.pv_names import BlockserverPVNames
+from server_common.utilities import (
+    char_waveform,
+    compress_and_hex,
+    convert_from_json,
+    convert_to_json,
+    dehex_and_decompress,
+    print_and_log,
+    set_logger,
+)
+from WebServer.simple_webserver import Server
 
 CURR_CONFIG_NAME_SEVR_VALUE = 0
-CONFIG_PUSH_TIME = 300 # 5 minutes
-INST_SCRIPT_PUSH_TIME = 604800 # 7 days
+CONFIG_PUSH_TIME = 300  # 5 minutes
+INST_SCRIPT_PUSH_TIME = 604800  # 7 days
 
 # This IOC gets special treatment as it needs to be reloaded on every single config change, regardless of whether
 # it's macros have changed or not. For details see https://github.com/ISISComputingGroup/IBEX/issues/5590
@@ -70,7 +83,7 @@ CAEN_DISCRIMINATOR_IOC_NAME = "CAENV895_01"
 # For documentation on these commands see the wiki
 initial_dbs = {
     BlockserverPVNames.BLOCKNAMES: char_waveform(16000),
-    BlockserverPVNames.HEARTBEAT: {'type': 'int', 'count': 1, 'value': [0]},
+    BlockserverPVNames.HEARTBEAT: {"type": "int", "count": 1, "value": [0]},
     BlockserverPVNames.BLOCK_DETAILS: char_waveform(16000),
     BlockserverPVNames.GROUPS: char_waveform(16000),
     BlockserverPVNames.COMPS: char_waveform(16000),
@@ -91,13 +104,17 @@ initial_dbs = {
     BlockserverPVNames.ALL_COMPONENT_DETAILS: char_waveform(64000),
     BlockserverPVNames.BANNER_DESCRIPTION: char_waveform(16000),
     BlockserverPVNames.CURR_CONFIG_NAME: char_waveform(500),
-    BlockserverPVNames.CURR_CONFIG_NAME_SEVR: {'type': 'enum', 'count': 1, 'value': CURR_CONFIG_NAME_SEVR_VALUE, "enums": ["NO_ALARM"]}
+    BlockserverPVNames.CURR_CONFIG_NAME_SEVR: {
+        "type": "enum",
+        "count": 1,
+        "value": CURR_CONFIG_NAME_SEVR_VALUE,
+        "enums": ["NO_ALARM"],
+    },
 }
 
 
 class BlockServer(Driver):
-    """The class for handling all the static PV access and monitors etc.
-    """
+    """The class for handling all the static PV access and monitors etc."""
 
     def __init__(self, ca_server):
         """Constructor.
@@ -112,13 +129,17 @@ class BlockServer(Driver):
         self.write_queue = Queue()
 
         FILEPATH_MANAGER.initialise(CONFIG_DIR, SCRIPT_DIR, SCHEMA_DIR)
-        drive = os.path.abspath('.').split(os.path.sep)[0]+os.path.sep
-        self.instrument_scripts = os.path.join(drive,"Instrument","scripts")
+        drive = os.path.abspath(".").split(os.path.sep)[0] + os.path.sep
+        self.instrument_scripts = os.path.join(drive, "Instrument", "scripts")
 
         self.instrument_prefix = MACROS["$(MYPVPREFIX)"]
         self._cas = ca_server
-        self._gateway = Gateway(GATEWAY_PREFIX, self.instrument_prefix, PVLIST_FILE,
-                                self.instrument_prefix + BLOCK_PREFIX)
+        self._gateway = Gateway(
+            GATEWAY_PREFIX,
+            self.instrument_prefix,
+            PVLIST_FILE,
+            self.instrument_prefix + BLOCK_PREFIX,
+        )
         self._active_configserver = None
         self._run_control = None
         self._syn = None
@@ -132,8 +153,9 @@ class BlockServer(Driver):
 
         # Connect to version control
         try:
-            self._config_vc = GitVersionControl(CONFIG_DIR, RepoFactory.get_repo(CONFIG_DIR), "config",
-                                                CONFIG_PUSH_TIME)
+            self._config_vc = GitVersionControl(
+                CONFIG_DIR, RepoFactory.get_repo(CONFIG_DIR), "config", CONFIG_PUSH_TIME
+            )
             self._config_vc.setup()
             print_and_log("Config version control initialised correctly", "INFO")
         except NotUnderVersionControl as err:
@@ -147,8 +169,12 @@ class BlockServer(Driver):
             self._config_vc = MockVersionControl()
 
         try:
-            self._script_vc = GitVersionControl(self.instrument_scripts, RepoFactory.get_repo(self.instrument_scripts),
-                                                "instrument scripts", INST_SCRIPT_PUSH_TIME)
+            self._script_vc = GitVersionControl(
+                self.instrument_scripts,
+                RepoFactory.get_repo(self.instrument_scripts),
+                "instrument scripts",
+                INST_SCRIPT_PUSH_TIME,
+            )
             self._script_vc.setup()
             print_and_log("Scripting version control initialised correctly", "INFO")
         except NotUnderVersionControl as err:
@@ -166,8 +192,10 @@ class BlockServer(Driver):
             self._config_list = ConfigListManager(self, ConfigurationFileManager())
         except Exception as err:
             print_and_log(
-                "Error creating inactive config list. Configuration list changes will not be stored " +
-                "in version control: %s " % str(err), "MINOR")
+                "Error creating inactive config list. Configuration list changes will not be stored "
+                + "in version control: %s " % str(err),
+                "MINOR",
+            )
             self._config_list = ConfigListManager(self, ConfigurationFileManager())
 
         # Start a background thread for handling write commands
@@ -181,7 +209,9 @@ class BlockServer(Driver):
         self.server = Server()
         self.server.start()
 
-        self._component_switcher = ComponentSwitcher(self._config_list, self.write_queue, self.reload_current_config)
+        self._component_switcher = ComponentSwitcher(
+            self._config_list, self.write_queue, self.reload_current_config
+        )
         self._component_switcher.create_monitors()
 
     def initialise_configserver(self, facility):
@@ -193,13 +223,19 @@ class BlockServer(Driver):
         # This is in a separate method so it can be sent to the thread queue
         arch = ArchiverManager(ARCHIVE_UPLOADER, ARCHIVE_SETTINGS)
 
-        self._active_configserver = ActiveConfigHolder(MACROS, arch, ConfigurationFileManager(),
-                                                       self._ioc_control, CONFIG_DIR)
+        self._active_configserver = ActiveConfigHolder(
+            MACROS, arch, ConfigurationFileManager(), self._ioc_control, CONFIG_DIR
+        )
 
         if facility == "ISIS":
-            self._run_control = RunControlManager(self.instrument_prefix, MACROS["$(ICPCONFIGROOT)"],
-                                                  MACROS["$(ICPVARDIR)"], self._ioc_control, self._active_configserver,
-                                                  self)
+            self._run_control = RunControlManager(
+                self.instrument_prefix,
+                MACROS["$(ICPCONFIGROOT)"],
+                MACROS["$(ICPVARDIR)"],
+                self._ioc_control,
+                self._active_configserver,
+                self,
+            )
             self.on_the_fly_handlers.append(self._run_control)
 
         # Import all the synoptic data and create PVs
@@ -238,7 +274,9 @@ class BlockServer(Driver):
         """
         try:
             if reason == BlockserverPVNames.GROUPS:
-                grps = ConfigurationJsonConverter.groups_to_json(self._active_configserver.get_group_details())
+                grps = ConfigurationJsonConverter.groups_to_json(
+                    self._active_configserver.get_group_details()
+                )
                 value = compress_and_hex(grps)
             elif reason == BlockserverPVNames.CONFIGS:
                 value = compress_and_hex(convert_to_json(self._config_list.get_configs()))
@@ -250,7 +288,9 @@ class BlockServer(Driver):
             elif reason == BlockserverPVNames.BANNER_DESCRIPTION:
                 value = compress_and_hex(self.spangle_banner)
             elif reason == BlockserverPVNames.ALL_COMPONENT_DETAILS:
-                value = compress_and_hex(convert_to_json(list(self._config_list.all_components.values())))
+                value = compress_and_hex(
+                    convert_to_json(list(self._config_list.all_components.values()))
+                )
             elif reason == BlockserverPVNames.CURR_CONFIG_NAME:
                 value = self._active_configserver.get_config_name()
             elif reason == BlockserverPVNames.CURR_CONFIG_NAME_SEVR:
@@ -291,9 +331,17 @@ class BlockServer(Driver):
             elif reason == BlockserverPVNames.START_IOCS:
                 self.write_queue.put((self.start_iocs, (convert_from_json(data),), "START_IOCS"))
             elif reason == BlockserverPVNames.STOP_IOCS:
-                self.write_queue.put((self._ioc_control.stop_iocs, (convert_from_json(data),), "STOP_IOCS"))
+                self.write_queue.put(
+                    (self._ioc_control.stop_iocs, (convert_from_json(data),), "STOP_IOCS")
+                )
             elif reason == BlockserverPVNames.RESTART_IOCS:
-                self.write_queue.put((self._ioc_control.restart_iocs, (convert_from_json(data), True), "RESTART_IOCS"))
+                self.write_queue.put(
+                    (
+                        self._ioc_control.restart_iocs,
+                        (convert_from_json(data), True),
+                        "RESTART_IOCS",
+                    )
+                )
             elif reason == BlockserverPVNames.SET_CURR_CONFIG_DETAILS:
                 self.write_queue.put((self._set_curr_config, (data,), "SETTING_CONFIG"))
             elif reason == BlockserverPVNames.SAVE_NEW_CONFIG:
@@ -301,15 +349,25 @@ class BlockServer(Driver):
             elif reason == BlockserverPVNames.SAVE_NEW_COMPONENT:
                 self.write_queue.put((self.save_config, (data, True), "SAVING_NEW_COMP"))
             elif reason == BlockserverPVNames.DELETE_CONFIGS:
-                self.write_queue.put((self._config_list.delete_configs, (convert_from_json(data),), "DELETE_CONFIGS"))
+                self.write_queue.put(
+                    (self._config_list.delete_configs, (convert_from_json(data),), "DELETE_CONFIGS")
+                )
             elif reason == BlockserverPVNames.DELETE_COMPONENTS:
-                self.write_queue.put((self._config_list.delete_components, (convert_from_json(data),), "DELETE_COMPONENTS"))
+                self.write_queue.put(
+                    (
+                        self._config_list.delete_components,
+                        (convert_from_json(data),),
+                        "DELETE_COMPONENTS",
+                    )
+                )
             else:
                 status = False
                 # Check to see if it is a on-the-fly PV
                 for handler in self.on_the_fly_handlers:
                     if handler.write_pv_exists(reason):
-                        self.write_queue.put((handler.handle_pv_write, (reason, data), "SETTING_CONFIG"))
+                        self.write_queue.put(
+                            (handler.handle_pv_write, (reason, data), "SETTING_CONFIG")
+                        )
                         status = True
                         break
 
@@ -353,8 +411,10 @@ class BlockServer(Driver):
         # Sending the details of a new config to this method, as was being done incorrectly (see #4606)
         # will save the details as a new config, but not load it. A warning is sent in case this happens again.
         if current_name != details_name:
-            print_and_log(f"Config details to be set ({details_name}) did not match current config ({current_name})",
-                          "MINOR")
+            print_and_log(
+                f"Config details to be set ({details_name}) did not match current config ({current_name})",
+                "MINOR",
+            )
 
         self.save_config(details)
 
@@ -371,14 +431,18 @@ class BlockServer(Driver):
         self._ioc_control.stop_iocs(removed_iocs)
         self._start_config_iocs(new_iocs, changed_iocs)
 
-        if CAEN_DISCRIMINATOR_IOC_NAME in self._active_configserver.get_ioc_names() \
-                and CAEN_DISCRIMINATOR_IOC_NAME not in new_iocs:
+        if (
+            CAEN_DISCRIMINATOR_IOC_NAME in self._active_configserver.get_ioc_names()
+            and CAEN_DISCRIMINATOR_IOC_NAME not in new_iocs
+        ):
             # See https://github.com/ISISComputingGroup/IBEX/issues/5590 for justification of why this ioc gets
             # special treatment.
             ioc = self._active_configserver.get_all_ioc_details()[CAEN_DISCRIMINATOR_IOC_NAME]
             if ioc.autostart:
-                print_and_log(f"{CAEN_DISCRIMINATOR_IOC_NAME} present in configuration and set to autostart - "
-                              f"restarting it")
+                print_and_log(
+                    f"{CAEN_DISCRIMINATOR_IOC_NAME} present in configuration and set to autostart - "
+                    f"restarting it"
+                )
                 if self._ioc_control.get_ioc_status(CAEN_DISCRIMINATOR_IOC_NAME) == "RUNNING":
                     self._ioc_control.restart_iocs([CAEN_DISCRIMINATOR_IOC_NAME], reapply_auto=True)
                 else:
@@ -389,7 +453,9 @@ class BlockServer(Driver):
             self._gateway.set_new_aliases(
                 self._active_configserver.get_block_details(),
                 self._active_configserver.configures_block_gateway_and_archiver(),
-                os.path.join(CONFIG_DIR, "configurations", self._active_configserver.get_config_name())
+                os.path.join(
+                    CONFIG_DIR, "configurations", self._active_configserver.get_config_name()
+                ),
             )
 
         self._config_list.active_config_name = self._active_configserver.get_config_name()
@@ -425,18 +491,23 @@ class BlockServer(Driver):
         self._ioc_control.start_iocs([ioc for ioc in iocs_to_start if _should_start(ioc)])
         self._ioc_control.restart_iocs([ioc for ioc in iocs_to_restart if _should_start(ioc)])
 
-
         for ioc in iocs_to_start:
             self._ioc_control.waitfor_running(ioc)
             self._ioc_control.set_autorestart(ioc, _ioc_from_name(ioc).restart)
-        
+
         for ioc in iocs_to_restart:
             self._ioc_control.waitfor_running(ioc)
             self._ioc_control.set_autorestart(ioc, _ioc_from_name(ioc).restart)
 
         # If an IOC is told to restart but autostart was not set, then it should be stopped instead. This doesn't
         # apply to remote IOCs, who are controlled by the RemoteIOCServer instead.
-        self._ioc_control.stop_iocs([ioc for ioc in iocs_to_restart if not _ioc_from_name(ioc).autostart and not _is_remote(ioc)])
+        self._ioc_control.stop_iocs(
+            [
+                ioc
+                for ioc in iocs_to_restart
+                if not _ioc_from_name(ioc).autostart and not _is_remote(ioc)
+            ]
+        )
 
     def load_config(self, config, full_init=True):
         """Load a configuration.
@@ -461,7 +532,9 @@ class BlockServer(Driver):
             self._active_configserver.reload_current_config()
             self._initialise_config(full_init=True)
         except Exception as err:
-            print_and_log("Exception while reloading current configuration: {}".format(err), "MAJOR")
+            print_and_log(
+                "Exception while reloading current configuration: {}".format(err), "MAJOR"
+            )
             traceback.print_exc()
 
     def save_config(self, json_data, as_comp=False):
@@ -479,8 +552,11 @@ class BlockServer(Driver):
 
         # Is the config we've been sent marked with the "protected" flag?
         if new_config_is_protected:
-            verify_manager_mode(message="Attempt to save protected {} ('{}')".format(
-                "component" if as_comp else "config", config_name))
+            verify_manager_mode(
+                message="Attempt to save protected {} ('{}')".format(
+                    "component" if as_comp else "config", config_name
+                )
+            )
 
         inactive = InactiveConfigHolder(MACROS, ConfigurationFileManager())
 
@@ -488,8 +564,11 @@ class BlockServer(Driver):
         try:
             inactive.load_inactive(new_details["name"], is_component=as_comp)
             if inactive.is_protected():
-                verify_manager_mode(message="Attempt to overwrite protected {} ('{}')".format(
-                    "component" if as_comp else "config", config_name))
+                verify_manager_mode(
+                    message="Attempt to overwrite protected {} ('{}')".format(
+                        "component" if as_comp else "config", config_name
+                    )
+                )
         except IOError:
             pass  # IOError thrown if config we're overwriting didn't exist, i.e. this is a brand new config/component.
 
@@ -514,7 +593,9 @@ class BlockServer(Driver):
             print_and_log(f"Finished saving ({config_name})")
 
         except Exception:
-            print_and_log(f"Problem occurred saving configuration: {traceback.format_exc()}", "MAJOR")
+            print_and_log(
+                f"Problem occurred saving configuration: {traceback.format_exc()}", "MAJOR"
+            )
 
         # Reload configuration if a component has changed
         if as_comp and new_details["name"] in self._active_configserver.get_component_names():
@@ -531,22 +612,23 @@ class BlockServer(Driver):
             inactive.load_inactive(name, is_component)
             # Get previous history
             history = inactive.get_history()
-        except IOError as err:
+        except IOError:
             # Config doesn't exist therefore start new history
             history = list()
         return history
 
     def _get_timestamp(self):
-        return datetime.datetime.strftime(datetime.datetime.now(), '%Y-%m-%d %H:%M:%S')
+        return datetime.datetime.strftime(datetime.datetime.now(), "%Y-%m-%d %H:%M:%S")
 
     def update_blocks_monitors(self):
-        """Updates the PV monitors for the blocks and groups, so the clients can see any changes.
-        """
+        """Updates the PV monitors for the blocks and groups, so the clients can see any changes."""
         with self.monitor_lock:
             block_names = convert_to_json(self._active_configserver.get_blocknames())
             self.setParam(BlockserverPVNames.BLOCKNAMES, compress_and_hex(block_names))
 
-            groups = ConfigurationJsonConverter.groups_to_json(self._active_configserver.get_group_details())
+            groups = ConfigurationJsonConverter.groups_to_json(
+                self._active_configserver.get_group_details()
+            )
             self.setParam(BlockserverPVNames.GROUPS, compress_and_hex(groups))
 
             self.updatePVs()
@@ -559,22 +641,27 @@ class BlockServer(Driver):
         """
         if self._active_configserver is not None:
             with self.monitor_lock:
-                self.setParam(BlockserverPVNames.SERVER_STATUS, compress_and_hex(convert_to_json({'status': status})))
+                self.setParam(
+                    BlockserverPVNames.SERVER_STATUS,
+                    compress_and_hex(convert_to_json({"status": status})),
+                )
                 self.updatePVs()
 
     def update_get_details_monitors(self):
-        """Updates the monitor for the active configuration, so the clients can see any changes.
-        """
+        """Updates the monitor for the active configuration, so the clients can see any changes."""
         with self.monitor_lock:
             config_details_json = convert_to_json(self._active_configserver.get_config_details())
-            self.setParam(BlockserverPVNames.GET_CURR_CONFIG_DETAILS, compress_and_hex(config_details_json))
+            self.setParam(
+                BlockserverPVNames.GET_CURR_CONFIG_DETAILS, compress_and_hex(config_details_json)
+            )
             self.updatePVs()
 
     def update_curr_config_name_monitors(self):
-        """Updates the monitor for the active configuration name, so the clients can see any changes.
-        """
+        """Updates the monitor for the active configuration name, so the clients can see any changes."""
         with self.monitor_lock:
-            self.setParam(BlockserverPVNames.CURR_CONFIG_NAME, self._active_configserver.get_config_name())
+            self.setParam(
+                BlockserverPVNames.CURR_CONFIG_NAME, self._active_configserver.get_config_name()
+            )
             self.setParam(BlockserverPVNames.CURR_CONFIG_NAME_SEVR, CURR_CONFIG_NAME_SEVR_VALUE)
             self.updatePVs()
 
@@ -597,7 +684,8 @@ class BlockServer(Driver):
             except Exception as err:
                 print_and_log(
                     f"Error executing write queue command {cmd.__name__} for state {state}: {err}",
-                    "MAJOR")
+                    "MAJOR",
+                )
                 traceback.print_exc()
             self.update_server_status("")
 
@@ -637,17 +725,23 @@ class BlockServer(Driver):
 
     # Code for handling block-sets
     def set_config_block_values(self):
-        blocks = {block_details for block_details in self._active_configserver.get_block_details().values() if
-                  block_details.set_block}
+        blocks = {
+            block_details
+            for block_details in self._active_configserver.get_block_details().values()
+            if block_details.set_block
+        }
         start = time()
         timeout = 30
-        prefix =MACROS[PVPREFIX_MACRO]
+        prefix = MACROS[PVPREFIX_MACRO]
         for block_details in blocks:
-            pv = f'{prefix}{block_details.pv}'
+            pv = f"{prefix}{block_details.pv}"
             while not ChannelAccess.pv_exists(pv):
                 sleep(0.5)
                 if time() - start >= timeout:
-                    print_and_log(f"Gave up waiting for block {block_details.name}, {block_details.pv} to exist", "MAJOR")
+                    print_and_log(
+                        f"Gave up waiting for block {block_details.name}, {block_details.pv} to exist",
+                        "MAJOR",
+                    )
                     break
             # check for existence of set-point pv
             pv_with_setpoint = f"{pv}:SP"
@@ -655,7 +749,6 @@ class BlockServer(Driver):
                 ChannelAccess.caput(pv_with_setpoint, block_details.set_block_val)
             else:
                 ChannelAccess.caput(pv, block_details.set_block_val)
-
 
     def delete_pv_from_db(self, name):
         if name in manager.pvs[self.port]:
@@ -675,36 +768,96 @@ class BlockServer(Driver):
                 data = Data()
                 data.value = manager.pvs[self.port][name].info.value
                 self.pvDB[name] = data
-            except Exception as err:
+            except Exception:
                 print_and_log(f"Unable to add PV {name}", "MAJOR")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('-cd', '--config_dir', nargs=1, type=str, default=['.'],
-                        help='The directory from which to load the configuration (default=current directory)')
-    parser.add_argument('-scd', '--script_dir', nargs=1, type=str, default=['.'],
-                        help='The directory in which instrument scripts are stored')
-    parser.add_argument('-sd', '--schema_dir', nargs=1, type=str, default=['.'],
-                        help='The directory from which to load the configuration schema (default=current directory)')
-    parser.add_argument('-od', '--options_dir', nargs=1, type=str, default=['.'],
-                        help='The directory from which to load the configuration options(default=current directory)')
-    parser.add_argument('-g', '--gateway_prefix', nargs=1, type=str, default=[MACROS["$(MYPVPREFIX)"] +
-                                                                              'CS:GATEWAY:BLOCKSERVER'],
-                        help='The prefix for the blocks gateway (default=' + MACROS[
-                            "$(MYPVPREFIX)"] + 'CS:GATEWAY:BLOCKSERVER)')
-    parser.add_argument('-pv', '--pvlist_name', nargs=1, type=str, default=['gwblock.pvlist'],
-                        help='The filename for the pvlist file used by the blocks gateway (default=gwblock.pvlist)')
-    parser.add_argument('-au', '--archive_uploader', nargs=1,
-                        default=[os.path.join(MACROS["$(EPICS_KIT_ROOT)"], "CSS", "master", "ArchiveEngine",
-                                              "set_block_config.bat")],
-                        help='The batch file used to upload settings to the PV Archiver')
-    parser.add_argument('-as', '--archive_settings', nargs=1,
-                        default=[os.path.join(MACROS["$(EPICS_KIT_ROOT)"], "CSS", "master", "ArchiveEngine",
-                                              "block_config.xml")],
-                        help='The XML file containing the new PV Archiver log settings')
-    parser.add_argument('-f', '--facility', nargs=1, type=str, default=['ISIS'],
-                        help='Which facility is this being run for (default=ISIS)')
+    parser.add_argument(
+        "-cd",
+        "--config_dir",
+        nargs=1,
+        type=str,
+        default=["."],
+        help="The directory from which to load the configuration (default=current directory)",
+    )
+    parser.add_argument(
+        "-scd",
+        "--script_dir",
+        nargs=1,
+        type=str,
+        default=["."],
+        help="The directory in which instrument scripts are stored",
+    )
+    parser.add_argument(
+        "-sd",
+        "--schema_dir",
+        nargs=1,
+        type=str,
+        default=["."],
+        help="The directory from which to load the configuration schema (default=current directory)",
+    )
+    parser.add_argument(
+        "-od",
+        "--options_dir",
+        nargs=1,
+        type=str,
+        default=["."],
+        help="The directory from which to load the configuration options(default=current directory)",
+    )
+    parser.add_argument(
+        "-g",
+        "--gateway_prefix",
+        nargs=1,
+        type=str,
+        default=[MACROS["$(MYPVPREFIX)"] + "CS:GATEWAY:BLOCKSERVER"],
+        help="The prefix for the blocks gateway (default="
+        + MACROS["$(MYPVPREFIX)"]
+        + "CS:GATEWAY:BLOCKSERVER)",
+    )
+    parser.add_argument(
+        "-pv",
+        "--pvlist_name",
+        nargs=1,
+        type=str,
+        default=["gwblock.pvlist"],
+        help="The filename for the pvlist file used by the blocks gateway (default=gwblock.pvlist)",
+    )
+    parser.add_argument(
+        "-au",
+        "--archive_uploader",
+        nargs=1,
+        default=[
+            os.path.join(
+                MACROS["$(EPICS_KIT_ROOT)"],
+                "CSS",
+                "master",
+                "ArchiveEngine",
+                "set_block_config.bat",
+            )
+        ],
+        help="The batch file used to upload settings to the PV Archiver",
+    )
+    parser.add_argument(
+        "-as",
+        "--archive_settings",
+        nargs=1,
+        default=[
+            os.path.join(
+                MACROS["$(EPICS_KIT_ROOT)"], "CSS", "master", "ArchiveEngine", "block_config.xml"
+            )
+        ],
+        help="The XML file containing the new PV Archiver log settings",
+    )
+    parser.add_argument(
+        "-f",
+        "--facility",
+        nargs=1,
+        type=str,
+        default=["ISIS"],
+        help="Which facility is this being run for (default=ISIS)",
+    )
 
     args = parser.parse_args()
 
@@ -716,9 +869,9 @@ if __name__ == '__main__':
     print_and_log(f"FACILITY = {FACILITY}")
 
     GATEWAY_PREFIX = args.gateway_prefix[0]
-    if not GATEWAY_PREFIX.endswith(':'):
+    if not GATEWAY_PREFIX.endswith(":"):
         GATEWAY_PREFIX += ":"
-    GATEWAY_PREFIX = GATEWAY_PREFIX.replace('%MYPVPREFIX%', MACROS["$(MYPVPREFIX)"])
+    GATEWAY_PREFIX = GATEWAY_PREFIX.replace("%MYPVPREFIX%", MACROS["$(MYPVPREFIX)"])
     print_and_log(f"BLOCK GATEWAY PREFIX = {GATEWAY_PREFIX}")
 
     CONFIG_DIR = os.path.abspath(args.config_dir[0])
@@ -730,10 +883,14 @@ if __name__ == '__main__':
     SCHEMA_DIR = os.path.abspath(args.schema_dir[0])
     print_and_log(f"SCHEMA DIRECTORY = {SCHEMA_DIR}")
 
-    ARCHIVE_UPLOADER = args.archive_uploader[0].replace('%EPICS_KIT_ROOT%', MACROS["$(EPICS_KIT_ROOT)"])
+    ARCHIVE_UPLOADER = args.archive_uploader[0].replace(
+        "%EPICS_KIT_ROOT%", MACROS["$(EPICS_KIT_ROOT)"]
+    )
     print_and_log(f"ARCHIVE UPLOADER = {ARCHIVE_UPLOADER}")
 
-    ARCHIVE_SETTINGS = args.archive_settings[0].replace('%EPICS_KIT_ROOT%', MACROS["$(EPICS_KIT_ROOT)"])
+    ARCHIVE_SETTINGS = args.archive_settings[0].replace(
+        "%EPICS_KIT_ROOT%", MACROS["$(EPICS_KIT_ROOT)"]
+    )
     print_and_log(f"ARCHIVE SETTINGS = {ARCHIVE_SETTINGS}")
 
     PVLIST_FILE = args.pvlist_name[0]

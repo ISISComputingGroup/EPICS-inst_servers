@@ -1,13 +1,13 @@
 """
 Script to restore motor positions from the archive.
 """
-import argparse
-from datetime import datetime, timedelta
 
+import argparse
 import os
-import sys
-from typing import List, Tuple, Optional, Any, TextIO
 import socket
+import sys
+from datetime import datetime, timedelta
+from typing import Any, List, Optional, TextIO, Tuple
 
 from genie_python import genie as g
 from genie_python.mysql_abstraction_layer import SQLAbstraction
@@ -28,13 +28,14 @@ try:
     LOG_DIR = os.path.join(os.environ["ICPVARDIR"], "logs")
 except KeyError:
     LOG_DIR = os.getcwd()
-LOG_FILENAME = os.path.join(LOG_DIR, f"restore_motor_positions_{datetime.now().strftime('%Y%m%d_%H%M%S')}.log")
+LOG_FILENAME = os.path.join(
+    LOG_DIR, f"restore_motor_positions_{datetime.now().strftime('%Y%m%d_%H%M%S')}.log"
+)
 
 try:
     from ArchiverAccess.archive_data_file_creator import ArchiveDataFileCreator
 except ImportError:
     sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir)))
-    from ArchiverAccess.archive_data_file_creator import ArchiveDataFileCreator
 from ArchiverAccess.archive_time_period import ArchiveTimePeriod
 from ArchiverAccess.archiver_data_source import ArchiverDataSource, ArchiverDataValue
 from server_common.helpers import motor_in_set_mode
@@ -45,6 +46,7 @@ class Severity:
     """
     Get and translate the severity text from the database
     """
+
     # SQL to get names
     SEVERITY_NAMES_SQL = "SELECT severity_id, name FROM archive.severity"
 
@@ -71,7 +73,8 @@ class Severity:
             archive_mysql_abstraction_layer: abstraction layer to call the database through
         """
         for severity_id, name in archive_mysql_abstraction_layer.query_returning_cursor(
-                Severity.SEVERITY_NAMES_SQL, ()):
+            Severity.SEVERITY_NAMES_SQL, ()
+        ):
             Severity.alarm_severity_text[severity_id] = name.strip()
 
 
@@ -86,9 +89,9 @@ def print_and_log(message, log_file):
     log_file.write(message + "\n")
 
 
-def get_archived_positions(pv_names: List[str], data_time: datetime, host: str,
-                           check_movement_for=timedelta(hours=1)) \
-                            -> List[Tuple[str, ArchiverDataValue, Optional[datetime]]]:
+def get_archived_positions(
+    pv_names: List[str], data_time: datetime, host: str, check_movement_for=timedelta(hours=1)
+) -> List[Tuple[str, ArchiverDataValue, Optional[datetime]]]:
     """
     Get the values for the motors from the database
     Args:
@@ -149,10 +152,16 @@ def print_summary(archive_values, pv_values, data_time, log_file):
         log_file: log file to write summary to
     """
     print_and_log(f"PVs at time {data_time}", log_file)
-    print_and_log(f'{"name":12} {"motor":7}: {"archive val":12} {"diff from":12} - {"last update":19} '
-                  f'{"next update":19} {"alarm":5}', log_file)
-    print_and_log(f'{"":12} {"":7}: {"":12} {"current val":12} - {"(sample time)":19} '
-                  f'{"(within window)":19} {"":5}', log_file)
+    print_and_log(
+        f'{"name":12} {"motor":7}: {"archive val":12} {"diff from":12} - {"last update":19} '
+        f'{"next update":19} {"alarm":5}',
+        log_file,
+    )
+    print_and_log(
+        f'{"":12} {"":7}: {"":12} {"current val":12} - {"(sample time)":19} '
+        f'{"(within window)":19} {"":5}',
+        log_file,
+    )
 
     diff_from_current = 0.0
     for pv_name, pv_value, next_change in archive_values:
@@ -183,8 +192,11 @@ def print_summary(archive_values, pv_values, data_time, log_file):
         else:
             last_change = pv_value.sample_time.strftime(DATA_TIME_DISPLAY_FORMAT)
 
-        print_and_log(f"{motor_name[:12]:12} {pv_name[-7:]}: {val} {diff_from_current:12.3f} - {last_change[:19]:19} "
-                      f"{next_change_str:19} {Severity.get(pv_value.severity_id) :5}", log_file)
+        print_and_log(
+            f"{motor_name[:12]:12} {pv_name[-7:]}: {val} {diff_from_current:12.3f} - {last_change[:19]:19} "
+            f"{next_change_str:19} {Severity.get(pv_value.severity_id) :5}",
+            log_file,
+        )
 
 
 def define_position_as(pv_name, value, current_pos, motor_name, log_file):
@@ -199,17 +211,30 @@ def define_position_as(pv_name, value, current_pos, motor_name, log_file):
 
     """
     try:
-        print_and_log(f"Defining motor position {pv_name} ({motor_name}) from {current_pos} to {value} at {datetime.now()}", log_file)
+        print_and_log(
+            f"Defining motor position {pv_name} ({motor_name}) from {current_pos} to {value} at {datetime.now()}",
+            log_file,
+        )
         with motor_in_set_mode(pv_name):
-                g.set_pv(pv_name, value)
+            g.set_pv(pv_name, value)
     except ValueError:
-        print_and_log(f"Issue setting motor pv {pv_name}, please ensure it has a sensible value and that the "
-                      f"calibration is set to USE", log_file)
+        print_and_log(
+            f"Issue setting motor pv {pv_name}, please ensure it has a sensible value and that the "
+            f"calibration is set to USE",
+            log_file,
+        )
         input("Press a key to continue")
 
 
-def restore_motor_position(pv_name: str, new_position: ArchiverDataValue, next_change: datetime, is_enabled: bool,
-                           motor_name: str, current_pos: Any, log_file: TextIO):
+def restore_motor_position(
+    pv_name: str,
+    new_position: ArchiverDataValue,
+    next_change: datetime,
+    is_enabled: bool,
+    motor_name: str,
+    current_pos: Any,
+    log_file: TextIO,
+):
     """
     Restore the motor position after prompting the user
     Args:
@@ -254,19 +279,23 @@ def summarise_and_restore_positions(data_time, prefix, controllers, host):
     """
     pvs = []
     for controller in controllers:
-        for axis in range(1, MAX_AXIS+1):
+        for axis in range(1, MAX_AXIS + 1):
             pvs.append(f"{prefix}MOT:MTR{controller:02}{axis:02}")
 
     pv_values = get_current_motor_values(pvs)
     archive_values = get_archived_positions(pvs, data_time, host=host)
     with open(LOG_FILENAME, "w") as log_file:
         print(f"Log being written to {LOG_FILENAME}")
-        print_summary(archive_values, pv_values, data_time, log_file)  # test pv_values and print in here
+        print_summary(
+            archive_values, pv_values, data_time, log_file
+        )  # test pv_values and print in here
 
         for pv_name, pv_value, next_change in archive_values:
             is_enabled, motor_name, value = pv_values[pv_name]
-            restore_motor_position(pv_name, pv_value, next_change, is_enabled, motor_name, value, log_file)
-    
+            restore_motor_position(
+                pv_name, pv_value, next_change, is_enabled, motor_name, value, log_file
+            )
+
     for controller in controllers:
         while True:
             answer = input(f"Reset Galil controller power check for controller {controller}? [Y/N]")
@@ -280,19 +309,37 @@ def summarise_and_restore_positions(data_time, prefix, controllers, host):
             print("Answer must be Y and N")
 
 
+if __name__ == "__main__":
+    description = (
+        "Find positions of motors in the past and restore those to current positions"
+        "\n\nExample: restore_motor_positions.py --time 2018-01-10T09:00:00 "
+    )
 
-if __name__ == '__main__':
-    description = "Find positions of motors in the past and restore those to current positions" \
-                  "\n\nExample: restore_motor_positions.py --time 2018-01-10T09:00:00 "
+    parser = argparse.ArgumentParser(
+        description=description, formatter_class=argparse.RawTextHelpFormatter
+    )
 
-    parser = argparse.ArgumentParser(description=description, formatter_class=argparse.RawTextHelpFormatter)
-
-    parser.add_argument("--host", help="(optional) Host to get data from e.g. NDXPOLREF. defaults to current instrument host name.")
-    parser.add_argument("--prefix", "-p", help="(optional) PV prefix for motor controller, defaults to current instrument prefix.")
-    parser.add_argument("--controller", "-c", help="(optional) Controller number, for single controller restoring."
-                                                   f"defaults to restoring controllers 1-{MAX_CONTROLLER}")
-    parser.add_argument("--time", "-t", help="(Required) Time to restore from iso date, 2018-12-20T16:01:02", required=True)
-
+    parser.add_argument(
+        "--host",
+        help="(optional) Host to get data from e.g. NDXPOLREF. defaults to current instrument host name.",
+    )
+    parser.add_argument(
+        "--prefix",
+        "-p",
+        help="(optional) PV prefix for motor controller, defaults to current instrument prefix.",
+    )
+    parser.add_argument(
+        "--controller",
+        "-c",
+        help="(optional) Controller number, for single controller restoring."
+        f"defaults to restoring controllers 1-{MAX_CONTROLLER}",
+    )
+    parser.add_argument(
+        "--time",
+        "-t",
+        help="(Required) Time to restore from iso date, 2018-12-20T16:01:02",
+        required=True,
+    )
 
     args = parser.parse_args()
 

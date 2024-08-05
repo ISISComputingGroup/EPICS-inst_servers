@@ -1,8 +1,7 @@
+import unittest
 from collections import namedtuple
 
 from hamcrest import *
-
-import unittest
 
 from server_common.observable import observable
 
@@ -38,7 +37,9 @@ class TestObservable(unittest.TestCase):
     def listener2(self, value_update):
         self.value2 = value_update.value
 
-    def test_GIVEN_class_with_observed_type_WHEN_add_listener_and_trigger_THEN_listeners_triggers(self):
+    def test_GIVEN_class_with_observed_type_WHEN_add_listener_and_trigger_THEN_listeners_triggers(
+        self,
+    ):
         expected_value = 1
         simple_observable = SimpleObservable()
         simple_observable.add_listener(ValueUpdate, self.listener)
@@ -47,7 +48,9 @@ class TestObservable(unittest.TestCase):
 
         assert_that(self.value, is_(expected_value))
 
-    def test_GIVEN_class_with_observed_type_WHEN_not_add_listener_and_trigger_THEN_nothing_triggered(self):
+    def test_GIVEN_class_with_observed_type_WHEN_not_add_listener_and_trigger_THEN_nothing_triggered(
+        self,
+    ):
         expected_value = 0
         self.value = expected_value
 
@@ -70,9 +73,14 @@ class TestObservable(unittest.TestCase):
     def test_GIVEN_class_with_observed_type_WHEN_call_add_listener_of_wrong_type_THEN_error(self):
         simple_observable = SimpleObservable()
 
-        assert_that(calling(simple_observable.add_listener).with_args(NotValueUpdate, self.listener), raises(TypeError))
+        assert_that(
+            calling(simple_observable.add_listener).with_args(NotValueUpdate, self.listener),
+            raises(TypeError),
+        )
 
-    def test_GIVEN_class_with_observed_type_WHEN_add_2_listeners_and_trigger_THEN_both_triggers_happen(self):
+    def test_GIVEN_class_with_observed_type_WHEN_add_2_listeners_and_trigger_THEN_both_triggers_happen(
+        self,
+    ):
         expected_value = 1
         simple_observable = SimpleObservable()
         simple_observable.add_listener(ValueUpdate, self.listener)
@@ -83,7 +91,9 @@ class TestObservable(unittest.TestCase):
         assert_that(self.value, is_(expected_value))
         assert_that(self.value2, is_(expected_value))
 
-    def test_GIVEN_class_with_observed_type_WHEN_add_listener_and_trigger_twice_THEN_listeners_triggers_twice(self):
+    def test_GIVEN_class_with_observed_type_WHEN_add_listener_and_trigger_twice_THEN_listeners_triggers_twice(
+        self,
+    ):
         expected_value = 1
 
         simple_observable = SimpleObservable()
@@ -94,7 +104,9 @@ class TestObservable(unittest.TestCase):
 
         assert_that(self.value, is_(expected_value))
 
-    def test_GIVEN_two_class_with_observed_type_WHEN_add_listeners_and_triggers_THEN_listeners_triggers_correctly_for_correct_class(self):
+    def test_GIVEN_two_class_with_observed_type_WHEN_add_listeners_and_triggers_THEN_listeners_triggers_correctly_for_correct_class(
+        self,
+    ):
         expected_value1 = 1
         expected_value2 = 2
 
@@ -109,7 +121,9 @@ class TestObservable(unittest.TestCase):
         assert_that(self.value, is_(expected_value1))
         assert_that(self.value2, is_(expected_value2))
 
-    def test_GIVEN_class_with_observed_type_WHEN_add_listener_and_remove_listner_and_trigger_THEN_listeners_not_triggers(self):
+    def test_GIVEN_class_with_observed_type_WHEN_add_listener_and_remove_listner_and_trigger_THEN_listeners_not_triggers(
+        self,
+    ):
         expected_value = 1
         simple_observable = SimpleObservable()
         simple_observable.add_listener(ValueUpdate, self.listener)
@@ -119,7 +133,9 @@ class TestObservable(unittest.TestCase):
 
         assert_that(self.value, is_not(expected_value))
 
-    def test_GIVEN_one_class_with_2_observed_type_WHEN_add_listeners_and_triggers_THEN_listeners_triggers_correctly_for_correct_class(self):
+    def test_GIVEN_one_class_with_2_observed_type_WHEN_add_listeners_and_triggers_THEN_listeners_triggers_correctly_for_correct_class(
+        self,
+    ):
         expected_value1 = 1
         expected_value2 = 2
 
@@ -141,7 +157,9 @@ class TestObservable(unittest.TestCase):
         assert_that(self.value, is_(expected_value1))
         assert_that(self.value2, is_(expected_value2))
 
-    def test_GIVEN_one_class_observed_type_float_WHEN_add_listeners_and_triggers_THEN_listeners_triggers_correctly_for_correct_class(self):
+    def test_GIVEN_one_class_observed_type_float_WHEN_add_listeners_and_triggers_THEN_listeners_triggers_correctly_for_correct_class(
+        self,
+    ):
         expected_value1 = 1.0
 
         @observable(float)
@@ -164,20 +182,26 @@ class TestObservable(unittest.TestCase):
 
         assert_that(simple_observable.listener_last_value(ValueUpdate), is_(None))
 
-    def test_GIVEN_class_with_cached_observed_type_WHEN_set_and_get_cache_THEN_set_value_returned(self):
+    def test_GIVEN_class_with_cached_observed_type_WHEN_set_and_get_cache_THEN_set_value_returned(
+        self,
+    ):
         expected_value = 123
         simple_observable = SimpleObservable()
         simple_observable.set_value(expected_value)
 
         assert_that(simple_observable.listener_last_value(ValueUpdate).value, is_(expected_value))
 
-    def test_GIVEN_class_with_observed_type_with_pre_function_WHEN_initialised_THEN_pre_function_is_not_executed(self):
+    def test_GIVEN_class_with_observed_type_with_pre_function_WHEN_initialised_THEN_pre_function_is_not_executed(
+        self,
+    ):
         expected_value = 0
         simple_observable = SimpleObservable()
 
         assert_that(simple_observable.pre_trigger_function_calls, is_(expected_value))
 
-    def test_GIVEN_class_with_observed_type_with_pre_function_WHEN_type_is_triggered_THEN_pre_function_is_executed(self):
+    def test_GIVEN_class_with_observed_type_with_pre_function_WHEN_type_is_triggered_THEN_pre_function_is_executed(
+        self,
+    ):
         expected_value = 1
         simple_observable = SimpleObservable()
 
@@ -185,7 +209,9 @@ class TestObservable(unittest.TestCase):
 
         assert_that(simple_observable.pre_trigger_function_calls, is_(expected_value))
 
-    def test_GIVEN_class_with_observed_type_with_pre_function_WHEN_other_type_is_triggered_THEN_pre_function_is_not_executed(self):
+    def test_GIVEN_class_with_observed_type_with_pre_function_WHEN_other_type_is_triggered_THEN_pre_function_is_not_executed(
+        self,
+    ):
         expected_value = 0
         simple_observable = SimpleObservable()
 
@@ -193,7 +219,9 @@ class TestObservable(unittest.TestCase):
 
         assert_that(simple_observable.pre_trigger_function_calls, is_(expected_value))
 
-    def test_GIVEN_class_with_observed_type_which_has_triggered_WHEN_add_listener_with_init_on_trigger_THEN_listeners_triggers(self):
+    def test_GIVEN_class_with_observed_type_which_has_triggered_WHEN_add_listener_with_init_on_trigger_THEN_listeners_triggers(
+        self,
+    ):
         expected_value = 1
         simple_observable = SimpleObservable()
         simple_observable.set_value(expected_value)
@@ -202,7 +230,9 @@ class TestObservable(unittest.TestCase):
 
         assert_that(self.value, is_(expected_value))
 
-    def test_GIVEN_class_with_observed_type_which_has_not_triggered_WHEN_add_listener_with_init_on_trigger_THEN_listener_not_triggered(self):
+    def test_GIVEN_class_with_observed_type_which_has_not_triggered_WHEN_add_listener_with_init_on_trigger_THEN_listener_not_triggered(
+        self,
+    ):
         expected_value = None
         simple_observable = SimpleObservable()
 

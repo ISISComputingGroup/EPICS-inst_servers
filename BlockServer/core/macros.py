@@ -25,10 +25,10 @@ def _get_env_var(name):
 
 
 MACROS = {
-    "$(MYPVPREFIX)": _get_env_var('MYPVPREFIX'),
-    "$(EPICS_KIT_ROOT)": _get_env_var('EPICS_KIT_ROOT'),
-    "$(ICPCONFIGROOT)": _get_env_var('ICPCONFIGROOT'),
-    "$(ICPVARDIR)": _get_env_var('ICPVARDIR')
+    "$(MYPVPREFIX)": _get_env_var("MYPVPREFIX"),
+    "$(EPICS_KIT_ROOT)": _get_env_var("EPICS_KIT_ROOT"),
+    "$(ICPCONFIGROOT)": _get_env_var("ICPCONFIGROOT"),
+    "$(ICPVARDIR)": _get_env_var("ICPVARDIR"),
 }
 
 BLOCK_PREFIX = "CS:SB:"

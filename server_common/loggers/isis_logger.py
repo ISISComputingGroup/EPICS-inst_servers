@@ -2,7 +2,11 @@
 Access to external loggers at ISIS
 """
 
-from __future__ import print_function, absolute_import, division, unicode_literals
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import codecs
+import contextlib
+
 # This file is part of the ISIS IBEX application.
 # Copyright (C) 2012-2016 Science & Technology Facilities Council.
 # All rights reserved.
@@ -18,13 +22,9 @@ from __future__ import print_function, absolute_import, division, unicode_litera
 # along with this program; if not, you can obtain a copy from
 # https://www.eclipse.org/org/documents/epl-v10.php or
 # http://opensource.org/licenses/eclipse-1.0.php
-
 import datetime
 import socket
-import contextlib
 import traceback
-import codecs
-
 from concurrent.futures import ThreadPoolExecutor
 
 from server_common.loggers.logger import Logger
@@ -82,18 +82,25 @@ class IsisLogger(Logger):
             src = self._ioc_name
         msg_time = datetime.datetime.now()
         IsisLogger.executor.submit(
-            self._queued_write_to_log, message, severity, src, self.ioc_log_host, self.ioc_log_port, msg_time)
+            self._queued_write_to_log,
+            message,
+            severity,
+            src,
+            self.ioc_log_host,
+            self.ioc_log_port,
+            msg_time,
+        )
 
     @staticmethod
     def _queued_write_to_log(message, severity, src, ioc_log_host, ioc_log_port, msg_time):
-        if severity not in ['INFO', 'MINOR', 'MAJOR', 'FATAL']:
+        if severity not in ["INFO", "MINOR", "MAJOR", "FATAL"]:
             print("write_to_ioc_log: invalid severity ", severity)
             return
         msg_time_str = msg_time.isoformat()
         if msg_time.utcoffset() is None:
             msg_time_str += "Z"
 
-        xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
+        xml = '<?xml version="1.0" encoding="UTF-8"?>'
         xml += "<message>"
         xml += "<clientName>%s</clientName>" % src
         xml += "<severity>%s</severity>" % severity
@@ -108,7 +115,7 @@ class IsisLogger(Logger):
                 sock.sendall(codecs.encode(xml, "utf-8"))
             except Exception:
                 traceback.print_exc()
-                print("While trying to log: \"{}\"".format(message))
+                print('While trying to log: "{}"'.format(message))
 
 
 class IsisPutLog:
@@ -131,5 +138,7 @@ class IsisPutLog:
         """
         time_now = datetime.datetime.now()
         time_str = time_now.strftime("%d-%b-%y %H:%M:%S")
-        message = "{} {} {} {} {} {}".format(time_str, LOCALHOST, self._ioc_name, pv_name, new_value, old_value)
+        message = "{} {} {} {} {} {}".format(
+            time_str, LOCALHOST, self._ioc_name, pv_name, new_value, old_value
+        )
         self.logger.write_to_log(message)

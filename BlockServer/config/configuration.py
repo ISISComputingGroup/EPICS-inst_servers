@@ -14,12 +14,13 @@
 # https://www.eclipse.org/org/documents/epl-v10.php or
 # http://opensource.org/licenses/eclipse-1.0.php
 
-""" Contains all the code for defining a configuration or component"""
+"""Contains all the code for defining a configuration or component"""
+
 from collections import OrderedDict
 from typing import Dict
 
-from BlockServer.config.group import Group
 from BlockServer.config.block import Block
+from BlockServer.config.group import Group
 from BlockServer.config.ioc import IOC
 from BlockServer.config.metadata import MetaData
 from BlockServer.core.constants import GRP_NONE
@@ -28,7 +29,7 @@ from server_common.utilities import print_and_log
 
 
 class Configuration:
-    """ The Configuration class.
+    """The Configuration class.
 
     Attributes:
         blocks (OrderedDict): The blocks for the configuration
@@ -39,8 +40,9 @@ class Configuration:
         components (OrderedDict): The components which are part of the configuration
         is_component (bool): Whether it is actually a component
     """
+
     def __init__(self, macros: Dict):
-        """ Constructor.
+        """Constructor.
 
         Args:
             macros: The dictionary containing the macros
@@ -55,7 +57,7 @@ class Configuration:
         self.is_component = False
 
     def add_block(self, name: str, pv: str, group: str = GRP_NONE, local: bool = True, **kwargs):
-        """ Add a block to the configuration.
+        """Add a block to the configuration.
 
         Args:
             name: The name for the new block
@@ -80,9 +82,19 @@ class Configuration:
                 self.groups[group.lower()] = Group(group)
             self.groups[group.lower()].blocks.append(name)
 
-    def add_ioc(self, name: str, component: str = None, autostart: bool = None, restart: bool = None, macros: Dict = None, pvs: Dict = None, pvsets: Dict = None,
-                simlevel: str = None, remotePvPrefix: str = None):
-        """ Add an IOC to the configuration.
+    def add_ioc(
+        self,
+        name: str,
+        component: str = None,
+        autostart: bool = None,
+        restart: bool = None,
+        macros: Dict = None,
+        pvs: Dict = None,
+        pvsets: Dict = None,
+        simlevel: str = None,
+        remotePvPrefix: str = None,
+    ):
+        """Add an IOC to the configuration.
 
         Args:
             name (string): The name of the IOC to add
@@ -98,21 +110,26 @@ class Configuration:
         """
         # Only add it if it has not been added before
         if name.upper() in self.iocs.keys():
-            print_and_log(f"Warning: IOC '{name}' is already part of the configuration. Not adding it again.")
+            print_and_log(
+                f"Warning: IOC '{name}' is already part of the configuration. Not adding it again."
+            )
         else:
-            self.iocs[name.upper()] = IOC(name, autostart, restart, component, macros, pvs, pvsets, simlevel,
-                                          remotePvPrefix)
+            self.iocs[name.upper()] = IOC(
+                name, autostart, restart, component, macros, pvs, pvsets, simlevel, remotePvPrefix
+            )
 
     def get_name(self) -> str:
-        """ Gets the name of the configuration.
+        """Gets the name of the configuration.
 
         Returns:
             The name of this configuration
         """
-        return self.meta.name.decode("utf-8") if isinstance(self.meta.name, bytes) else self.meta.name
+        return (
+            self.meta.name.decode("utf-8") if isinstance(self.meta.name, bytes) else self.meta.name
+        )
 
     def set_name(self, name: str):
-        """ Sets the configuration's name.
+        """Sets the configuration's name.
 
         Args:
             name: The new name for the configuration

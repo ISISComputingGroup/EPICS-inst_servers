@@ -1,4 +1,5 @@
-from __future__ import print_function, absolute_import, division, unicode_literals
+from __future__ import absolute_import, division, print_function, unicode_literals
+
 # This file is part of the ISIS IBEX application.
 # Copyright (C) 2012-2016 Science & Technology Facilities Council.
 # All rights reserved.
@@ -19,6 +20,7 @@ from DatabaseServer.options_loader import OptionsLoader
 
 class OptionsHolder(object):
     """Holds all the IOC options"""
+
     def __init__(self, options_folder: str, options_loader: OptionsLoader):
         """Constructor
 
@@ -26,7 +28,7 @@ class OptionsHolder(object):
             options_folder: The path of the directory holding the config.xml file
             options_loader: An instance of OptionsLoader to load options from file
         """
-        self._config_options = options_loader.get_options(options_folder + '/config.xml')
+        self._config_options = options_loader.get_options(options_folder + "/config.xml")
 
     def get_config_options(self) -> dict:
         """Converts all stored IocOptions into dicts

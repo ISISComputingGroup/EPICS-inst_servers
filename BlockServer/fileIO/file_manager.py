@@ -13,35 +13,47 @@
 # along with this program; if not, you can obtain a copy from
 # https://www.eclipse.org/org/documents/epl-v10.php or
 # http://opensource.org/licenses/eclipse-1.0.php
-import re
 import os
+import re
 import shutil
 from collections import OrderedDict
 from xml.etree import ElementTree
+
+from BlockServer.config.configuration import Configuration, MetaData
 from BlockServer.config.group import Group
 from BlockServer.config.xml_converter import ConfigurationXmlConverter
-from BlockServer.config.configuration import Configuration, MetaData
-from BlockServer.core.constants import FILENAME_BLOCKS, FILENAME_GROUPS, FILENAME_IOCS, FILENAME_COMPONENTS, \
-    FILENAME_META, FILENAME_BANNER
-from BlockServer.core.constants import GRP_NONE, DEFAULT_COMPONENT, EXAMPLE_DEFAULT
+from BlockServer.core.constants import (
+    DEFAULT_COMPONENT,
+    EXAMPLE_DEFAULT,
+    FILENAME_BANNER,
+    FILENAME_BLOCKS,
+    FILENAME_COMPONENTS,
+    FILENAME_GROUPS,
+    FILENAME_IOCS,
+    FILENAME_META,
+    GRP_NONE,
+)
 from BlockServer.core.file_path_manager import FILEPATH_MANAGER
-from BlockServer.fileIO.schema_checker import ConfigurationSchemaChecker, ConfigurationIncompleteException
-from server_common.utilities import print_and_log, retry
+from BlockServer.fileIO.schema_checker import (
+    ConfigurationIncompleteException,
+    ConfigurationSchemaChecker,
+)
 from server_common.common_exceptions import MaxAttemptsExceededException
+from server_common.utilities import print_and_log, retry
 
 RETRY_MAX_ATTEMPTS = 20
 RETRY_INTERVAL = 0.5
 
 
 class ConfigurationFileManager:
-    """ The ConfigurationFileManager class.
+    """The ConfigurationFileManager class.
 
     Contains utilities to save and load configurations.
     """
 
     def find_ci(self, root_path, name):
         """find a file with a case insensitive match"""
-        res = ''
+        res = ""
         for f in os.listdir(root_path):
             if f.lower() == name.lower():
                 res = f
@@ -80,7 +92,7 @@ class ConfigurationFileManager:
             root = self._read_element_tree(blocks_path)
 
             # Check against the schema - raises if incorrect
-            self._check_against_schema(ElementTree.tostring(root, encoding='utf8'), FILENAME_BLOCKS)
+            self._check_against_schema(ElementTree.tostring(root, encoding="utf8"), FILENAME_BLOCKS)
 
             ConfigurationXmlConverter.blocks_from_xml(root, blocks, groups)
         else:
@@ -92,7 +104,7 @@ class ConfigurationFileManager:
             root = self._read_element_tree(groups_path)
 
             # Check against the schema - raises if incorrect
-            self._check_against_schema(ElementTree.tostring(root, encoding='utf8'), FILENAME_GROUPS)
+            self._check_against_schema(ElementTree.tostring(root, encoding="utf8"), FILENAME_GROUPS)
 
             ConfigurationXmlConverter.groups_from_xml(root, groups, blocks)
         else:
@@ -105,7 +117,7 @@ class ConfigurationFileManager:
 
             # There was a historic bug where the simlevel was saved as 'None' rather than "none".
             # Correct that here
-            correct_xml = ElementTree.tostring(root, encoding='utf8')
+            correct_xml = ElementTree.tostring(root, encoding="utf8")
 
             correct_xml = correct_xml.replace(b'simlevel="None"', b'simlevel="none"')
 
@@ -122,7 +134,9 @@ class ConfigurationFileManager:
             root = self._read_element_tree(component_path)
 
             # Check against the schema - raises if incorrect
-            self._check_against_schema(ElementTree.tostring(root, encoding='utf8'), FILENAME_COMPONENTS)
+            self._check_against_schema(
+                ElementTree.tostring(root, encoding="utf8"), FILENAME_COMPONENTS
+            )
 
             ConfigurationXmlConverter.components_from_xml(root, components)
         elif not is_component:
@@ -136,15 +150,16 @@ class ConfigurationFileManager:
             root = self._read_element_tree(meta_path)
 
             # Check against the schema - raises if incorrect
-            self._check_against_schema(ElementTree.tostring(root, encoding='utf8'), FILENAME_META)
+            self._check_against_schema(ElementTree.tostring(root, encoding="utf8"), FILENAME_META)
 
             ConfigurationXmlConverter.meta_from_xml(root, meta)
         else:
             config_files_missing.append(FILENAME_META)
 
         if len(config_files_missing) > 0:
-            raise ConfigurationIncompleteException("Files missing in " + name +
-                                                   " (%s)" % ','.join(list(config_files_missing)))
+            raise ConfigurationIncompleteException(
+                "Files missing in " + name + " (%s)" % ",".join(list(config_files_missing))
+            )
 
         # Set properties in the config
         configuration.blocks = blocks
@@ -157,8 +172,8 @@ class ConfigurationFileManager:
 
     @staticmethod
     def _check_against_schema(xml, filename):
-        regex = re.compile(re.escape('.xml'), re.IGNORECASE)
-        name = regex.sub('.xsd', filename)
+        regex = re.compile(re.escape(".xml"), re.IGNORECASE)
+        name = regex.sub(".xsd", filename)
         schema_path = os.path.join(FILEPATH_MANAGER.schema_dir, name)
         ConfigurationSchemaChecker.check_xml_data_matches_schema(schema_path, xml)
 
@@ -175,7 +190,9 @@ class ConfigurationFileManager:
             # Create the directory
             os.makedirs(path)
 
-        blocks_xml = ConfigurationXmlConverter.blocks_to_xml(configuration.blocks, configuration.macros)
+        blocks_xml = ConfigurationXmlConverter.blocks_to_xml(
+            configuration.blocks, configuration.macros
+        )
         groups_xml = ConfigurationXmlConverter.groups_to_xml(configuration.groups)
         iocs_xml = ConfigurationXmlConverter.iocs_to_xml(configuration.iocs)
         meta_xml = ConfigurationXmlConverter.meta_to_xml(configuration.meta)
@@ -232,28 +249,34 @@ class ConfigurationFileManager:
         Args:
             dest_path (string): The root folder where configurations are stored
         """
-        shutil.copytree(os.path.abspath(os.path.join(os.environ["MYDIRBLOCK"], EXAMPLE_DEFAULT)),
-                        os.path.join(dest_path, DEFAULT_COMPONENT))
+        shutil.copytree(
+            os.path.abspath(os.path.join(os.environ["MYDIRBLOCK"], EXAMPLE_DEFAULT)),
+            os.path.join(dest_path, DEFAULT_COMPONENT),
+        )
 
     @staticmethod
     def _read_element_tree(file_path):
         try:
             return ConfigurationFileManager._attempt_read(file_path)
         except MaxAttemptsExceededException:
-            raise IOError(f"Could not open file at {file_path}. Please check the file "
-                          f"is not in use by another process.")
+            raise IOError(
+                f"Could not open file at {file_path}. Please check the file "
+                f"is not in use by another process."
+            )
 
     def _write_to_file(self, file_path, data):
         try:
             return self._attempt_write(file_path, data)
         except MaxAttemptsExceededException:
-            raise IOError(f"Could not write to file at {file_path}. Please check the file is "
-                          f"not in use by another process.")
+            raise IOError(
+                f"Could not write to file at {file_path}. Please check the file is "
+                f"not in use by another process."
+            )
 
     @staticmethod
     @retry(RETRY_MAX_ATTEMPTS, RETRY_INTERVAL, (OSError, IOError))
     def _attempt_read(file_path):
-        """ Read and return the element tree from a given xml file.
+        """Read and return the element tree from a given xml file.
 
         Args:
             file_path (string): The location of the file being read
@@ -263,13 +286,13 @@ class ConfigurationFileManager:
     @staticmethod
     @retry(RETRY_MAX_ATTEMPTS, RETRY_INTERVAL, (OSError, IOError))
     def _attempt_write(file_path, data):
-        """ Write xml data to a given configuration file.
+        """Write xml data to a given configuration file.
 
         Args:
             file_path (string): The location of the file being written
             data (string): The XML data to be saved
         """
-        with open(file_path, 'w') as f:
+        with open(file_path, "w") as f:
             f.write(data)
             return
 
@@ -309,15 +332,18 @@ class ConfigurationFileManager:
             root = ConfigurationFileManager._read_element_tree(FILEPATH_MANAGER.get_banner_path())
 
             # Check against the schema - raises if incorrect
-            ConfigurationFileManager._check_against_schema(ElementTree.tostring(root, encoding='utf8'),
-                                                           FILENAME_BANNER)
+            ConfigurationFileManager._check_against_schema(
+                ElementTree.tostring(root, encoding="utf8"), FILENAME_BANNER
+            )
             try:
                 banner = ConfigurationXmlConverter.banner_config_from_xml(
                     ConfigurationFileManager._attempt_read(FILEPATH_MANAGER.get_banner_path())
                 )
             except Exception as ex:
                 # XML failed to parse. Log the error and return an empty list
-                print_and_log(f"Failed to parse banner xml file. Error was {ex.__class__.__name__} {ex}")
+                print_and_log(
+                    f"Failed to parse banner xml file. Error was {ex.__class__.__name__} {ex}"
+                )
                 banner = {}
         else:
             banner = {}

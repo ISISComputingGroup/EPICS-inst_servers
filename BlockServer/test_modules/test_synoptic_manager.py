@@ -14,14 +14,13 @@
 # https://www.eclipse.org/org/documents/epl-v10.php or
 # http://opensource.org/licenses/eclipse-1.0.php
 
-import unittest
 import os
+import unittest
 
-
-from BlockServer.synoptic.synoptic_manager import SynopticManager, SYNOPTIC_PRE, SYNOPTIC_GET
 from BlockServer.core.config_list_manager import InvalidDeleteException
 from BlockServer.mocks.mock_block_server import MockBlockServer
 from BlockServer.synoptic.synoptic_file_io import SynopticFileIO
+from BlockServer.synoptic.synoptic_manager import SYNOPTIC_GET, SYNOPTIC_PRE, SynopticManager
 
 TEST_DIR = os.path.abspath(".")
 
@@ -84,7 +83,7 @@ class TestSynopticManagerSequence(unittest.TestCase):
 
         # Assert
         self.assertTrue(len(s) > 0)
-        n = [x['name'] for x in s]
+        n = [x["name"] for x in s]
         self.assertEqual("-- NONE --", n[0])
         self.assertEqual(SYNOPTIC_1, n[1])
         self.assertEqual(SYNOPTIC_2, n[2])

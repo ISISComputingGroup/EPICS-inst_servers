@@ -17,21 +17,29 @@
 # Add root path for access to server_commons
 import os
 import sys
+
 # Set MYDIRBLOCK so that example_base can be found
 os.environ["MYDIRBLOCK"] = ".."
 sys.path.insert(0, os.path.abspath(".."))
 # Standard imports
-import unittest
-import xmlrunner
 import argparse
+import unittest
 
-DEFAULT_DIRECTORY = os.path.join('..', '..', '..', '..', 'test-reports')
+import xmlrunner
 
-if __name__ == '__main__':
+DEFAULT_DIRECTORY = os.path.join("..", "..", "..", "..", "test-reports")
+
+if __name__ == "__main__":
     # get output directory from command line arguments
     parser = argparse.ArgumentParser()
-    parser.add_argument('-o', '--output_dir', nargs=1, type=str, default=[DEFAULT_DIRECTORY],
-                        help='The directory to save the test reports')
+    parser.add_argument(
+        "-o",
+        "--output_dir",
+        nargs=1,
+        type=str,
+        default=[DEFAULT_DIRECTORY],
+        help="The directory to save the test reports",
+    )
     args = parser.parse_args()
     xml_dir = args.output_dir[0]
 

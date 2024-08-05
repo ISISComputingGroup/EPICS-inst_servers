@@ -1,7 +1,8 @@
-from pcaspy import SimpleServer, Driver
-from pcaspy.tools import ServerThread
 import random
 import threading
+
+from pcaspy import Driver, SimpleServer
+from pcaspy.tools import ServerThread
 
 # Use `caget -S` to print a char array as a string
 
@@ -14,90 +15,90 @@ axis_count = object()
 body_count = object()
 
 pvdb = {
-    'RAND': {
-        'prec': 3,
+    "RAND": {
+        "prec": 3,
         # 'scan' : 1,
-        'count': 1,
-        'type': 'float',
+        "count": 1,
+        "type": "float",
     },
-    'MSG': {
-        'count': 300,
-        'type': 'char',
+    "MSG": {
+        "count": 300,
+        "type": "char",
     },
-    'NAMES': {
-        'count': body_count,
-        'type': 'string',
+    "NAMES": {
+        "count": body_count,
+        "type": "string",
     },
-    'MODE': {
-        'count': 1,
-        'type': 'int',
-        'scan': 1,
+    "MODE": {
+        "count": 1,
+        "type": "int",
+        "scan": 1,
     },
-    'AUTO_STOP': {
-        'count': 1,
-        'type': 'int',
+    "AUTO_STOP": {
+        "count": 1,
+        "type": "int",
     },
-    'AUTO_LIMIT': {
-        'count': 1,
-        'type': 'int',
+    "AUTO_LIMIT": {
+        "count": 1,
+        "type": "int",
     },
-    'SAFE': {
-        'count': 1,
-        'type': 'int',
+    "SAFE": {
+        "count": 1,
+        "type": "int",
     },
-    'HI_LIM': {
-        'count': axis_count,
-        'type': 'float',
-        'prec': 3,
+    "HI_LIM": {
+        "count": axis_count,
+        "type": "float",
+        "prec": 3,
     },
-    'LO_LIM': {
-        'count': axis_count,
-        'type': 'float',
-        'prec': 3,
+    "LO_LIM": {
+        "count": axis_count,
+        "type": "float",
+        "prec": 3,
     },
-    'TRAVEL': {
-        'count': axis_count,
-        'type': 'float',
-        'prec': 3,
+    "TRAVEL": {
+        "count": axis_count,
+        "type": "float",
+        "prec": 3,
     },
-    'TRAV_F': {
-        'count': axis_count,
-        'type': 'float',
-        'prec': 3,
+    "TRAV_F": {
+        "count": axis_count,
+        "type": "float",
+        "prec": 3,
     },
-    'TRAV_R': {
-        'count': axis_count,
-        'type': 'float',
-        'prec': 3,
+    "TRAV_R": {
+        "count": axis_count,
+        "type": "float",
+        "prec": 3,
     },
-    'COLLIDED': {
-        'count': body_count,
-        'type': 'int',
+    "COLLIDED": {
+        "count": body_count,
+        "type": "int",
     },
-    'OVERSIZE': {
-        'count': 1,
-        'type': 'float',
-        'prec': 3,
-        'unit': 'mm',
+    "OVERSIZE": {
+        "count": 1,
+        "type": "float",
+        "prec": 3,
+        "unit": "mm",
     },
-    'COARSE': {
-        'count': 1,
-        'type': 'float',
-        'prec': 3,
+    "COARSE": {
+        "count": 1,
+        "type": "float",
+        "prec": 3,
     },
-    'FINE': {
-        'count': 1,
-        'type': 'float',
-        'prec': 3,
+    "FINE": {
+        "count": 1,
+        "type": "float",
+        "prec": 3,
     },
-    'TIME': {
-        'count': 1,
-        'type': 'int',
+    "TIME": {
+        "count": 1,
+        "type": "int",
         # 'scan': 1,
     },
-    'CALC': {
-        'count': 1,
-        'type': 'int',
+    "CALC": {
+        "count": 1,
+        "type": "int",
     },
 }
 
@@ -111,15 +112,15 @@ class MyDriver(Driver):
 
     def read(self, reason):
         # logging.debug("Reading '%s'...", reason)
-        if reason == 'RAND':
+        if reason == "RAND":
             value = random.random()
-        elif reason == 'MODE':
+        elif reason == "MODE":
             auto_stop, set_limits, close = self.op_mode.get_operation_mode()
             self.setParam(reason, 0b1 * auto_stop + 0b10 * set_limits + 0b100 * close)
             value = self.getParam(reason)
-        elif reason == 'AUTO_STOP':
+        elif reason == "AUTO_STOP":
             value = int(self.op_mode.auto_stop.is_set())
-        elif reason == 'AUTO_LIMIT':
+        elif reason == "AUTO_LIMIT":
             value = int(self.op_mode.set_limits.is_set())
         else:
             value = self.getParam(reason)
@@ -128,32 +129,32 @@ class MyDriver(Driver):
 
     def write(self, reason, value):
         status = True
-        if reason == 'MODE':
+        if reason == "MODE":
             auto_stop = value & 0b1
             set_limits = value & 0b10
             close = value & 0b100
             self.op_mode.set_operation_mode(auto_stop, set_limits, close)
             self.setParam(reason, int(value))
-        elif reason == 'AUTO_STOP':
+        elif reason == "AUTO_STOP":
             if value == 1:
                 self.op_mode.auto_stop.set()
             elif value == 0:
                 self.op_mode.auto_stop.clear()
-            self.setParam('MODE', self.op_mode.op_mode)
-        elif reason == 'AUTO_LIMIT':
+            self.setParam("MODE", self.op_mode.op_mode)
+        elif reason == "AUTO_LIMIT":
             if value == 1:
                 self.op_mode.set_limits.set()
             elif value == 0:
                 self.op_mode.set_limits.clear()
-        elif reason == 'OVERSIZE':
+        elif reason == "OVERSIZE":
             self.setParam(reason, value)
-            self.setParam('COARSE', 4 * value)
-        elif reason == 'COARSE':
+            self.setParam("COARSE", 4 * value)
+        elif reason == "COARSE":
             self.setParam(reason, value)
-            self.setParam('OVERSIZE', value / 4)
-        elif reason == 'FINE':
+            self.setParam("OVERSIZE", value / 4)
+        elif reason == "FINE":
             self.setParam(reason, value)
-        elif reason == 'CALC':
+        elif reason == "CALC":
             self.setParam(reason, True)
 
         self.new_data.set()
@@ -161,7 +162,6 @@ class MyDriver(Driver):
 
 
 def start_thread(prefix, op_mode):
-
     server = SimpleServer()
     server.createPV(prefix, pvdb)
     # server.setDebugLevel(4)

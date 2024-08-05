@@ -1,4 +1,5 @@
-from __future__ import print_function, absolute_import, division, unicode_literals
+from __future__ import absolute_import, division, print_function, unicode_literals
+
 # This file is part of the ISIS IBEX application.
 # Copyright (C) 2012-2016 Science & Technology Facilities Council.
 # All rights reserved.
@@ -15,28 +16,29 @@ from __future__ import print_function, absolute_import, division, unicode_litera
 # https://www.eclipse.org/org/documents/epl-v10.php or
 # http://opensource.org/licenses/eclipse-1.0.php
 import os
-from collections import OrderedDict
-from server_common.utilities import print_and_log, parse_xml_removing_namespace
-from DatabaseServer.ioc_options import IocOptions
 import xml
+from collections import OrderedDict
 
-TAG_NAME = 'name'
-TAG_VALUE = 'value'
-TAG_IOC_CONFIG = 'ioc_config'
-CONFIG_PART = 'config_part'
-TAG_PATTERN = 'pattern'
-TAG_DESCRIPTION = 'description'
-TAG_DEFAULT = 'defaultValue'
-TAG_HAS_DEFAULT = 'hasDefault'
+from DatabaseServer.ioc_options import IocOptions
+from server_common.utilities import parse_xml_removing_namespace, print_and_log
+
+TAG_NAME = "name"
+TAG_VALUE = "value"
+TAG_IOC_CONFIG = "ioc_config"
+CONFIG_PART = "config_part"
+TAG_PATTERN = "pattern"
+TAG_DESCRIPTION = "description"
+TAG_DEFAULT = "defaultValue"
+TAG_HAS_DEFAULT = "hasDefault"
 
 
 def create_xpath_search(group: str, individual: str) -> str:
     return "./{}/{}/{}".format(CONFIG_PART, group, individual)
 
 
-MACROS = create_xpath_search('macros', 'macro')
-PVS = create_xpath_search('pvs', 'pv')
-PVSETS = create_xpath_search('pvsets', 'pvset')
+MACROS = create_xpath_search("macros", "macro")
+PVS = create_xpath_search("pvs", "pv")
+PVSETS = create_xpath_search("pvsets", "pvset")
 
 
 class OptionsLoader(object):
@@ -67,15 +69,21 @@ class OptionsLoader(object):
                 iocs[name.upper()] = IocOptions(name.upper())
                 # Get any macros
                 for macro in ioc.findall(MACROS):
-                    iocs[name.upper()].macros[macro.attrib[TAG_NAME]] = {TAG_DESCRIPTION: macro.attrib[TAG_DESCRIPTION],
-                                                                         TAG_PATTERN: macro.attrib.get(TAG_PATTERN),
-                                                                         TAG_DEFAULT: macro.attrib.get(TAG_DEFAULT),
-                                                                         TAG_HAS_DEFAULT: macro.attrib.get(TAG_HAS_DEFAULT)}
+                    iocs[name.upper()].macros[macro.attrib[TAG_NAME]] = {
+                        TAG_DESCRIPTION: macro.attrib[TAG_DESCRIPTION],
+                        TAG_PATTERN: macro.attrib.get(TAG_PATTERN),
+                        TAG_DEFAULT: macro.attrib.get(TAG_DEFAULT),
+                        TAG_HAS_DEFAULT: macro.attrib.get(TAG_HAS_DEFAULT),
+                    }
 
                 # Get any pvsets
                 for pvset in ioc.findall(PVSETS):
-                    iocs[name.upper()].pvsets[pvset.attrib[TAG_NAME]] = {TAG_DESCRIPTION: pvset.attrib[TAG_DESCRIPTION]}
+                    iocs[name.upper()].pvsets[pvset.attrib[TAG_NAME]] = {
+                        TAG_DESCRIPTION: pvset.attrib[TAG_DESCRIPTION]
+                    }
 
                 # Get any pvs
                 for pv in ioc.findall(PVS):
-                    iocs[name.upper()].pvs[pv.attrib[TAG_NAME]] = {TAG_DESCRIPTION: pv.attrib[TAG_DESCRIPTION]}
+                    iocs[name.upper()].pvs[pv.attrib[TAG_NAME]] = {
+                        TAG_DESCRIPTION: pv.attrib[TAG_DESCRIPTION]
+                    }

@@ -16,12 +16,13 @@
 """
 Module for initiator for log file creation.
 """
+
 from datetime import timedelta
 
 from ArchiverAccess.archive_data_file_creator import DataFileCreationError, DataFileCreatorFactory
 from ArchiverAccess.archive_time_period import ArchiveTimePeriod
 from ArchiverAccess.utilities import utc_time_now
-from server_common.utilities import print_and_log, SEVERITY
+from server_common.utilities import SEVERITY, print_and_log
 
 # The delay between the current time and what we think should have been archived. This is so if nothing is archived
 # the continous logger will still produce values but will still catch values coming through the system. The values
@@ -34,8 +35,14 @@ class LogFileInitiatorOnPVChange(object):
     Initiate the writing of a log file based on the change of a PV.
     """
 
-    def __init__(self, configs, archive_data_source, time_last_active,
-                 get_current_time_fn=utc_time_now, data_file_creator_factory=DataFileCreatorFactory()):
+    def __init__(
+        self,
+        configs,
+        archive_data_source,
+        time_last_active,
+        get_current_time_fn=utc_time_now,
+        data_file_creator_factory=DataFileCreatorFactory(),
+    ):
         """
 
         Args:
@@ -54,14 +61,19 @@ class LogFileInitiatorOnPVChange(object):
         self._trigger_pvs = [config.trigger_pv for config in configs]
         self._time_last_active = time_last_active
         search_for_change_from, self._last_sample_id_for_time = time_last_active.get()
-        initial_data_values = archive_data_source.initial_archiver_data_values(self._trigger_pvs,
-                                                                               search_for_change_from)
+        initial_data_values = archive_data_source.initial_archiver_data_values(
+            self._trigger_pvs, search_for_change_from
+        )
         self._last_sample_time = search_for_change_from
 
         self._loggers_for_pvs = []
         for config, initial_data_value in zip(configs, initial_data_values):
-            cont_logger = ContinualLogger(config, self._archive_data_source, data_file_creator_factory)
-            end_logger = WriteOnLoggingEndLogger(config, self._archive_data_source, data_file_creator_factory)
+            cont_logger = ContinualLogger(
+                config, self._archive_data_source, data_file_creator_factory
+            )
+            end_logger = WriteOnLoggingEndLogger(
+                config, self._archive_data_source, data_file_creator_factory
+            )
             loggers = (cont_logger, end_logger)
 
             if self._value_is_logging_on(initial_data_value.value):
@@ -74,24 +86,34 @@ class LogFileInitiatorOnPVChange(object):
         Check whether logging status has changed. If it has inform the loggers, regardless inform then of
         processing time.
         """
-        latest_sample_time, self._last_sample_id_for_time = \
+        latest_sample_time, self._last_sample_id_for_time = (
             self._archive_data_source.get_latest_sample_time(self._last_sample_id_for_time)
+        )
 
         current_time_with_delay = self._get_current_time_fn() - SAMPLING_BEHIND_REAL_TIME
-        current_sample_time = max(latest_sample_time, current_time_with_delay, self._last_sample_time)
+        current_sample_time = max(
+            latest_sample_time, current_time_with_delay, self._last_sample_time
+        )
         changes = self._archive_data_source.logging_changes_for_sample_id_generator(
-            self._trigger_pvs, self._last_sample_time, current_sample_time)
+            self._trigger_pvs, self._last_sample_time, current_sample_time
+        )
         self._last_sample_time = current_sample_time
 
         for timestamp, pv_index, value in changes:
             if self._value_is_logging_on(value):
-                print_and_log("Continual logging started for {0} at {1}".format(self._trigger_pvs[pv_index], timestamp),
-                              src="ArchiverAccess")
+                print_and_log(
+                    "Continual logging started for {0} at {1}".format(
+                        self._trigger_pvs[pv_index], timestamp
+                    ),
+                    src="ArchiverAccess",
+                )
                 for logger in self._loggers_for_pvs[pv_index]:
                     logger.logging_switched_on(timestamp)
             else:
-                print_and_log("Logging stopped for {0} at {1}".format(self._trigger_pvs[pv_index], timestamp),
-                              src="ArchiverAccess")
+                print_and_log(
+                    "Logging stopped for {0} at {1}".format(self._trigger_pvs[pv_index], timestamp),
+                    src="ArchiverAccess",
+                )
                 for logger in self._loggers_for_pvs[pv_index]:
                     logger.logging_switched_off(timestamp)
 
@@ -133,8 +155,9 @@ class ContinualLogger(object):
         """
         self._archive_data_source = archive_data_source
         self._config = config
-        self._archive_data_file_creator = data_file_creator_factory.create(config, archive_data_source,
-                                                                           config.continuous_logging_filename_template)
+        self._archive_data_file_creator = data_file_creator_factory.create(
+            config, archive_data_source, config.continuous_logging_filename_template
+        )
         self._last_write_time = None
 
     def logging_switched_on(self, timestamp):
@@ -161,7 +184,6 @@ class ContinualLogger(object):
 
         """
         if self._last_write_time is not None:
-
             self._write_data_lines_for_period(timestamp)
             self._last_write_time = None
             try:
@@ -189,7 +211,9 @@ class ContinualLogger(object):
         """
         logging_start_time = self._last_write_time
         logging_period_provider = self._config.logging_period_provider
-        logging_period = logging_period_provider.get_logging_period(self._archive_data_source, logging_start_time)
+        logging_period = logging_period_provider.get_logging_period(
+            self._archive_data_source, logging_start_time
+        )
         time_period = ArchiveTimePeriod(logging_start_time, logging_period, finish_time=timestamp)
         try:
             archive_data_file_creator = self._archive_data_file_creator
@@ -216,8 +240,9 @@ class WriteOnLoggingEndLogger(object):
         self._logging_started = None
         self._archive_data_source = archive_data_source
         self._config = config
-        self._archive_data_file_creator = data_file_creator_factory.create(config, archive_data_source,
-                                                                           config.on_end_logging_filename_template)
+        self._archive_data_file_creator = data_file_creator_factory.create(
+            config, archive_data_source, config.on_end_logging_filename_template
+        )
 
     def logging_switched_on(self, timestamp):
         """
@@ -238,8 +263,12 @@ class WriteOnLoggingEndLogger(object):
             return
 
         logging_period_provider = self._config.logging_period_provider
-        logging_period = logging_period_provider.get_logging_period(self._archive_data_source, self._logging_started)
-        time_period = ArchiveTimePeriod(self._logging_started, logging_period, finish_time=timestamp)
+        logging_period = logging_period_provider.get_logging_period(
+            self._archive_data_source, self._logging_started
+        )
+        time_period = ArchiveTimePeriod(
+            self._logging_started, logging_period, finish_time=timestamp
+        )
         try:
             self._archive_data_file_creator.write_complete_file(time_period)
         except DataFileCreationError as e:

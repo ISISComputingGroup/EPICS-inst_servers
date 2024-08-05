@@ -17,10 +17,11 @@
 Module for defining a data source from the archiver
 """
 
-from datetime import timedelta, datetime
+from datetime import datetime, timedelta
+
+from genie_python.mysql_abstraction_layer import SQLAbstraction
 
 from ArchiverAccess.archive_time_period import ArchiveTimePeriod
-from genie_python.mysql_abstraction_layer import SQLAbstraction
 
 SAMPLE_ID_EPOCH = 0
 """first possible sample id in the database"""
@@ -37,6 +38,7 @@ class ArchiverDataValue:
     """
     A value from the archiver database
     """
+
     def __init__(self, data_base_query_list=None, retrieval_error=False):
         """
         Constructor
@@ -45,11 +47,19 @@ class ArchiverDataValue:
             retrieval_error: true if there was a problem retrieving the value; false otherwise
         """
         if data_base_query_list is not None:
-            self.severity_id, self.status_id, self.num_val, self.float_val, self.str_val, self.array_val, \
-                self.sample_time = data_base_query_list
+            (
+                self.severity_id,
+                self.status_id,
+                self.num_val,
+                self.float_val,
+                self.str_val,
+                self.array_val,
+                self.sample_time,
+            ) = data_base_query_list
         else:
-            self.severity_id = self.status_id = self.num_val = self.float_val = self.array_val = self.str_val \
-                = self.sample_time = None
+            self.severity_id = self.status_id = self.num_val = self.float_val = self.array_val = (
+                self.str_val
+            ) = self.sample_time = None
 
         self.retrieval_error = retrieval_error
 
@@ -80,8 +90,15 @@ class ArchiverDataValue:
         Returns: values as they would appear from the database
 
         """
-        return [self.severity_id, self.status_id, self.num_val, self.float_val, self.str_val, self.array_val,
-                self.sample_time]
+        return [
+            self.severity_id,
+            self.status_id,
+            self.num_val,
+            self.float_val,
+            self.str_val,
+            self.array_val,
+            self.sample_time,
+        ]
 
 
 ARCHIVER_DATA_VALUE_QUERY = "severity_id, status_id, num_val, float_val, str_val, array_val, addtime(smpl_time, nanosecs * 10e-10)"
@@ -134,7 +151,9 @@ than a given sample id with optional and clause"""
 GET_LATEST_SAMPLE_ID = GET_LATEST_SAMPLE_ID_TEMPLATE.format(before_time_clause="")
 """Sql to get the latest sample id after a given sample id"""
 
-GET_SAMPLE_ID_BEFORE = GET_LATEST_SAMPLE_ID_TEMPLATE.format(before_time_clause="AND s.smpl_time <= %s")
+GET_SAMPLE_ID_BEFORE = GET_LATEST_SAMPLE_ID_TEMPLATE.format(
+    before_time_clause="AND s.smpl_time <= %s"
+)
 """Sql to get the latest sample id after a given sample id and sample time"""
 
 
@@ -181,7 +200,10 @@ class ArchiverDataSource(object):
 
         :return: initial values for the pvs (i.e. the value at the start time)
         """
-        return [archiver_data_value.value for archiver_data_value in self.initial_archiver_data_values(pv_names, time)]
+        return [
+            archiver_data_value.value
+            for archiver_data_value in self.initial_archiver_data_values(pv_names, time)
+        ]
 
     def changes_generator(self, pv_names, time_period):
         """
@@ -213,11 +235,17 @@ class ArchiverDataSource(object):
         :return: sample id or 0 if there is no sample id before the given time
         """
         if time is not None:
-            sample_id_result = self._sql_abstraction_layer.query(GET_SAMPLE_ID_BEFORE,
-                                                                 (from_sample_id, from_sample_id, time))
+            sample_id_result = self._sql_abstraction_layer.query(
+                GET_SAMPLE_ID_BEFORE, (from_sample_id, from_sample_id, time)
+            )
         else:
-            sample_id_result = self._sql_abstraction_layer.query(GET_LATEST_SAMPLE_ID,
-                                                                 (from_sample_id, from_sample_id,))
+            sample_id_result = self._sql_abstraction_layer.query(
+                GET_LATEST_SAMPLE_ID,
+                (
+                    from_sample_id,
+                    from_sample_id,
+                ),
+            )
         if len(sample_id_result) == 1:
             sample_time = sample_id_result[0][0]
             if sample_time is None:
@@ -269,20 +297,21 @@ class ArchiverDataSource(object):
         query_with_correct_number_of_bound_ins = query.format(sql_in_binding)
 
         changes_cursor = self._sql_abstraction_layer.query_returning_cursor(
-            query_with_correct_number_of_bound_ins, pv_names + result_bounds)
+            query_with_correct_number_of_bound_ins, pv_names + result_bounds
+        )
 
         for database_return in changes_cursor:
             value = ArchiverDataValue(database_return[1:])
             channel_name = database_return[0]
             index = pv_names.index(channel_name)
             time_stamp = value.sample_time
-            yield(time_stamp, index, value.value)
+            yield (time_stamp, index, value.value)
 
 
 if __name__ == "__main__":
     ads = ArchiverDataSource(SQLAbstraction("archive", "report", "$report"))
     start_time = datetime(2020, 6, 16, 0, 0, 0)
-    pv_values = ('TE:NDW1798:TPG26X_01:2:ERROR.VAL', 'TE:NDW1798:EUROTHRM_01:A01:TEMP.VAL')
+    pv_values = ("TE:NDW1798:TPG26X_01:2:ERROR.VAL", "TE:NDW1798:EUROTHRM_01:A01:TEMP.VAL")
     period = ArchiveTimePeriod(start_time, timedelta(days=365), 10)
 
     for val in ads.initial_values(pv_values, start_time):

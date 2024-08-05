@@ -15,10 +15,12 @@
 # http://opensource.org/licenses/eclipse-1.0.php
 
 import unittest
+
+from mock import patch
+
 from BlockServer.core.ioc_control import IocControl
 from BlockServer.mocks.mock_procserv_utils import MockProcServWrapper
 from server_common.constants import IOCS_NOT_TO_STOP
-from mock import patch
 
 
 class TestIocControlSequence(unittest.TestCase):
@@ -83,13 +85,17 @@ class TestIocControlSequence(unittest.TestCase):
         self.ic.restart_ioc("TESTIOC")
         self.assertTrue(self.ic.ioc_restart_pending("TESTIOC"))
 
-    def test_GIVEN_reapply_auto_default_WHEN_ioc_restarts_requested_THEN_ioc_control_may_return_before_restart_complete(self):
+    def test_GIVEN_reapply_auto_default_WHEN_ioc_restarts_requested_THEN_ioc_control_may_return_before_restart_complete(
+        self,
+    ):
         self.ic.start_ioc("TESTIOC")
         self.assertFalse(self.ic.ioc_restart_pending("TESTIOC"))
         self.ic.restart_iocs(["TESTIOC"])
         self.assertTrue(self.ic.ioc_restart_pending("TESTIOC"))
 
-    def test_GIVEN_reapply_auto_true_WHEN_multiple_ioc_restarts_requested_THEN_ioc_control_waits_for_restart_complete(self):
+    def test_GIVEN_reapply_auto_true_WHEN_multiple_ioc_restarts_requested_THEN_ioc_control_waits_for_restart_complete(
+        self,
+    ):
         self.ic.start_ioc("TESTIOC")
         self.assertFalse(self.ic.ioc_restart_pending("TESTIOC"))
         self.ic.restart_iocs(["TESTIOC"], reapply_auto=True)

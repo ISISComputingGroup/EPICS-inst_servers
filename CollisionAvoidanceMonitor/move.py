@@ -1,4 +1,5 @@
 from collections.abc import Sequence
+
 from CollisionAvoidanceMonitor.transform import Transformation
 
 
@@ -53,4 +54,6 @@ def apply_move(move, geometry):
         if s is not None:
             geometry.set_size(**s)
     else:
-        raise TypeError("Couldn't interpret move object of type {}: {}".format(move.__class__.__name__, move))
+        raise TypeError(
+            "Couldn't interpret move object of type {}: {}".format(move.__class__.__name__, move)
+        )

@@ -16,7 +16,8 @@
 
 import json
 from collections import OrderedDict
-from typing import List, Any, Dict
+from typing import Any, Dict, List
+
 from BlockServer.core.constants import GRP_NONE
 
 
@@ -33,16 +34,20 @@ class ConfigurationJsonConverter:
         if groups is not None:
             for group in groups.values():
                 if group.name.lower() != GRP_NONE.lower():
-                    grps.append({"name": group.name, "component": group.component, "blocks": group.blocks})
+                    grps.append(
+                        {"name": group.name, "component": group.component, "blocks": group.blocks}
+                    )
 
             # Add NONE group at end
             if GRP_NONE.lower() in groups.keys():
-                grps.append({"name": GRP_NONE, "component": None, "blocks": groups[GRP_NONE.lower()].blocks})
+                grps.append(
+                    {"name": GRP_NONE, "component": None, "blocks": groups[GRP_NONE.lower()].blocks}
+                )
         return grps
 
     @staticmethod
     def groups_to_json(groups: OrderedDict) -> str:
-        """ Converts the groups dictionary to a JSON list
+        """Converts the groups dictionary to a JSON list
 
         Args:
             groups (OrderedDict): The groups to convert to JSON

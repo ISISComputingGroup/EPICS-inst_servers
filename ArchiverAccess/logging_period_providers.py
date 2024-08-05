@@ -18,11 +18,11 @@ Module for defining retrieving of the period for the logging
 """
 
 import abc
-
 from datetime import timedelta
 
-from ArchiverAccess.utilities import add_default_field
 from genie_python.mysql_abstraction_layer import DatabaseError
+
+from ArchiverAccess.utilities import add_default_field
 from server_common.utilities import print_and_log
 
 MINIMUM_LOGGING_PERIOD = 0.01
@@ -46,7 +46,7 @@ class LoggingPeriodProvider(object, metaclass=abc.ABCMeta):
         Returns: logging period
 
         """
-        raise NotImplementedError('users must define get_logging_period to use this base class')
+        raise NotImplementedError("users must define get_logging_period to use this base class")
 
     @abc.abstractmethod
     def set_default_field(self, default_field):
@@ -59,7 +59,7 @@ class LoggingPeriodProvider(object, metaclass=abc.ABCMeta):
         Returns:
 
         """
-        raise NotImplementedError('users must define get_logging_period to use this base class')
+        raise NotImplementedError("users must define get_logging_period to use this base class")
 
 
 class LoggingPeriodProviderConst(LoggingPeriodProvider):
@@ -118,7 +118,8 @@ class LoggingPeriodProviderPV(LoggingPeriodProvider):
 
     def __repr__(self):
         return "Logging from pv {0} with a default on error of {1}s".format(
-            self._logging_period_pv, self._default_on_error)
+            self._logging_period_pv, self._default_on_error
+        )
 
     def get_logging_period(self, archive_data_source, time):
         """
@@ -138,14 +139,22 @@ class LoggingPeriodProviderPV(LoggingPeriodProvider):
             if logging_periods[0] >= MINIMUM_LOGGING_PERIOD:
                 return timedelta(seconds=logging_periods[0])
             else:
-                print_and_log("Error logging period to small, from {0} got value '{1}'"
-                              .format(self._logging_period_pv, logging_periods), src="ArchiverAccess")
+                print_and_log(
+                    "Error logging period to small, from {0} got value '{1}'".format(
+                        self._logging_period_pv, logging_periods
+                    ),
+                    src="ArchiverAccess",
+                )
                 return self._period_on_error
         except DatabaseError:
             return self._period_on_error
         except (TypeError, ValueError, IndexError):
-            print_and_log("Error when getting logging period from {0} got value '{1}'"
-                          .format(self._logging_period_pv, logging_periods), src="ArchiverAccess")
+            print_and_log(
+                "Error when getting logging period from {0} got value '{1}'".format(
+                    self._logging_period_pv, logging_periods
+                ),
+                src="ArchiverAccess",
+            )
             return self._period_on_error
 
     def set_default_field(self, default_field):

@@ -82,7 +82,6 @@ class AlarmConfigLoader:
         """
         with AlarmConfigLoader.lock:
             if AlarmConfigLoader._instance is None:
-
                 AlarmConfigLoader._instance = AlarmConfigLoader(ioc_control)
 
                 AlarmConfigLoader.thread = threading.Thread(target=AlarmConfigLoader._instance.run)

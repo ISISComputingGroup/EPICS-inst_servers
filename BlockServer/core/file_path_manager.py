@@ -59,7 +59,13 @@ class FilePathManager:
 
     def _create_default_folders(self):
         # Create default folders
-        paths = [self.config_root_dir, self.config_dir, self.component_dir, self.synoptic_dir, self.devices_dir]
+        paths = [
+            self.config_root_dir,
+            self.config_dir,
+            self.component_dir,
+            self.synoptic_dir,
+            self.devices_dir,
+        ]
         for p in paths:
             if not os.path.isdir(p):
                 # Create it then

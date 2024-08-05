@@ -5,8 +5,9 @@ from CollisionAvoidanceMonitor.transform import Transformation
 
 
 class GeometryBox(object):
-    def __init__(self, space, position=(0, 0, 0), size=(1, 1, 1), color=(1, 1, 1), oversize=1, name=None):
-
+    def __init__(
+        self, space, position=(0, 0, 0), size=(1, 1, 1), color=(1, 1, 1), oversize=1, name=None
+    ):
         # Set parameters for drawing the body
         self.color = color
         self.size = list(size)
@@ -50,14 +51,18 @@ class GeometryBox(object):
         return t
 
     def get_vertices(self):
-        vertices = np.array([(-0.5, -0.5, 0.5),
-                             (0.5, -0.5, 0.5),
-                             (0.5, 0.5, 0.5),
-                             (-0.5, 0.5, 0.5),
-                             (-0.5, -0.5, -0.5),
-                             (0.5, -0.5, -0.5),
-                             (0.5, 0.5, -0.5),
-                             (-0.5, 0.5, -0.5)])
+        vertices = np.array(
+            [
+                (-0.5, -0.5, 0.5),
+                (0.5, -0.5, 0.5),
+                (0.5, 0.5, 0.5),
+                (-0.5, 0.5, 0.5),
+                (-0.5, -0.5, -0.5),
+                (0.5, -0.5, -0.5),
+                (0.5, 0.5, -0.5),
+                (-0.5, 0.5, -0.5),
+            ]
+        )
 
         vertices *= self.geom.getLengths()
         t = self.get_transform()

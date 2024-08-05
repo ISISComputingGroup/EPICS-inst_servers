@@ -13,7 +13,7 @@
 # along with this program; if not, you can obtain a copy from
 # https://www.eclipse.org/org/documents/epl-v10.php or
 # http://opensource.org/licenses/eclipse-1.0.php
-from typing import List, Union, Dict
+from typing import Dict, List, Union
 
 
 class MetaData:
@@ -26,8 +26,11 @@ class MetaData:
         synoptic (string): The default synoptic view for this configuration
         history (list): The save history of the configuration
     """
-    def __init__(self, config_name: str, pv_name: str = "", description: str = "", synoptic: str = ""):
-        """ Constructor.
+
+    def __init__(
+        self, config_name: str, pv_name: str = "", description: str = "", synoptic: str = ""
+    ):
+        """Constructor.
 
         Args:
             config_name: The name of the configuration
@@ -45,11 +48,18 @@ class MetaData:
         self.configuresBlockGWAndArchiver = False
 
     def to_dict(self) -> Dict[str, Union[str, bool, List]]:
-        """ Puts the metadata into a dictionary.
+        """Puts the metadata into a dictionary.
 
         Returns:
             The metadata
         """
-        return {'name': self.name, 'pv': self.pv, 'description': self.description, 'synoptic': self.synoptic,
-                'history': self.history, 'isProtected': self.isProtected, 'isDynamic': self.isDynamic,
-                "configuresBlockGWAndArchiver": self.configuresBlockGWAndArchiver}
+        return {
+            "name": self.name,
+            "pv": self.pv,
+            "description": self.description,
+            "synoptic": self.synoptic,
+            "history": self.history,
+            "isProtected": self.isProtected,
+            "isDynamic": self.isDynamic,
+            "configuresBlockGWAndArchiver": self.configuresBlockGWAndArchiver,
+        }

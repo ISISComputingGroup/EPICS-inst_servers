@@ -17,17 +17,19 @@
 import unittest
 from datetime import timedelta
 
+from genie_python.mysql_abstraction_layer import DatabaseError
 from hamcrest import *
 from mock import Mock
 
-from ArchiverAccess.logging_period_providers import LoggingPeriodProviderConst, LoggingPeriodProviderPV, \
-    MINIMUM_LOGGING_PERIOD
+from ArchiverAccess.logging_period_providers import (
+    MINIMUM_LOGGING_PERIOD,
+    LoggingPeriodProviderConst,
+    LoggingPeriodProviderPV,
+)
 from ArchiverAccess.test_modules.stubs import ArchiverDataStub
-from genie_python.mysql_abstraction_layer import DatabaseError
 
 
 class TestLogPeriodProvider(unittest.TestCase):
-
     def test_GIVEN_constant_value_WHEN_get_value_THEN_value_is_value_as_time_detla_in_second(self):
         log_period = 1
         expected_log_period = timedelta(seconds=log_period)
@@ -59,7 +61,6 @@ class TestLogPeriodProvider(unittest.TestCase):
         result = log_provider.get_logging_period(archive_data_source, None)
 
         assert_that(result, is_(expected_log_period))
-
 
     def test_GIVEN_pv_value_with_disconnect_WHEN_get_value_THEN_value_is_default_on_error(self):
         log_period = 1
@@ -98,7 +99,9 @@ class TestLogPeriodProvider(unittest.TestCase):
         log_period = 1
         pv_name = "pvname"
         expected_log_period = timedelta(seconds=log_period)
-        archive_data_source = ArchiverDataStub(initial_values={pv_name: MINIMUM_LOGGING_PERIOD*0.9})
+        archive_data_source = ArchiverDataStub(
+            initial_values={pv_name: MINIMUM_LOGGING_PERIOD * 0.9}
+        )
         log_provider = LoggingPeriodProviderPV(pv_name, log_period)
 
         result = log_provider.get_logging_period(archive_data_source, None)

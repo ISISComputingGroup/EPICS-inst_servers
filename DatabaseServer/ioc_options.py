@@ -1,4 +1,5 @@
-from __future__ import print_function, absolute_import, division, unicode_literals
+from __future__ import absolute_import, division, print_function, unicode_literals
+
 # This file is part of the ISIS IBEX application.
 # Copyright (C) 2012-2016 Science & Technology Facilities Council.
 # All rights reserved.
@@ -14,6 +15,7 @@ from __future__ import print_function, absolute_import, division, unicode_litera
 # along with this program; if not, you can obtain a copy from
 # https://www.eclipse.org/org/documents/epl-v10.php or
 # http://opensource.org/licenses/eclipse-1.0.php
+
 
 class IocOptions(object):
     """Contains the possible macros and pvsets of an IOC."""
@@ -35,7 +37,7 @@ class IocOptions(object):
         # Convert into format for better GUI parsing (I know it's messy but it's what the GUI wants)
         out_list = []
         for k, v in in_dict.items():
-            v['name'] = k
+            v["name"] = k
             out_list.append(v)
         return out_list
 
@@ -45,5 +47,8 @@ class IocOptions(object):
         Returns:
             dict : Possible macros and pvsets
         """
-        return {'macros': self._dict_to_list(self.macros), 'pvsets': self._dict_to_list(self.pvsets),
-                'pvs': self._dict_to_list(self.pvs)}
+        return {
+            "macros": self._dict_to_list(self.macros),
+            "pvsets": self._dict_to_list(self.pvsets),
+            "pvs": self._dict_to_list(self.pvs),
+        }

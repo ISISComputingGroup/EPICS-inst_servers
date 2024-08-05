@@ -18,22 +18,29 @@ Run tests for the archive access module.
 """
 
 # Add root path for access to server_commons
+import argparse
 import os
 import sys
 import unittest
-import xmlrunner
-import argparse
 
-os.environ["MYDIRBLOCK"] = os.path.abspath('..')
+import xmlrunner
+
+os.environ["MYDIRBLOCK"] = os.path.abspath("..")
 sys.path.insert(0, os.path.abspath(os.environ["MYDIRBLOCK"]))
 
-DEFAULT_DIRECTORY = os.path.join('..', '..', '..', '..', 'test-reports')
+DEFAULT_DIRECTORY = os.path.join("..", "..", "..", "..", "test-reports")
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     # get output directory from command line arguments
     parser = argparse.ArgumentParser()
-    parser.add_argument('-o', '--output_dir', nargs=1, type=str, default=[DEFAULT_DIRECTORY],
-                        help='The directory to save the test reports')
+    parser.add_argument(
+        "-o",
+        "--output_dir",
+        nargs=1,
+        type=str,
+        default=[DEFAULT_DIRECTORY],
+        help="The directory to save the test reports",
+    )
     args = parser.parse_args()
     xml_dir = args.output_dir[0]
 

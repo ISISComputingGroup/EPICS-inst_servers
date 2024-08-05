@@ -1,26 +1,27 @@
-#This file is part of the ISIS IBEX application.
-#Copyright (C) 2012-2016 Science & Technology Facilities Council.
-#All rights reserved.
+# This file is part of the ISIS IBEX application.
+# Copyright (C) 2012-2016 Science & Technology Facilities Council.
+# All rights reserved.
 #
-#This program is distributed in the hope that it will be useful.
-#This program and the accompanying materials are made available under the
-#terms of the Eclipse Public License v1.0 which accompanies this distribution.
-#EXCEPT AS EXPRESSLY SET FORTH IN THE ECLIPSE PUBLIC LICENSE V1.0, THE PROGRAM 
-#AND ACCOMPANYING MATERIALS ARE PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES 
-#OR CONDITIONS OF ANY KIND.  See the Eclipse Public License v1.0 for more details.
+# This program is distributed in the hope that it will be useful.
+# This program and the accompanying materials are made available under the
+# terms of the Eclipse Public License v1.0 which accompanies this distribution.
+# EXCEPT AS EXPRESSLY SET FORTH IN THE ECLIPSE PUBLIC LICENSE V1.0, THE PROGRAM
+# AND ACCOMPANYING MATERIALS ARE PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES
+# OR CONDITIONS OF ANY KIND.  See the Eclipse Public License v1.0 for more details.
 #
-#You should have received a copy of the Eclipse Public License v1.0
-#along with this program; if not, you can obtain a copy from
-#https://www.eclipse.org/org/documents/epl-v10.php or 
-#http://opensource.org/licenses/eclipse-1.0.php
+# You should have received a copy of the Eclipse Public License v1.0
+# along with this program; if not, you can obtain a copy from
+# https://www.eclipse.org/org/documents/epl-v10.php or
+# http://opensource.org/licenses/eclipse-1.0.php
 
-import time
+import os
 import re
+import time
+from shutil import copyfile
+
+from BlockServer.core.macros import CONTROL_SYSTEM_PREFIX
 from server_common.channel_access import ChannelAccess
 from server_common.utilities import print_and_log
-from BlockServer.core.macros import CONTROL_SYSTEM_PREFIX, BLOCK_PREFIX
-import os
-from shutil import copyfile
 
 ALIAS_HEADER = """\
 ##
@@ -39,43 +40,58 @@ ALIAS_FOOTER = r"""
 !{0}CS:\(SB\|GATEWAY\):.*                    DENY
 """
 
+
 def build_block_alias_lines(full_block_pv, pv_suffix, underlying_pv, include_comments=True):
     lines = list()
     if underlying_pv.endswith(":SP"):
         # The block points at a setpoint
         if include_comments:
-            lines.append("## The block points at a :SP, so it needs an optional group as "
-                         "genie_python will append an additional :SP")
+            lines.append(
+                "## The block points at a :SP, so it needs an optional group as "
+                "genie_python will append an additional :SP"
+            )
 
         full_block_pv = r"{}\(:SP\)?".format(full_block_pv)
 
         # Pattern match is for picking up any extras like :RBV or .EGU
-        lines.append(f'{full_block_pv}\\([.:].*\\)    ALIAS    {underlying_pv}\\2')
+        lines.append(f"{full_block_pv}\\([.:].*\\)    ALIAS    {underlying_pv}\\2")
     elif pv_suffix is not None:
         # The block points at a readback value (most likely for a motor)
         if include_comments:
-            lines.append(f"## The block points at a {pv_suffix} field, so it needs entries for both reading the field "
-                         f"and for the rest")
+            lines.append(
+                f"## The block points at a {pv_suffix} field, so it needs entries for both reading the field "
+                f"and for the rest"
+            )
 
         # Pattern match is for picking up any extras like :RBV or .EGU
-        lines.append(f'{full_block_pv}\\([.:].*\\)    ALIAS    {underlying_pv.replace(pv_suffix, "")}\\1')
-        lines.append(f'{full_block_pv}[.]VAL    ALIAS    {underlying_pv}')
+        lines.append(
+            f'{full_block_pv}\\([.:].*\\)    ALIAS    {underlying_pv.replace(pv_suffix, "")}\\1'
+        )
+        lines.append(f"{full_block_pv}[.]VAL    ALIAS    {underlying_pv}")
     else:
         # Standard case
         if include_comments:
-            lines.append("## Standard block with entries for matching :SP and :SP:RBV as well as .EGU")
+            lines.append(
+                "## Standard block with entries for matching :SP and :SP:RBV as well as .EGU"
+            )
 
         # Pattern match is for picking up any any SP or SP:RBV
-        lines.append(f'{full_block_pv}\\([.:].*\\)    ALIAS    {underlying_pv}\\1')
-    lines.append(f'{full_block_pv}    ALIAS    {underlying_pv}')
+        lines.append(f"{full_block_pv}\\([.:].*\\)    ALIAS    {underlying_pv}\\1")
+    lines.append(f"{full_block_pv}    ALIAS    {underlying_pv}")
     return lines
 
 
 class Gateway:
     """A class for interacting with the EPICS gateway that creates the aliases used for implementing blocks"""
 
-    def __init__(self, gateway_prefix, instrument_prefix, pvlist_file, block_prefix,
-                 control_sys_prefix=CONTROL_SYSTEM_PREFIX):
+    def __init__(
+        self,
+        gateway_prefix,
+        instrument_prefix,
+        pvlist_file,
+        block_prefix,
+        control_sys_prefix=CONTROL_SYSTEM_PREFIX,
+    ):
         """Constructor.
 
         Args:
@@ -113,13 +129,13 @@ class Gateway:
 
     def _generate_alias_file(self, blocks=None):
         # Generate blocks.pvlist for gateway
-        with open(self._pvlist_file, 'w') as f:
+        with open(self._pvlist_file, "w") as f:
             header = ALIAS_HEADER.format(self._inst_prefix)
             f.write(header)
             if blocks is not None:
                 for name, value in blocks.items():
                     lines = self.generate_alias(value.name, value.pv, value.local)
-                    f.write('\n'.join(lines) + '\n')
+                    f.write("\n".join(lines) + "\n")
             f.write(ALIAS_FOOTER.format(self._inst_prefix))
             # Add a blank line at the end!
             f.write("\n")
@@ -130,7 +146,7 @@ class Gateway:
         underlying_pv = underlying_pv.replace(".VAL", "")
 
         # Look for a field name in PV
-        match = re.match(r'.*(\.[A-Z0-9]+)$', underlying_pv)
+        match = re.match(r".*(\.[A-Z0-9]+)$", underlying_pv)
         pv_suffix = match.group(1) if match else None
 
         # If it's local we need to add this instrument's prefix
@@ -145,7 +161,9 @@ class Gateway:
         # Create a case insensitive alias so clients don't have to worry about getting case right
         if full_block_pv != full_block_pv.upper():
             lines.append("## Add full caps equivalent so clients need not be case sensitive")
-            lines.extend(build_block_alias_lines(full_block_pv.upper(), pv_suffix, underlying_pv, False))
+            lines.extend(
+                build_block_alias_lines(full_block_pv.upper(), pv_suffix, underlying_pv, False)
+            )
 
         lines.append("")  # New line to seperate out each block
         return lines

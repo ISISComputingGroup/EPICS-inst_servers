@@ -16,13 +16,17 @@
 """
 Module for dealing with configuration of the logging.
 """
+
 import os
 import re
 from datetime import datetime
 
-from ArchiverAccess.logging_period_providers import LoggingPeriodProviderConst, LoggingPeriodProviderPV
+from ArchiverAccess.logging_period_providers import (
+    LoggingPeriodProviderConst,
+    LoggingPeriodProviderPV,
+)
 from ArchiverAccess.utilities import add_default_field
-from server_common.utilities import print_and_log, SEVERITY
+from server_common.utilities import SEVERITY, print_and_log
 
 DEFAULT_LOG_PATH = os.path.join("C:\\", "logs")
 """Default path where logs should be writen"""
@@ -42,8 +46,13 @@ class ArchiveAccessConfigBuilder(object):
     Configuration builder a way of creating an archive access configuration step by step using a fluid API.
     """
 
-    def __init__(self, on_end_logging_filename_template=None, continuous_logging_filename_template=None,
-                 base_path=DEFAULT_LOG_PATH, default_field="VAL"):
+    def __init__(
+        self,
+        on_end_logging_filename_template=None,
+        continuous_logging_filename_template=None,
+        base_path=DEFAULT_LOG_PATH,
+        default_field="VAL",
+    ):
         """
         Constructor.
         Args:
@@ -63,12 +72,16 @@ class ArchiveAccessConfigBuilder(object):
         if on_end_logging_filename_template is None:
             self._on_end_logging_filename_template = None
         else:
-            self._on_end_logging_filename_template = os.path.join(base_path, on_end_logging_filename_template)
+            self._on_end_logging_filename_template = os.path.join(
+                base_path, on_end_logging_filename_template
+            )
 
         if continuous_logging_filename_template is None:
             self._continuous_logging_filename_template = None
         else:
-            self._continuous_logging_filename_template = os.path.join(base_path, continuous_logging_filename_template)
+            self._continuous_logging_filename_template = os.path.join(
+                base_path, continuous_logging_filename_template
+            )
 
         self._header_lines = []
         self._columns = []
@@ -100,10 +113,15 @@ class ArchiveAccessConfigBuilder(object):
         logging_period_provider = LoggingPeriodProviderConst(DEFAULT_LOGGING_PERIOD_IN_S)
         if self._logging_period_provider is not None:
             logging_period_provider = self._logging_period_provider
-        return ArchiveAccessConfig(self._on_end_logging_filename_template,
-                                   self._continuous_logging_filename_template,
-                                   self._header_lines, self._columns, self._trigger_pv,
-                                   logging_period_provider, default_field=self._default_field)
+        return ArchiveAccessConfig(
+            self._on_end_logging_filename_template,
+            self._continuous_logging_filename_template,
+            self._header_lines,
+            self._columns,
+            self._trigger_pv,
+            logging_period_provider,
+            default_field=self._default_field,
+        )
 
     def table_column(self, heading, pv_template):
         """
@@ -116,9 +134,7 @@ class ArchiveAccessConfigBuilder(object):
 
         """
 
-        self._columns.append(
-            {"header": heading,
-             "pv_template": pv_template})
+        self._columns.append({"header": heading, "pv_template": pv_template})
 
         return self
 
@@ -133,8 +149,11 @@ class ArchiveAccessConfigBuilder(object):
 
         """
         if self._trigger_pv is not None:
-            print_and_log("Trigger pv being redefined to {0} from {1}".format(pv_name, self._trigger_pv),
-                          severity=SEVERITY.MAJOR, src="ArchiverAccess")
+            print_and_log(
+                "Trigger pv being redefined to {0} from {1}".format(pv_name, self._trigger_pv),
+                severity=SEVERITY.MAJOR,
+                src="ArchiverAccess",
+            )
 
         self._trigger_pv = pv_name
 
@@ -164,13 +183,20 @@ class ArchiveAccessConfigBuilder(object):
         Returns: self
 
         """
-        self._set_logging_period_provider(LoggingPeriodProviderPV(logging_period_pv, DEFAULT_LOGGING_PERIOD_IN_S))
+        self._set_logging_period_provider(
+            LoggingPeriodProviderPV(logging_period_pv, DEFAULT_LOGGING_PERIOD_IN_S)
+        )
         return self
 
     def _set_logging_period_provider(self, logging_period_provider):
         if self._logging_period_provider is not None:
-            print_and_log("Logging period being redefined to {0} from {1}".format(
-                logging_period_provider, self._logging_period_provider), severity=SEVERITY.MAJOR, src="ArchiverAccess")
+            print_and_log(
+                "Logging period being redefined to {0} from {1}".format(
+                    logging_period_provider, self._logging_period_provider
+                ),
+                severity=SEVERITY.MAJOR,
+                src="ArchiverAccess",
+            )
 
         self._logging_period_provider = logging_period_provider
 
@@ -180,8 +206,16 @@ class ArchiveAccessConfig(object):
     A complete valid configuration object for creating a single log file
     """
 
-    def __init__(self, on_end_logging_filename_template, continuous_logging_filename_template, header_lines, columns,
-                 trigger_pv, logging_period_provider, default_field="VAL"):
+    def __init__(
+        self,
+        on_end_logging_filename_template,
+        continuous_logging_filename_template,
+        header_lines,
+        columns,
+        trigger_pv,
+        logging_period_provider,
+        default_field="VAL",
+    ):
         """
         Constructor - this can be built using the builder
 
@@ -240,7 +274,9 @@ class ArchiveAccessConfig(object):
         """
         line_in_log_format = self._column_separator.join([str(x["pv_template"]) for x in columns])
         pv_names_in_columns = self._generate_pv_list([line_in_log_format])
-        formatted_columns = self._convert_log_formats_to_python_formats(line_in_log_format, pv_names_in_columns)
+        formatted_columns = self._convert_log_formats_to_python_formats(
+            line_in_log_format, pv_names_in_columns
+        )
         self.table_line = "{time}" + self._column_separator + formatted_columns
 
         self.pv_names_in_columns = self._add_all_default_fields(pv_names_in_columns)
@@ -293,9 +329,13 @@ class ArchiveAccessConfig(object):
         final_line = line
         for index, pv in enumerate(pvs):
             # find the pv name and replace with argument index which it corresponds to
-            final_line = re.sub('({)' + pv + '([|!]?[^}]*})', r'\g<1>' + str(index) + r'\g<2>', final_line)
+            final_line = re.sub(
+                "({)" + pv + "([|!]?[^}]*})", r"\g<1>" + str(index) + r"\g<2>", final_line
+            )
             # replace the | with : in the format
-            final_line = re.sub('({' + str(index) + '!?[^|}]*)\|([^}]*})', r'\1' + ':' + r'\2', final_line)
+            final_line = re.sub(
+                "({" + str(index) + "!?[^|}]*)\|([^}]*})", r"\1" + ":" + r"\2", final_line
+            )
         return final_line
 
     def _generate_pv_list(self, lines):
@@ -310,7 +350,7 @@ class ArchiveAccessConfig(object):
         """
         pvs = set()
         for line in lines:
-            for match in re.finditer('{([^}|!]*)[|!]?[^}]*}', line):
+            for match in re.finditer("{([^}|!]*)[|!]?[^}]*}", line):
                 pv = match.group(1)
                 pvs.add(pv)
         return list(pvs)

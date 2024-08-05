@@ -14,13 +14,13 @@
 # https://www.eclipse.org/org/documents/epl-v10.php or
 # http://opensource.org/licenses/eclipse-1.0.php
 
-import unittest
 import os
+import unittest
 
-from server_common.utilities import compress_and_hex, dehex_and_decompress
-from BlockServer.devices.devices_manager import DevicesManager, GET_SCREENS
-from BlockServer.mocks.mock_block_server import MockBlockServer
 from BlockServer.core.file_path_manager import FILEPATH_MANAGER
+from BlockServer.devices.devices_manager import GET_SCREENS, DevicesManager
+from BlockServer.mocks.mock_block_server import MockBlockServer
+from server_common.utilities import compress_and_hex, dehex_and_decompress
 
 CONFIG_PATH = os.path.join(os.getcwd(), "test_configs")
 SCRIPT_PATH = os.path.join(os.getcwd(), "test_scripts")
@@ -97,7 +97,9 @@ class MockDevicesFileIO:
 class TestDevicesManagerSequence(unittest.TestCase):
     def setUp(self):
         # Make directory and fill with fake content
-        FILEPATH_MANAGER.initialise(os.path.abspath(CONFIG_PATH), os.path.abspath(SCRIPT_PATH), os.path.abspath(SCHEMA_PATH))
+        FILEPATH_MANAGER.initialise(
+            os.path.abspath(CONFIG_PATH), os.path.abspath(SCRIPT_PATH), os.path.abspath(SCHEMA_PATH)
+        )
 
         # Find the schema directory
         dir = os.path.join(".")
@@ -126,7 +128,9 @@ class TestDevicesManagerSequence(unittest.TestCase):
     def test_when_devices_screens_file_does_not_exist_then_current_uses_blank_devices_data(self):
         # Assert
         self.assertTrue(len(self.file_io.files) == 0)
-        self.assertEqual(self.bs.pvs[GET_SCREENS], compress_and_hex(self.dm.get_blank_devices().decode("utf-8")))
+        self.assertEqual(
+            self.bs.pvs[GET_SCREENS], compress_and_hex(self.dm.get_blank_devices().decode("utf-8"))
+        )
 
     def test_given_invalid_devices_data_when_device_xml_saved_then_not_saved(self):
         # Act: Save invalid new data to file
@@ -134,7 +138,9 @@ class TestDevicesManagerSequence(unittest.TestCase):
 
         # Assert
         # Should stay as blank (i.e. the previous value)
-        self.assertEqual(self.dm.get_blank_devices(), dehex_and_decompress(self.bs.pvs[GET_SCREENS]))
+        self.assertEqual(
+            self.dm.get_blank_devices(), dehex_and_decompress(self.bs.pvs[GET_SCREENS])
+        )
 
     def test_given_valid_devices_data_when_device_xml_saved_then_saved(self):
         # Act: Save the new data to file
@@ -142,4 +148,6 @@ class TestDevicesManagerSequence(unittest.TestCase):
 
         # Assert:
         # Device screens in blockserver should have been updated with value written to device manager
-        self.assertEqual(bytes(EXAMPLE_DEVICES,"utf-8"), dehex_and_decompress(self.bs.pvs[GET_SCREENS]))
+        self.assertEqual(
+            bytes(EXAMPLE_DEVICES, "utf-8"), dehex_and_decompress(self.bs.pvs[GET_SCREENS])
+        )

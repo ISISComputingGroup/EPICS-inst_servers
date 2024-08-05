@@ -17,14 +17,18 @@
 import os
 import socket
 from functools import wraps
-from git import *
-from threading import Thread, RLock
+from threading import RLock, Thread
 from time import sleep
 
+from git import *
+
 from ConfigVersionControl.git_message_provider import GitMessageProvider
-from ConfigVersionControl.version_control_exceptions import NotUnderVersionControl, NotUnderAllowedBranchException
-from server_common.utilities import print_and_log, retry
+from ConfigVersionControl.version_control_exceptions import (
+    NotUnderAllowedBranchException,
+    NotUnderVersionControl,
+)
 from server_common.common_exceptions import MaxAttemptsExceededException
+from server_common.utilities import print_and_log, retry
 
 SYSTEM_TEST_PREFIX = "rcptt_"
 ERROR_PREFIX = "Unable to commit to version control"
@@ -39,7 +43,7 @@ class RepoFactory:
         # Check repo
         try:
             return Repo(working_directory, search_parent_directories=True)
-        except Exception as e:
+        except Exception:
             # Not a valid repository
             raise NotUnderVersionControl(working_directory)
 
@@ -48,17 +52,22 @@ def check_branch_allowed(func):
     """
     Decorator which only runs the function if the branch is allowed
     """
+
     @wraps(func)
     def wrapper(self, *args, **kwargs):
         if self.branch_allowed(str(self.repo.active_branch)):
             func(self, *args, **kwargs)
         else:
-            raise NotUnderAllowedBranchException(f"Access to branch {self.repo.active_branch} is not allowed")
+            raise NotUnderAllowedBranchException(
+                f"Access to branch {self.repo.active_branch} is not allowed"
+            )
+
     return wrapper
 
 
 class GitVersionControl:
     """Version Control class for dealing with git file operations"""
+
     def __init__(self, working_directory, repo, repo_name, push_interval, is_local=False):
         self._wd = working_directory
         self.repo = repo
@@ -86,13 +95,16 @@ class GitVersionControl:
         return branch_name.lower() == socket.gethostname().lower()
 
     def setup(self):
-        """ Call when first starting the version control.
+        """Call when first starting the version control.
         Do startup actions here rather than in constructor to allow for easier testing
         """
         try:
             self._unlock()
         except MaxAttemptsExceededException:
-            print_and_log("Unable to remove lock from version control repository, maximum tries exceeded", "MINOR")
+            print_and_log(
+                "Unable to remove lock from version control repository, maximum tries exceeded",
+                "MINOR",
+            )
 
         config_writer = self.repo.config_writer()
         # Set git repository to ignore file permissions otherwise will reset to read only
@@ -105,19 +117,19 @@ class GitVersionControl:
 
     @retry(RETRY_MAX_ATTEMPTS, RETRY_INTERVAL, OSError)
     def _unlock(self):
-        """ Removes index.lock if it exists, and it's not being used
-        """
+        """Removes index.lock if it exists, and it's not being used"""
         lock_file_path = os.path.join(self.repo.git_dir, "index.lock")
         if os.path.exists(lock_file_path):
-            print_and_log(f"Found lock for version control repository, trying to remove: {lock_file_path}")
+            print_and_log(
+                f"Found lock for version control repository, trying to remove: {lock_file_path}"
+            )
             os.remove(lock_file_path)
             print_and_log("Lock removed from version control repository")
 
     @check_branch_allowed
     @retry(RETRY_MAX_ATTEMPTS, RETRY_INTERVAL, GitCommandError)
     def _commit(self):
-        """ Commit changes to a repository
-        """
+        """Commit changes to a repository"""
         num_files_changed = len(self.repo.index.diff("HEAD"))
         if num_files_changed == 0:
             return  # nothing staged for commit
@@ -127,7 +139,7 @@ class GitVersionControl:
         print_and_log(f"GIT: Committed {num_files_changed} changes")
 
     def _commit_and_push(self):
-        """ Frequently adds, commits and pushes all file currently in the repository. """
+        """Frequently adds, commits and pushes all file currently in the repository."""
         push_interval = self.push_interval
         first_failure = True
 
@@ -143,11 +155,14 @@ class GitVersionControl:
                 except MaxAttemptsExceededException:
                     print_and_log(f"{ERROR_PREFIX} for {self._repo_name}, maximum tries exceeded.")
 
-                except GitCommandError as e:
+                except GitCommandError:
                     # Most likely issue connecting to server, increase timeout, notify if it's the first time
                     push_interval = PUSH_RETRY_INTERVAL
                     if first_failure:
-                        print_and_log(f"{ERROR_PREFIX} for {self._repo_name}, will retry in {PUSH_RETRY_INTERVAL} seconds", "MINOR")
+                        print_and_log(
+                            f"{ERROR_PREFIX} for {self._repo_name}, will retry in {PUSH_RETRY_INTERVAL} seconds",
+                            "MINOR",
+                        )
                         first_failure = False
                 except NotUnderAllowedBranchException as e:
                     print_and_log(f"{ERROR_PREFIX} for {self._repo_name}, {e.message}")

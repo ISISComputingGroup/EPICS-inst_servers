@@ -16,7 +16,6 @@
 
 
 class MockProcServWrapper:
-
     def __init__(self, prefix):
         self.ps_status = dict()
         self.ps_status["simple1"] = "SHUTDOWN"
@@ -44,7 +43,7 @@ class MockProcServWrapper:
         self.ps_status[ioc.lower()] = "RUNNING"
 
     def get_ioc_status(self, ioc):
-        if not ioc.lower() in self.ps_status.keys():
+        if ioc.lower() not in self.ps_status.keys():
             return "SHUTDOWN"
         else:
             return self.ps_status[ioc.lower()]

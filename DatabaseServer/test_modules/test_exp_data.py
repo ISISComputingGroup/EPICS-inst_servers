@@ -1,4 +1,7 @@
-from __future__ import print_function, absolute_import, division, unicode_literals
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import json
+
 # This file is part of the ISIS IBEX application.
 # Copyright (C) 2012-2016 Science & Technology Facilities Council.
 # All rights reserved.
@@ -16,15 +19,17 @@ from __future__ import print_function, absolute_import, division, unicode_litera
 # http://opensource.org/licenses/eclipse-1.0.php
 import typing
 import unittest
-import json
+
+from DatabaseServer.exp_data import ExpData
 from server_common.mocks.mock_ca import MockChannelAccess
 from server_common.utilities import dehex_and_decompress
-from DatabaseServer.exp_data import ExpData
 
 
 class MockExpDataSource(object):
     def __init__(self):
-        self.valid_experiments = {"123456": [["Matt", "ESS", "PI"], ["Dom", "ISIS", ""], ["Jack", "ISIS", "Contact"]]}
+        self.valid_experiments = {
+            "123456": [["Matt", "ESS", "PI"], ["Dom", "ISIS", ""], ["Jack", "ISIS", "Contact"]]
+        }
 
     def experiment_exists(self, experiment_id):
         return experiment_id in self.valid_experiments
@@ -116,10 +121,10 @@ class TestExpData(unittest.TestCase):
 
     def test_update_username_for_multiple_users_same_institute(self):
         # Arrange
-        users = '['
+        users = "["
         users += '{"name":"Tom Jones","institute":"STFC","role":"user"},'
         users += '{"name":"David James","institute":"STFC","role":"user"}'
-        users += ']'
+        users += "]"
 
         # Act
         self.exp_data.update_username(users)
@@ -174,10 +179,10 @@ class TestExpData(unittest.TestCase):
 
     def test_update_username_for_multiple_users_no_further_data(self):
         # Arrange
-        users = '['
+        users = "["
         users += '{"name":"Tom Jones"},'
         users += '{"name":"David James"}'
-        users += ']'
+        users += "]"
 
         # Act
         self.exp_data.update_username(users)
@@ -195,12 +200,14 @@ class TestExpData(unittest.TestCase):
         self.assertEqual(len(orgs), 0)
         self.assertEqual(dae_surnames, b"Jones,James")
 
-    def test_update_username_for_multiple_users_no_firstname_and_no_further_data_then_assumed_surname(self):
+    def test_update_username_for_multiple_users_no_firstname_and_no_further_data_then_assumed_surname(
+        self,
+    ):
         # Arrange
-        users = '['
+        users = "["
         users += '{"name":"Jones"},'
         users += '{"name":"James"}'
-        users += ']'
+        users += "]"
 
         # Act
         self.exp_data.update_username(users)
@@ -220,13 +227,13 @@ class TestExpData(unittest.TestCase):
 
     def test_remove_accents_from_name(self):
         # Arrange
-        # list of names in unicode code points, which is the same as ISO-8859-1 encoding 
-        names_uni = [u'Somebody', u'S\xf8rina', u'\xe9\xe5\xf5\xf6\xc6']
-        # best ascii equivalents of names 
-        names_ascii = [b'Somebody', b'Sorina', b'eaooAE']
+        # list of names in unicode code points, which is the same as ISO-8859-1 encoding
+        names_uni = ["Somebody", "S\xf8rina", "\xe9\xe5\xf5\xf6\xc6"]
+        # best ascii equivalents of names
+        names_ascii = [b"Somebody", b"Sorina", b"eaooAE"]
 
         # Act
-        conv_names = ExpData.make_name_list_ascii(names_uni).split(b',')
+        conv_names = ExpData.make_name_list_ascii(names_uni).split(b",")
 
         # Assert
         self.assertEqual(conv_names, names_ascii)

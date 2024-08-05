@@ -13,13 +13,14 @@
 # along with this program; if not, you can obtain a copy from
 # https://www.eclipse.org/org/documents/epl-v10.php or
 # http://opensource.org/licenses/eclipse-1.0.php
-from CaChannel import CaChannel
-from CaChannel import CaChannelException
-from server_common.utilities import dehex_and_decompress, print_and_log
-import ca
 import json
-from BlockServer.core.macros import BLOCK_PREFIX
 from threading import RLock
+
+import ca
+from CaChannel import CaChannel, CaChannelException
+
+from BlockServer.core.macros import BLOCK_PREFIX
+from server_common.utilities import dehex_and_decompress, print_and_log
 
 
 class BlockServerMonitor:

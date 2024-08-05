@@ -1,6 +1,6 @@
+import itertools
 import logging
 import threading
-import itertools
 from time import sleep
 
 import numpy as np
@@ -26,26 +26,32 @@ def collide(geometries, ignore, collision_func=ode.collide):
 
     collisions = [False] * len(geometries)
     for (ind1, geom1), (ind2, geom2) in itertools.combinations(enumerate(geometries), 2):
-        if not ([ind1, ind2] in ignore or [ind2, ind1] in ignore) and collision_func(geom1.geom, geom2.geom):
+        if not ([ind1, ind2] in ignore or [ind2, ind1] in ignore) and collision_func(
+            geom1.geom, geom2.geom
+        ):
             collisions[ind1] = True
             collisions[ind2] = True
     return collisions
 
 
-def detect_collisions(collision_reported, driver, geometries, ignore, is_moving, logger, op_mode, pvs):
+def detect_collisions(
+    collision_reported, driver, geometries, ignore, is_moving, logger, op_mode, pvs
+):
     # Check for collisions
     collisions = collide(geometries, ignore)
     # Get some data to the user:
-    driver.setParam('COLLIDED', [int(c) for c in collisions])
+    driver.setParam("COLLIDED", [int(c) for c in collisions])
     # If there has been a collision:
     if any(collisions):
         # Message:
-        msg = "Collisions on %s" % ", ".join(map(str, [geometries[i].name for i in np.where(collisions)[0]]))
+        msg = "Collisions on %s" % ", ".join(
+            map(str, [geometries[i].name for i in np.where(collisions)[0]])
+        )
 
         # Log the collisions
         logging.debug("Collisions on %s", [i for i in np.where(collisions)[0]])
         # driver.setParam('MSG', msg)
-        driver.setParam('SAFE', 0)
+        driver.setParam("SAFE", 0)
 
         # Log to the IOC log
         if not collisions == collision_reported:
@@ -57,11 +63,11 @@ def detect_collisions(collision_reported, driver, geometries, ignore, is_moving,
             logging.debug("Stopping motors %s" % [i for i, m in enumerate(is_moving) if m.value()])
             for moving, pv in zip(is_moving, pvs):
                 if not moving.value():  # Invert the logic as we are monitoring DMOV not MOVN
-                    set_pv(pv + '.STOP', 1)
+                    set_pv(pv + ".STOP", 1)
     else:
         # driver.setParam('MSG', "No collisions detected.")
         msg = "No collisions detected."
-        driver.setParam('SAFE', 1)
+        driver.setParam("SAFE", 1)
         collision_reported = None
 
     return collisions, collision_reported, msg
@@ -71,7 +77,10 @@ class CollisionDetector(threading.Thread):
     """
     Thread that runs and detects collisions.
     """
-    def __init__(self, driver, geometries, moves, monitors, ignore, is_moving, logger, op_mode, pvs):
+
+    def __init__(
+        self, driver, geometries, moves, monitors, ignore, is_moving, logger, op_mode, pvs
+    ):
         threading.Thread.__init__(self, name="CollisionDetector")
 
         self.driver = driver
@@ -95,9 +104,16 @@ class CollisionDetector(threading.Thread):
         collision_reported = None
         while True:
             move_all(self.geometries, self.moves, monitors=self.monitors)
-            collisions, collision_reported, message = \
-                detect_collisions(collision_reported, self.driver, self.geometries, self.ignore, self.is_moving,
-                                  self.logger, self.op_mode, self.pvs)
+            collisions, collision_reported, message = detect_collisions(
+                collision_reported,
+                self.driver,
+                self.geometries,
+                self.ignore,
+                self.is_moving,
+                self.logger,
+                self.op_mode,
+                self.pvs,
+            )
             self.collisions = collisions
             self.message = message
             sleep(0.05)

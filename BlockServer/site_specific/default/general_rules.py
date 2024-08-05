@@ -18,9 +18,10 @@
 Set of shared utilities and constants for rules
 """
 
-from server_common.utilities import compress_and_hex
-from server_common.pv_names import BlockserverPVNames
 import json
+
+from server_common.pv_names import BlockserverPVNames
+from server_common.utilities import compress_and_hex
 
 """Standard Regex in Java for PV like names,
 e.g. name must start with a letter and only contain letters, numbers and underscores"""
@@ -29,12 +30,16 @@ REGEX_ALLOW_EVERYTHING = r".*$"
 
 """Standard Error message template for when regex for PV like names failes.
 Usage REGEX_ERROR_TEMPLATE_PV_NAME.format(<object name>)"""
-REGEX_ERROR_TEMPLATE_PV_NAME = "{0} must start with a letter and only contain letters, numbers and underscores"
+REGEX_ERROR_TEMPLATE_PV_NAME = (
+    "{0} must start with a letter and only contain letters, numbers and underscores"
+)
 REGEX_ERROR_TEMPLATE_ALLOW_EVERYTHING = "{0} should allow all characters"
 
 DISALLOWED_NAMES = ["lowlimit", "highlimit", "runcontrol", "wait"]
 GROUP_REGEX_ERROR_MESSAGE = REGEX_ERROR_TEMPLATE_PV_NAME.format("Group name")
-CONFIG_DESC_REGEX_ERROR_MESSAGE = REGEX_ERROR_TEMPLATE_ALLOW_EVERYTHING.format("Configuration description")
+CONFIG_DESC_REGEX_ERROR_MESSAGE = REGEX_ERROR_TEMPLATE_ALLOW_EVERYTHING.format(
+    "Configuration description"
+)
 
 
 class GroupRules:
@@ -47,8 +52,11 @@ class GroupRules:
             block_server (BlockServer): A reference to the BlockServer instance.
         """
         self._bs = block_server
-        self.rules = {"disallowed": DISALLOWED_NAMES, "regex": REGEX_PV_NAME_LIKE,
-                      "regexMessage": GROUP_REGEX_ERROR_MESSAGE}
+        self.rules = {
+            "disallowed": DISALLOWED_NAMES,
+            "regex": REGEX_PV_NAME_LIKE,
+            "regexMessage": GROUP_REGEX_ERROR_MESSAGE,
+        }
         self._create_pv()
 
     def _create_pv(self):
@@ -67,11 +75,16 @@ class ConfigurationDescriptionRules:
             block_server (BlockServer): A reference to the BlockServer instance.
         """
         self._bs = block_server
-        self.rules = {"disallowed": DISALLOWED_NAMES, "regex": REGEX_ALLOW_EVERYTHING,
-                      "regexMessage": CONFIG_DESC_REGEX_ERROR_MESSAGE}
+        self.rules = {
+            "disallowed": DISALLOWED_NAMES,
+            "regex": REGEX_ALLOW_EVERYTHING,
+            "regexMessage": CONFIG_DESC_REGEX_ERROR_MESSAGE,
+        }
         self._create_pv()
 
     def _create_pv(self):
         self._bs.add_string_pv_to_db(BlockserverPVNames.CONF_DESC_RULES, 16000)
-        self._bs.setParam(BlockserverPVNames.CONF_DESC_RULES, compress_and_hex(json.dumps(self.rules)))
+        self._bs.setParam(
+            BlockserverPVNames.CONF_DESC_RULES, compress_and_hex(json.dumps(self.rules))
+        )
         self._bs.updatePVs()

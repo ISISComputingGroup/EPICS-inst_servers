@@ -14,11 +14,11 @@
 # https://www.eclipse.org/org/documents/epl-v10.php or
 # http://opensource.org/licenses/eclipse-1.0.php
 import os
+
 from BlockServer.config.configuration import Configuration
 
 
 class MockConfigurationFileManager:
-
     def __init__(self):
         self.confs = dict()
         self.comps = dict()
@@ -30,7 +30,7 @@ class MockConfigurationFileManager:
 
     def find_ci(self, root_path, name):
         """Find a file with a case insensitive match"""
-        res = ''
+        res = ""
         for f in os.listdir(root_path):
             if f.lower() == name.lower():
                 res = f

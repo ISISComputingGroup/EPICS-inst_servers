@@ -14,16 +14,14 @@
 # https://www.eclipse.org/org/documents/epl-v10.php or
 # http://opensource.org/licenses/eclipse-1.0.php
 
-from datetime import datetime, timedelta
 from unittest import TestCase
 
 from hamcrest import *
-from ArchiverAccess.archive_time_period import ArchiveTimePeriod
+
 from ArchiverAccess.utilities import add_default_field, truncate
 
 
 class TestUtilities(TestCase):
-
     def test_GIVEN_pv_no_default_WHEN_pv_with_default_THEN_pv_as_is(self):
         default_field = ""
         pv = "pv:name"

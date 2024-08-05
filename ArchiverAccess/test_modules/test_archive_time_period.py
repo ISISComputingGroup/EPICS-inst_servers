@@ -18,11 +18,11 @@ from datetime import datetime, timedelta
 from unittest import TestCase
 
 from hamcrest import *
+
 from ArchiverAccess.archive_time_period import ArchiveTimePeriod
 
 
 class TestConfiguration(TestCase):
-
     def test_GIVEN_start_period_and_points_WHEN_get_all_THEN_correct(self):
         expected_start = datetime(2016, 1, 2, 3, 4, 5)
         expected_delta = timedelta(seconds=1)
@@ -49,7 +49,9 @@ class TestConfiguration(TestCase):
         assert_that(time_period.point_count, is_(expected_point_count))
         assert_that(time_period.end_time, is_(expected_end_time))
 
-    def test_GIVEN_start_with_micro_seconds_WHEN_get_all_THEN_start_time_truncated_to_nearest_whole_tenth_of_a_second(self):
+    def test_GIVEN_start_with_micro_seconds_WHEN_get_all_THEN_start_time_truncated_to_nearest_whole_tenth_of_a_second(
+        self,
+    ):
         start = datetime(2016, 1, 2, 3, 4, 5, 4)
         expected_start = datetime(2016, 1, 2, 3, 4, 5)
 
@@ -58,7 +60,8 @@ class TestConfiguration(TestCase):
         assert_that(time_period.start_time, is_(expected_start))
 
     def test_GIVEN_start_with_multiple_micro_seconds_WHEN_get_all_THEN_start_time_truncated_to_nearest_whole_tenth_of_a_second(
-            self):
+        self,
+    ):
         start = datetime(2016, 1, 2, 3, 4, 5, 250000)
         expected_start = datetime(2016, 1, 2, 3, 4, 5, 200000)
 
@@ -66,33 +69,43 @@ class TestConfiguration(TestCase):
 
         assert_that(time_period.start_time, is_(expected_start))
 
-    def test_GIVEN_start_delta_and_end_which_is_a_multiple_of_delta_only_2_WHEN_get_all_THEN_points_is_correct_and_so_is_end(self):
+    def test_GIVEN_start_delta_and_end_which_is_a_multiple_of_delta_only_2_WHEN_get_all_THEN_points_is_correct_and_so_is_end(
+        self,
+    ):
         expected_start = datetime(2016, 1, 2, 3, 4, 5)
         expected_delta = timedelta(seconds=1)
         expected_point_count = 2
         expected_end_time = datetime(2016, 1, 2, 3, 4, 6)
 
-        time_period = ArchiveTimePeriod(expected_start, expected_delta, finish_time=expected_end_time)
+        time_period = ArchiveTimePeriod(
+            expected_start, expected_delta, finish_time=expected_end_time
+        )
 
         assert_that(time_period.start_time, is_(expected_start))
         assert_that(time_period.delta, is_(expected_delta))
         assert_that(time_period.point_count, is_(expected_point_count))
         assert_that(time_period.end_time, is_(expected_end_time))
 
-    def test_GIVEN_start_delta_and_end_which_is_a_multiple_of_delta_WHEN_get_all_THEN_points_is_correct_and_so_is_end(self):
+    def test_GIVEN_start_delta_and_end_which_is_a_multiple_of_delta_WHEN_get_all_THEN_points_is_correct_and_so_is_end(
+        self,
+    ):
         expected_start = datetime(2016, 1, 2, 3, 4, 5)
         expected_delta = timedelta(seconds=1)
         expected_point_count = 10
         expected_end_time = datetime(2016, 1, 2, 3, 4, 14)
 
-        time_period = ArchiveTimePeriod(expected_start, expected_delta, finish_time=expected_end_time)
+        time_period = ArchiveTimePeriod(
+            expected_start, expected_delta, finish_time=expected_end_time
+        )
 
         assert_that(time_period.start_time, is_(expected_start))
         assert_that(time_period.delta, is_(expected_delta))
         assert_that(time_period.point_count, is_(expected_point_count))
         assert_that(time_period.end_time, is_(expected_end_time))
 
-    def test_GIVEN_start_delta_and_end_which_is_not_a_multiple_of_delta_WHEN_get_all_THEN_points_is_correct_and_so_is_end(self):
+    def test_GIVEN_start_delta_and_end_which_is_not_a_multiple_of_delta_WHEN_get_all_THEN_points_is_correct_and_so_is_end(
+        self,
+    ):
         expected_start = datetime(2016, 1, 2, 3, 4, 5)
         expected_delta = timedelta(seconds=1)
         expected_point_count = 10

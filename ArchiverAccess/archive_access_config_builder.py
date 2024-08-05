@@ -16,10 +16,11 @@
 """
 Module for taking the configuration from the ioc data source and creating a configuration.
 """
+
 import os
 
 from ArchiverAccess.archive_access_configuration import ArchiveAccessConfigBuilder
-from server_common.utilities import print_and_log, SEVERITY
+from server_common.utilities import SEVERITY, print_and_log
 
 HEADER_ANNOTATION_PREFIX = "log_header"
 """The annotation prefix for a header line, the end is the header line number"""
@@ -66,35 +67,51 @@ class ArchiverAccessDatabaseConfigBuilder(object):
 
         configurations = []
         for ioc_name, logging_items in self._ioc_data_source.get_pv_logging_info().items():
-            print_and_log("Reading config for ioc: {ioc}".format(ioc=ioc_name),
-                          severity=SEVERITY.INFO, src="ArchiverAccess")
+            print_and_log(
+                "Reading config for ioc: {ioc}".format(ioc=ioc_name),
+                severity=SEVERITY.INFO,
+                src="ArchiverAccess",
+            )
             one_end_file_name_template = "{ioc_name}_{{start_time}}.dat".format(ioc_name=ioc_name)
             one_end_file_name_template = os.path.join(ioc_name, one_end_file_name_template)
-            cont_file_name_template = "{ioc_name}_{{start_time}}_continuous.dat".format(ioc_name=ioc_name)
+            cont_file_name_template = "{ioc_name}_{{start_time}}_continuous.dat".format(
+                ioc_name=ioc_name
+            )
             cont_file_name_template = os.path.join(ioc_name, cont_file_name_template)
-            config_builder = self._create_config_for_ioc(one_end_file_name_template, cont_file_name_template,
-                                                         logging_items)
+            config_builder = self._create_config_for_ioc(
+                one_end_file_name_template, cont_file_name_template, logging_items
+            )
 
             config = config_builder.build()
-            print_and_log("{0}".format(config.__rep__().replace(" - ", "\n  - ")),
-                          severity=SEVERITY.INFO, src="ArchiverAccess")
+            print_and_log(
+                "{0}".format(config.__rep__().replace(" - ", "\n  - ")),
+                severity=SEVERITY.INFO,
+                src="ArchiverAccess",
+            )
             configurations.append(config)
         return configurations
 
-    def _create_config_for_ioc(self, on_end_logging_filename_template, continuous_logging_filename_template,
-                               logging_items):
+    def _create_config_for_ioc(
+        self, on_end_logging_filename_template, continuous_logging_filename_template, logging_items
+    ):
         columns = {}
         all_keys = set()
-        config_builder = ArchiveAccessConfigBuilder(on_end_logging_filename_template,
-                                                    continuous_logging_filename_template)
+        config_builder = ArchiveAccessConfigBuilder(
+            on_end_logging_filename_template, continuous_logging_filename_template
+        )
         sorted_values = sorted(logging_items, key=lambda x: x[1])
         for pv_name, key, template in sorted_values:
             key_lowered = key.lower()
             if key_lowered in all_keys:
-                print_and_log("Logging info key {0} is repeated.".format(key),
-                              severity=SEVERITY.MAJOR, src="ArchiverAccess")
+                print_and_log(
+                    "Logging info key {0} is repeated.".format(key),
+                    severity=SEVERITY.MAJOR,
+                    src="ArchiverAccess",
+                )
             all_keys.add(key_lowered)
-            self._translate_db_annotations_to_config(key_lowered, pv_name, template, columns, config_builder)
+            self._translate_db_annotations_to_config(
+                key_lowered, pv_name, template, columns, config_builder
+            )
         for column_index in sorted(columns.keys()):
             column_header, column_template = columns[column_index]
             config_builder.table_column(column_header, column_template)
@@ -112,17 +129,20 @@ class ArchiverAccessDatabaseConfigBuilder(object):
             try:
                 config_builder.logging_period_seconds(float(value))
             except (TypeError, ValueError):
-                print_and_log("Invalid logging period set '{0}'".format(value),
-                              severity=SEVERITY.MAJOR, src="ArchiverAccess")
+                print_and_log(
+                    "Invalid logging period set '{0}'".format(value),
+                    severity=SEVERITY.MAJOR,
+                    src="ArchiverAccess",
+                )
         elif key.startswith(COLUMN_HEADER_ANNOTATION_PREFIX):
             default_template = "{{{pv_name}}}".format(pv_name=pv_name)
-            index = key[len(COLUMN_HEADER_ANNOTATION_PREFIX):]
+            index = key[len(COLUMN_HEADER_ANNOTATION_PREFIX) :]
             current_header, current_template = columns.get(index, (None, default_template))
             columns[index] = (value, current_template)
 
         elif key.startswith(COLUMN_TEMPLATE_ANNOTATION_PREFIX):
             default_header = self._use_default_if_blank(value, pv_name)
-            index = key[len(COLUMN_TEMPLATE_ANNOTATION_PREFIX):]
+            index = key[len(COLUMN_TEMPLATE_ANNOTATION_PREFIX) :]
             current_header, current_template = columns.get(index, (default_header, None))
 
             pv_name_template = "{{{pv_name}}}".format(pv_name=pv_name)

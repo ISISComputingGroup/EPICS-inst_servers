@@ -16,12 +16,11 @@
 """
 Module for accessing the archiver
 """
+
 import os
 import signal
-
-from time import sleep
-
 import sys
+from time import sleep
 
 try:
     from ArchiverAccess.archiver_data_source import ArchiverDataSource
@@ -29,11 +28,12 @@ except ImportError:
     sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir)))
     from ArchiverAccess.archiver_data_source import ArchiverDataSource
 
+from genie_python.mysql_abstraction_layer import SQLAbstraction
+
 from ArchiverAccess.archive_access_config_builder import ArchiverAccessDatabaseConfigBuilder
 from ArchiverAccess.log_file_initiator import LogFileInitiatorOnPVChange
 from ArchiverAccess.time_last_active import TimeLastActive
 from server_common.ioc_data_source import IocDataSource
-from genie_python.mysql_abstraction_layer import SQLAbstraction
 
 finish = False
 """Finish the program"""
@@ -68,8 +68,7 @@ def signal_handler(signal, frame):
     finish = True
 
 
-if __name__ == '__main__':
-
+if __name__ == "__main__":
     pv_monitor = create_pv_monitor()
 
     signal.signal(signal.SIGINT, signal_handler)

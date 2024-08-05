@@ -2,28 +2,28 @@ HIGH_PV_NAMES = ["HIGH_PV1", "HIGH_PV2", "HIGH_PV3"]
 HIGH_PVS = [
     [HIGH_PV_NAMES[0], "ai", "HIGH PV 1", "SomeIOC"],
     [HIGH_PV_NAMES[1], "ai", "HIGH PV 2", "SomeIOC"],
-    [HIGH_PV_NAMES[2], "ai", "HIGH PV 3", "SomeIOC"]
+    [HIGH_PV_NAMES[2], "ai", "HIGH PV 3", "SomeIOC"],
 ]
 
 MEDIUM_PV_NAMES = ["MED_PV1", "MED_PV2", "MED_PV3"]
 MEDIUM_PVS = [
     [MEDIUM_PV_NAMES[0], "ai", "MED PV 1", "SomeIOC"],
     [MEDIUM_PV_NAMES[1], "ai", "MED PV 2", "SomeIOC"],
-    [MEDIUM_PV_NAMES[2], "ai", "MED PV 3", "SomeIOC"]
+    [MEDIUM_PV_NAMES[2], "ai", "MED PV 3", "SomeIOC"],
 ]
 
 LOW_PV_NAMES = ["LOW_PV1", "LOW_PV2", "LOW_PV3"]
 LOW_PVS = [
     [LOW_PV_NAMES[0], "ai", "LOW PV 1", "SomeIOC"],
     [LOW_PV_NAMES[1], "ai", "LOW PV 2", "SomeIOC"],
-    [LOW_PV_NAMES[2], "ai", "LOW PV 3", "SomeIOC"]
+    [LOW_PV_NAMES[2], "ai", "LOW PV 3", "SomeIOC"],
 ]
 
 FACILITY_PV_NAMES = ["FAC_PV1", "FAC_PV2", "FAC_PV3"]
 FACILITY_PVS = [
     [FACILITY_PV_NAMES[0], "ai", "FACILITY PV 1", "SomeIOC"],
     [FACILITY_PV_NAMES[1], "ai", "FACILITY PV 2", "SomeIOC"],
-    [FACILITY_PV_NAMES[2], "ai", "FACILITY PV 3", "SomeIOC"]
+    [FACILITY_PV_NAMES[2], "ai", "FACILITY PV 3", "SomeIOC"],
 ]
 
 BL_PVS = ["PARS:BL:FOEMIRROR", "PARS:BL:A1", "PARS:BL:CHOPEN:ANG"]
@@ -32,7 +32,7 @@ USER_PVS = ["PARS:USER:PV1", "PARS:USER:PV2", "PARS:USER:PV3"]
 IOCS = {
     "TESTIOC": {"description": "test ioc", "running": False},
     "SIMPLE1": {"description": "simple ioc 1", "running": False},
-    "SIMPLE2": {"description": "simple ioc 2", "running": False}
+    "SIMPLE2": {"description": "simple ioc 2", "running": False},
 }
 
 
@@ -44,7 +44,9 @@ class MockIocDataSource(object):
         return self.iocs
 
     def get_iocs_and_running_status(self):
-        iocs_and_run_status = [(ioc_name, ioc_info["running"]) for ioc_name, ioc_info in self.iocs.items()]
+        iocs_and_run_status = [
+            (ioc_name, ioc_info["running"]) for ioc_name, ioc_info in self.iocs.items()
+        ]
         return iocs_and_run_status
 
     def update_ioc_is_running(self, iocname, running):
@@ -68,17 +70,19 @@ class MockIocDataSource(object):
 
         if level == "":
             pvs = HIGH_PVS + MEDIUM_PVS + LOW_PVS + FACILITY_PVS
-        elif level.lower().startswith('h'):
+        elif level.lower().startswith("h"):
             pvs.extend(HIGH_PVS)
-        elif level.lower().startswith('m'):
+        elif level.lower().startswith("m"):
             pvs.extend(MEDIUM_PVS)
-        elif level.lower().startswith('l'):
+        elif level.lower().startswith("l"):
             pvs.extend(LOW_PVS)
-        elif level.lower().startswith('f'):
+        elif level.lower().startswith("f"):
             pvs.extend(FACILITY_PVS)
         else:
-            raise ValueError("Value of level argument can only start with h for high, m for medium, l for low or f for"
-                             " facility")
+            raise ValueError(
+                "Value of level argument can only start with h for high, m for medium, l for low or f for"
+                " facility"
+            )
 
         return pvs
 
@@ -91,9 +95,9 @@ class MockIocDataSource(object):
         return HIGH_PV_NAMES
 
     def get_pars(self, category):
-        if category == 'BEAMLINEPAR':
+        if category == "BEAMLINEPAR":
             return BL_PVS
-        elif category == 'SAMPLEPAR':
+        elif category == "SAMPLEPAR":
             return SAMPLE_PVS
-        elif category == 'USERPAR':
+        elif category == "USERPAR":
             return USER_PVS

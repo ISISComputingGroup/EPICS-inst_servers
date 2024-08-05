@@ -1,7 +1,8 @@
 """
 Autosave functionality
 """
-from __future__ import unicode_literals, print_function, division, absolute_import
+
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 import logging
 import os
@@ -11,7 +12,9 @@ from server_common.utilities import print_and_log
 
 logger = logging.getLogger(__name__)
 
-ICP_VAR_DIR = os.path.normpath(os.environ.get("ICPVARDIR", os.path.join("C:\\", "Instrument", "var")))
+ICP_VAR_DIR = os.path.normpath(
+    os.environ.get("ICPVARDIR", os.path.join("C:\\", "Instrument", "var"))
+)
 
 
 class Conversion(object):
@@ -20,6 +23,7 @@ class Conversion(object):
     A conversion should define autosave_convert_for_write and autosave_convert_for_read
     autosave_convert_for_read raises a value error if it can not convert the value
     """
+
     @staticmethod
     def autosave_convert_for_write(value_to_write):
         """
@@ -106,7 +110,7 @@ class OptionalIntConversion(Conversion):
         Returns:
             value
         """
-        if auto_save_value_read == 'None':
+        if auto_save_value_read == "None":
             return None
         return int(auto_save_value_read)
 
@@ -149,7 +153,11 @@ class AutosaveFile(object):
         """
         if self.autosave_separator in parameter:
             # Disallow embedding the separator inside the value as this will cause a read to fail later.
-            raise ValueError("Parameter name '{}' contains autosave separator which is not allowed".format(parameter))
+            raise ValueError(
+                "Parameter name '{}' contains autosave separator which is not allowed".format(
+                    parameter
+                )
+            )
 
         value = self._conversion.autosave_convert_for_write(value)
 
@@ -180,8 +188,11 @@ class AutosaveFile(object):
         try:
             return self._conversion.autosave_convert_for_read(value_as_read)
         except ValueError as ex:
-            logger.error("Could not convert autosave value for parameter {}: value was '{}' error: {}.".format(
-                parameter, value_as_read, ex))
+            logger.error(
+                "Could not convert autosave value for parameter {}: value was '{}' error: {}.".format(
+                    parameter, value_as_read, ex
+                )
+            )
 
     def _file_to_dict(self):
         """
@@ -197,10 +208,15 @@ class AutosaveFile(object):
                     p, v = line.split(self.autosave_separator, 1)
                     parameters[p] = v.strip()
                 except ValueError:
-                    print_and_log("ValueError when reading autosave file, ignoring line: '{}'".format(line))
+                    print_and_log(
+                        "ValueError when reading autosave file, ignoring line: '{}'".format(line)
+                    )
         except (IOError, ValueError) as e:
-            print_and_log("Error while reading autosave file at '{}': {}: {}"
-                          .format(self._filepath, e.__class__.__name__, e))
+            print_and_log(
+                "Error while reading autosave file at '{}': {}: {}".format(
+                    self._filepath, e.__class__.__name__, e
+                )
+            )
         return parameters
 
     def _dict_to_file(self, parameters):
@@ -213,8 +229,10 @@ class AutosaveFile(object):
         if not os.path.exists(self._folder):
             os.makedirs(self._folder)
 
-        file_content = "\n".join("{}{}{}".format(param, self.autosave_separator, value)
-                                 for param, value in parameters.items())
+        file_content = "\n".join(
+            "{}{}{}".format(param, self.autosave_separator, value)
+            for param, value in parameters.items()
+        )
         with self._file_lock, open(self._filepath, "w+") as f:
             return f.write(file_content)
 

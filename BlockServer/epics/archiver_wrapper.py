@@ -13,7 +13,7 @@
 # along with this program; if not, you can obtain a copy from
 # https://www.eclipse.org/org/documents/epl-v10.php or
 # http://opensource.org/licenses/eclipse-1.0.php
-from urllib.request import ProxyHandler, urlopen, install_opener, build_opener
+from urllib.request import ProxyHandler, build_opener, install_opener, urlopen
 
 
 class ArchiverWrapper:

@@ -1,11 +1,12 @@
 import asyncio
+from threading import RLock, Thread
 from time import sleep
-from typing import Optional, Awaitable
-from threading import Thread, RLock
+from typing import Awaitable, Optional
+
 import tornado.ioloop
 import tornado.web
 
-HOST, PORT = '', 8008
+HOST, PORT = "", 8008
 _config = ""
 
 
@@ -17,7 +18,7 @@ class MyHandler(tornado.web.RequestHandler):
         """
         This is called by RequestHandler every time a client does a GET.
         """
-        if self.request.path == '/favicon.ico':
+        if self.request.path == "/favicon.ico":
             pass
         self.set_header("Content-Type", "text/html")
         self.set_status(200)
@@ -26,10 +27,12 @@ class MyHandler(tornado.web.RequestHandler):
 
 
 def make_app():
-    return tornado.web.Application([
-        (r"/", MyHandler),
-        (r'/(favicon.ico)', MyHandler),
-    ])
+    return tornado.web.Application(
+        [
+            (r"/", MyHandler),
+            (r"/(favicon.ico)", MyHandler),
+        ]
+    )
 
 
 class Server(Thread):
@@ -51,7 +54,7 @@ class Server(Thread):
             _config = set_to
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     _server = Server()
     try:
         _server.start()

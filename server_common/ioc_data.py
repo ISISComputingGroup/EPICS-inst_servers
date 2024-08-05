@@ -1,4 +1,5 @@
-from __future__ import print_function, absolute_import, division, unicode_literals
+from __future__ import absolute_import, division, print_function, unicode_literals
+
 # This file is part of the ISIS IBEX application.
 # Copyright (C) 2012-2017 Science & Technology Facilities Council.
 # All rights reserved.
@@ -20,6 +21,7 @@ Module for reading data from the ioc database.
 """
 
 from threading import RLock
+
 from server_common.utilities import print_and_log
 
 
@@ -83,7 +85,7 @@ class IOCData(object):
         Returns:
             list : A list of the names of PVs associated with beamline parameters
         """
-        return self.get_pars('BEAMLINEPAR')
+        return self.get_pars("BEAMLINEPAR")
 
     def get_sample_pars(self):
         """
@@ -92,7 +94,7 @@ class IOCData(object):
         Returns:
             list : A list of the names of PVs associated with sample parameters
         """
-        return self.get_pars('SAMPLEPAR')
+        return self.get_pars("SAMPLEPAR")
 
     def get_user_pars(self):
         """
@@ -101,7 +103,7 @@ class IOCData(object):
         Returns:
             list : A list of the names of PVs associated with user parameters
         """
-        return self.get_pars('USERPAR')
+        return self.get_pars("USERPAR")
 
     def update_iocs_status(self):
         """

@@ -1,13 +1,12 @@
 import json
 import os
 import sys
-from contextlib2 import contextmanager
 
-from server_common.channel_access import ChannelAccess
-from server_common.ioc_data_source import IocDataSource
-from genie_python.mysql_abstraction_layer import SQLAbstraction
-from server_common.utilities import print_and_log, SEVERITY
 from genie_python import genie as g
+from genie_python.mysql_abstraction_layer import SQLAbstraction
+
+from server_common.ioc_data_source import IocDataSource
+from server_common.utilities import SEVERITY, print_and_log
 
 
 def register_ioc_start(ioc_name, pv_database=None, prefix=None):
@@ -28,7 +27,9 @@ def register_ioc_start(ioc_name, pv_database=None, prefix=None):
         ioc_data_source = IocDataSource(SQLAbstraction("iocdb", "iocdb", "$iocdb"))
         ioc_data_source.insert_ioc_start(ioc_name, os.getpid(), exepath, pv_database, prefix)
     except Exception as e:
-        print_and_log("Error registering ioc start: {}: {}".format(e.__class__.__name__, e), SEVERITY.MAJOR)
+        print_and_log(
+            "Error registering ioc start: {}: {}".format(e.__class__.__name__, e), SEVERITY.MAJOR
+        )
 
 
 def get_macro_values():

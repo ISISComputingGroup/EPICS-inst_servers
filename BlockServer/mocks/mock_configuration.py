@@ -16,8 +16,8 @@
 
 from collections import OrderedDict
 
-from BlockServer.core.constants import GRP_NONE
 from BlockServer.config.xml_converter import ConfigurationXmlConverter
+from BlockServer.core.constants import GRP_NONE
 
 
 class MockConfiguration:
@@ -33,10 +33,28 @@ class MockConfiguration:
         self.block_names = []
         self.blocks = OrderedDict()
 
-    def add_block(self, name, read_pv, group=GRP_NONE, local=True, visible=True,
-                  log_periodic=False, log_rate=5, log_deadband=0):
+    def add_block(
+        self,
+        name,
+        read_pv,
+        group=GRP_NONE,
+        local=True,
+        visible=True,
+        log_periodic=False,
+        log_rate=5,
+        log_deadband=0,
+    ):
         self.add_block_called = True
-        self.add_block_parameters = [name, read_pv, group, local, visible, log_periodic, log_rate, log_deadband]
+        self.add_block_parameters = [
+            name,
+            read_pv,
+            group,
+            local,
+            visible,
+            log_periodic,
+            log_rate,
+            log_deadband,
+        ]
 
     def remove_block(self, name):
         self.remove_block_called = True
@@ -62,7 +80,9 @@ class MockConfigurationFileManager:
         pass
 
     def save_config(self, configuration, root_path, config_name):
-        self.blocks_xml = ConfigurationXmlConverter.blocks_to_xml(configuration.blocks, configuration.macros)
+        self.blocks_xml = ConfigurationXmlConverter.blocks_to_xml(
+            configuration.blocks, configuration.macros
+        )
         self.groups_xml = ConfigurationXmlConverter.groups_to_xml(configuration.groups)
         self.iocs_xml = ConfigurationXmlConverter.iocs_to_xml(configuration.iocs)
         self.components_xml = ConfigurationXmlConverter.components_to_xml(configuration.components)

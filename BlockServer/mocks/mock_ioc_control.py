@@ -13,12 +13,11 @@
 # along with this program; if not, you can obtain a copy from
 # https://www.eclipse.org/org/documents/epl-v10.php or
 # http://opensource.org/licenses/eclipse-1.0.php
-from server_common.constants import IOCS_NOT_TO_STOP
 from BlockServer.mocks.mock_procserv_utils import MockProcServWrapper
+from server_common.constants import IOCS_NOT_TO_STOP
 
 
 class MockIocControl:
-
     def __init__(self, prefix):
         self._proc = MockProcServWrapper(prefix)
         self.restarted_iocs = []

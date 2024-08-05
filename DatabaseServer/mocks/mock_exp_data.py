@@ -1,4 +1,5 @@
-from __future__ import print_function, absolute_import, division, unicode_literals
+from __future__ import absolute_import, division, print_function, unicode_literals
+
 import json
 
 from server_common.utilities import compress_and_hex
@@ -6,7 +7,7 @@ from server_common.utilities import compress_and_hex
 
 class MockExpData(object):
     def encode_for_return(self, data: str) -> bytes:
-        return compress_and_hex(json.dumps(data).encode('utf-8', 'replace'))
+        return compress_and_hex(json.dumps(data).encode("utf-8", "replace"))
 
     def _get_surname_from_fullname(self, fullname: str) -> str:
         try:

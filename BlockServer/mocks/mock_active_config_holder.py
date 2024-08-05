@@ -14,6 +14,7 @@
 # https://www.eclipse.org/org/documents/epl-v10.php or
 # http://opensource.org/licenses/eclipse-1.0.php
 import copy
+
 from BlockServer.config.configuration import Configuration
 
 
@@ -36,5 +37,3 @@ class MockActiveConfigHolder:
 
     def add_block(self, blockargs):
         self.config.add_block(**blockargs)
-
-

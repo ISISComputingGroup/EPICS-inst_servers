@@ -18,16 +18,25 @@
 
 import os
 from datetime import datetime
+from shutil import copyfile
 from time import sleep
 
-from BlockServer.core.constants import TAG_RC_LOW, TAG_RC_HIGH, \
-    TAG_RC_ENABLE, TAG_RC_OUT_LIST, TAG_RC_SUSPEND_ON_INVALID
+from BlockServer.core.constants import (
+    TAG_RC_ENABLE,
+    TAG_RC_HIGH,
+    TAG_RC_LOW,
+    TAG_RC_OUT_LIST,
+    TAG_RC_SUSPEND_ON_INVALID,
+)
 from BlockServer.core.on_the_fly_pv_interface import OnTheFlyPvInterface
-from server_common.utilities import print_and_log, compress_and_hex, \
-    convert_to_json, ioc_restart_pending
 from server_common.channel_access import ChannelAccess
 from server_common.pv_names import prepend_blockserver
-from shutil import copyfile
+from server_common.utilities import (
+    compress_and_hex,
+    convert_to_json,
+    ioc_restart_pending,
+    print_and_log,
+)
 
 TAG_RC_DICT = {
     "LOW": TAG_RC_LOW,
@@ -42,29 +51,41 @@ RUNCONTROL_SETTINGS = "rc_settings.cmd"
 AUTOSAVE_DIR = "autosave"
 RUNCONTROL_IOC = "RUNCTRL_01"
 
-RUNCONTROL_OUT_PV = prepend_blockserver('GET_RC_OUT')
-RUNCONTROL_GET_PV = prepend_blockserver('GET_RC_PARS')
+RUNCONTROL_OUT_PV = prepend_blockserver("GET_RC_OUT")
+RUNCONTROL_GET_PV = prepend_blockserver("GET_RC_PARS")
 
 # number of loops to wait for assuming the run control is not going to start
 MAX_LOOPS_TO_WAIT_FOR_START = 60  # roughly 2 minutes at standard time
 
+
 def create_db_load_string(block):
     load_record_string = 'dbLoadRecords("$(RUNCONTROL)/db/{file}.db", "{macros}")\n'
     # PVA is PV Alias, NA is NoAlias
-    macro_string="P=$(MYPVPREFIX),PV=$(MYPVPREFIX)CS:SB:{pv},PVA=$(MYPVPREFIX)CS:SB:{pva},NOALIAS={na},NOARCHIVE=$(NOARCHIVE=)"
-    if (block.name == block.name.upper()):
-        return load_record_string.format(file="runcontrol",
-                                     macros=macro_string.format(pv=block.name, pva="", na="#"))
+    macro_string = "P=$(MYPVPREFIX),PV=$(MYPVPREFIX)CS:SB:{pv},PVA=$(MYPVPREFIX)CS:SB:{pva},NOALIAS={na},NOARCHIVE=$(NOARCHIVE=)"
+    if block.name == block.name.upper():
+        return load_record_string.format(
+            file="runcontrol", macros=macro_string.format(pv=block.name, pva="", na="#")
+        )
     else:
-        return load_record_string.format(file="runcontrol",
-                                     macros=macro_string.format(pv=block.name, pva=block.name.upper(), na=""))
+        return load_record_string.format(
+            file="runcontrol",
+            macros=macro_string.format(pv=block.name, pva=block.name.upper(), na=""),
+        )
+
 
 class RunControlManager(OnTheFlyPvInterface):
     """A class for taking care of setting up run-control."""
 
-    def __init__(self, prefix, config_dir, var_dir, ioc_control,
-                 active_configholder, block_server,
-                 channel_access=ChannelAccess()):
+    def __init__(
+        self,
+        prefix,
+        config_dir,
+        var_dir,
+        ioc_control,
+        active_configholder,
+        block_server,
+        channel_access=ChannelAccess(),
+    ):
         """
         Constructor.
 
@@ -125,7 +146,10 @@ class RunControlManager(OnTheFlyPvInterface):
         Args:
             full_init: whether to force recreating run control PVs even if unchanged.
         """
-        if self._active_configholder.configures_block_gateway_and_archiver() and self._active_configholder.contains_rc_settings():
+        if (
+            self._active_configholder.configures_block_gateway_and_archiver()
+            and self._active_configholder.contains_rc_settings()
+        ):
             copyfile(self._active_configholder.get_rc_settings_filepath(), self._settings_file)
         else:
             self.create_runcontrol_pvs(full_init=full_init)
@@ -155,8 +179,7 @@ class RunControlManager(OnTheFlyPvInterface):
         """
         if self._active_configholder.blocks_changed() or full_init:
             print_and_log("Start creating runcontrol PVs")
-            self.update_runcontrol_blocks(
-                self._active_configholder.get_block_details())
+            self.update_runcontrol_blocks(self._active_configholder.get_block_details())
             self.restart_ioc()
             # Need to wait for RUNCONTROL_IOC to restart
             self.wait_for_ioc_start(time_between_tries)
@@ -169,8 +192,7 @@ class RunControlManager(OnTheFlyPvInterface):
             print_and_log("Finish arbitrary wait after creating runcontrol PVs")
 
             print_and_log("Restoring config settings...")
-            self.restore_config_settings(
-                self._active_configholder.get_block_details())
+            self.restore_config_settings(self._active_configholder.get_block_details())
             print_and_log("Finish restoring config settings")
 
     def update_runcontrol_blocks(self, blocks):
@@ -182,7 +204,7 @@ class RunControlManager(OnTheFlyPvInterface):
                 configuration
         """
         try:
-            with open(self._settings_file, 'w') as f:
+            with open(self._settings_file, "w") as f:
                 for block in blocks.values():
                     f.write(create_db_load_string(block))
                 # Need an extra blank line
@@ -239,7 +261,9 @@ class RunControlManager(OnTheFlyPvInterface):
             run_control_prefix = self._block_prefix + block.name
             try:
                 self._channel_access.caput(run_control_prefix + TAG_RC_ENABLE, block.rc_enabled)
-                self._channel_access.caput(run_control_prefix + TAG_RC_SUSPEND_ON_INVALID, block.rc_suspend_on_invalid)
+                self._channel_access.caput(
+                    run_control_prefix + TAG_RC_SUSPEND_ON_INVALID, block.rc_suspend_on_invalid
+                )
                 if block.rc_lowlimit is not None:
                     self._channel_access.caput(run_control_prefix + TAG_RC_LOW, block.rc_lowlimit)
                 if block.rc_highlimit is not None:
@@ -258,7 +282,7 @@ class RunControlManager(OnTheFlyPvInterface):
         raw_ioc_time = self._channel_access.caget(self._prefix + RC_START_PV)
 
         try:
-            latest_ioc_start = datetime.strptime(raw_ioc_time, '%m/%d/%Y %H:%M:%S')
+            latest_ioc_start = datetime.strptime(raw_ioc_time, "%m/%d/%Y %H:%M:%S")
         except TypeError:
             latest_ioc_start = None
             print_and_log("Unable to get run control start time, IOC has not started yet", "MINOR")
@@ -282,9 +306,9 @@ class RunControlManager(OnTheFlyPvInterface):
             Bool whether the parsed datetime is valid
 
         """
-        return latest_ioc_start is None or (self._rc_ioc_start_time is
-                                            not None and latest_ioc_start
-                                            <= self._rc_ioc_start_time)
+        return latest_ioc_start is None or (
+            self._rc_ioc_start_time is not None and latest_ioc_start <= self._rc_ioc_start_time
+        )
 
     def wait_for_ioc_start(self, time_between_tries=2):
         """
@@ -298,9 +322,9 @@ class RunControlManager(OnTheFlyPvInterface):
         print_and_log("Waiting for runcontrol IOC to start ...")
 
         for loop_count in range(MAX_LOOPS_TO_WAIT_FOR_START):
-
-            restart_pending = ioc_restart_pending(self._prefix + RC_IOC_PREFIX,
-                                                  self._channel_access)
+            restart_pending = ioc_restart_pending(
+                self._prefix + RC_IOC_PREFIX, self._channel_access
+            )
 
             latest_ioc_start = self._get_latest_ioc_start()
             start_time_invalid = self._invalid_ioc_start_time(latest_ioc_start)

@@ -14,8 +14,9 @@
 # https://www.eclipse.org/org/documents/epl-v10.php or
 # http://opensource.org/licenses/eclipse-1.0.php
 
-from pcaspy import SimpleServer, Driver, cas
 import re
+
+from pcaspy import Driver, SimpleServer, cas
 
 
 class DynamicStringPV(cas.casPV):
@@ -75,14 +76,13 @@ class CAServer(SimpleServer):
     """
 
     def __init__(self, pv_prefix):
-        """Initialisation requires a prefix that all PVs associated with this server will contain.
-        """
+        """Initialisation requires a prefix that all PVs associated with this server will contain."""
         super(CAServer, self).__init__()
         self._pvs = dict()
         self._prefix = pv_prefix
 
     def _strip_prefix(self, fullname):
-        pvmatch = re.match(self._prefix + r'(.*)', fullname)
+        pvmatch = re.match(self._prefix + r"(.*)", fullname)
         if pvmatch is not None:
             return pvmatch.group(1)
         else:
@@ -113,7 +113,7 @@ class CAServer(SimpleServer):
         else:
             return SimpleServer.pvAttach(self, context, fullname)
 
-    def registerPV(self, name, data=''):
+    def registerPV(self, name, data=""):
         """Creates a PV in the dictionary of this server.
 
         Args:
@@ -144,17 +144,21 @@ class CAServer(SimpleServer):
         if name in self._pvs:
             del self._pvs[name]
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     # Here for testing
-    prefix = 'MTEST:'
-    pvdb = { 'STATIC': {} }
+    prefix = "MTEST:"
+    pvdb = {"STATIC": {}}
 
     server = CAServer(prefix)
     server.createPV(prefix, pvdb)
     driver = Driver()
 
     server.registerPV("TEST")
-    server.updatePV("TEST", "TEST initialised, this is a really long string designed to test whether the end is cut off if it is over 40 characters")
+    server.updatePV(
+        "TEST",
+        "TEST initialised, this is a really long string designed to test whether the end is cut off if it is over 40 characters",
+    )
 
     i = 0
 

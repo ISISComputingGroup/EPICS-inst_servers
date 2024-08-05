@@ -16,24 +16,50 @@
 
 import os
 import sys
+
 sys.path.insert(0, os.path.abspath(os.getcwd()))
 from argparse import ArgumentParser
-from BlockServerToKafka.block_server_monitor import BlockServerMonitor
-from time import sleep
 from os import environ
+from time import sleep
+
+from BlockServerToKafka.block_server_monitor import BlockServerMonitor
 from BlockServerToKafka.kafka_producer import ProducerWrapper
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     parser = ArgumentParser()
 
-    parser.add_argument('-d', '--data', help='Kafka topic to send PV data to', nargs=1, type=str,
-                        default='test_bs_forwarder')
-    parser.add_argument('-c', '--config', help='Kafka topic to send forwarder config to', nargs=1, type=str,
-                        default='test_bs_forwarder_config')
-    parser.add_argument('-b', '--broker', help='Location of the Kafka brokers (host:port)', nargs='+', type=str,
-                        default='sakura.isis.cclrc.ac.uk:9092')
-    parser.add_argument('-p', '--pvprefix', help='PV Prefix of the block server', nargs=1, type=str,
-                        default=environ["MYPVPREFIX"])
+    parser.add_argument(
+        "-d",
+        "--data",
+        help="Kafka topic to send PV data to",
+        nargs=1,
+        type=str,
+        default="test_bs_forwarder",
+    )
+    parser.add_argument(
+        "-c",
+        "--config",
+        help="Kafka topic to send forwarder config to",
+        nargs=1,
+        type=str,
+        default="test_bs_forwarder_config",
+    )
+    parser.add_argument(
+        "-b",
+        "--broker",
+        help="Location of the Kafka brokers (host:port)",
+        nargs="+",
+        type=str,
+        default="sakura.isis.cclrc.ac.uk:9092",
+    )
+    parser.add_argument(
+        "-p",
+        "--pvprefix",
+        help="PV Prefix of the block server",
+        nargs=1,
+        type=str,
+        default=environ["MYPVPREFIX"],
+    )
 
     args = parser.parse_args()
     KAFKA_DATA = args.data[0]

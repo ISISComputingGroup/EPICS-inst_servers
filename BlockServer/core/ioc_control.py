@@ -17,14 +17,15 @@
 from time import sleep, time
 from typing import List
 
-from BlockServer.epics.procserv_utils import ProcServWrapper
 from BlockServer.alarm.load_alarm_config import AlarmConfigLoader
-from server_common.utilities import print_and_log
+from BlockServer.epics.procserv_utils import ProcServWrapper
 from server_common.constants import IOCS_NOT_TO_STOP
+from server_common.utilities import print_and_log
 
 
 class IocControl:
     """A class for starting, stopping and restarting IOCs"""
+
     def __init__(self, prefix):
         """Constructor.
 
@@ -108,7 +109,7 @@ class IocControl:
         return self._proc.ioc_restart_pending(ioc)
 
     def start_iocs(self, iocs: List[str]):
-        """ Start a number of IOCs.
+        """Start a number of IOCs.
 
         Args:
             iocs (list): The IOCs to start
@@ -117,7 +118,7 @@ class IocControl:
             self.start_ioc(ioc)
 
     def restart_iocs(self, iocs: List[str], reapply_auto: bool = False):
-        """ Restart a number of IOCs.
+        """Restart a number of IOCs.
 
         Args:
             iocs (list): The IOCs to restart
@@ -135,7 +136,7 @@ class IocControl:
                 self.set_autorestart(ioc, auto[ioc])
 
     def stop_iocs(self, iocs: List[str]):
-        """ Stop a number of IOCs.
+        """Stop a number of IOCs.
 
         Args:
             iocs (list): The IOCs to stop
