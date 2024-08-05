@@ -1,4 +1,5 @@
-from __future__ import print_function, absolute_import, division, unicode_literals
+from __future__ import absolute_import, division, print_function, unicode_literals
+
 # This file is part of the ISIS IBEX application.
 # Copyright (C) 2012-2016 Science & Technology Facilities Council.
 # All rights reserved.
@@ -14,18 +15,16 @@ from __future__ import print_function, absolute_import, division, unicode_litera
 # along with this program; if not, you can obtain a copy from
 # https://www.eclipse.org/org/documents/epl-v10.php or
 # http://opensource.org/licenses/eclipse-1.0.php
-
 import json
-import typing
-
-import unicodedata
 import traceback
+import typing
+import unicodedata
+from typing import Union
+
+from genie_python.mysql_abstraction_layer import SQLAbstraction
 
 from server_common.channel_access import ChannelAccess
-from genie_python.mysql_abstraction_layer import SQLAbstraction
-from server_common.utilities import compress_and_hex, char_waveform, print_and_log
-
-from typing import Type, Union
+from server_common.utilities import char_waveform, compress_and_hex, print_and_log
 
 
 class User(object):

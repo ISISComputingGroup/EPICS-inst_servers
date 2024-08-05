@@ -1,5 +1,6 @@
-from __future__ import absolute_import, print_function, unicode_literals, division
-from time import sleep
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+from concurrent.futures import ThreadPoolExecutor
 
 # This file is part of the ISIS IBEX application.
 # Copyright (C) 2012-2016 Science & Technology Facilities Council.
@@ -18,13 +19,15 @@ from time import sleep
 # http://opensource.org/licenses/eclipse-1.0.php
 from BlockServer.core.macros import MACROS
 from server_common.utilities import print_and_log
-from concurrent.futures import ThreadPoolExecutor
 
 # Number of threads to serve caputs
 NUMBER_OF_CAPUT_THREADS = 20
 
 try:
-    from genie_python.channel_access_exceptions import UnableToConnectToPVException, ReadAccessException
+    from genie_python.channel_access_exceptions import (
+        ReadAccessException,
+        UnableToConnectToPVException,
+    )
 except ImportError:
     class UnableToConnectToPVException(IOError):
         """
@@ -43,12 +46,13 @@ except ImportError:
 
 try:
     # noinspection PyUnresolvedReferences
-    from genie_python.genie_cachannel_wrapper import CaChannelWrapper, EXIST_TIMEOUT
+    from genie_python.genie_cachannel_wrapper import EXIST_TIMEOUT, CaChannelWrapper
 except ImportError:
     print("ERROR: No genie_python on the system can not import CaChannelWrapper!")
 
 try:
-    from genie_python.genie_cachannel_wrapper import AlarmSeverity, AlarmCondition as AlarmStatus
+    from genie_python.genie_cachannel_wrapper import AlarmCondition as AlarmStatus
+    from genie_python.genie_cachannel_wrapper import AlarmSeverity
 except ImportError:
     from enum import IntEnum
 

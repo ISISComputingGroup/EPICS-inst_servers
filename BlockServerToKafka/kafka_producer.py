@@ -13,14 +13,17 @@
 # along with this program; if not, you can obtain a copy from
 # https://www.eclipse.org/org/documents/epl-v10.php or
 # http://opensource.org/licenses/eclipse-1.0.php
-from BlockServerToKafka.forwarder_config import ForwarderConfig
+from time import sleep
 from typing import List
+
+from kafka import KafkaConsumer, KafkaProducer, errors
 from streaming_data_types.fbschemas.forwarder_config_update_rf5k.Protocol import (
     Protocol,
 )
-from kafka import KafkaProducer, errors, KafkaConsumer
+
+from BlockServerToKafka.forwarder_config import ForwarderConfig
 from server_common.utilities import print_and_log
-from time import sleep
+
 
 class ProducerWrapper:
     """

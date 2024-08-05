@@ -1,15 +1,14 @@
-from __future__ import print_function, unicode_literals, division, absolute_import
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 import os
-import sys
 import subprocess
+import sys
 import textwrap
 import threading
 import traceback
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir)))
-from RemoteIocServer.utilities import print_and_log, get_hostname_from_prefix, THREADPOOL
-
+from RemoteIocServer.utilities import THREADPOOL, get_hostname_from_prefix, print_and_log
 
 GATEWAY_FILESYSTEM_WRITE_LOCK = threading.RLock()
 GATEWAY_RESTART_LOCK = threading.RLock()

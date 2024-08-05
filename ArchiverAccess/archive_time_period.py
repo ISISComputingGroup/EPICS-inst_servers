@@ -17,7 +17,6 @@
 Module for defining a time period for the archive access
 """
 
-from datetime import datetime
 
 from ArchiverAccess.utilities import truncate
 

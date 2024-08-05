@@ -14,11 +14,10 @@
 # https://www.eclipse.org/org/documents/epl-v10.php or
 # http://opensource.org/licenses/eclipse-1.0.php
 
-from datetime import datetime, timedelta
 from unittest import TestCase
 
 from hamcrest import *
-from ArchiverAccess.archive_time_period import ArchiveTimePeriod
+
 from ArchiverAccess.utilities import add_default_field, truncate
 
 

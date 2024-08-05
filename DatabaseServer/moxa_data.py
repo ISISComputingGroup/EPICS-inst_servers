@@ -1,12 +1,12 @@
 import os
+import socket
+import time
 from collections import OrderedDict
-from typing import Dict, Tuple, List
-import socket, time
-from threading import Thread, RLock
-
-from server_common.utilities import print_and_log, SEVERITY
+from threading import RLock, Thread
+from typing import Dict, List, Tuple
 
 from server_common.snmpWalker import walk
+from server_common.utilities import SEVERITY, print_and_log
 
 REG_KEY_NPDRV = r"SYSTEM\\CurrentControlSet\\Services\\npdrv\\Parameters"
 REG_DIR_NPDRV2 = r"SYSTEM\\CurrentControlSet\\Enum\\ROOT\\PORTS"

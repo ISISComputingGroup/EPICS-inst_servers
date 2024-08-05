@@ -17,13 +17,16 @@
 import unittest
 from datetime import datetime, timedelta
 
+from genie_python.mysql_abstraction_layer import DatabaseError
 from hamcrest import *
 from mock import Mock
 
 from ArchiverAccess.archive_time_period import ArchiveTimePeriod
-from ArchiverAccess.archiver_data_source import ArchiverDataSource, ArchiverDataValue, \
-    VALUE_WHEN_ERROR_ON_RETRIEVAL
-from genie_python.mysql_abstraction_layer import DatabaseError
+from ArchiverAccess.archiver_data_source import (
+    VALUE_WHEN_ERROR_ON_RETRIEVAL,
+    ArchiverDataSource,
+    ArchiverDataValue,
+)
 
 
 class SQLAbstractionStub(object):

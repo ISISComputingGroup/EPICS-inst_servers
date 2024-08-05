@@ -1,4 +1,5 @@
-from __future__ import print_function, absolute_import, division, unicode_literals
+from __future__ import absolute_import, division, print_function, unicode_literals
+
 # This file is part of the ISIS IBEX application.
 # Copyright (C) 2012-2016 Science & Technology Facilities Council.
 # All rights reserved.
@@ -14,7 +15,6 @@ from __future__ import print_function, absolute_import, division, unicode_litera
 # along with this program; if not, you can obtain a copy from
 # https://www.eclipse.org/org/documents/epl-v10.php or
 # http://opensource.org/licenses/eclipse-1.0.php
-
 import json
 import os
 
@@ -27,16 +27,21 @@ os.environ['ICPCONFIGROOT'] = ""
 import unittest
 
 from DatabaseServer.database_server import DatabaseServer
-from server_common.mocks.mock_ca_server import MockCAServer
-from server_common.mocks.mock_ioc_data_source import MockIocDataSource, IOCS
-from server_common.test_modules.test_ioc_data import HIGH_PV_NAMES, MEDIUM_PV_NAMES, LOW_PV_NAMES, FACILITY_PV_NAMES
-from server_common.utilities import dehex_and_decompress, set_logger
-from DatabaseServer.mocks.mock_procserv_utils import MockProcServWrapper
-from server_common.ioc_data import IOCData
 from DatabaseServer.mocks.mock_exp_data import MockExpData
+from DatabaseServer.mocks.mock_procserv_utils import MockProcServWrapper
 from server_common.constants import IS_LINUX
-from server_common.pv_names import DatabasePVNames
+from server_common.ioc_data import IOCData
 from server_common.loggers.logger import Logger
+from server_common.mocks.mock_ca_server import MockCAServer
+from server_common.mocks.mock_ioc_data_source import IOCS, MockIocDataSource
+from server_common.pv_names import DatabasePVNames
+from server_common.test_modules.test_ioc_data import (
+    FACILITY_PV_NAMES,
+    HIGH_PV_NAMES,
+    LOW_PV_NAMES,
+    MEDIUM_PV_NAMES,
+)
+from server_common.utilities import dehex_and_decompress, set_logger
 
 # Use a dummy logger during tests as real logger requires log server
 set_logger(Logger())

@@ -16,24 +16,28 @@
 import os
 
 # Set MYPVPREFIX env var
-from mock import Mock
-
 from BlockServer.config.block import Block
 from BlockServer.core.active_config_holder import ActiveConfigHolder
+from BlockServer.core.constants import (
+    TAG_RC_ENABLE,
+    TAG_RC_HIGH,
+    TAG_RC_LOW,
+    TAG_RC_SUSPEND_ON_INVALID,
+)
 from BlockServer.mocks.mock_file_manager import MockConfigurationFileManager
 from BlockServer.test_modules.helpers import modify_active
-from BlockServer.core.constants import TAG_RC_SUSPEND_ON_INVALID, TAG_RC_ENABLE, TAG_RC_HIGH, TAG_RC_LOW
 
 os.environ['MYPVPREFIX'] = ""
 
-from BlockServer.runcontrol.runcontrol_manager import RunControlManager, RC_START_PV
-from BlockServer.mocks.mock_block_server import MockBlockServer
-from BlockServer.mocks.mock_channel_access import MockChannelAccess, PVS, ChannelAccessEnv
-from BlockServer.mocks.mock_ioc_control import MockIocControl
 import unittest
 from datetime import datetime, timedelta
+
 from mock import patch
 
+from BlockServer.mocks.mock_block_server import MockBlockServer
+from BlockServer.mocks.mock_channel_access import PVS, ChannelAccessEnv, MockChannelAccess
+from BlockServer.mocks.mock_ioc_control import MockIocControl
+from BlockServer.runcontrol.runcontrol_manager import RC_START_PV, RunControlManager
 
 MACROS = {
     "$(MYPVPREFIX)": os.environ['MYPVPREFIX']

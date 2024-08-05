@@ -16,14 +16,13 @@
 from typing import Dict, OrderedDict
 from xml.dom import minidom
 
-from BlockServer.config.metadata import MetaData
-from server_common.utilities import *
-from BlockServer.config.group import Group
 from BlockServer.config.block import Block
+from BlockServer.config.group import Group
 from BlockServer.config.ioc import IOC
+from BlockServer.config.metadata import MetaData
 from BlockServer.core.constants import *
 from BlockServer.core.macros import PVPREFIX_MACRO
-
+from server_common.utilities import *
 
 KEY_NONE = GRP_NONE.lower()
 TAG_ENABLED = 'enabled'
@@ -327,23 +326,23 @@ class ConfigurationXmlConverter:
 
                 # Logging
                 log_periodic = ConfigurationXmlConverter._find_single_node(b, NS_TAG_BLOCK, TAG_LOG_PERIODIC)
-                if not (log_periodic is None):
+                if log_periodic is not None:
                     blocks[name.lower()].log_periodic = (log_periodic.text == "True")
 
                 log_rate = ConfigurationXmlConverter._find_single_node(b, NS_TAG_BLOCK, TAG_LOG_RATE)
-                if not (log_rate is None):
+                if log_rate is not None:
                     blocks[name.lower()].log_rate = float(log_rate.text)
 
                 log_deadband = ConfigurationXmlConverter._find_single_node(b, NS_TAG_BLOCK, TAG_LOG_DEADBAND)
-                if not (log_deadband is None):
+                if log_deadband is not None:
                     blocks[name.lower()].log_deadband = float(log_deadband.text)
 
                 set_block = ConfigurationXmlConverter._find_single_node(b, NS_TAG_BLOCK, TAG_SET_BLOCK)
-                if not (set_block is None):
+                if set_block is not None:
                     blocks[name.lower()].set_block = eval(set_block.text)
 
                 set_block_val = ConfigurationXmlConverter._find_single_node(b, NS_TAG_BLOCK, TAG_SET_BLOCK_VAL)
-                if not (set_block_val is None):
+                if set_block_val is not None:
                     blocks[name.lower()].set_block_val = set_block_val.text
 
     @staticmethod

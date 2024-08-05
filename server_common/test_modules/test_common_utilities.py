@@ -1,5 +1,6 @@
 import unittest
-from server_common.utilities import create_pv_name, remove_from_end, lowercase_and_make_unique
+
+from server_common.utilities import create_pv_name, lowercase_and_make_unique, remove_from_end
 
 
 class TestCreatePVName(unittest.TestCase):

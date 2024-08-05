@@ -14,12 +14,14 @@
 # https://www.eclipse.org/org/documents/epl-v10.php or
 # http://opensource.org/licenses/eclipse-1.0.php
 import unittest
-from streaming_data_types.fbschemas.forwarder_config_update_rf5k.UpdateType import UpdateType
-from BlockServerToKafka.forwarder_config import ForwarderConfig
-from streaming_data_types.forwarder_config_update_rf5k import deserialise_rf5k
+
 from streaming_data_types.fbschemas.forwarder_config_update_rf5k.Protocol import (
     Protocol,
 )
+from streaming_data_types.fbschemas.forwarder_config_update_rf5k.UpdateType import UpdateType
+from streaming_data_types.forwarder_config_update_rf5k import deserialise_rf5k
+
+from BlockServerToKafka.forwarder_config import ForwarderConfig
 
 
 class TestForwarderConfig(unittest.TestCase):

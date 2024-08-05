@@ -18,9 +18,10 @@
 Set of shared utilities and constants for rules
 """
 
-from server_common.utilities import compress_and_hex
-from server_common.pv_names import BlockserverPVNames
 import json
+
+from server_common.pv_names import BlockserverPVNames
+from server_common.utilities import compress_and_hex
 
 """Standard Regex in Java for PV like names,
 e.g. name must start with a letter and only contain letters, numbers and underscores"""

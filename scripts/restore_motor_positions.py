@@ -2,12 +2,11 @@
 Script to restore motor positions from the archive.
 """
 import argparse
-from datetime import datetime, timedelta
-
 import os
-import sys
-from typing import List, Tuple, Optional, Any, TextIO
 import socket
+import sys
+from datetime import datetime, timedelta
+from typing import Any, List, Optional, TextIO, Tuple
 
 from genie_python import genie as g
 from genie_python.mysql_abstraction_layer import SQLAbstraction
@@ -34,7 +33,6 @@ try:
     from ArchiverAccess.archive_data_file_creator import ArchiveDataFileCreator
 except ImportError:
     sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir)))
-    from ArchiverAccess.archive_data_file_creator import ArchiveDataFileCreator
 from ArchiverAccess.archive_time_period import ArchiveTimePeriod
 from ArchiverAccess.archiver_data_source import ArchiverDataSource, ArchiverDataValue
 from server_common.helpers import motor_in_set_mode

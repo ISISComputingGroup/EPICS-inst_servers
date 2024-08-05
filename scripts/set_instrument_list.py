@@ -15,8 +15,8 @@
 # http://opensource.org/licenses/eclipse-1.0.php
 
 import json
-import sys
 import os
+import sys
 
 try:
     from server_common.channel_access import ChannelAccess as ca
@@ -31,7 +31,7 @@ def set_env():
     epics_ca_addr_list = "EPICS_CA_ADDR_LIST"
     """ If we're not in an EPICS terminal, add the address list to the set of
     environment keys """
-    if not epics_ca_addr_list in os.environ.keys():
+    if epics_ca_addr_list not in os.environ.keys():
         os.environ[epics_ca_addr_list] = "127.255.255.255 130.246.51.255"
     print(epics_ca_addr_list + " = " + str(os.environ.get(epics_ca_addr_list)))
 

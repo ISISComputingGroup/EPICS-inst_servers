@@ -13,9 +13,11 @@
 # along with this program; if not, you can obtain a copy from
 # https://www.eclipse.org/org/documents/epl-v10.php or
 # http://opensource.org/licenses/eclipse-1.0.php
-from mock import MagicMock
-from CollisionAvoidanceMonitor.collide import collide
 from unittest import TestCase
+
+from mock import MagicMock
+
+from CollisionAvoidanceMonitor.collide import collide
 
 
 class MockGeometry(object):

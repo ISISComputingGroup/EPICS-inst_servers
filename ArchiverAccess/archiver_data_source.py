@@ -17,10 +17,11 @@
 Module for defining a data source from the archiver
 """
 
-from datetime import timedelta, datetime
+from datetime import datetime, timedelta
+
+from genie_python.mysql_abstraction_layer import SQLAbstraction
 
 from ArchiverAccess.archive_time_period import ArchiveTimePeriod
-from genie_python.mysql_abstraction_layer import SQLAbstraction
 
 SAMPLE_ID_EPOCH = 0
 """first possible sample id in the database"""

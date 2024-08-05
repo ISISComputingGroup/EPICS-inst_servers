@@ -14,24 +14,27 @@
 # https://www.eclipse.org/org/documents/epl-v10.php or
 # http://opensource.org/licenses/eclipse-1.0.php
 
-import os
 import json
-
+import os
 import traceback
 from functools import wraps
 from threading import RLock
 
-from BlockServer.core.file_path_manager import FILEPATH_MANAGER
-from BlockServer.core.macros import MACROS
-from BlockServer.core.inactive_config_holder import InactiveConfigHolder
-from BlockServer.core.constants import DEFAULT_COMPONENT
 from BlockServer.core.config_list_manager_exceptions import InvalidDeleteException
-from server_common.channel_access import verify_manager_mode, ChannelAccess
-
-from server_common.utilities import print_and_log, compress_and_hex, create_pv_name, convert_to_json, \
-    lowercase_and_make_unique
+from BlockServer.core.constants import DEFAULT_COMPONENT
+from BlockServer.core.file_path_manager import FILEPATH_MANAGER
+from BlockServer.core.inactive_config_holder import InactiveConfigHolder
+from BlockServer.core.macros import MACROS
+from server_common.channel_access import ChannelAccess, verify_manager_mode
 from server_common.common_exceptions import MaxAttemptsExceededException
 from server_common.pv_names import BlockserverPVNames
+from server_common.utilities import (
+    compress_and_hex,
+    convert_to_json,
+    create_pv_name,
+    lowercase_and_make_unique,
+    print_and_log,
+)
 
 
 def needs_lock(func):

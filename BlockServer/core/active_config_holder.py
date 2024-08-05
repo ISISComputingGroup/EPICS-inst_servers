@@ -18,12 +18,12 @@ import os
 from typing import Dict
 
 from BlockServer.config.ioc import IOC
+from BlockServer.core.config_holder import ConfigHolder
+from BlockServer.core.database_client import get_iocs
+from BlockServer.core.file_path_manager import FILEPATH_MANAGER
+from BlockServer.core.macros import BLOCK_PREFIX, CONTROL_SYSTEM_PREFIX, MACROS
 from server_common.constants import IOCS_NOT_TO_STOP
 from server_common.utilities import print_and_log
-from BlockServer.core.macros import BLOCK_PREFIX, MACROS, CONTROL_SYSTEM_PREFIX
-from BlockServer.core.config_holder import ConfigHolder
-from BlockServer.core.file_path_manager import FILEPATH_MANAGER
-from BlockServer.core.database_client import get_iocs
 
 
 def _blocks_changed(block1, block2):

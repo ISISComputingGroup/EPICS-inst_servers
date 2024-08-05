@@ -1,13 +1,15 @@
 import os
 import unittest
+
 from mock import Mock
+
 from ConfigVersionControl.git_version_control import GitMessageProvider
 
 
 class TestMessageProvider(unittest.TestCase):
     @staticmethod
     def add_comma(string):
-        return ", " + string;
+        return ", " + string
 
     @staticmethod
     def mock_diff(file_path, is_deleted_event):

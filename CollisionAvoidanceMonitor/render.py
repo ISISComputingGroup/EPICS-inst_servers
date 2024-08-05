@@ -1,27 +1,77 @@
-import pygame
-import os
-from OpenGL.GL import *
-from OpenGL.GL.VERSION.GL_1_0 import glLoadMatrixd
-from OpenGL.GL.exceptional import glBegin, glEnd
-from OpenGL.GL.images import glDrawPixels
-from OpenGL.raw.GL.VERSION.GL_1_0 import glViewport, glMatrixMode, glLoadIdentity, glEnable, glShadeModel, \
-    glClearColor, glClear, glPushMatrix, glOrtho, glDisable, glPopMatrix, glRasterPos2d
-from OpenGL.raw.GL.VERSION.GL_1_1 import GL_PROJECTION, GL_MODELVIEW, GL_DEPTH_TEST, GL_FLAT, GL_COLOR_MATERIAL, \
-    GL_LIGHTING, GL_LIGHT0, GL_POSITION, GL_FRONT, GL_AMBIENT, GL_DIFFUSE, GL_COLOR_BUFFER_BIT, GL_DEPTH_BUFFER_BIT, \
-    GL_CULL_FACE, GL_RGBA, GL_LINES
-from OpenGL.raw.GL.VERSION.GL_4_0 import GL_QUADS
-from OpenGL.raw.GL._types import GL_UNSIGNED_BYTE
-from OpenGL.raw.GLU import gluPerspective
-from pygame.constants import HWSURFACE, OPENGL, DOUBLEBUF, QUIT, KEYUP, K_ESCAPE, K_LEFT, K_RIGHT, K_DOWN, K_UP, K_z, \
-    K_x, K_w, K_s, K_a, K_d, K_q, K_e, K_1, K_2, K_3, K_4, K_SPACE, K_RETURN
-
-import threading
 import logging
+import os
+import threading
 
 import numpy as np
-from CollisionAvoidanceMonitor.transform import Transformation
+import pygame
+from OpenGL.GL import *
+from OpenGL.GL.exceptional import glBegin, glEnd
+from OpenGL.GL.images import glDrawPixels
+from OpenGL.GL.VERSION.GL_1_0 import glLoadMatrixd
+from OpenGL.raw.GL._types import GL_UNSIGNED_BYTE
+from OpenGL.raw.GL.VERSION.GL_1_0 import (
+    glClear,
+    glClearColor,
+    glDisable,
+    glEnable,
+    glLoadIdentity,
+    glMatrixMode,
+    glOrtho,
+    glPopMatrix,
+    glPushMatrix,
+    glRasterPos2d,
+    glShadeModel,
+    glViewport,
+)
+from OpenGL.raw.GL.VERSION.GL_1_1 import (
+    GL_AMBIENT,
+    GL_COLOR_BUFFER_BIT,
+    GL_COLOR_MATERIAL,
+    GL_CULL_FACE,
+    GL_DEPTH_BUFFER_BIT,
+    GL_DEPTH_TEST,
+    GL_DIFFUSE,
+    GL_FLAT,
+    GL_FRONT,
+    GL_LIGHT0,
+    GL_LIGHTING,
+    GL_LINES,
+    GL_MODELVIEW,
+    GL_POSITION,
+    GL_PROJECTION,
+    GL_RGBA,
+)
+from OpenGL.raw.GL.VERSION.GL_4_0 import GL_QUADS
+from OpenGL.raw.GLU import gluPerspective
+from pygame.constants import (
+    DOUBLEBUF,
+    HWSURFACE,
+    K_1,
+    K_2,
+    K_3,
+    K_4,
+    K_DOWN,
+    K_ESCAPE,
+    K_LEFT,
+    K_RETURN,
+    K_RIGHT,
+    K_SPACE,
+    K_UP,
+    KEYUP,
+    OPENGL,
+    QUIT,
+    K_a,
+    K_d,
+    K_e,
+    K_q,
+    K_s,
+    K_w,
+    K_x,
+    K_z,
+)
 
 from CollisionAvoidanceMonitor.move import move_all
+from CollisionAvoidanceMonitor.transform import Transformation
 
 
 # Camera transform matrix

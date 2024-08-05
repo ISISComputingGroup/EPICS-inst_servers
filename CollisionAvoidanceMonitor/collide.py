@@ -1,6 +1,6 @@
+import itertools
 import logging
 import threading
-import itertools
 from time import sleep
 
 import numpy as np

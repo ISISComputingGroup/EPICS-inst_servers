@@ -1,12 +1,18 @@
-from __future__ import unicode_literals, absolute_import, print_function, division
-import unittest
-import shutil
+from __future__ import absolute_import, division, print_function, unicode_literals
+
 import os
+import shutil
+import unittest
 
 from hamcrest import *
 from parameterized import parameterized
 
-from server_common.autosave import AutosaveFile, FloatConversion, BoolConversion, OptionalIntConversion
+from server_common.autosave import (
+    AutosaveFile,
+    BoolConversion,
+    FloatConversion,
+    OptionalIntConversion,
+)
 
 TEMP_FOLDER = os.path.join("C:\\", "instrument", "var", "tmp", "autosave_tests")
 

@@ -17,14 +17,18 @@
 import os
 import socket
 from functools import wraps
-from git import *
-from threading import Thread, RLock
+from threading import RLock, Thread
 from time import sleep
 
+from git import *
+
 from ConfigVersionControl.git_message_provider import GitMessageProvider
-from ConfigVersionControl.version_control_exceptions import NotUnderVersionControl, NotUnderAllowedBranchException
-from server_common.utilities import print_and_log, retry
+from ConfigVersionControl.version_control_exceptions import (
+    NotUnderAllowedBranchException,
+    NotUnderVersionControl,
+)
 from server_common.common_exceptions import MaxAttemptsExceededException
+from server_common.utilities import print_and_log, retry
 
 SYSTEM_TEST_PREFIX = "rcptt_"
 ERROR_PREFIX = "Unable to commit to version control"
@@ -39,7 +43,7 @@ class RepoFactory:
         # Check repo
         try:
             return Repo(working_directory, search_parent_directories=True)
-        except Exception as e:
+        except Exception:
             # Not a valid repository
             raise NotUnderVersionControl(working_directory)
 
@@ -143,7 +147,7 @@ class GitVersionControl:
                 except MaxAttemptsExceededException:
                     print_and_log(f"{ERROR_PREFIX} for {self._repo_name}, maximum tries exceeded.")
 
-                except GitCommandError as e:
+                except GitCommandError:
                     # Most likely issue connecting to server, increase timeout, notify if it's the first time
                     push_interval = PUSH_RETRY_INTERVAL
                     if first_failure:

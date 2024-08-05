@@ -15,10 +15,19 @@
 # http://opensource.org/licenses/eclipse-1.0.php
 
 import unittest
+
 from DatabaseServer.mocks.mock_procserv_utils import MockProcServWrapper
 from server_common.ioc_data import IOCData
-from server_common.mocks.mock_ioc_data_source import (MockIocDataSource, HIGH_PV_NAMES, MEDIUM_PV_NAMES, LOW_PV_NAMES,
-                                                      FACILITY_PV_NAMES, SAMPLE_PVS, BL_PVS, USER_PVS)
+from server_common.mocks.mock_ioc_data_source import (
+    BL_PVS,
+    FACILITY_PV_NAMES,
+    HIGH_PV_NAMES,
+    LOW_PV_NAMES,
+    MEDIUM_PV_NAMES,
+    SAMPLE_PVS,
+    USER_PVS,
+    MockIocDataSource,
+)
 
 
 class TestIocDataSequence(unittest.TestCase):

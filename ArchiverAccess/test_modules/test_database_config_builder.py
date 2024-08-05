@@ -14,14 +14,17 @@
 # https://www.eclipse.org/org/documents/epl-v10.php or
 # http://opensource.org/licenses/eclipse-1.0.php
 import os
+from datetime import timedelta
 from unittest import TestCase
 
-from datetime import timedelta
 from hamcrest import *
 from mock import Mock
 
-from ArchiverAccess.archive_access_configuration import DEFAULT_LOGGING_PERIOD_IN_S, DEFAULT_LOG_PATH
 from ArchiverAccess.archive_access_config_builder import ArchiverAccessDatabaseConfigBuilder
+from ArchiverAccess.archive_access_configuration import (
+    DEFAULT_LOG_PATH,
+    DEFAULT_LOGGING_PERIOD_IN_S,
+)
 from ArchiverAccess.test_modules.stubs import ArchiverDataStub
 
 

@@ -14,10 +14,15 @@
 # https://www.eclipse.org/org/documents/epl-v10.php or
 # http://opensource.org/licenses/eclipse-1.0.php
 
-import unittest
 import os
-from BlockServer.core.file_path_manager import FILEPATH_MANAGER, CONFIG_DIRECTORY, COMPONENT_DIRECTORY, \
-    SYNOPTIC_DIRECTORY
+import unittest
+
+from BlockServer.core.file_path_manager import (
+    COMPONENT_DIRECTORY,
+    CONFIG_DIRECTORY,
+    FILEPATH_MANAGER,
+    SYNOPTIC_DIRECTORY,
+)
 
 CONFIG_PATH = "./test_configs/"
 SCRIPT_PATH = "./test_scripts/"

@@ -1,4 +1,5 @@
-from __future__ import print_function, absolute_import, division, unicode_literals
+from __future__ import absolute_import, division, print_function, unicode_literals
+
 # This file is part of the ISIS IBEX application.
 # Copyright (C) 2012-2016 Science & Technology Facilities Council.
 # All rights reserved.
@@ -15,10 +16,11 @@ from __future__ import print_function, absolute_import, division, unicode_litera
 # https://www.eclipse.org/org/documents/epl-v10.php or
 # http://opensource.org/licenses/eclipse-1.0.php
 import os
-from collections import OrderedDict
-from server_common.utilities import print_and_log, parse_xml_removing_namespace
-from DatabaseServer.ioc_options import IocOptions
 import xml
+from collections import OrderedDict
+
+from DatabaseServer.ioc_options import IocOptions
+from server_common.utilities import parse_xml_removing_namespace, print_and_log
 
 TAG_NAME = 'name'
 TAG_VALUE = 'value'

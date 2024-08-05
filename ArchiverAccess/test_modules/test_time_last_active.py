@@ -20,8 +20,12 @@ from unittest import TestCase
 from hamcrest import *
 
 from ArchiverAccess.test_modules.stubs import FileStub
-from ArchiverAccess.time_last_active import TimeLastActive, TIME_LAST_ACTIVE_HEADER, TIME_LAST_ACTIVE_FILENAME, \
-    DEFAULT_DELTA
+from ArchiverAccess.time_last_active import (
+    DEFAULT_DELTA,
+    TIME_LAST_ACTIVE_FILENAME,
+    TIME_LAST_ACTIVE_HEADER,
+    TimeLastActive,
+)
 
 
 class TestTimeLastActive(TestCase):

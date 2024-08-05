@@ -1,16 +1,15 @@
-import contextlib
+import os
+import sys
 import types
 import unittest
-import sys
-import os
 from queue import Queue
-from typing import Tuple, List, Dict, Any
+from typing import Any, Dict, List, Tuple
 from unittest import mock
 
 from mock import MagicMock
 
 from BlockServer.component_switcher.component_switcher import ComponentSwitcher
-from BlockServer.core.macros import MACROS, PVPREFIX_MACRO
+from BlockServer.core.macros import PVPREFIX_MACRO
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 

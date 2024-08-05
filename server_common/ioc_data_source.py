@@ -1,10 +1,10 @@
-from __future__ import print_function, absolute_import, division, unicode_literals
-
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 """
 Data source for ioc data
 """
 from genie_python.mysql_abstraction_layer import DatabaseError
+
 from server_common.utilities import print_and_log
 
 PV_INFO_FIELD_NAME = "info_field"
@@ -295,7 +295,7 @@ class IocDataSource(object):
             self.mysql_abstraction_layer.update(INSERT_PV_DETAILS, (pv_fullname, pv_type, description, ioc_name))
         except DatabaseError as err:
             print_and_log("Failed to insert pv data for pv '{pvname}' with contents '{pv}': {error}"
-                          .format(ioc_name=ioc_name, pvname=pv_fullname, pv=pv, error=err), "MAJOR", "DBSVR")
+                          .format(pvname=pv_fullname, pv=pv, error=err), "MAJOR", "DBSVR")
 
     def _add_ioc_start_to_db(self, exe_path, ioc_name, pid):
         """

@@ -1,21 +1,20 @@
 """
 Module to help monitor and react to the configuration on the instrument server.
 """
-from __future__ import print_function, unicode_literals, division, absolute_import
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 import json
-import zlib
 import threading
+import zlib
 from functools import wraps
 
 from BlockServer.config.configuration import Configuration
+from BlockServer.config.ioc import IOC
 from BlockServer.core.file_path_manager import FILEPATH_MANAGER
 from BlockServer.fileIO.file_manager import ConfigurationFileManager
-from RemoteIocServer.utilities import print_and_log, get_hostname_from_prefix, THREADPOOL
+from RemoteIocServer.utilities import THREADPOOL, get_hostname_from_prefix, print_and_log
 from server_common.channel_access import ChannelAccess
 from server_common.utilities import dehex_and_decompress_waveform
-from BlockServer.config.ioc import IOC
-
 
 REMOTE_IOC_CONFIG_NAME = "_REMOTE_IOC"
 

@@ -1,7 +1,8 @@
-from pcaspy import SimpleServer, Driver
-from pcaspy.tools import ServerThread
 import random
 import threading
+
+from pcaspy import Driver, SimpleServer
+from pcaspy.tools import ServerThread
 
 # Use `caget -S` to print a char array as a string
 

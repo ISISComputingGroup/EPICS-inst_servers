@@ -14,17 +14,16 @@
 # https://www.eclipse.org/org/documents/epl-v10.php or
 # http://opensource.org/licenses/eclipse-1.0.php
 
-import unittest
 import os
 import stat
+import unittest
 
-from BlockServer.core.config_holder import ConfigHolder
 from BlockServer.config.configuration import Configuration
+from BlockServer.core.config_holder import ConfigHolder
 from BlockServer.core.constants import DEFAULT_COMPONENT
 from BlockServer.core.inactive_config_holder import InactiveConfigHolder
 from BlockServer.core.macros import MACROS
 from BlockServer.mocks.mock_file_manager import MockConfigurationFileManager
-
 
 CONFIG_PATH = "./test_configs/"
 BASE_PATH = "./example_base/"

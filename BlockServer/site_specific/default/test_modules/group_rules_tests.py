@@ -14,12 +14,13 @@
 # https://www.eclipse.org/org/documents/epl-v10.php or
 # http://opensource.org/licenses/eclipse-1.0.php
 
+import json
+import re
+import unittest
+
 from BlockServer.mocks.mock_block_server import MockBlockServer
 from BlockServer.site_specific.default.general_rules import GroupRules
 from server_common.pv_names import BlockserverPVNames
-import unittest
-import json
-import re
 from server_common.utilities import dehex_and_decompress
 
 

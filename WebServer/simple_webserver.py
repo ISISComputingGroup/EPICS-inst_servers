@@ -1,7 +1,8 @@
 import asyncio
+from threading import RLock, Thread
 from time import sleep
-from typing import Optional, Awaitable
-from threading import Thread, RLock
+from typing import Awaitable, Optional
+
 import tornado.ioloop
 import tornado.web
 

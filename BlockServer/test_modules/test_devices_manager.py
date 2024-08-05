@@ -14,13 +14,13 @@
 # https://www.eclipse.org/org/documents/epl-v10.php or
 # http://opensource.org/licenses/eclipse-1.0.php
 
-import unittest
 import os
+import unittest
 
-from server_common.utilities import compress_and_hex, dehex_and_decompress
-from BlockServer.devices.devices_manager import DevicesManager, GET_SCREENS
-from BlockServer.mocks.mock_block_server import MockBlockServer
 from BlockServer.core.file_path_manager import FILEPATH_MANAGER
+from BlockServer.devices.devices_manager import GET_SCREENS, DevicesManager
+from BlockServer.mocks.mock_block_server import MockBlockServer
+from server_common.utilities import compress_and_hex, dehex_and_decompress
 
 CONFIG_PATH = os.path.join(os.getcwd(), "test_configs")
 SCRIPT_PATH = os.path.join(os.getcwd(), "test_scripts")

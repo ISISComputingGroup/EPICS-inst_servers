@@ -22,14 +22,17 @@ from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from block_server import BlockServer
-from server_common.common_exceptions import MaxAttemptsExceededException
-from server_common.utilities import print_and_log, compress_and_hex
-from BlockServer.core.file_path_manager import FILEPATH_MANAGER
-from BlockServer.fileIO.schema_checker import ConfigurationSchemaChecker, ConfigurationInvalidUnderSchema
 from BlockServer.core.constants import FILENAME_SCREENS as SCREENS_FILE
-from server_common.pv_names import BlockserverPVNames
+from BlockServer.core.file_path_manager import FILEPATH_MANAGER
 from BlockServer.core.on_the_fly_pv_interface import OnTheFlyPvInterface
 from BlockServer.devices.devices_file_io import DevicesFileIO
+from BlockServer.fileIO.schema_checker import (
+    ConfigurationInvalidUnderSchema,
+    ConfigurationSchemaChecker,
+)
+from server_common.common_exceptions import MaxAttemptsExceededException
+from server_common.pv_names import BlockserverPVNames
+from server_common.utilities import compress_and_hex, print_and_log
 
 SCREENS_SCHEMA = "screens.xsd"
 GET_SCREENS = BlockserverPVNames.GET_SCREENS

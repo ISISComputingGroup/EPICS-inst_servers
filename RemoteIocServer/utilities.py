@@ -1,14 +1,13 @@
-from __future__ import print_function, unicode_literals, division, absolute_import
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 import functools
-import sys
 import os
-
+import sys
 from concurrent.futures import ThreadPoolExecutor
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir)))
-from server_common.utilities import print_and_log as _common_print_and_log
-from server_common.channel_access import ChannelAccess
 
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir)))
+from server_common.channel_access import ChannelAccess
+from server_common.utilities import print_and_log as _common_print_and_log
 
 CONFIG_DIR = os.getenv("ICPCONFIGROOT")
 

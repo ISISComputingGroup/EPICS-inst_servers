@@ -1,8 +1,8 @@
-from CaChannel import CaChannel
-from CaChannel import CaChannelException
-import ca
 import threading
 import time
+
+import ca
+from CaChannel import CaChannel, CaChannelException
 
 from server_common.utilities import print_and_log
 

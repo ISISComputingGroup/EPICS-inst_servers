@@ -18,16 +18,25 @@
 
 import os
 from datetime import datetime
+from shutil import copyfile
 from time import sleep
 
-from BlockServer.core.constants import TAG_RC_LOW, TAG_RC_HIGH, \
-    TAG_RC_ENABLE, TAG_RC_OUT_LIST, TAG_RC_SUSPEND_ON_INVALID
+from BlockServer.core.constants import (
+    TAG_RC_ENABLE,
+    TAG_RC_HIGH,
+    TAG_RC_LOW,
+    TAG_RC_OUT_LIST,
+    TAG_RC_SUSPEND_ON_INVALID,
+)
 from BlockServer.core.on_the_fly_pv_interface import OnTheFlyPvInterface
-from server_common.utilities import print_and_log, compress_and_hex, \
-    convert_to_json, ioc_restart_pending
 from server_common.channel_access import ChannelAccess
 from server_common.pv_names import prepend_blockserver
-from shutil import copyfile
+from server_common.utilities import (
+    compress_and_hex,
+    convert_to_json,
+    ioc_restart_pending,
+    print_and_log,
+)
 
 TAG_RC_DICT = {
     "LOW": TAG_RC_LOW,

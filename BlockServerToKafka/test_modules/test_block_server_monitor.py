@@ -15,7 +15,9 @@
 # http://opensource.org/licenses/eclipse-1.0.php
 
 import unittest
-from mock import patch, MagicMock
+
+from mock import MagicMock, patch
+
 from BlockServerToKafka.block_server_monitor import BlockServerMonitor
 
 

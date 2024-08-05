@@ -15,7 +15,7 @@
 # http://opensource.org/licenses/eclipse-1.0.php
 
 import copy
-from typing import Dict, List, Union, Any
+from typing import Any, Dict, List, Union
 
 
 class IOC:

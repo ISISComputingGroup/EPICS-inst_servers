@@ -14,13 +14,14 @@
 #https://www.eclipse.org/org/documents/epl-v10.php or 
 #http://opensource.org/licenses/eclipse-1.0.php
 
-import time
+import os
 import re
+import time
+from shutil import copyfile
+
+from BlockServer.core.macros import CONTROL_SYSTEM_PREFIX
 from server_common.channel_access import ChannelAccess
 from server_common.utilities import print_and_log
-from BlockServer.core.macros import CONTROL_SYSTEM_PREFIX, BLOCK_PREFIX
-import os
-from shutil import copyfile
 
 ALIAS_HEADER = """\
 ##

@@ -1,17 +1,16 @@
-from __future__ import print_function, unicode_literals, division, absolute_import
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 import json
-import unittest
-import sys
 import os
+import sys
+import unittest
 
 from hamcrest import *
-from mock import patch, MagicMock, mock_open
-from pdfrw import compress
+from mock import MagicMock, patch
 
 from BlockServer import fileIO
 from BlockServer.core.file_path_manager import FILEPATH_MANAGER
-from RemoteIocServer.config_monitor import ConfigurationMonitor, REMOTE_IOC_CONFIG_NAME
+from RemoteIocServer.config_monitor import REMOTE_IOC_CONFIG_NAME, ConfigurationMonitor
 from server_common.utilities import compress_and_hex
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))

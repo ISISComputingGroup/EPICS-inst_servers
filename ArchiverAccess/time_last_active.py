@@ -22,7 +22,7 @@ from datetime import datetime, timedelta
 
 from ArchiverAccess.archive_access_configuration import DEFAULT_LOG_PATH
 from ArchiverAccess.utilities import utc_time_now
-from server_common.utilities import print_and_log, SEVERITY
+from server_common.utilities import SEVERITY, print_and_log
 
 TIME_FORMAT = "%Y-%m-%dT%H:%M:%S"
 """Format to write time to file in"""

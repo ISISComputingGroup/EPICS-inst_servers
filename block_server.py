@@ -20,44 +20,57 @@ import os
 import sys
 import traceback
 
-from server_common.channel_access import verify_manager_mode, ManagerModeRequiredException
+from server_common.channel_access import ManagerModeRequiredException, verify_manager_mode
 
 sys.path.insert(0, os.path.abspath(os.path.dirname(__file__)))
 
 # Standard imports
-from pcaspy import Driver, SimpleServer
 import argparse
-from threading import Thread, RLock
-from time import sleep, time
 import datetime
-from BlockServer.core.file_path_manager import FILEPATH_MANAGER
-from BlockServer.epics.gateway import Gateway
-from BlockServer.core.active_config_holder import ActiveConfigHolder
-from BlockServer.core.inactive_config_holder import InactiveConfigHolder
-from server_common.channel_access_server import CAServer
-from server_common.utilities import compress_and_hex, dehex_and_decompress, print_and_log, set_logger, \
-    convert_to_json, convert_from_json, char_waveform
-from BlockServer.core.macros import MACROS, CONTROL_SYSTEM_PREFIX, BLOCK_PREFIX, PVPREFIX_MACRO
-from server_common.pv_names import BlockserverPVNames
-from BlockServer.core.config_list_manager import ConfigListManager
-from BlockServer.synoptic.synoptic_manager import SynopticManager
-from BlockServer.devices.devices_manager import DevicesManager
-from BlockServer.config.json_converter import ConfigurationJsonConverter
-from ConfigVersionControl.git_version_control import GitVersionControl, RepoFactory
-from ConfigVersionControl.version_control_exceptions import NotUnderVersionControl, VersionControlException
-from BlockServer.mocks.mock_version_control import MockVersionControl
-from BlockServer.core.ioc_control import IocControl
-from BlockServer.runcontrol.runcontrol_manager import RunControlManager
-from BlockServer.epics.archiver_manager import ArchiverManager
-from BlockServer.site_specific.default.block_rules import BlockRules
-from pcaspy.driver import manager, Data
-from BlockServer.site_specific.default.general_rules import GroupRules, ConfigurationDescriptionRules
-from BlockServer.fileIO.file_manager import ConfigurationFileManager
-from BlockServer.component_switcher.component_switcher import ComponentSwitcher
-from WebServer.simple_webserver import Server
-from BlockServer.core.database_client import get_iocs
 from queue import Queue
+from threading import RLock, Thread
+from time import sleep, time
+
+from pcaspy import Driver, SimpleServer
+from pcaspy.driver import Data, manager
+
+from BlockServer.component_switcher.component_switcher import ComponentSwitcher
+from BlockServer.config.json_converter import ConfigurationJsonConverter
+from BlockServer.core.active_config_holder import ActiveConfigHolder
+from BlockServer.core.config_list_manager import ConfigListManager
+from BlockServer.core.file_path_manager import FILEPATH_MANAGER
+from BlockServer.core.inactive_config_holder import InactiveConfigHolder
+from BlockServer.core.ioc_control import IocControl
+from BlockServer.core.macros import BLOCK_PREFIX, CONTROL_SYSTEM_PREFIX, MACROS, PVPREFIX_MACRO
+from BlockServer.devices.devices_manager import DevicesManager
+from BlockServer.epics.archiver_manager import ArchiverManager
+from BlockServer.epics.gateway import Gateway
+from BlockServer.fileIO.file_manager import ConfigurationFileManager
+from BlockServer.mocks.mock_version_control import MockVersionControl
+from BlockServer.runcontrol.runcontrol_manager import RunControlManager
+from BlockServer.site_specific.default.block_rules import BlockRules
+from BlockServer.site_specific.default.general_rules import (
+    ConfigurationDescriptionRules,
+    GroupRules,
+)
+from BlockServer.synoptic.synoptic_manager import SynopticManager
+from ConfigVersionControl.git_version_control import GitVersionControl, RepoFactory
+from ConfigVersionControl.version_control_exceptions import (
+    NotUnderVersionControl,
+    VersionControlException,
+)
 from server_common.channel_access import ChannelAccess
+from server_common.pv_names import BlockserverPVNames
+from server_common.utilities import (
+    char_waveform,
+    compress_and_hex,
+    convert_from_json,
+    convert_to_json,
+    dehex_and_decompress,
+    print_and_log,
+    set_logger,
+)
+from WebServer.simple_webserver import Server
 
 CURR_CONFIG_NAME_SEVR_VALUE = 0
 CONFIG_PUSH_TIME = 300 # 5 minutes
@@ -531,7 +544,7 @@ class BlockServer(Driver):
             inactive.load_inactive(name, is_component)
             # Get previous history
             history = inactive.get_history()
-        except IOError as err:
+        except IOError:
             # Config doesn't exist therefore start new history
             history = list()
         return history
@@ -675,7 +688,7 @@ class BlockServer(Driver):
                 data = Data()
                 data.value = manager.pvs[self.port][name].info.value
                 self.pvDB[name] = data
-            except Exception as err:
+            except Exception:
                 print_and_log(f"Unable to add PV {name}", "MAJOR")
 
 

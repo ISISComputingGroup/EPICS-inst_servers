@@ -25,16 +25,15 @@ It has been placed here for tidiness. To run the script, move it to its parent d
 ...\EPICS\ISIS\inst_servers\master\
 """
 
-import zlib
-import sys
 import os
+import sys
 
 try:
     from server_common.channel_access import ChannelAccess as ca
 except ImportError:
     sys.path.append(os.path.join(os.path.dirname(sys.path[0])))  # to allow server common from dir below
     from server_common.channel_access import ChannelAccess as ca
-from server_common.utilities import dehex_and_decompress, compress_and_hex
+from server_common.utilities import compress_and_hex, dehex_and_decompress
 
 
 def set_env():

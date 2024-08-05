@@ -1,13 +1,12 @@
 import json
 import os
 import sys
-from contextlib2 import contextmanager
 
-from server_common.channel_access import ChannelAccess
-from server_common.ioc_data_source import IocDataSource
-from genie_python.mysql_abstraction_layer import SQLAbstraction
-from server_common.utilities import print_and_log, SEVERITY
 from genie_python import genie as g
+from genie_python.mysql_abstraction_layer import SQLAbstraction
+
+from server_common.ioc_data_source import IocDataSource
+from server_common.utilities import SEVERITY, print_and_log
 
 
 def register_ioc_start(ioc_name, pv_database=None, prefix=None):

@@ -14,8 +14,9 @@
 # https://www.eclipse.org/org/documents/epl-v10.php or
 # http://opensource.org/licenses/eclipse-1.0.php
 
-from pcaspy import SimpleServer, Driver, cas
 import re
+
+from pcaspy import Driver, SimpleServer, cas
 
 
 class DynamicStringPV(cas.casPV):

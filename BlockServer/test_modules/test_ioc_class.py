@@ -15,6 +15,7 @@
 # http://opensource.org/licenses/eclipse-1.0.php
 import copy
 import unittest
+
 from BlockServer.config.ioc import IOC
 
 

@@ -1,8 +1,7 @@
+import unittest
 from collections import namedtuple
 
 from hamcrest import *
-
-import unittest
 
 from server_common.observable import observable
 

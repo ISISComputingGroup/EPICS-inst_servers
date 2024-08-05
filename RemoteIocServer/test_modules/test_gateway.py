@@ -1,11 +1,11 @@
-from __future__ import unicode_literals, print_function, division, absolute_import
+from __future__ import absolute_import, division, print_function, unicode_literals
+
 import os
 import unittest
 
 from mock import patch
 
 from RemoteIocServer.gateway import GateWay
-
 
 TEST_LOCAL_PV_PREFIX = "LOCALINST:BLAH:"
 TEST_REMOTE_PV_PREFIX = "REMOTEINST:BLAH:"

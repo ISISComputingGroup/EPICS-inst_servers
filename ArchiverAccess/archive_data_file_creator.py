@@ -18,7 +18,7 @@ Module for creating a log file from a configuration and periodic data source.
 """
 
 import os
-from stat import S_IROTH, S_IRGRP, S_IREAD
+from stat import S_IREAD, S_IRGRP, S_IROTH
 from string import Formatter
 
 from ArchiverAccess.periodic_data_generator import PeriodicDataGenerator

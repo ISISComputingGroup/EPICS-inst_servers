@@ -18,11 +18,11 @@ Module for defining retrieving of the period for the logging
 """
 
 import abc
-
 from datetime import timedelta
 
-from ArchiverAccess.utilities import add_default_field
 from genie_python.mysql_abstraction_layer import DatabaseError
+
+from ArchiverAccess.utilities import add_default_field
 from server_common.utilities import print_and_log
 
 MINIMUM_LOGGING_PERIOD = 0.01

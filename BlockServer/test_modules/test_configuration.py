@@ -14,10 +14,13 @@
 # https://www.eclipse.org/org/documents/epl-v10.php or
 # http://opensource.org/licenses/eclipse-1.0.php
 import unittest
+
 from BlockServer.config.configuration import Configuration
-from BlockServer.mocks.mock_configuration import MockConfigurationFileManager
-from BlockServer.mocks.mock_configuration import MockConfigurationJsonConverter
 from BlockServer.core.macros import MACROS
+from BlockServer.mocks.mock_configuration import (
+    MockConfigurationFileManager,
+    MockConfigurationJsonConverter,
+)
 
 # Args are : name, pv, group, local and visible
 NEW_BLOCK_ARGS = {'name': "TESTBLOCK1", 'pv': "PV1", 'group': "GROUP1", 'local': True, 'visible': True}

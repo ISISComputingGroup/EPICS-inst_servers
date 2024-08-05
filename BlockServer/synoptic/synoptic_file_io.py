@@ -15,6 +15,7 @@
 # http://opensource.org/licenses/eclipse-1.0.php
 import os
 from xml.dom import minidom
+
 from server_common.utilities import print_and_log, retry
 
 RETRY_MAX_ATTEMPTS = 20

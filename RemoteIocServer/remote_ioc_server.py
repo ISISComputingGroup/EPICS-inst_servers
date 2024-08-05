@@ -1,22 +1,21 @@
-from __future__ import print_function, unicode_literals, division, absolute_import
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 import argparse
-import sys
-import os
-import traceback
 import functools
+import os
+import sys
+import traceback
 
-from pcaspy import SimpleServer, Driver
+from pcaspy import Driver, SimpleServer
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir)))
+from BlockServer.core.file_path_manager import FILEPATH_MANAGER
+from BlockServer.core.ioc_control import IocControl
 from RemoteIocServer.config_monitor import ConfigurationMonitor
 from RemoteIocServer.gateway import GateWay
 from RemoteIocServer.pvdb import STATIC_PV_DATABASE, PvNames
-from RemoteIocServer.utilities import print_and_log, THREADPOOL, read_startup_file
-from BlockServer.core.ioc_control import IocControl
-from BlockServer.core.file_path_manager import FILEPATH_MANAGER
+from RemoteIocServer.utilities import THREADPOOL, print_and_log, read_startup_file
 from server_common.autosave import AutosaveFile
-
 
 AUTOSAVE_REMOTE_PREFIX_NAME = "remote_pv_prefix"
 

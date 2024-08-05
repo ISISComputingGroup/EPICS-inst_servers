@@ -16,8 +16,8 @@
 
 from collections import OrderedDict
 
-from BlockServer.core.constants import GRP_NONE
 from BlockServer.config.xml_converter import ConfigurationXmlConverter
+from BlockServer.core.constants import GRP_NONE
 
 
 class MockConfiguration:

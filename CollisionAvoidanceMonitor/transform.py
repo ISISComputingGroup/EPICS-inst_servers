@@ -1,5 +1,6 @@
+from math import cos, sin
+
 import numpy as np
-from math import sin, cos
 
 
 class Transformation:

@@ -17,20 +17,20 @@
 Script for generating a log file from the archive.
 """
 import argparse
-from datetime import timedelta
-
 import os
 import sys
+from datetime import timedelta
 
 try:
     from ArchiverAccess.archive_data_file_creator import ArchiveDataFileCreator
 except ImportError:
     sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir)))
     from ArchiverAccess.archive_data_file_creator import ArchiveDataFileCreator
+from genie_python.mysql_abstraction_layer import SQLAbstraction
+
+from ArchiverAccess.archive_access_configuration import ArchiveAccessConfigBuilder
 from ArchiverAccess.archive_time_period import ArchiveTimePeriod
 from ArchiverAccess.archiver_data_source import ArchiverDataSource
-from ArchiverAccess.archive_access_configuration import ArchiveAccessConfigBuilder
-from genie_python.mysql_abstraction_layer import SQLAbstraction
 from server_common.utilities import parse_date_time_arg_exit_on_fail
 
 finish = False

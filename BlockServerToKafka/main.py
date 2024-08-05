@@ -16,11 +16,13 @@
 
 import os
 import sys
+
 sys.path.insert(0, os.path.abspath(os.getcwd()))
 from argparse import ArgumentParser
-from BlockServerToKafka.block_server_monitor import BlockServerMonitor
-from time import sleep
 from os import environ
+from time import sleep
+
+from BlockServerToKafka.block_server_monitor import BlockServerMonitor
 from BlockServerToKafka.kafka_producer import ProducerWrapper
 
 if __name__ == '__main__':

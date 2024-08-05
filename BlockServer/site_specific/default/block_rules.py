@@ -13,11 +13,11 @@
 # along with this program; if not, you can obtain a copy from
 # https://www.eclipse.org/org/documents/epl-v10.php or
 # http://opensource.org/licenses/eclipse-1.0.php
-from BlockServer.site_specific.default.general_rules import REGEX_ERROR_TEMPLATE_PV_NAME
-from server_common.utilities import compress_and_hex
-from server_common.pv_names import BlockserverPVNames
-
 import json
+
+from BlockServer.site_specific.default.general_rules import REGEX_ERROR_TEMPLATE_PV_NAME
+from server_common.pv_names import BlockserverPVNames
+from server_common.utilities import compress_and_hex
 
 ALLOWED_BLOCK_NAME_REGEX = r"^[a-zA-Z]\w{0,24}$"
 DISALLOWED_BLOCK_NAMES = ["lowlimit", "highlimit", "runcontrol", "wait"]

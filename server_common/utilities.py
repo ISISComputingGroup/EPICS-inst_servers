@@ -16,18 +16,17 @@
 """
 Utilities for running block server and related ioc's.
 """
+import binascii
 import datetime
+import json
+import re
 import threading
 import time
 import zlib
-import re
-import json
-import codecs
-import binascii
 from xml.etree import ElementTree
-from server_common.loggers.logger import Logger
-from server_common.common_exceptions import MaxAttemptsExceededException
 
+from server_common.common_exceptions import MaxAttemptsExceededException
+from server_common.loggers.logger import Logger
 
 # Default to base class - does not actually log anything
 LOGGER = Logger()

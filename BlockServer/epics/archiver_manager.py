@@ -16,16 +16,18 @@
 # http://opensource.org/licenses/eclipse-1.0.php
 """
 
-import os
-from shutil import copyfile
 import datetime
+import os
 import time
-from sys import platform
-from subprocess import run, PIPE, STDOUT
 import xml.etree.ElementTree as eTree
+from shutil import copyfile
+from subprocess import PIPE, STDOUT, run
+from sys import platform
 from xml.dom import minidom
-from server_common.utilities import print_and_log
+
 from BlockServer.epics.archiver_wrapper import ArchiverWrapper
+from server_common.utilities import print_and_log
+
 
 class ArchiverManager:
     """This class is responsible for updating the EPICS Archiver that is responsible for logging the blocks."""
@@ -119,7 +121,7 @@ class ArchiverManager:
     def _upload_archive_config(self):
         extra_args = {}
         if platform == "win32":
-            from subprocess import STARTUPINFO, STARTF_USESHOWWINDOW, SW_HIDE
+            from subprocess import STARTF_USESHOWWINDOW, STARTUPINFO, SW_HIDE
             extra_args = {
                 'startupinfo' : STARTUPINFO(dwFlags = STARTF_USESHOWWINDOW,
                                 wShowWindow = SW_HIDE)

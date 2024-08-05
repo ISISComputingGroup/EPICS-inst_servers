@@ -15,10 +15,12 @@
 # http://opensource.org/licenses/eclipse-1.0.php
 
 import unittest
+
+from mock import patch
+
 from BlockServer.core.ioc_control import IocControl
 from BlockServer.mocks.mock_procserv_utils import MockProcServWrapper
 from server_common.constants import IOCS_NOT_TO_STOP
-from mock import patch
 
 
 class TestIocControlSequence(unittest.TestCase):

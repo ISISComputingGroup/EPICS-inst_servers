@@ -14,14 +14,15 @@
 # https://www.eclipse.org/org/documents/epl-v10.php or
 # http://opensource.org/licenses/eclipse-1.0.php
 
-import unittest
-from hamcrest import *
-from mock import patch, MagicMock, mock_open
 import os
+import unittest
+
+from hamcrest import *
+from mock import MagicMock, mock_open, patch
 
 from ArchiverAccess.test_modules.stubs import FileStub
-from BlockServer.epics.gateway import Gateway, ALIAS_HEADER
 from BlockServer.config.block import Block
+from BlockServer.epics.gateway import ALIAS_HEADER, Gateway
 
 
 class TestEpicsGateway(unittest.TestCase):

@@ -17,13 +17,16 @@
 import unittest
 from datetime import timedelta
 
+from genie_python.mysql_abstraction_layer import DatabaseError
 from hamcrest import *
 from mock import Mock
 
-from ArchiverAccess.logging_period_providers import LoggingPeriodProviderConst, LoggingPeriodProviderPV, \
-    MINIMUM_LOGGING_PERIOD
+from ArchiverAccess.logging_period_providers import (
+    MINIMUM_LOGGING_PERIOD,
+    LoggingPeriodProviderConst,
+    LoggingPeriodProviderPV,
+)
 from ArchiverAccess.test_modules.stubs import ArchiverDataStub
-from genie_python.mysql_abstraction_layer import DatabaseError
 
 
 class TestLogPeriodProvider(unittest.TestCase):

@@ -1,7 +1,8 @@
 import os
+from xml.dom import minidom
+
 from server_common.common_exceptions import MaxAttemptsExceededException
 from server_common.utilities import retry
-from xml.dom import minidom
 
 RETRY_MAX_ATTEMPTS = 20
 RETRY_INTERVAL = 0.5

@@ -20,9 +20,12 @@ import os
 import re
 from datetime import datetime
 
-from ArchiverAccess.logging_period_providers import LoggingPeriodProviderConst, LoggingPeriodProviderPV
+from ArchiverAccess.logging_period_providers import (
+    LoggingPeriodProviderConst,
+    LoggingPeriodProviderPV,
+)
 from ArchiverAccess.utilities import add_default_field
-from server_common.utilities import print_and_log, SEVERITY
+from server_common.utilities import SEVERITY, print_and_log
 
 DEFAULT_LOG_PATH = os.path.join("C:\\", "logs")
 """Default path where logs should be writen"""

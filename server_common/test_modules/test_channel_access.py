@@ -1,16 +1,18 @@
 import threading
 import time
 import unittest
-from queue import Queue, Empty
-
 from concurrent.futures import wait
-from mock import Mock, patch
+from queue import Empty, Queue
 
 from hamcrest import *
 
-import server_common
-from server_common.channel_access import ChannelAccess, NUMBER_OF_CAPUT_THREADS, maximum_severity, AlarmSeverity, \
-    AlarmStatus
+from server_common.channel_access import (
+    NUMBER_OF_CAPUT_THREADS,
+    AlarmSeverity,
+    AlarmStatus,
+    ChannelAccess,
+    maximum_severity,
+)
 
 thread_ids = Queue()
 thread_calls = Queue()

@@ -1,8 +1,8 @@
-from pysnmp.hlapi import *
-import sys
-from pysnmp.smi import builder, view, compiler, rfc1902
 
-from server_common.utilities import print_and_log, SEVERITY
+from pysnmp.hlapi import *
+from pysnmp.smi import builder, compiler, rfc1902, view
+
+from server_common.utilities import SEVERITY, print_and_log
 
 # Assemble MIB browser
 mibBuilder = builder.MibBuilder()
@@ -52,7 +52,7 @@ def walk(host, oid, requestedMIBs=INTERESTING_MIBS):
                 if not exists: port = ''
                 #print(name.prettyPrint(), ' = ', value.prettyPrint())
                 if mib in requestedMIBs:
-                    mibmap[name.prettyPrint()] = value.prettyPrint();
+                    mibmap[name.prettyPrint()] = value.prettyPrint()
                     #print('MIB-->', mib, ' port-->', port, ' = ', value.prettyPrint())
                     #print_and_log('MIB -->%s, port --> %s, = %s' % (mib, port, value)) 
             

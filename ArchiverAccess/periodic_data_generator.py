@@ -19,7 +19,6 @@ Module for defining a periodic data generator
 
 import collections
 
-
 period_data_point = collections.namedtuple("period_data_point", "time values")
 """a single periodic data point, essential all the values at a point in time"""
 

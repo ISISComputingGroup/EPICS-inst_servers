@@ -20,11 +20,11 @@ from datetime import datetime, timedelta
 from hamcrest import *
 from mock import Mock
 
+from ArchiverAccess.archive_access_configuration import ArchiveAccessConfigBuilder
 from ArchiverAccess.archive_data_file_creator import DataFileCreationError
 from ArchiverAccess.archive_time_period import ArchiveTimePeriod
 from ArchiverAccess.archiver_data_source import ArchiverDataValue
-from ArchiverAccess.archive_access_configuration import ArchiveAccessConfigBuilder
-from ArchiverAccess.log_file_initiator import LogFileInitiatorOnPVChange, SAMPLING_BEHIND_REAL_TIME
+from ArchiverAccess.log_file_initiator import SAMPLING_BEHIND_REAL_TIME, LogFileInitiatorOnPVChange
 from ArchiverAccess.test_modules.stubs import ArchiverDataStub
 
 

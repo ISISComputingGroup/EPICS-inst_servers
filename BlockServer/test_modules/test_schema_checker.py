@@ -13,18 +13,21 @@
 # along with this program; if not, you can obtain a copy from
 # https://www.eclipse.org/org/documents/epl-v10.php or
 # http://opensource.org/licenses/eclipse-1.0.php
-import traceback
-import unittest
 import os
 import shutil
+import traceback
+import unittest
 
-from BlockServer.core.inactive_config_holder import InactiveConfigHolder
-from BlockServer.fileIO.schema_checker import ConfigurationSchemaChecker, ConfigurationInvalidUnderSchema
-from BlockServer.core.macros import MACROS
-from BlockServer.core.file_path_manager import FILEPATH_MANAGER
-from BlockServer.mocks.mock_file_manager import MockConfigurationFileManager
 from BlockServer.config.configuration import Configuration
 from BlockServer.config.xml_converter import ConfigurationXmlConverter
+from BlockServer.core.file_path_manager import FILEPATH_MANAGER
+from BlockServer.core.inactive_config_holder import InactiveConfigHolder
+from BlockServer.core.macros import MACROS
+from BlockServer.fileIO.schema_checker import (
+    ConfigurationInvalidUnderSchema,
+    ConfigurationSchemaChecker,
+)
+from BlockServer.mocks.mock_file_manager import MockConfigurationFileManager
 
 TEST_DIRECTORY = os.path.abspath("test_configs")
 SCRIPT_DIRECTORY = os.path.abspath("test_scripts")
@@ -110,7 +113,7 @@ class TestSchemaChecker(unittest.TestCase):
 
         try:
             ConfigurationSchemaChecker.check_xml_data_matches_schema(os.path.join(self.schema_dir, "groups.xsd"), xml)
-        except Exception as ex:
+        except Exception:
             self.fail(
                 msg=f"Exception thrown from schema checker. Xml is {xml} exception is {traceback.format_exc()}")
 
@@ -130,7 +133,7 @@ class TestSchemaChecker(unittest.TestCase):
 
         try:
             ConfigurationSchemaChecker.check_xml_data_matches_schema(os.path.join(self.schema_dir, "iocs.xsd"), xml)
-        except Exception as ex:
+        except Exception:
             self.fail(msg=f"Exception thrown from schema checker. Xml is {xml} exception is {traceback.format_exc()}")
 
     def test_iocs_xml_does_not_match_schema_raises(self):

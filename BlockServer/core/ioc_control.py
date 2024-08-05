@@ -17,10 +17,10 @@
 from time import sleep, time
 from typing import List
 
-from BlockServer.epics.procserv_utils import ProcServWrapper
 from BlockServer.alarm.load_alarm_config import AlarmConfigLoader
-from server_common.utilities import print_and_log
+from BlockServer.epics.procserv_utils import ProcServWrapper
 from server_common.constants import IOCS_NOT_TO_STOP
+from server_common.utilities import print_and_log
 
 
 class IocControl:

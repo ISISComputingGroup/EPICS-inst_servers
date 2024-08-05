@@ -16,17 +16,16 @@
 
 import re
 import unittest
-from xml.etree import ElementTree
 from collections import OrderedDict
+from xml.etree import ElementTree
 
+from BlockServer.config.block import Block
 from BlockServer.config.configuration import Configuration
 from BlockServer.config.group import Group
-from BlockServer.config.block import Block
 from BlockServer.config.ioc import IOC
 from BlockServer.config.metadata import MetaData
 from BlockServer.config.xml_converter import ConfigurationXmlConverter
 from BlockServer.core.macros import MACROS
-
 
 BLOCKS_XML = u"""
 <?xml version="1.0" ?>

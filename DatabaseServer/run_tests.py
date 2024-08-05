@@ -1,4 +1,5 @@
-from __future__ import print_function, absolute_import, division, unicode_literals
+from __future__ import absolute_import, division, print_function, unicode_literals
+
 # This file is part of the ISIS IBEX application.
 # Copyright (C) 2012-2016 Science & Technology Facilities Council.
 # All rights reserved.
@@ -14,7 +15,6 @@ from __future__ import print_function, absolute_import, division, unicode_litera
 # along with this program; if not, you can obtain a copy from
 # https://www.eclipse.org/org/documents/epl-v10.php or
 # http://opensource.org/licenses/eclipse-1.0.php
-
 # Add root path for access to server_commons
 import os
 import sys
@@ -22,10 +22,10 @@ import sys
 os.environ["MYDIRBLOCK"] = os.path.abspath('..')
 sys.path.insert(0, os.path.abspath(os.environ["MYDIRBLOCK"]))
 # Standard imports
-import unittest
-import xmlrunner
 import argparse
+import unittest
 
+import xmlrunner
 
 DEFAULT_DIRECTORY = os.path.join('..', '..', '..', '..', 'test-reports')
 

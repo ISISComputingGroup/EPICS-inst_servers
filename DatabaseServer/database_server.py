@@ -1,4 +1,8 @@
-from __future__ import print_function, absolute_import, division, unicode_literals
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import argparse
+import json
+
 # This file is part of the ISIS IBEX application.
 # Copyright (C) 2012-2016 Science & Technology Facilities Council.
 # All rights reserved.
@@ -14,38 +18,39 @@ from __future__ import print_function, absolute_import, division, unicode_litera
 # along with this program; if not, you can obtain a copy from
 # https://www.eclipse.org/org/documents/epl-v10.php or
 # http://opensource.org/licenses/eclipse-1.0.php
-
 # Add root path for access to server_commons
 import os
-import traceback
-
 import sys
-import json
-import argparse
-
+import traceback
 from functools import partial
-from pcaspy import Driver
+from threading import RLock, Thread
 from time import sleep
-from threading import Thread, RLock
+
+from pcaspy import Driver
 
 sys.path.insert(0, os.path.abspath(os.environ["MYDIRBLOCK"]))
 
+from genie_python.mysql_abstraction_layer import SQLAbstraction
+
 from DatabaseServer.exp_data import ExpData, ExpDataSource
-from DatabaseServer.procserv_utils import ProcServWrapper
+from DatabaseServer.moxa_data import MoxaData, MoxaDataSource
 from DatabaseServer.options_holder import OptionsHolder
 from DatabaseServer.options_loader import OptionsLoader
-from DatabaseServer.moxa_data import MoxaData, MoxaDataSource
-
-from genie_python.mysql_abstraction_layer import SQLAbstraction
-from server_common.utilities import compress_and_hex, print_and_log, set_logger, convert_to_json, \
-    dehex_and_decompress, char_waveform
+from DatabaseServer.procserv_utils import ProcServWrapper
 from server_common.channel_access_server import CAServer
 from server_common.constants import IOCS_NOT_TO_STOP
 from server_common.ioc_data import IOCData
 from server_common.ioc_data_source import IocDataSource
-from server_common.pv_names import DatabasePVNames as DbPVNames
 from server_common.loggers.isis_logger import IsisLogger
-
+from server_common.pv_names import DatabasePVNames as DbPVNames
+from server_common.utilities import (
+    char_waveform,
+    compress_and_hex,
+    convert_to_json,
+    dehex_and_decompress,
+    print_and_log,
+    set_logger,
+)
 
 set_logger(IsisLogger())
 
@@ -397,6 +402,6 @@ if __name__ == '__main__':
     while True:
         try:
             SERVER.process(0.1)
-        except Exception as err:
+        except Exception:
             print_and_log(traceback.format_exc(), MAJOR_MSG)
             break

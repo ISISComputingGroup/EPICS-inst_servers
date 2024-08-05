@@ -17,16 +17,16 @@ import os
 
 # Set MYPVPREFIX env var
 from hamcrest import *
-from mock import patch, mock_open
+from mock import mock_open, patch
 
 from ArchiverAccess.test_modules.stubs import FileStub
 from BlockServer.config.block import Block
 
 os.environ['MYPVPREFIX'] = ""
 
-from BlockServer.epics.archiver_manager import ArchiverManager
 import unittest
 
+from BlockServer.epics.archiver_manager import ArchiverManager
 
 HEADER_XML= """<?xml version="1.0" ?>
 <engineconfig>

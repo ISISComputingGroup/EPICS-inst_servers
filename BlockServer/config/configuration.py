@@ -18,8 +18,8 @@
 from collections import OrderedDict
 from typing import Dict
 
-from BlockServer.config.group import Group
 from BlockServer.config.block import Block
+from BlockServer.config.group import Group
 from BlockServer.config.ioc import IOC
 from BlockServer.config.metadata import MetaData
 from BlockServer.core.constants import GRP_NONE

@@ -14,10 +14,10 @@
 # https://www.eclipse.org/org/documents/epl-v10.php or
 # http://opensource.org/licenses/eclipse-1.0.php
 
-import unittest
-from mock import Mock
-from ConfigVersionControl.git_version_control import GitVersionControl, SYSTEM_TEST_PREFIX
 import socket
+import unittest
+
+from ConfigVersionControl.git_version_control import GitVersionControl
 
 
 class TestVersionControl(unittest.TestCase):

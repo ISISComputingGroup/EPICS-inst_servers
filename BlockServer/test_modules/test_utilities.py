@@ -1,8 +1,11 @@
 import binascii
 import unittest
-from hamcrest import *
-from server_common.utilities import compress_and_hex
 import zlib
+
+from hamcrest import *
+
+from server_common.utilities import compress_and_hex
+
 
 class TestUtilities(unittest.TestCase):
 

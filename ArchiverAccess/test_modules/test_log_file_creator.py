@@ -19,10 +19,16 @@ from unittest import TestCase, skipIf
 
 from hamcrest import *
 
-from ArchiverAccess.archive_data_file_creator import ArchiveDataFileCreator, FORMATTER_NOT_APPLIED_MESSAGE, \
-    DataFileCreationError
+from ArchiverAccess.archive_access_configuration import (
+    TIME_DATE_COLUMN_HEADING,
+    ArchiveAccessConfigBuilder,
+)
+from ArchiverAccess.archive_data_file_creator import (
+    FORMATTER_NOT_APPLIED_MESSAGE,
+    ArchiveDataFileCreator,
+    DataFileCreationError,
+)
 from ArchiverAccess.archive_time_period import ArchiveTimePeriod
-from ArchiverAccess.archive_access_configuration import ArchiveAccessConfigBuilder, TIME_DATE_COLUMN_HEADING
 from ArchiverAccess.test_modules.stubs import ArchiverDataStub, FileStub
 from server_common.constants import IS_LINUX
 

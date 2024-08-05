@@ -14,7 +14,7 @@
 # https://www.eclipse.org/org/documents/epl-v10.php or
 # http://opensource.org/licenses/eclipse-1.0.php
 from server_common.channel_access import ChannelAccess
-from server_common.utilities import print_and_log, ioc_restart_pending, retry
+from server_common.utilities import ioc_restart_pending, print_and_log, retry
 
 
 class ProcServWrapper:

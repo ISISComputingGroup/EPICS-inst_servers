@@ -1,16 +1,16 @@
-from __future__ import print_function, unicode_literals, division, absolute_import
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 import json
 import os
 import types
 from queue import Queue
-
-from typing import List, Dict, Any, Type, Set, Iterable
+from typing import Any, Dict, Iterable, List, Set, Type
 
 from BlockServer.core.config_list_manager import ConfigListManager
 from BlockServer.core.macros import MACROS, PVPREFIX_MACRO
-from server_common.utilities import print_and_log as _common_print_and_log, SEVERITY
 from server_common.channel_access import ChannelAccess
+from server_common.utilities import SEVERITY
+from server_common.utilities import print_and_log as _common_print_and_log
 
 
 def print_and_log(message: str, *args, **kwargs):

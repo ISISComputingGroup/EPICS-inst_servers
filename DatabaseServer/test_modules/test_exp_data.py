@@ -1,4 +1,7 @@
-from __future__ import print_function, absolute_import, division, unicode_literals
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import json
+
 # This file is part of the ISIS IBEX application.
 # Copyright (C) 2012-2016 Science & Technology Facilities Council.
 # All rights reserved.
@@ -16,10 +19,10 @@ from __future__ import print_function, absolute_import, division, unicode_litera
 # http://opensource.org/licenses/eclipse-1.0.php
 import typing
 import unittest
-import json
+
+from DatabaseServer.exp_data import ExpData
 from server_common.mocks.mock_ca import MockChannelAccess
 from server_common.utilities import dehex_and_decompress
-from DatabaseServer.exp_data import ExpData
 
 
 class MockExpDataSource(object):

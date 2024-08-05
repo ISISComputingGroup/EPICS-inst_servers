@@ -13,9 +13,9 @@
 # along with this program; if not, you can obtain a copy from
 # https://www.eclipse.org/org/documents/epl-v10.php or
 # http://opensource.org/licenses/eclipse-1.0.php
-import unittest
 import json
 import os
+import unittest
 
 import mock.mock
 from mock import Mock
@@ -24,14 +24,17 @@ from parameterized import parameterized
 from BlockServer.config.block import Block
 from BlockServer.config.configuration import Configuration
 from BlockServer.config.ioc import IOC
-from BlockServer.core.active_config_holder import (ActiveConfigHolder, _blocks_changed, _blocks_changed_in_config,
-                                                   _compare_ioc_properties)
-from BlockServer.mocks.mock_ioc_control import MockIocControl
+from BlockServer.core.active_config_holder import (
+    ActiveConfigHolder,
+    _blocks_changed,
+    _blocks_changed_in_config,
+    _compare_ioc_properties,
+)
 from BlockServer.core.macros import MACROS
 from BlockServer.mocks.mock_file_manager import MockConfigurationFileManager
+from BlockServer.mocks.mock_ioc_control import MockIocControl
 from BlockServer.test_modules.helpers import modify_active
 from server_common.constants import IS_LINUX
-
 
 CONFIG_PATH = "./test_configs/"
 BASE_PATH = "./example_base/"

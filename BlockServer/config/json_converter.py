@@ -16,7 +16,8 @@
 
 import json
 from collections import OrderedDict
-from typing import List, Any, Dict
+from typing import Any, Dict, List
+
 from BlockServer.core.constants import GRP_NONE
 
 

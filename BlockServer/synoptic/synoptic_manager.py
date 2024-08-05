@@ -15,21 +15,26 @@
 # http://opensource.org/licenses/eclipse-1.0.php
 
 import os
-from typing import List, TYPE_CHECKING
+from typing import TYPE_CHECKING, List
 
 if TYPE_CHECKING:
     from block_server import BlockServer
+from lxml import etree
+
 from BlockServer.core.active_config_holder import ActiveConfigHolder
 from BlockServer.core.config_list_manager import InvalidDeleteException
 from BlockServer.core.file_path_manager import FILEPATH_MANAGER
 from BlockServer.core.on_the_fly_pv_interface import OnTheFlyPvInterface
 from BlockServer.fileIO.schema_checker import ConfigurationSchemaChecker
-from lxml import etree
-from server_common.common_exceptions import MaxAttemptsExceededException
-from server_common.utilities import print_and_log, compress_and_hex, create_pv_name, \
-    convert_to_json, convert_from_json
 from BlockServer.synoptic.synoptic_file_io import SynopticFileIO
-
+from server_common.common_exceptions import MaxAttemptsExceededException
+from server_common.utilities import (
+    compress_and_hex,
+    convert_from_json,
+    convert_to_json,
+    create_pv_name,
+    print_and_log,
+)
 
 # Synoptics PVs are of the form IN:DEMO:SYNOPTICS:XXXXX (no BLOCKSERVER in the name)
 # This is to allow longer synoptic names without exceeded the maximum allowed length for PVs

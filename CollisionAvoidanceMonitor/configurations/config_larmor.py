@@ -1,6 +1,7 @@
-from math import radians
-from CollisionAvoidanceMonitor.transform import Transformation
 import os
+from math import radians
+
+from CollisionAvoidanceMonitor.transform import Transformation
 
 # Config happens here:
 

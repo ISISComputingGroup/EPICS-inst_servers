@@ -1,4 +1,5 @@
-from __future__ import print_function, absolute_import, division, unicode_literals
+from __future__ import absolute_import, division, print_function, unicode_literals
+
 # This file is part of the ISIS IBEX application.
 # Copyright (C) 2012-2017 Science & Technology Facilities Council.
 # All rights reserved.
@@ -20,6 +21,7 @@ Module for reading data from the ioc database.
 """
 
 from threading import RLock
+
 from server_common.utilities import print_and_log
 
 

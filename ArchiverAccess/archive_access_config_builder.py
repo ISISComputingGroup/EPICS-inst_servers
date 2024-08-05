@@ -19,7 +19,7 @@ Module for taking the configuration from the ioc data source and creating a conf
 import os
 
 from ArchiverAccess.archive_access_configuration import ArchiveAccessConfigBuilder
-from server_common.utilities import print_and_log, SEVERITY
+from server_common.utilities import SEVERITY, print_and_log
 
 HEADER_ANNOTATION_PREFIX = "log_header"
 """The annotation prefix for a header line, the end is the header line number"""

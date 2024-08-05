@@ -17,8 +17,12 @@
 import os
 import shutil
 
-from ConfigVersionControl.version_control_exceptions import AddToVersionControlException, \
-    CommitToVersionControlException, RemoveFromVersionControlException, UpdateFromVersionControlException
+from ConfigVersionControl.version_control_exceptions import (
+    AddToVersionControlException,
+    CommitToVersionControlException,
+    RemoveFromVersionControlException,
+    UpdateFromVersionControlException,
+)
 
 
 class MockVersionControl:

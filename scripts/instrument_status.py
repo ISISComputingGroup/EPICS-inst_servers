@@ -13,9 +13,10 @@
 #along with this program; if not, you can obtain a copy from
 #https://www.eclipse.org/org/documents/epl-v10.php or 
 #http://opensource.org/licenses/eclipse-1.0.php
-import zlib
-import sys
 import os
+import sys
+import zlib
+
 try:
     from server_common.channel_access import ChannelAccess as ca
 except ImportError:
@@ -45,7 +46,7 @@ class InstrumentStatus(object):
 
         # If we're not in an EPICS terminal, add the address list to the set of environment keys
         epics_ca_addr_list = "EPICS_CA_ADDR_LIST"
-        if not epics_ca_addr_list in os.environ.keys():
+        if epics_ca_addr_list not in os.environ.keys():
             os.environ[epics_ca_addr_list] = "127.255.255.255 130.246.51.255"
         LOG.info(epics_ca_addr_list + " = " + str(os.environ.get(epics_ca_addr_list)))
 

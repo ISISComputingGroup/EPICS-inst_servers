@@ -1,4 +1,5 @@
-from __future__ import print_function, absolute_import, division, unicode_literals
+from __future__ import absolute_import, division, print_function, unicode_literals
+
 # This file is part of the ISIS IBEX application.
 # Copyright (C) 2012-2016 Science & Technology Facilities Council.
 # All rights reserved.
@@ -45,7 +46,7 @@ class MockProcServWrapper(object):
         self.ps_status[ioc.lower()] = "RUNNING"
 
     def get_ioc_status(self, prefix, ioc):
-        if not ioc.lower() in self.ps_status.keys():
+        if ioc.lower() not in self.ps_status.keys():
             raise Exception("Could not find IOC (%s)" % self.generate_prefix(prefix, ioc))
         else:
             return self.ps_status[ioc.lower()]

@@ -15,9 +15,10 @@
 # http://opensource.org/licenses/eclipse-1.0.php
 import os
 from unittest import TestCase
+
 from hamcrest import *
 
-from ArchiverAccess.archive_access_configuration import ArchiveAccessConfigBuilder, DEFAULT_LOG_PATH
+from ArchiverAccess.archive_access_configuration import DEFAULT_LOG_PATH, ArchiveAccessConfigBuilder
 
 
 class TestConfiguration(TestCase):

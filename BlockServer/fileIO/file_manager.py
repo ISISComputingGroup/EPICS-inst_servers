@@ -13,21 +13,33 @@
 # along with this program; if not, you can obtain a copy from
 # https://www.eclipse.org/org/documents/epl-v10.php or
 # http://opensource.org/licenses/eclipse-1.0.php
-import re
 import os
+import re
 import shutil
 from collections import OrderedDict
 from xml.etree import ElementTree
+
+from BlockServer.config.configuration import Configuration, MetaData
 from BlockServer.config.group import Group
 from BlockServer.config.xml_converter import ConfigurationXmlConverter
-from BlockServer.config.configuration import Configuration, MetaData
-from BlockServer.core.constants import FILENAME_BLOCKS, FILENAME_GROUPS, FILENAME_IOCS, FILENAME_COMPONENTS, \
-    FILENAME_META, FILENAME_BANNER
-from BlockServer.core.constants import GRP_NONE, DEFAULT_COMPONENT, EXAMPLE_DEFAULT
+from BlockServer.core.constants import (
+    DEFAULT_COMPONENT,
+    EXAMPLE_DEFAULT,
+    FILENAME_BANNER,
+    FILENAME_BLOCKS,
+    FILENAME_COMPONENTS,
+    FILENAME_GROUPS,
+    FILENAME_IOCS,
+    FILENAME_META,
+    GRP_NONE,
+)
 from BlockServer.core.file_path_manager import FILEPATH_MANAGER
-from BlockServer.fileIO.schema_checker import ConfigurationSchemaChecker, ConfigurationIncompleteException
-from server_common.utilities import print_and_log, retry
+from BlockServer.fileIO.schema_checker import (
+    ConfigurationIncompleteException,
+    ConfigurationSchemaChecker,
+)
 from server_common.common_exceptions import MaxAttemptsExceededException
+from server_common.utilities import print_and_log, retry
 
 RETRY_MAX_ATTEMPTS = 20
 RETRY_INTERVAL = 0.5

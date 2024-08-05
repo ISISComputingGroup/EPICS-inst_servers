@@ -1,5 +1,6 @@
-from CollisionAvoidanceMonitor.transform import Transformation
 import os
+
+from CollisionAvoidanceMonitor.transform import Transformation
 
 # Config happens here:
 
