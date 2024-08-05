@@ -37,5 +37,3 @@ class MockActiveConfigHolder:
 
     def add_block(self, blockargs):
         self.config.add_block(**blockargs)
-
-

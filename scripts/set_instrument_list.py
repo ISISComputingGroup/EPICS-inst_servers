@@ -22,7 +22,9 @@ try:
     from server_common.channel_access import ChannelAccess as ca
     from server_common.utilities import compress_and_hex, dehex_and_decompress
 except ImportError:
-    sys.path.append(os.path.join(os.path.dirname(sys.path[0])))  # to allow server common from dir below
+    sys.path.append(
+        os.path.join(os.path.dirname(sys.path[0]))
+    )  # to allow server common from dir below
     from server_common.channel_access import ChannelAccess as ca
     from server_common.utilities import compress_and_hex, dehex_and_decompress
 
@@ -36,7 +38,15 @@ def set_env():
     print(epics_ca_addr_list + " = " + str(os.environ.get(epics_ca_addr_list)))
 
 
-def inst_dictionary(instrument_name, hostname_prefix="NDX", hostname=None, pv_prefix=None, is_scheduled=True, groups=None, seci=False):
+def inst_dictionary(
+    instrument_name,
+    hostname_prefix="NDX",
+    hostname=None,
+    pv_prefix=None,
+    is_scheduled=True,
+    groups=None,
+    seci=False,
+):
     """
     Generate the instrument dictionary for the instrument list
     Args:
@@ -58,7 +68,7 @@ def inst_dictionary(instrument_name, hostname_prefix="NDX", hostname=None, pv_pr
         pv_prefix_to_use = pv_prefix
     else:
         pv_prefix_to_use = "IN:{0}:".format(instrument_name)
-        
+
     if groups is None:
         groups_to_use = []
     else:
@@ -69,14 +79,14 @@ def inst_dictionary(instrument_name, hostname_prefix="NDX", hostname=None, pv_pr
     else:
         seci_to_use = False
 
-        
-    return {"name": instrument_name,
-            "hostName": hostname_to_use,
-            "pvPrefix": pv_prefix_to_use,
-            "isScheduled": is_scheduled,
-            "groups": groups_to_use,
-            "seci": seci_to_use
-            }
+    return {
+        "name": instrument_name,
+        "hostName": hostname_to_use,
+        "pvPrefix": pv_prefix_to_use,
+        "isScheduled": is_scheduled,
+        "groups": groups_to_use,
+        "seci": seci_to_use,
+    }
 
 
 def set_instlist(instruments_list, pv_address):
@@ -108,7 +118,9 @@ if __name__ == "__main__":
         inst_dictionary("CHRONUS", groups=["MUONS"]),
         inst_dictionary("HIFI", seci=True),
         inst_dictionary("CHIPIR", seci=True),
-        inst_dictionary("CRYOLAB_R80", groups=["SUPPORT"], pv_prefix="IN:CRYOLA7E:", is_scheduled=False),
+        inst_dictionary(
+            "CRYOLAB_R80", groups=["SUPPORT"], pv_prefix="IN:CRYOLA7E:", is_scheduled=False
+        ),
         inst_dictionary("DCLAB", groups=["SUPPORT"], is_scheduled=False),
         inst_dictionary("LARMOR", groups=["SANS"]),
         inst_dictionary("ALF", groups=["EXCITATIONS"]),
@@ -117,9 +129,15 @@ if __name__ == "__main__":
         inst_dictionary("MUONFE", groups=["MUONS"], is_scheduled=False),
         inst_dictionary("ZOOM", groups=["SANS"]),
         inst_dictionary("IRIS", groups=["MOLSPEC"]),
-        inst_dictionary("IRIS_SETUP", groups=["MOLSPEC"], pv_prefix="IN:IRIS_S29:", is_scheduled=False),
-        inst_dictionary("ENGINX_SETUP", groups=["ENGINEERING"], pv_prefix="IN:ENGINX49:", is_scheduled=False),
-        inst_dictionary("HRPD_SETUP", groups=["CRYSTALLOGRAPHY"], pv_prefix="IN:HRPD_S3D:", is_scheduled=False),
+        inst_dictionary(
+            "IRIS_SETUP", groups=["MOLSPEC"], pv_prefix="IN:IRIS_S29:", is_scheduled=False
+        ),
+        inst_dictionary(
+            "ENGINX_SETUP", groups=["ENGINEERING"], pv_prefix="IN:ENGINX49:", is_scheduled=False
+        ),
+        inst_dictionary(
+            "HRPD_SETUP", groups=["CRYSTALLOGRAPHY"], pv_prefix="IN:HRPD_S3D:", is_scheduled=False
+        ),
         inst_dictionary("HRPD", groups=["CRYSTALLOGRAPHY"]),
         inst_dictionary("POLARIS", groups=["CRYSTALLOGRAPHY"]),
         inst_dictionary("VESUVIO", groups=["MOLSPEC"]),
@@ -142,24 +160,38 @@ if __name__ == "__main__":
         inst_dictionary("SOFTMAT", groups=["SUPPORT"], is_scheduled=False),
         inst_dictionary("SURF", groups=["REFLECTOMETRY"]),
         inst_dictionary("NIMROD", groups=["DISORDERED"]),
-        inst_dictionary("DETMON", groups=["SUPPORT"], hostname_prefix="NDA", is_scheduled=False, pv_prefix="TE:NDADETF1:"),
+        inst_dictionary(
+            "DETMON",
+            groups=["SUPPORT"],
+            hostname_prefix="NDA",
+            is_scheduled=False,
+            pv_prefix="TE:NDADETF1:",
+        ),
         inst_dictionary("EMU", groups=["MUONS"]),
         inst_dictionary("INTER", groups=["REFLECTOMETRY"]),
         inst_dictionary("POLREF", groups=["REFLECTOMETRY"]),
         inst_dictionary("SANS2D", groups=["SANS"]),
         inst_dictionary("MUSR", groups=["MUONS"]),
         inst_dictionary("WISH", groups=["CRYSTALLOGRAPHY"]),
-        inst_dictionary("WISH_SETUP", groups=["CRYSTALLOGRAPHY"], pv_prefix="IN:WISH_S9C:", is_scheduled=False),
+        inst_dictionary(
+            "WISH_SETUP", groups=["CRYSTALLOGRAPHY"], pv_prefix="IN:WISH_S9C:", is_scheduled=False
+        ),
         inst_dictionary("PEARL", groups=["CRYSTALLOGRAPHY"]),
-        inst_dictionary("PEARL_SETUP", groups=["CRYSTALLOGRAPHY"], pv_prefix="IN:PEARL_5B:", is_scheduled=False),
-        inst_dictionary("HIFI-CRYOMAG", groups=["MUONS"], pv_prefix="IN:HIFI-C11:", is_scheduled=False),
+        inst_dictionary(
+            "PEARL_SETUP", groups=["CRYSTALLOGRAPHY"], pv_prefix="IN:PEARL_5B:", is_scheduled=False
+        ),
+        inst_dictionary(
+            "HIFI-CRYOMAG", groups=["MUONS"], pv_prefix="IN:HIFI-C11:", is_scheduled=False
+        ),
         inst_dictionary("OFFSPEC", groups=["REFLECTOMETRY"]),
         inst_dictionary("MOTION", groups=["SUPPORT"], is_scheduled=False),
         inst_dictionary("SCIDEMO", groups=["SUPPORT"], is_scheduled=False),
-        inst_dictionary("IBEXGUITEST", groups=["SUPPORT"], pv_prefix="IN:IBEXGUAD:", is_scheduled=False),
+        inst_dictionary(
+            "IBEXGUITEST", groups=["SUPPORT"], pv_prefix="IN:IBEXGUAD:", is_scheduled=False
+        ),
     ]
 
-    set_instlist(instruments_list, pv_address) 
+    set_instlist(instruments_list, pv_address)
 
     ## set group based PVs
     groups = set()
@@ -168,5 +200,5 @@ if __name__ == "__main__":
 
     for g in sorted(groups):
         pv_address = f"CS:INSTLIST:{g}"
-        inst_list = [ x for x in instruments_list if g in x["groups"] ] 
+        inst_list = [x for x in instruments_list if g in x["groups"]]
         set_instlist(inst_list, pv_address)

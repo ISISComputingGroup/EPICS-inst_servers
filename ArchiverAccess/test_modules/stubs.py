@@ -2,13 +2,15 @@ from ArchiverAccess.archiver_data_source import ArchiverDataSource
 
 
 class ArchiverDataStub(ArchiverDataSource):
-    def __init__(self,
-                 initial_values=None,
-                 values=None,
-                 initial_archiver_data_value=None,
-                 data_changes=None,
-                 sample_times=None,
-                 sample_ids=None):
+    def __init__(
+        self,
+        initial_values=None,
+        values=None,
+        initial_archiver_data_value=None,
+        data_changes=None,
+        sample_times=None,
+        sample_ids=None,
+    ):
         """
 
         Args:
@@ -58,7 +60,9 @@ class ArchiverDataStub(ArchiverDataSource):
     def get_latest_sample_time(self, sample_id=123, time=None):
         self.from_sample_id.append(sample_id)
         self._sample_time_index += 1
-        return self._sample_times[self._sample_time_index - 1], self._sample_ids[self._sample_time_index - 1]
+        return self._sample_times[self._sample_time_index - 1], self._sample_ids[
+            self._sample_time_index - 1
+        ]
 
     def logging_changes_for_sample_id_generator(self, pv_names, from_sample_time, to_sample_time):
         self.from_sample_time.append(from_sample_time)
@@ -118,6 +122,9 @@ class FileStub(object):
 
     @classmethod
     def contents_of_only_file(cls):
-        assert len(FileStub.file_contents) == 1, \
-            "Number of files created is not 1. Filenames are {0}".format(FileStub.file_contents.keys())
+        assert (
+            len(FileStub.file_contents) == 1
+        ), "Number of files created is not 1. Filenames are {0}".format(
+            FileStub.file_contents.keys()
+        )
         return next(iter(FileStub.file_contents.values()))  # get the one and only value

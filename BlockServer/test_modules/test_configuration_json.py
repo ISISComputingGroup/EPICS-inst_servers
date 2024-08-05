@@ -22,9 +22,10 @@ from BlockServer.config.group import Group
 from BlockServer.config.json_converter import ConfigurationJsonConverter
 from BlockServer.core.constants import GRP_NONE
 
-GROUPS_JSON = \
-    '[{"name":"TESTGROUP1","blocks":["TESTBLOCK1","TESTBLOCK2"]},' \
+GROUPS_JSON = (
+    '[{"name":"TESTGROUP1","blocks":["TESTBLOCK1","TESTBLOCK2"]},'
     '{"name":"TESTGROUP2","blocks":["TESTBLOCK3","TESTBLOCK4"]}]'
+)
 
 
 class TestConfigurationJsonConverterSequence(unittest.TestCase):
@@ -55,18 +56,18 @@ class TestConfigurationJsonConverterSequence(unittest.TestCase):
 
         # Assert
         self.assertEqual(len(returned), 4)
-        self.assertEqual(returned[0]['name'], "TESTGROUP1")
-        self.assertEqual(returned[1]['name'], "TESTGROUP2")
-        self.assertEqual(returned[2]['name'], "TESTGROUP3")
-        self.assertEqual(returned[3]['name'], GRP_NONE)
-        self.assertTrue("TESTGROUP1BLOCK1" in returned[0]['blocks'])
-        self.assertTrue("TESTGROUP1BLOCK2" in returned[0]['blocks'])
-        self.assertTrue("TESTGROUP2BLOCK1" in returned[1]['blocks'])
-        self.assertTrue("TESTGROUP2BLOCK2" in returned[1]['blocks'])
-        self.assertTrue("TESTGROUP3BLOCK1" in returned[2]['blocks'])
-        self.assertTrue("TESTGROUP3BLOCK2" in returned[2]['blocks'])
-        self.assertTrue("TESTGROUPNONEBLOCK1" in returned[3]['blocks'])
-        self.assertTrue("TESTGROUPNONEBLOCK2" in returned[3]['blocks'])
+        self.assertEqual(returned[0]["name"], "TESTGROUP1")
+        self.assertEqual(returned[1]["name"], "TESTGROUP2")
+        self.assertEqual(returned[2]["name"], "TESTGROUP3")
+        self.assertEqual(returned[3]["name"], GRP_NONE)
+        self.assertTrue("TESTGROUP1BLOCK1" in returned[0]["blocks"])
+        self.assertTrue("TESTGROUP1BLOCK2" in returned[0]["blocks"])
+        self.assertTrue("TESTGROUP2BLOCK1" in returned[1]["blocks"])
+        self.assertTrue("TESTGROUP2BLOCK2" in returned[1]["blocks"])
+        self.assertTrue("TESTGROUP3BLOCK1" in returned[2]["blocks"])
+        self.assertTrue("TESTGROUP3BLOCK2" in returned[2]["blocks"])
+        self.assertTrue("TESTGROUPNONEBLOCK1" in returned[3]["blocks"])
+        self.assertTrue("TESTGROUPNONEBLOCK2" in returned[3]["blocks"])
         self.assertIsNone(returned[0]["component"])
         self.assertIsNone(returned[1]["component"])
         self.assertEqual(returned[2]["component"], "TESTCOMPONENT1")

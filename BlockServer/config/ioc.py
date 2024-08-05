@@ -19,7 +19,7 @@ from typing import Any, Dict, List, Union
 
 
 class IOC:
-    """ Represents an IOC.
+    """Represents an IOC.
 
     Attributes:
         name (string): The name of the IOC
@@ -31,9 +31,20 @@ class IOC:
         pvsets (dict): The IOC's PV sets
         simlevel (string): The level of simulation
     """
-    def __init__(self, name: str, autostart: bool = True, restart: bool = True, component: str = None, macros: Dict =
-                 None, pvs: Dict = None, pvsets: Dict = None, simlevel: str = None, remotePvPrefix: str = None):
-        """ Constructor.
+
+    def __init__(
+        self,
+        name: str,
+        autostart: bool = True,
+        restart: bool = True,
+        component: str = None,
+        macros: Dict = None,
+        pvs: Dict = None,
+        pvsets: Dict = None,
+        simlevel: str = None,
+        remotePvPrefix: str = None,
+    ):
+        """Constructor.
 
         Args:
             name: The name of the IOC
@@ -75,7 +86,7 @@ class IOC:
 
     @staticmethod
     def _dict_to_list(in_dict: Dict[str, Any]) -> List[Any]:
-        """ Converts into a format better for the GUI to parse, namely a list.
+        """Converts into a format better for the GUI to parse, namely a list.
 
         It's messy but it's what the GUI wants.
 
@@ -89,7 +100,7 @@ class IOC:
         for k, v in in_dict.items():
             # Take a copy as we do not want to modify the original
             c = copy.deepcopy(v)
-            c['name'] = k
+            c["name"] = k
             out_list.append(c)
         return out_list
 
@@ -97,21 +108,21 @@ class IOC:
         return f"{self.__class__.__name__}(name={self.name}, component={self.component})"
 
     def to_dict(self) -> Dict[str, Union[str, bool, List[Any]]]:
-        """ Puts the IOC's details into a dictionary.
+        """Puts the IOC's details into a dictionary.
 
         Returns:
             The IOC's details
         """
         return {
-            'name': self.name,
-            'autostart': self.autostart,
-            'restart': self.restart,
-            'simlevel': self.simlevel,
-            'pvs': self._dict_to_list(self.pvs),
-            'pvsets': self._dict_to_list(self.pvsets),
-            'macros': self._dict_to_list(self.macros),
-            'component': self.component,
-            'remotePvPrefix': self.remotePvPrefix,
+            "name": self.name,
+            "autostart": self.autostart,
+            "restart": self.restart,
+            "simlevel": self.simlevel,
+            "pvs": self._dict_to_list(self.pvs),
+            "pvsets": self._dict_to_list(self.pvsets),
+            "macros": self._dict_to_list(self.macros),
+            "component": self.component,
+            "remotePvPrefix": self.remotePvPrefix,
         }
 
     def get(self, name):

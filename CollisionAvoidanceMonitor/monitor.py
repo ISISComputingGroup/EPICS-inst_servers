@@ -8,7 +8,6 @@ from server_common.utilities import print_and_log
 
 
 class Monitor(object):
-
     def __init__(self, pv):
         self.pv = pv
         self.val = None
@@ -30,17 +29,14 @@ class Monitor(object):
 
         # Create the CA monitor callback
         self.channel.add_masked_array_event(
-            ca.dbf_type_to_DBR_STS(self.channel.field_type()),
-            None,
-            ca.DBE_VALUE,
-            self.update,
-            None)
+            ca.dbf_type_to_DBR_STS(self.channel.field_type()), None, ca.DBE_VALUE, self.update, None
+        )
         self.channel.pend_event()
         self.running = True
 
     def update(self, epics_args, user_args):
         with self.lock:
-            self.val = epics_args['pv_value']
+            self.val = epics_args["pv_value"]
             self.stale = False
 
     def value(self):
@@ -69,7 +65,7 @@ class MonitorQueue(Monitor):
         Monitor.__init__(self, pv)
 
     def update(self, epics_args, user_args):
-        value = epics_args['pv_value']
+        value = epics_args["pv_value"]
         if value == self.last():
             # Duplicate value
             pass

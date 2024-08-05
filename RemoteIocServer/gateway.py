@@ -19,7 +19,13 @@ class GateWay(object):
     Class representing the EPICS remote IOC gateway.
     """
 
-    def __init__(self, gateway_pvlist_file_path, gateway_acf_path, gateway_restart_script_path, local_pv_prefix):
+    def __init__(
+        self,
+        gateway_pvlist_file_path,
+        gateway_acf_path,
+        gateway_restart_script_path,
+        local_pv_prefix,
+    ):
         self._remote_pv_prefix = None
         self._ioc_names = []
         self._local_pv_prefix = local_pv_prefix
@@ -36,7 +42,11 @@ class GateWay(object):
         Args:
             remote_pv_prefix: the prefix of the remote machine to observe (e.g. IN:DEMO: )
         """
-        print_and_log("Gateway: instrument changed from {} to {}".format(self._remote_pv_prefix, remote_pv_prefix))
+        print_and_log(
+            "Gateway: instrument changed from {} to {}".format(
+                self._remote_pv_prefix, remote_pv_prefix
+            )
+        )
         self._remote_pv_prefix = remote_pv_prefix
         self._reapply_gateway_settings()
 
@@ -47,7 +57,9 @@ class GateWay(object):
         Args:
             iocs: the new list of IOC names to observe
         """
-        print_and_log("Gateway: ioc list changed from {} to {}".format(str(self._ioc_names), str(iocs)))
+        print_and_log(
+            "Gateway: ioc list changed from {} to {}".format(str(self._ioc_names), str(iocs))
+        )
         self._ioc_names = iocs
         self._reapply_gateway_settings()
 
@@ -57,7 +69,11 @@ class GateWay(object):
 
     def _recreate_gateway_config_files(self):
         with GATEWAY_FILESYSTEM_WRITE_LOCK:
-            print_and_log("Gateway: rewriting gateway configuration file at '{}'".format(self._gateway_pvlist_file_path))
+            print_and_log(
+                "Gateway: rewriting gateway configuration file at '{}'".format(
+                    self._gateway_pvlist_file_path
+                )
+            )
 
             if not os.path.exists(os.path.dirname(self._gateway_pvlist_file_path)):
                 os.makedirs(os.path.dirname(self._gateway_pvlist_file_path))
@@ -74,16 +90,29 @@ class GateWay(object):
         lines = []
         if self._remote_pv_prefix is not None:
             for ioc in self._ioc_names:
-                lines.append(r'{remote_prefix}{ioc}:\(.*\)    ALIAS    {local_prefix}{ioc}:\1'
-                             .format(remote_prefix=self._remote_pv_prefix, local_prefix=self._local_pv_prefix, ioc=ioc))
-                lines.append(r'{remote_prefix}CS:IOC:{ioc}:\(.*\)    ALIAS    {local_prefix}CS:IOC:{ioc}:\1'
-                             .format(remote_prefix=self._remote_pv_prefix, local_prefix=self._local_pv_prefix, ioc=ioc))
+                lines.append(
+                    r"{remote_prefix}{ioc}:\(.*\)    ALIAS    {local_prefix}{ioc}:\1".format(
+                        remote_prefix=self._remote_pv_prefix,
+                        local_prefix=self._local_pv_prefix,
+                        ioc=ioc,
+                    )
+                )
+                lines.append(
+                    r"{remote_prefix}CS:IOC:{ioc}:\(.*\)    ALIAS    {local_prefix}CS:IOC:{ioc}:\1".format(
+                        remote_prefix=self._remote_pv_prefix,
+                        local_prefix=self._local_pv_prefix,
+                        ioc=ioc,
+                    )
+                )
         return lines
 
     def _get_access_security_file_content(self):
         hostname = get_hostname_from_prefix(self._remote_pv_prefix)
-        return textwrap.dedent("""\
-            HAG(allowed_write) { localhost, 127.0.0.1, """ + hostname + """ }
+        return textwrap.dedent(
+            """\
+            HAG(allowed_write) { localhost, 127.0.0.1, """
+            + hostname
+            + """ }
             
             ASG(DEFAULT) {
                RULE(1, READ)
@@ -104,15 +133,24 @@ class GateWay(object):
             ASG(ANYBODY) {
                 RULE(1, READ)
             }
-            """ if hostname is not None else "")
+            """
+            if hostname is not None
+            else ""
+        )
 
     def _restart_gateway(self):
         with GATEWAY_RESTART_LOCK:
             print_and_log("Gateway: restarting")
             try:
                 with open(os.devnull, "w") as devnull:
-                    status = subprocess.call(self._gateway_restart_script_path, stdout=devnull, stderr=devnull)
+                    status = subprocess.call(
+                        self._gateway_restart_script_path, stdout=devnull, stderr=devnull
+                    )
                 print_and_log("Gateway: restart complete (exit code: {})".format(status))
             except subprocess.CalledProcessError:
-                print_and_log("Gateway: restart failed (path to script: {})".format(self._gateway_restart_script_path))
+                print_and_log(
+                    "Gateway: restart failed (path to script: {})".format(
+                        self._gateway_restart_script_path
+                    )
+                )
                 print_and_log(traceback.format_exc())

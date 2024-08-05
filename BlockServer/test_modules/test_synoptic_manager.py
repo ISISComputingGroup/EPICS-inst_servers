@@ -83,7 +83,7 @@ class TestSynopticManagerSequence(unittest.TestCase):
 
         # Assert
         self.assertTrue(len(s) > 0)
-        n = [x['name'] for x in s]
+        n = [x["name"] for x in s]
         self.assertEqual("-- NONE --", n[0])
         self.assertEqual(SYNOPTIC_1, n[1])
         self.assertEqual(SYNOPTIC_2, n[2])

@@ -55,9 +55,9 @@ from server_common.utilities import (
 set_logger(IsisLogger())
 
 MACROS = {
-    "$(MYPVPREFIX)": os.environ['MYPVPREFIX'],
-    "$(EPICS_KIT_ROOT)": os.environ['EPICS_KIT_ROOT'],
-    "$(ICPCONFIGROOT)": os.environ['ICPCONFIGROOT']
+    "$(MYPVPREFIX)": os.environ["MYPVPREFIX"],
+    "$(EPICS_KIT_ROOT)": os.environ["EPICS_KIT_ROOT"],
+    "$(ICPCONFIGROOT)": os.environ["ICPCONFIGROOT"],
 }
 
 LOG_TARGET = "DBSVR"
@@ -69,8 +69,17 @@ class DatabaseServer(Driver):
     """
     The class for handling all the static PV access and monitors etc.
     """
-    def __init__(self, ca_server: CAServer, ioc_data: IOCData, exp_data: ExpData, moxa_data: MoxaData, options_folder: str,
-                 blockserver_prefix: str, test_mode: bool = False):
+
+    def __init__(
+        self,
+        ca_server: CAServer,
+        ioc_data: IOCData,
+        exp_data: ExpData,
+        moxa_data: MoxaData,
+        options_folder: str,
+        blockserver_prefix: str,
+        test_mode: bool = False,
+    ):
         """
         Constructor.
 
@@ -110,7 +119,7 @@ class DatabaseServer(Driver):
         enhanced_info = DatabaseServer.generate_pv_info()
 
         def add_get_method(pv, get_function):
-            enhanced_info[pv]['get'] = get_function
+            enhanced_info[pv]["get"] = get_function
 
         add_get_method(DbPVNames.IOCS, self._get_iocs_info)
         add_get_method(DbPVNames.HIGH_INTEREST, partial(self._get_interesting_pvs, "HIGH"))
@@ -140,11 +149,25 @@ class DatabaseServer(Driver):
         pv_size_10k = 10000
         pv_info = {}
 
-        for pv in [DbPVNames.IOCS, DbPVNames.HIGH_INTEREST, DbPVNames.MEDIUM_INTEREST, DbPVNames.LOW_INTEREST,
-                   DbPVNames.FACILITY, DbPVNames.ACTIVE_PVS, DbPVNames.ALL_PVS, DbPVNames.IOCS_NOT_TO_STOP]:
+        for pv in [
+            DbPVNames.IOCS,
+            DbPVNames.HIGH_INTEREST,
+            DbPVNames.MEDIUM_INTEREST,
+            DbPVNames.LOW_INTEREST,
+            DbPVNames.FACILITY,
+            DbPVNames.ACTIVE_PVS,
+            DbPVNames.ALL_PVS,
+            DbPVNames.IOCS_NOT_TO_STOP,
+        ]:
             pv_info[pv] = char_waveform(pv_size_256k)
 
-        for pv in [DbPVNames.SAMPLE_PARS, DbPVNames.BEAMLINE_PARS, DbPVNames.USER_PARS, DbPVNames.MOXA_MAPPINGS, DbPVNames.NUM_MOXAS]:
+        for pv in [
+            DbPVNames.SAMPLE_PARS,
+            DbPVNames.BEAMLINE_PARS,
+            DbPVNames.USER_PARS,
+            DbPVNames.MOXA_MAPPINGS,
+            DbPVNames.NUM_MOXAS,
+        ]:
             pv_info[pv] = char_waveform(pv_size_10k)
 
         return pv_info
@@ -159,7 +182,7 @@ class DatabaseServer(Driver):
         Return:
             The data, compressed and hexed.
         """
-        data = self._pv_info[pv]['get']()
+        data = self._pv_info[pv]["get"]()
         data = compress_and_hex(str(json.dumps(data)))
         self._check_pv_capacity(pv, len(data), self._blockserver_prefix)
         return data
@@ -174,7 +197,11 @@ class DatabaseServer(Driver):
         Returns:
             A compressed and hexed JSON formatted string that gives the desired information based on reason.
         """
-        return self.get_data_for_pv(reason) if reason in self._pv_info.keys() else self.getParam(reason)
+        return (
+            self.get_data_for_pv(reason)
+            if reason in self._pv_info.keys()
+            else self.getParam(reason)
+        )
 
     def write(self, reason: str, value: str) -> bool:
         """
@@ -188,11 +215,13 @@ class DatabaseServer(Driver):
             True
         """
         try:
-            if reason == 'ED:RBNUMBER:SP':
+            if reason == "ED:RBNUMBER:SP":
                 self._ed.update_experiment_id(value)
-            elif reason == 'ED:USERNAME:SP':
-                self._ed.update_username(dehex_and_decompress(value.encode('utf-8')).decode('utf-8'))
-            elif reason == 'UPDATE_MM':
+            elif reason == "ED:USERNAME:SP":
+                self._ed.update_username(
+                    dehex_and_decompress(value.encode("utf-8")).decode("utf-8")
+                )
+            elif reason == "UPDATE_MM":
                 self._moxa_data.update_mappings()
         except Exception as e:
             value = compress_and_hex(convert_to_json("Error: " + str(e)))
@@ -208,8 +237,15 @@ class DatabaseServer(Driver):
         while True:
             if self._iocs is not None:
                 self._iocs.update_iocs_status()
-                for pv in [DbPVNames.IOCS, DbPVNames.HIGH_INTEREST, DbPVNames.MEDIUM_INTEREST, DbPVNames.FACILITY,
-                           DbPVNames.ACTIVE_PVS, DbPVNames.ALL_PVS, DbPVNames.MOXA_MAPPINGS]:
+                for pv in [
+                    DbPVNames.IOCS,
+                    DbPVNames.HIGH_INTEREST,
+                    DbPVNames.MEDIUM_INTEREST,
+                    DbPVNames.FACILITY,
+                    DbPVNames.ACTIVE_PVS,
+                    DbPVNames.ALL_PVS,
+                    DbPVNames.MOXA_MAPPINGS,
+                ]:
                     encoded_data = self.get_data_for_pv(pv)
                     # No need to update monitors if data hasn't changed
                     if not self.getParam(pv) == encoded_data:
@@ -222,16 +258,20 @@ class DatabaseServer(Driver):
     def _check_pv_capacity(self, pv: str, size: int, prefix: str) -> None:
         """
         Check the capacity of a PV and write to the log if it is too small.
-        
+
         Args:
             pv: The PV that is being requested (without the PV prefix)
             size: The required size
             prefix: The PV prefix
         """
-        if size > self._pv_info[pv]['count']:
-            print_and_log("Too much data to encode PV {0}. Current size is {1} characters but {2} are required"
-                          .format(prefix + pv, self._pv_info[pv]['count'], size),
-                          MAJOR_MSG, LOG_TARGET)
+        if size > self._pv_info[pv]["count"]:
+            print_and_log(
+                "Too much data to encode PV {0}. Current size is {1} characters but {2} are required".format(
+                    prefix + pv, self._pv_info[pv]["count"], size
+                ),
+                MAJOR_MSG,
+                LOG_TARGET,
+            )
 
     def _get_iocs_info(self) -> dict:
         iocs = self._iocs.get_iocs()
@@ -317,7 +357,7 @@ class DatabaseServer(Driver):
             An ordered dict of moxa models and their respective COM mappings
         """
         return self._get_pvs(self._moxa_data._get_mappings_str, False)
-    
+
     def _get_num_of_moxas(self):
         return self._get_pvs(self._moxa_data._get_moxa_num, True)
 
@@ -326,28 +366,39 @@ class DatabaseServer(Driver):
         """
         Get the IOCs that are not to be stopped.
 
-        Returns: 
+        Returns:
             A list of IOCs not to stop
         """
         return IOCS_NOT_TO_STOP
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     parser = argparse.ArgumentParser()
 
-    parser.add_argument('-bs', '--blockserver_prefix', nargs=1, type=str,
-                        default=[MACROS["$(MYPVPREFIX)"]+'CS:'],
-                        help='The prefix for PVs served by the blockserver(default=%MYPVPREFIX%CS:)')
+    parser.add_argument(
+        "-bs",
+        "--blockserver_prefix",
+        nargs=1,
+        type=str,
+        default=[MACROS["$(MYPVPREFIX)"] + "CS:"],
+        help="The prefix for PVs served by the blockserver(default=%MYPVPREFIX%CS:)",
+    )
 
-    parser.add_argument('-od', '--options_dir', nargs=1, type=str, default=['.'],
-                        help='The directory from which to load the configuration options(default=current directory)')
+    parser.add_argument(
+        "-od",
+        "--options_dir",
+        nargs=1,
+        type=str,
+        default=["."],
+        help="The directory from which to load the configuration options(default=current directory)",
+    )
 
     args = parser.parse_args()
 
     BLOCKSERVER_PREFIX = args.blockserver_prefix[0]
-    if not BLOCKSERVER_PREFIX.endswith(':'):
+    if not BLOCKSERVER_PREFIX.endswith(":"):
         BLOCKSERVER_PREFIX += ":"
-    BLOCKSERVER_PREFIX = BLOCKSERVER_PREFIX.replace('%MYPVPREFIX%', MACROS["$(MYPVPREFIX)"])
+    BLOCKSERVER_PREFIX = BLOCKSERVER_PREFIX.replace("%MYPVPREFIX%", MACROS["$(MYPVPREFIX)"])
     print_and_log("BLOCKSERVER PREFIX = %s" % BLOCKSERVER_PREFIX, INFO_MSG, LOG_TARGET)
 
     OPTIONS_DIR = os.path.abspath(args.options_dir[0])
@@ -361,7 +412,6 @@ if __name__ == '__main__':
     SERVER.createPV(MACROS["$(MYPVPREFIX)"], ExpData.EDPV)
     SERVER.createPV(MACROS["$(MYPVPREFIX)"], MoxaData.MDPV)
 
-
     ioc_data = None
     exp_data = None
     moxa_data = None
@@ -370,10 +420,18 @@ if __name__ == '__main__':
         # Initialise IOC database connection
         if ioc_data is None:
             try:
-                ioc_data = IOCData(IocDataSource(SQLAbstraction("iocdb", "iocdb", "$iocdb")), ProcServWrapper(), MACROS["$(MYPVPREFIX)"])
+                ioc_data = IOCData(
+                    IocDataSource(SQLAbstraction("iocdb", "iocdb", "$iocdb")),
+                    ProcServWrapper(),
+                    MACROS["$(MYPVPREFIX)"],
+                )
                 print_and_log("Connected to IOCData database", INFO_MSG, LOG_TARGET)
             except Exception:
-                print_and_log("Problem initialising IOCData DB connection: {}".format(traceback.format_exc()), MAJOR_MSG, LOG_TARGET)
+                print_and_log(
+                    "Problem initialising IOCData DB connection: {}".format(traceback.format_exc()),
+                    MAJOR_MSG,
+                    LOG_TARGET,
+                )
 
         # Initialise experimental database connection
         if exp_data is None:
@@ -381,14 +439,29 @@ if __name__ == '__main__':
                 exp_data = ExpData(MACROS["$(MYPVPREFIX)"], ExpDataSource())
                 print_and_log("Connected to experimental details database", INFO_MSG, LOG_TARGET)
             except Exception:
-                print_and_log("Problem connecting to experimental details database: {}".format(traceback.format_exc()), MAJOR_MSG, LOG_TARGET)
+                print_and_log(
+                    "Problem connecting to experimental details database: {}".format(
+                        traceback.format_exc()
+                    ),
+                    MAJOR_MSG,
+                    LOG_TARGET,
+                )
 
-        if moxa_data is None: 
+        if moxa_data is None:
             try:
-                moxa_data = MoxaData(MoxaDataSource(SQLAbstraction("moxa_details", "moxas", "$moxas")), MACROS["$(MYPVPREFIX)"])
+                moxa_data = MoxaData(
+                    MoxaDataSource(SQLAbstraction("moxa_details", "moxas", "$moxas")),
+                    MACROS["$(MYPVPREFIX)"],
+                )
                 print_and_log("Connected to moxa details database", INFO_MSG, LOG_TARGET)
             except Exception:
-                print_and_log("Problem connecting to moxa details database: {}".format(traceback.format_exc()), MAJOR_MSG, LOG_TARGET)
+                print_and_log(
+                    "Problem connecting to moxa details database: {}".format(
+                        traceback.format_exc()
+                    ),
+                    MAJOR_MSG,
+                    LOG_TARGET,
+                )
 
         # Wait before trying to connect again.
         if ioc_data is not None and exp_data is not None and moxa_data is not None:

@@ -33,40 +33,67 @@ TEST_DIRECTORY = os.path.abspath("test_configs")
 SCRIPT_DIRECTORY = os.path.abspath("test_scripts")
 SCHEMA_FOLDER = "schema"
 
-TEST_CONFIG = {"iocs":
-                   [{"simlevel": "devsim", "autostart": True, "restart": False,
-                     "macros": [{"name": "COMPORT", "value": "COM[0-9]+"}],
-                     "pvsets": [{"name": "SET", "enabled": "true"}],
-                     "pvs": [{"name": "NDWXXX:xxxx:SIMPLE:VALUE1", "value": "100"}],
-                     "name": "SIMPLE1", "component": None},
-
-                    {"simlevel": "recsim", "autostart": False, "restart": True,
-                     "macros": [],
-                     "pvsets": [],
-                     "pvs": [],
-                     "name": "SIMPLE2", "component": None}
-                    ],
-               "blocks":
-                   [{"name": "testblock1", "local": True,
-                     "pv": "NDWXXX:xxxx:SIMPLE:VALUE1", "component": None, "visible": True},
-                    {"name": "testblock2", "local": True,
-                     "pv": "NDWXXX:xxxx:SIMPLE:VALUE1", "component": None, "visible": True},
-                    {"name": "testblock3", "local": True,
-                     "pv": "NDWXXX:xxxx:EUROTHERM1:RBV", "component": None, "visible": True,
-                     "runcontrol": False,
-                     "log_periodic": False, "log_rate": 5, "log_deadband": 0}
-                    ],
-               "components":
-                   [],
-               "groups":
-                   [{"blocks": ["testblock1"], "name": "Group1", "component": None},
-                    {"blocks": ["testblock2"], "name": "Group2", "component": None},
-                    {"blocks": ["testblock3"], "name": "NONE", "component": None}],
-               "name": "TESTCONFIG1",
-               "description": "A test configuration",
-               "synoptic": "TEST_SYNOPTIC",
-               "history": ["2015-02-16"]
-               }
+TEST_CONFIG = {
+    "iocs": [
+        {
+            "simlevel": "devsim",
+            "autostart": True,
+            "restart": False,
+            "macros": [{"name": "COMPORT", "value": "COM[0-9]+"}],
+            "pvsets": [{"name": "SET", "enabled": "true"}],
+            "pvs": [{"name": "NDWXXX:xxxx:SIMPLE:VALUE1", "value": "100"}],
+            "name": "SIMPLE1",
+            "component": None,
+        },
+        {
+            "simlevel": "recsim",
+            "autostart": False,
+            "restart": True,
+            "macros": [],
+            "pvsets": [],
+            "pvs": [],
+            "name": "SIMPLE2",
+            "component": None,
+        },
+    ],
+    "blocks": [
+        {
+            "name": "testblock1",
+            "local": True,
+            "pv": "NDWXXX:xxxx:SIMPLE:VALUE1",
+            "component": None,
+            "visible": True,
+        },
+        {
+            "name": "testblock2",
+            "local": True,
+            "pv": "NDWXXX:xxxx:SIMPLE:VALUE1",
+            "component": None,
+            "visible": True,
+        },
+        {
+            "name": "testblock3",
+            "local": True,
+            "pv": "NDWXXX:xxxx:EUROTHERM1:RBV",
+            "component": None,
+            "visible": True,
+            "runcontrol": False,
+            "log_periodic": False,
+            "log_rate": 5,
+            "log_deadband": 0,
+        },
+    ],
+    "components": [],
+    "groups": [
+        {"blocks": ["testblock1"], "name": "Group1", "component": None},
+        {"blocks": ["testblock2"], "name": "Group2", "component": None},
+        {"blocks": ["testblock3"], "name": "NONE", "component": None},
+    ],
+    "name": "TESTCONFIG1",
+    "description": "A test configuration",
+    "synoptic": "TEST_SYNOPTIC",
+    "history": ["2015-02-16"],
+}
 
 
 def strip_out_whitespace(string):
@@ -93,7 +120,9 @@ class TestSchemaChecker(unittest.TestCase):
         xml = ConfigurationXmlConverter.blocks_to_xml(self.cs.get_block_details(), MACROS)
 
         try:
-            ConfigurationSchemaChecker.check_xml_data_matches_schema(os.path.join(self.schema_dir, "blocks.xsd"), xml)
+            ConfigurationSchemaChecker.check_xml_data_matches_schema(
+                os.path.join(self.schema_dir, "blocks.xsd"), xml
+            )
         except:
             self.fail()
 
@@ -104,18 +133,25 @@ class TestSchemaChecker(unittest.TestCase):
         # Keep it valid XML but don't match schema
         xml = xml.replace("visible>", "invisible>")
 
-        self.assertRaises(ConfigurationInvalidUnderSchema, ConfigurationSchemaChecker.check_xml_data_matches_schema,
-                          os.path.join(self.schema_dir, "blocks.xsd"), xml)
+        self.assertRaises(
+            ConfigurationInvalidUnderSchema,
+            ConfigurationSchemaChecker.check_xml_data_matches_schema,
+            os.path.join(self.schema_dir, "blocks.xsd"),
+            xml,
+        )
 
     def test_valid_groups_xml_matches_schema(self):
         self.cs.set_config_details(TEST_CONFIG)
         xml = ConfigurationXmlConverter.groups_to_xml(self.cs.get_group_details())
 
         try:
-            ConfigurationSchemaChecker.check_xml_data_matches_schema(os.path.join(self.schema_dir, "groups.xsd"), xml)
+            ConfigurationSchemaChecker.check_xml_data_matches_schema(
+                os.path.join(self.schema_dir, "groups.xsd"), xml
+            )
         except Exception:
             self.fail(
-                msg=f"Exception thrown from schema checker. Xml is {xml} exception is {traceback.format_exc()}")
+                msg=f"Exception thrown from schema checker. Xml is {xml} exception is {traceback.format_exc()}"
+            )
 
     def test_groups_xml_does_not_match_schema_raises(self):
         self.cs.set_config_details(TEST_CONFIG)
@@ -124,17 +160,25 @@ class TestSchemaChecker(unittest.TestCase):
         # Keep it valid XML but don't match schema
         xml = xml.replace("<block ", "<notblock ")
 
-        self.assertRaises(ConfigurationInvalidUnderSchema, ConfigurationSchemaChecker.check_xml_data_matches_schema,
-                          os.path.join(self.schema_dir, "groups.xsd"), xml)
+        self.assertRaises(
+            ConfigurationInvalidUnderSchema,
+            ConfigurationSchemaChecker.check_xml_data_matches_schema,
+            os.path.join(self.schema_dir, "groups.xsd"),
+            xml,
+        )
 
     def test_valid_iocs_xml_matches_schema(self):
         self.cs.set_config_details(TEST_CONFIG)
         xml = ConfigurationXmlConverter.iocs_to_xml(self.cs.get_ioc_details())
 
         try:
-            ConfigurationSchemaChecker.check_xml_data_matches_schema(os.path.join(self.schema_dir, "iocs.xsd"), xml)
+            ConfigurationSchemaChecker.check_xml_data_matches_schema(
+                os.path.join(self.schema_dir, "iocs.xsd"), xml
+            )
         except Exception:
-            self.fail(msg=f"Exception thrown from schema checker. Xml is {xml} exception is {traceback.format_exc()}")
+            self.fail(
+                msg=f"Exception thrown from schema checker. Xml is {xml} exception is {traceback.format_exc()}"
+            )
 
     def test_iocs_xml_does_not_match_schema_raises(self):
         self.cs.set_config_details(TEST_CONFIG)
@@ -143,15 +187,21 @@ class TestSchemaChecker(unittest.TestCase):
         # Keep it valid XML but don't match schema
         xml = xml.replace("<macro ", "<nacho ")
 
-        self.assertRaises(ConfigurationInvalidUnderSchema, ConfigurationSchemaChecker.check_xml_data_matches_schema,
-                          os.path.join(self.schema_dir, "iocs.xsd"), xml)
+        self.assertRaises(
+            ConfigurationInvalidUnderSchema,
+            ConfigurationSchemaChecker.check_xml_data_matches_schema,
+            os.path.join(self.schema_dir, "iocs.xsd"),
+            xml,
+        )
 
     def test_valid_meta_xml_matches_schema(self):
         self.cs.set_config_details(TEST_CONFIG)
         xml = ConfigurationXmlConverter.meta_to_xml(self.cs.get_config_meta())
 
         try:
-            ConfigurationSchemaChecker.check_xml_data_matches_schema(os.path.join(self.schema_dir, "meta.xsd"), xml)
+            ConfigurationSchemaChecker.check_xml_data_matches_schema(
+                os.path.join(self.schema_dir, "meta.xsd"), xml
+            )
         except:
             self.fail()
 
@@ -162,8 +212,12 @@ class TestSchemaChecker(unittest.TestCase):
         # Keep it valid XML but don't match schema
         xml = xml.replace("synoptic>", "snyoptic>")
 
-        self.assertRaises(ConfigurationInvalidUnderSchema, ConfigurationSchemaChecker.check_xml_data_matches_schema,
-                          os.path.join(self.schema_dir, "meta.xsd"), xml)
+        self.assertRaises(
+            ConfigurationInvalidUnderSchema,
+            ConfigurationSchemaChecker.check_xml_data_matches_schema,
+            os.path.join(self.schema_dir, "meta.xsd"),
+            xml,
+        )
 
     def test_valid_components_xml_matches_schema(self):
         conf = Configuration(MACROS)
@@ -173,7 +227,9 @@ class TestSchemaChecker(unittest.TestCase):
         xml = ConfigurationXmlConverter.components_to_xml(conf.components)
 
         try:
-            ConfigurationSchemaChecker.check_xml_data_matches_schema(os.path.join(self.schema_dir, "components.xsd"), xml)
+            ConfigurationSchemaChecker.check_xml_data_matches_schema(
+                os.path.join(self.schema_dir, "components.xsd"), xml
+            )
         except:
             self.fail()
 
@@ -187,14 +243,20 @@ class TestSchemaChecker(unittest.TestCase):
         # Keep it valid XML but don't match schema
         xml = xml.replace("<component ", "<domponent ")
 
-        self.assertRaises(ConfigurationInvalidUnderSchema, ConfigurationSchemaChecker.check_xml_data_matches_schema,
-                          os.path.join(self.schema_dir, "meta.xsd"), xml)
+        self.assertRaises(
+            ConfigurationInvalidUnderSchema,
+            ConfigurationSchemaChecker.check_xml_data_matches_schema,
+            os.path.join(self.schema_dir, "meta.xsd"),
+            xml,
+        )
 
     def test_cannot_find_schema_raises(self):
         self.cs.set_config_details(TEST_CONFIG)
         xml = ConfigurationXmlConverter.blocks_to_xml(self.cs.get_block_details(), MACROS)
 
-        self.assertRaises(IOError, ConfigurationSchemaChecker.check_xml_data_matches_schema,
-                          os.path.join(self.schema_dir, "does_not_exist.xsd"), xml)
-
-
+        self.assertRaises(
+            IOError,
+            ConfigurationSchemaChecker.check_xml_data_matches_schema,
+            os.path.join(self.schema_dir, "does_not_exist.xsd"),
+            xml,
+        )

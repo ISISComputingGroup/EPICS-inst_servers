@@ -27,7 +27,7 @@ from BlockServer.config.metadata import MetaData
 from BlockServer.config.xml_converter import ConfigurationXmlConverter
 from BlockServer.core.macros import MACROS
 
-BLOCKS_XML = u"""
+BLOCKS_XML = """
 <?xml version="1.0" ?>
 <blocks xmlns="http://epics.isis.rl.ac.uk/schema/blocks/1.0" xmlns:blk="http://epics.isis.rl.ac.uk/schema/blocks/1.0" xmlns:xi="http://www.w3.org/2001/XInclude">
     <block>
@@ -92,7 +92,7 @@ BLOCKS_XML = u"""
     </block>
 </blocks>"""
 
-GROUPS_XML = u"""
+GROUPS_XML = """
 <?xml version="1.0" ?>
 <groups xmlns="http://epics.isis.rl.ac.uk/schema/groups/1.0" xmlns:grp="http://epics.isis.rl.ac.uk/schema/groups/1.0" xmlns:xi="http://www.w3.org/2001/XInclude">
     <group name="TESTGROUP1">
@@ -105,7 +105,7 @@ GROUPS_XML = u"""
     </group>
 </groups>"""
 
-IOCS_XML = u"""
+IOCS_XML = """
 <?xml version="1.0" ?>
 <iocs xmlns="http://epics.isis.rl.ac.uk/schema/iocs/1.0" xmlns:ioc="http://epics.isis.rl.ac.uk/schema/iocs/1.0" xmlns:xi="http://www.w3.org/2001/XInclude">
     <ioc name="TESTIOC1" autostart="true" restart="false" simlevel="recsim">
@@ -138,7 +138,7 @@ IOCS_XML = u"""
     </ioc>
 </iocs>"""
 
-META_XML = u"""<?xml version="1.0" ?>
+META_XML = """<?xml version="1.0" ?>
 <meta>
 <description>A test description</description>
 <synoptic>TEST_SYNOPTIC</synoptic>
@@ -151,7 +151,7 @@ META_XML = u"""<?xml version="1.0" ?>
 </meta>
 """
 
-COMP_XML = u"""<?xml version="1.0" ?>
+COMP_XML = """<?xml version="1.0" ?>
 <components xmlns="http://epics.isis.rl.ac.uk/schema/components/1.0" xmlns:comp="http://epics.isis.rl.ac.uk/schema/components/1.0" xmlns:xi="http://www.w3.org/2001/XInclude">
 <component name="comp1"/>
 <component name="comp2"/>
@@ -163,7 +163,8 @@ def strip_out_whitespace(string):
 
 
 def strip_out_namespace(string):
-    return re.sub(' xmlns="[^"]+"', '', string, count=1)
+    return re.sub(' xmlns="[^"]+"', "", string, count=1)
+
 
 BLOCKS_XML = strip_out_whitespace(BLOCKS_XML)
 GROUPS_XML = strip_out_whitespace(GROUPS_XML)
@@ -186,19 +187,22 @@ def make_groups():
     for i in range(1, 3):
         name = "TESTGROUP" + str(i)
         groups[name.lower()] = Group(name)
-        groups[name.lower()].blocks = ["TESTBLOCK" + str(block_num), "TESTBLOCK" + str(block_num+1)]
+        groups[name.lower()].blocks = [
+            "TESTBLOCK" + str(block_num),
+            "TESTBLOCK" + str(block_num + 1),
+        ]
         block_num += 2
     return groups
 
 
 def make_iocs():
     iocs = OrderedDict()
-    SIM_LEVELS = ['recsim', 'devsim']
+    SIM_LEVELS = ["recsim", "devsim"]
     for i in range(1, 3):
         iocs["TESTIOC" + str(i)] = IOC("TESTIOC" + str(i))
         iocs["TESTIOC" + str(i)].autostart = True
         iocs["TESTIOC" + str(i)].restart = False
-        iocs["TESTIOC" + str(i)].simlevel = SIM_LEVELS[i-1]
+        iocs["TESTIOC" + str(i)].simlevel = SIM_LEVELS[i - 1]
         iocs["TESTIOC" + str(i)].macros["TESTIOC1MACRO"] = {"value": i}
         iocs["TESTIOC" + str(i)].macros["TESTIOC2MACRO"] = {"value": i}
         iocs["TESTIOC" + str(i)].pvs["TESTIOC1PV"] = {"value": i}
@@ -209,7 +213,7 @@ def make_iocs():
 
 
 def make_meta():
-    meta = MetaData('Test', description='A test description', synoptic="TEST_SYNOPTIC")
+    meta = MetaData("Test", description="A test description", synoptic="TEST_SYNOPTIC")
     meta.history = ["1992-02-07"]
     return meta
 
@@ -397,7 +401,7 @@ class TestConfigurationXmlConverterSequence(unittest.TestCase):
         # Arrange
         xc = self.xml_converter
         root_xml = ElementTree.fromstring(META_XML)
-        meta = MetaData('Test')
+        meta = MetaData("Test")
 
         # Act
         xc.meta_from_xml(root_xml, meta)
@@ -577,7 +581,7 @@ class TestConfigurationXmlConverterSequence(unittest.TestCase):
         # Act
         meta_xml = xc.meta_to_xml(initial_meta)
         root_xml = ElementTree.fromstring(meta_xml)
-        meta = MetaData('Test')
+        meta = MetaData("Test")
         xc.meta_from_xml(root_xml, meta)
 
         # Assert

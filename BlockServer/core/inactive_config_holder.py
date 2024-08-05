@@ -20,6 +20,7 @@ class InactiveConfigHolder(ConfigHolder):
     """
     Class to hold a individual inactive configuration or component.
     """
+
     def __init__(self, macros, file_manager, test_config=None):
         """
         Constructor.
@@ -54,7 +55,7 @@ class InactiveConfigHolder(ConfigHolder):
         self.set_config(config, is_component)
 
     def set_config_details(self, details):
-        """ Set the details of the configuration from a dictionary.
+        """Set the details of the configuration from a dictionary.
 
         Args:
             details (dict): A dictionary containing the new configuration settings
@@ -67,24 +68,31 @@ class InactiveConfigHolder(ConfigHolder):
             if "iocs" in details:
                 # List of dicts
                 for ioc in details["iocs"]:
-                    macros = self._to_dict(ioc.get('macros'))
-                    pvs = self._to_dict(ioc.get('pvs'))
-                    pvsets = self._to_dict(ioc.get('pvsets'))
+                    macros = self._to_dict(ioc.get("macros"))
+                    pvs = self._to_dict(ioc.get("pvs"))
+                    pvsets = self._to_dict(ioc.get("pvsets"))
 
-                    if ioc.get('component') is not None:
-                        raise ValueError('Cannot override iocs from components')
+                    if ioc.get("component") is not None:
+                        raise ValueError("Cannot override iocs from components")
 
                     remotePvPrefix = ioc.get("remotePvPrefix")
 
-                    self._add_ioc(ioc['name'], autostart=ioc.get('autostart'), restart=ioc.get('restart'),
-                                  macros=macros, pvs=pvs, pvsets=pvsets, simlevel=ioc.get('simlevel'),
-                                  remotePvPrefix=remotePvPrefix)
+                    self._add_ioc(
+                        ioc["name"],
+                        autostart=ioc.get("autostart"),
+                        restart=ioc.get("restart"),
+                        macros=macros,
+                        pvs=pvs,
+                        pvsets=pvsets,
+                        simlevel=ioc.get("simlevel"),
+                        remotePvPrefix=remotePvPrefix,
+                    )
 
             if "blocks" in details:
                 # List of dicts
                 for args in details["blocks"]:
-                    if args.get('component') is not None:
-                        raise ValueError('Cannot override blocks from components')
+                    if args.get("component") is not None:
+                        raise ValueError("Cannot override blocks from components")
                     self.add_block(args)
             if "groups" in details:
                 self._set_group_details(details["groups"])
@@ -100,13 +108,15 @@ class InactiveConfigHolder(ConfigHolder):
             if "components" in details:
                 # List of dicts
                 for args in details["components"]:
-                    self.add_component(args['name'])
+                    self.add_component(args["name"])
             if "isProtected" in details:
                 self._config.meta.isProtected = details["isProtected"]
             if "isDynamic" in details:
                 self._config.meta.isDynamic = details["isDynamic"]
             if "configuresBlockGWAndArchiver" in details:
-                self._config.meta.configuresBlockGWAndArchiver = details["configuresBlockGWAndArchiver"]
+                self._config.meta.configuresBlockGWAndArchiver = details[
+                    "configuresBlockGWAndArchiver"
+                ]
         except Exception:
             self._retrieve_cache()
             raise

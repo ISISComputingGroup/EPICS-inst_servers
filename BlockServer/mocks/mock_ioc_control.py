@@ -18,7 +18,6 @@ from server_common.constants import IOCS_NOT_TO_STOP
 
 
 class MockIocControl:
-
     def __init__(self, prefix):
         self._proc = MockProcServWrapper(prefix)
         self.restarted_iocs = []

@@ -16,6 +16,7 @@
 """
 Module for accessing the archiver
 """
+
 import os
 import signal
 import sys
@@ -67,8 +68,7 @@ def signal_handler(signal, frame):
     finish = True
 
 
-if __name__ == '__main__':
-
+if __name__ == "__main__":
     pv_monitor = create_pv_monitor()
 
     signal.signal(signal.SIGINT, signal_handler)

@@ -37,10 +37,12 @@ DELETE FROM moxa_details.port_mappings;"""
 SYSTEM_MIBS = ["DISMAN-EXPRESSION-MIB::sysUpTimeInstance", "SNMPv2-MIB::sysName"]
 PORT_MIBS = ["IF-MIB::ifOperStatus", "IF-MIB::ifSpeed", "IF-MIB::ifInOctets", "IF-MIB::ifOutOctets"]
 
+
 class MoxaDataSource(object):
     """
     A source for IOC data from the database
     """
+
     def __init__(self, mysql_abstraction_layer):
         """
         Constructor.
@@ -62,7 +64,9 @@ class MoxaDataSource(object):
             A list of lists of strings, representing the data from the table.
         """
         # Get as a plain list of lists
-        values = [list(element) for element in self.mysql_abstraction_layer.query(sqlquery, bind_vars)]
+        values = [
+            list(element) for element in self.mysql_abstraction_layer.query(sqlquery, bind_vars)
+        ]
 
         # Convert any bytearrays
         for i, pv in enumerate(values):
@@ -70,7 +74,7 @@ class MoxaDataSource(object):
                 if type(element) == bytearray:
                     values[i][j] = element.decode("utf-8")
         return values
-    
+
     def _delete_all(self):
         self.mysql_abstraction_layer.update(DELETE_PORTS)
         self.mysql_abstraction_layer.update(DELETE_IPS)
@@ -82,6 +86,7 @@ class MoxaDataSource(object):
         moxa_ip_name_dict: The map of IP addresses to hostnames of Moxa Nports
         moxa_ports_dict: The map of IP addresses to physical and COM port mappings
     """
+
     def insert_mappings(self, moxa_ip_name_dict, moxa_ports_dict):
         print_and_log("inserting moxa mappings to SQL")
         self._delete_all()
@@ -89,18 +94,20 @@ class MoxaDataSource(object):
             print_and_log(f"moxa name: {moxa_name} - IP: {moxa_ip}")
             self.mysql_abstraction_layer.update(INSERT_TO_IPS, (moxa_name, moxa_ip))
 
-        for moxa_name, ports in moxa_ports_dict.items():           
+        for moxa_name, ports in moxa_ports_dict.items():
             for phys_port, com_port in ports:
-            # phys_port = ports[0]
-            # com_port = ports[1]
-                print_and_log(f"moxa name: {moxa_name}, phys port: {phys_port}, com_port: {com_port}")
-                self.mysql_abstraction_layer.update(INSERT_TO_PORTS, (moxa_name, str(phys_port), str(com_port)))
+                # phys_port = ports[0]
+                # com_port = ports[1]
+                print_and_log(
+                    f"moxa name: {moxa_name}, phys port: {phys_port}, com_port: {com_port}"
+                )
+                self.mysql_abstraction_layer.update(
+                    INSERT_TO_PORTS, (moxa_name, str(phys_port), str(com_port))
+                )
 
-class MoxaData():
 
-    MDPV = {
-        "UPDATE_MM": {'type': 'int'}
-    }
+class MoxaData:
+    MDPV = {"UPDATE_MM": {"type": "int"}}
 
     def __init__(self, data_source, prefix):
         """Constructor
@@ -124,6 +131,7 @@ class MoxaData():
     """
     Gets the mappings and inserts them into SQL
     """
+
     def update_mappings(self):
         print_and_log("updating moxa mappings")
         self._mappings = self._get_mappings()
@@ -132,6 +140,7 @@ class MoxaData():
     """
     Returns the IP to hostname and IP to port mappings as a string representation for use with the MOXA_MAPPINGS PV
     """
+
     def _get_mappings_str(self):
         with self._snmp_lock:
             return self._snmp_map
@@ -139,22 +148,23 @@ class MoxaData():
     """
     ran as background thread to update _snmp_map
     """
+
     def _update_snmp(self):
         while True:
-            #it is much easier to parse the mappings if they just look like a key:{key, val} list, so lets do that now rather than in the GUI
+            # it is much easier to parse the mappings if they just look like a key:{key, val} list, so lets do that now rather than in the GUI
             newmap = dict()
             for hostname, mappings in self._mappings[1].items():
                 ip_addr = self._mappings[0][hostname]
-                mibmap = walk(ip_addr, '1.3.6.1.2.1', SYSTEM_MIBS + PORT_MIBS)
-                #Some defensive coding to avoid errors if SNMP walk fails
-                upTime = ''
+                mibmap = walk(ip_addr, "1.3.6.1.2.1", SYSTEM_MIBS + PORT_MIBS)
+                # Some defensive coding to avoid errors if SNMP walk fails
+                upTime = ""
                 if "DISMAN-EXPRESSION-MIB::sysUpTimeInstance" in mibmap:
                     upTime = mibmap["DISMAN-EXPRESSION-MIB::sysUpTimeInstance"]
-                sysName = ''
+                sysName = ""
                 if "SNMPv2-MIB::sysName.0" in mibmap:
                     sysName = mibmap["SNMPv2-MIB::sysName.0"]
                 newkey = f"{hostname}({ip_addr})"
-                if len(upTime) > 0 :
+                if len(upTime) > 0:
                     newkey = f"{hostname}({ip_addr} - {sysName})({upTime})"
                 newmap[newkey] = []
                 for coms in mappings:
@@ -168,22 +178,20 @@ class MoxaData():
                         newmap[newkey].append([str(coms[0]), f"COM{coms[1]}~{additionalInfo}"])
                     else:
                         newmap[newkey].append([str(coms[0]), f"COM{coms[1]}"])
-                    
+
             with self._snmp_lock:
                 self._snmp_map = newmap
-            
+
             time.sleep(30)
-    
+
     def _get_moxa_num(self):
         return str(len(self._mappings[0].keys()))
-    
+
     def _get_hostname(self, ip_addr):
         try:
             return socket.gethostbyaddr(ip_addr)[0]
         except socket.herror:
             return "unknown"
-        
-
 
     def _get_mappings(self) -> Tuple[Dict[str, str], Dict[int, List[Tuple[int, int]]]]:
         # moxa_name_ip_dict: HOSTNAME:IPADDR
@@ -197,19 +205,19 @@ class MoxaData():
 
             using_npdrv2 = False
             ports_count = 0
-            try: 
-                # Try and find whether the npdrv2 subkey exists to determine whether we are using 
+            try:
+                # Try and find whether the npdrv2 subkey exists to determine whether we are using
                 # the Nport Driver manager as opposed to Nport Administrator
-                ports_path = wrg.OpenKeyEx(location,REG_DIR_NPDRV2)
+                ports_path = wrg.OpenKeyEx(location, REG_DIR_NPDRV2)
                 using_npdrv2 = True
                 ports_count = wrg.QueryInfoKey(ports_path)[0]
-            except FileNotFoundError: 
+            except FileNotFoundError:
                 print_and_log("using old style registry for moxas", severity=SEVERITY.MINOR)
             try:
                 if using_npdrv2:
                     # This is what Nport Windows Driver manager uses. It uses a subkey for each port mappping,
                     # each of which has an ip address referenced. It doesn't seem to have a physical port number
-                    # as the ports are added individually, so we have to modulo the port number. 
+                    # as the ports are added individually, so we have to modulo the port number.
                     for port_num in range(0, ports_count):
                         port_subkey = f"{port_num:04d}"
                         port_reg = wrg.OpenKeyEx(ports_path, port_subkey)
@@ -224,29 +232,31 @@ class MoxaData():
                             moxa_ports_dict[hostname] = list()
                         # Modulo by 16 here as we want the 2nd moxa's first port_num to be 1 rather
                         # than 17 as it's the first port on the second moxa
-                        port_num_respective = port_num % 16 
+                        port_num_respective = port_num % 16
                         moxa_ports_dict[hostname].append((port_num_respective + 1, com_num))
 
-                else: 
+                else:
                     # This is what Nport Administrator uses. It lays out each Moxa that is added to "Servers" which contains a few bytes
                     # and lays things out in a subkey for each.
-                    params = wrg.OpenKeyEx(location,REG_KEY_NPDRV)
+                    params = wrg.OpenKeyEx(location, REG_KEY_NPDRV)
                     server_count = wrg.QueryValueEx(params, "Servers")[0]
 
-                    for server_num in range(1, server_count+1):
-                        soft = wrg.OpenKeyEx(location,f"{REG_KEY_NPDRV}\\Server{server_num}")
-                        ip_addr_bytes = wrg.QueryValueEx(soft,"IPAddress")[0].to_bytes(4)
+                    for server_num in range(1, server_count + 1):
+                        soft = wrg.OpenKeyEx(location, f"{REG_KEY_NPDRV}\\Server{server_num}")
+                        ip_addr_bytes = wrg.QueryValueEx(soft, "IPAddress")[0].to_bytes(4)
                         ip_addr = ".".join([str(int(x)) for x in ip_addr_bytes])
                         hostname = self._get_hostname(ip_addr)
                         moxa_name_ip_dict[hostname] = ip_addr
                         print_and_log(f"IP {ip_addr} hostname {hostname}")
                         start_num_com = 1
-                        com_nums = enumerate(wrg.QueryValueEx(soft,"COMNO")[0], start_num_com)
+                        com_nums = enumerate(wrg.QueryValueEx(soft, "COMNO")[0], start_num_com)
                         moxa_ports_dict[hostname] = list(com_nums)
-                        for count, value in com_nums: 
+                        for count, value in com_nums:
                             print_and_log(f"physical port {count} COM number {value}")
             except FileNotFoundError as e:
-                print_and_log(f"Error reading registry for moxa mapping information: {str(e)}", severity=SEVERITY.MAJOR)
+                print_and_log(
+                    f"Error reading registry for moxa mapping information: {str(e)}",
+                    severity=SEVERITY.MAJOR,
+                )
 
         return moxa_name_ip_dict, moxa_ports_dict
-

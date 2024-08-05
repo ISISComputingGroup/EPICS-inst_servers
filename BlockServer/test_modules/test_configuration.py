@@ -23,8 +23,20 @@ from BlockServer.mocks.mock_configuration import (
 )
 
 # Args are : name, pv, group, local and visible
-NEW_BLOCK_ARGS = {'name': "TESTBLOCK1", 'pv': "PV1", 'group': "GROUP1", 'local': True, 'visible': True}
-NEW_BLOCK_ARGS_2 = {'name': "TESTBLOCK2", 'pv': "PV2", 'group': "GROUP2", 'local': True, 'visible': True}
+NEW_BLOCK_ARGS = {
+    "name": "TESTBLOCK1",
+    "pv": "PV1",
+    "group": "GROUP1",
+    "local": True,
+    "visible": True,
+}
+NEW_BLOCK_ARGS_2 = {
+    "name": "TESTBLOCK2",
+    "pv": "PV2",
+    "group": "GROUP2",
+    "local": True,
+    "visible": True,
+}
 
 
 class TestConfigurationSequence(unittest.TestCase):
@@ -42,7 +54,7 @@ class TestConfigurationSequence(unittest.TestCase):
         # arrange
         cf = self.config
         block_args = NEW_BLOCK_ARGS
-        block_name = block_args['name']
+        block_name = block_args["name"]
         # act
         cf.add_block(**block_args)
         blocks = cf.blocks.keys()
@@ -54,7 +66,7 @@ class TestConfigurationSequence(unittest.TestCase):
         # arrange
         cf = self.config
         block_args = NEW_BLOCK_ARGS
-        group_name = block_args['group']
+        group_name = block_args["group"]
         # act
         cf.add_block(**block_args)
         groups = cf.groups.keys()
@@ -103,6 +115,6 @@ class TestConfigurationSequence(unittest.TestCase):
         self.assertEqual(len(block_names), 0)
 
 
-if __name__ == '__main__':
-    #start blockserver
+if __name__ == "__main__":
+    # start blockserver
     unittest.main()

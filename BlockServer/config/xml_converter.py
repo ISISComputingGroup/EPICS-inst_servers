@@ -25,7 +25,7 @@ from BlockServer.core.macros import PVPREFIX_MACRO
 from server_common.utilities import *
 
 KEY_NONE = GRP_NONE.lower()
-TAG_ENABLED = 'enabled'
+TAG_ENABLED = "enabled"
 
 SCHEMA_PATH = "http://epics.isis.rl.ac.uk/schema/"
 IOC_SCHEMA = "iocs/1.0"
@@ -41,11 +41,11 @@ TAG_PROTECTED = "isProtected"
 TAG_DYNAMIC = "isDynamic"
 TAG_CONFIGURES_BLOCK_GW_AND_ARCHIVER = "configuresBlockGWAndArchiver"
 
-NS_TAG_BLOCK = 'blk'
-NS_TAG_IOC = 'ioc'
-NS_TAG_COMP = 'comp'
-NS_TAG_GROUP = 'grp'
-NS_TAG_BANNER = 'banner'
+NS_TAG_BLOCK = "blk"
+NS_TAG_IOC = "ioc"
+NS_TAG_COMP = "comp"
+NS_TAG_GROUP = "grp"
+NS_TAG_BANNER = "banner"
 
 NAMESPACES = {
     NS_TAG_BLOCK: SCHEMA_PATH + BLOCK_SCHEMA,
@@ -64,7 +64,7 @@ class ConfigurationXmlConverter:
 
     @staticmethod
     def blocks_to_xml(blocks: OrderedDict, macros: Dict):
-        """ Generates an XML representation for a supplied dictionary of blocks.
+        """Generates an XML representation for a supplied dictionary of blocks.
 
         Args:
             blocks (OrderedDict): The blocks in a configuration or component
@@ -86,7 +86,7 @@ class ConfigurationXmlConverter:
 
     @staticmethod
     def groups_to_xml(groups: OrderedDict, include_none: bool = False) -> str:
-        """ Generates an XML representation for a supplied dictionary of groups.
+        """Generates an XML representation for a supplied dictionary of groups.
 
         Args:
             groups: The groups in a configuration or component
@@ -111,7 +111,7 @@ class ConfigurationXmlConverter:
 
     @staticmethod
     def iocs_to_xml(iocs: OrderedDict):
-        """ Generates an XML representation for a supplied list of iocs.
+        """Generates an XML representation for a supplied list of iocs.
 
         Args:
             iocs: The IOCs in a configuration or component
@@ -131,7 +131,7 @@ class ConfigurationXmlConverter:
 
     @staticmethod
     def components_to_xml(comps: OrderedDict):
-        """ Generates an XML representation for a supplied dictionary of components.
+        """Generates an XML representation for a supplied dictionary of components.
 
         Args:
             comps: The components in the configuration
@@ -149,7 +149,7 @@ class ConfigurationXmlConverter:
 
     @staticmethod
     def meta_to_xml(data: MetaData):
-        """ Generates an XML representation of the meta data for each configuration.
+        """Generates an XML representation of the meta data for each configuration.
 
         Args:
             data: The metadata to convert to XML
@@ -176,7 +176,9 @@ class ConfigurationXmlConverter:
         dynamic_xml = ElementTree.SubElement(root, TAG_DYNAMIC)
         dynamic_xml.text = str(data.isDynamic).lower()
 
-        configure_block_gw_and_archiver_xml = ElementTree.SubElement(root, TAG_CONFIGURES_BLOCK_GW_AND_ARCHIVER)
+        configure_block_gw_and_archiver_xml = ElementTree.SubElement(
+            root, TAG_CONFIGURES_BLOCK_GW_AND_ARCHIVER
+        )
         configure_block_gw_and_archiver_xml.text = str(data.configuresBlockGWAndArchiver).lower()
 
         return minidom.parseString(ElementTree.tostring(root)).toprettyxml()
@@ -277,7 +279,7 @@ class ConfigurationXmlConverter:
 
     @staticmethod
     def blocks_from_xml(root_xml: ElementTree.Element, blocks: OrderedDict, groups: OrderedDict):
-        """ Populates the supplied dictionary of blocks and groups based on an XML tree.
+        """Populates the supplied dictionary of blocks and groups based on an XML tree.
 
         Args:
             root_xml: The XML tree object
@@ -309,45 +311,65 @@ class ConfigurationXmlConverter:
                     blocks[name.lower()].visible = False
 
                 # Runcontrol
-                rc_enabled = ConfigurationXmlConverter._find_single_node(b, NS_TAG_BLOCK, TAG_RUNCONTROL_ENABLED)
+                rc_enabled = ConfigurationXmlConverter._find_single_node(
+                    b, NS_TAG_BLOCK, TAG_RUNCONTROL_ENABLED
+                )
                 if rc_enabled is not None:
-                    blocks[name.lower()].rc_enabled = (rc_enabled.text == "True")
+                    blocks[name.lower()].rc_enabled = rc_enabled.text == "True"
 
-                rc_low = ConfigurationXmlConverter._find_single_node(b, NS_TAG_BLOCK, TAG_RUNCONTROL_LOW)
+                rc_low = ConfigurationXmlConverter._find_single_node(
+                    b, NS_TAG_BLOCK, TAG_RUNCONTROL_LOW
+                )
                 if rc_low is not None:
                     blocks[name.lower()].rc_lowlimit = float(rc_low.text)
-                rc_high = ConfigurationXmlConverter._find_single_node(b, NS_TAG_BLOCK, TAG_RUNCONTROL_HIGH)
+                rc_high = ConfigurationXmlConverter._find_single_node(
+                    b, NS_TAG_BLOCK, TAG_RUNCONTROL_HIGH
+                )
                 if rc_high is not None:
                     blocks[name.lower()].rc_highlimit = float(rc_high.text)
 
-                rc_suspend_on_invalid = ConfigurationXmlConverter._find_single_node(b, NS_TAG_BLOCK, TAG_RUNCONTROL_SUSPEND_ON_INVALID)
+                rc_suspend_on_invalid = ConfigurationXmlConverter._find_single_node(
+                    b, NS_TAG_BLOCK, TAG_RUNCONTROL_SUSPEND_ON_INVALID
+                )
                 if rc_suspend_on_invalid is not None:
-                    blocks[name.lower()].rc_suspend_on_invalid = (rc_suspend_on_invalid.text == "True")
+                    blocks[name.lower()].rc_suspend_on_invalid = (
+                        rc_suspend_on_invalid.text == "True"
+                    )
 
                 # Logging
-                log_periodic = ConfigurationXmlConverter._find_single_node(b, NS_TAG_BLOCK, TAG_LOG_PERIODIC)
+                log_periodic = ConfigurationXmlConverter._find_single_node(
+                    b, NS_TAG_BLOCK, TAG_LOG_PERIODIC
+                )
                 if log_periodic is not None:
-                    blocks[name.lower()].log_periodic = (log_periodic.text == "True")
+                    blocks[name.lower()].log_periodic = log_periodic.text == "True"
 
-                log_rate = ConfigurationXmlConverter._find_single_node(b, NS_TAG_BLOCK, TAG_LOG_RATE)
+                log_rate = ConfigurationXmlConverter._find_single_node(
+                    b, NS_TAG_BLOCK, TAG_LOG_RATE
+                )
                 if log_rate is not None:
                     blocks[name.lower()].log_rate = float(log_rate.text)
 
-                log_deadband = ConfigurationXmlConverter._find_single_node(b, NS_TAG_BLOCK, TAG_LOG_DEADBAND)
+                log_deadband = ConfigurationXmlConverter._find_single_node(
+                    b, NS_TAG_BLOCK, TAG_LOG_DEADBAND
+                )
                 if log_deadband is not None:
                     blocks[name.lower()].log_deadband = float(log_deadband.text)
 
-                set_block = ConfigurationXmlConverter._find_single_node(b, NS_TAG_BLOCK, TAG_SET_BLOCK)
+                set_block = ConfigurationXmlConverter._find_single_node(
+                    b, NS_TAG_BLOCK, TAG_SET_BLOCK
+                )
                 if set_block is not None:
                     blocks[name.lower()].set_block = eval(set_block.text)
 
-                set_block_val = ConfigurationXmlConverter._find_single_node(b, NS_TAG_BLOCK, TAG_SET_BLOCK_VAL)
+                set_block_val = ConfigurationXmlConverter._find_single_node(
+                    b, NS_TAG_BLOCK, TAG_SET_BLOCK_VAL
+                )
                 if set_block_val is not None:
                     blocks[name.lower()].set_block_val = set_block_val.text
 
     @staticmethod
     def groups_from_xml(root_xml: ElementTree.Element, groups: OrderedDict, blocks: OrderedDict):
-        """ Populates the supplied dictionary of groups and assign blocks based on an XML tree
+        """Populates the supplied dictionary of groups and assign blocks based on an XML tree
 
         Args:
             root_xml: The XML tree object
@@ -385,7 +407,7 @@ class ConfigurationXmlConverter:
 
     @staticmethod
     def ioc_from_xml(root_xml: ElementTree.Element, iocs: OrderedDict):
-        """ Populates the supplied dictionary of IOCs based on an XML tree.
+        """Populates the supplied dictionary of IOCs based on an XML tree.
 
         Args:
             root_xml: The XML tree object
@@ -411,18 +433,27 @@ class ConfigurationXmlConverter:
 
                 try:
                     # Get any macros
-                    macros_xml = ConfigurationXmlConverter._find_single_node(i, NS_TAG_IOC, TAG_MACROS)
+                    macros_xml = ConfigurationXmlConverter._find_single_node(
+                        i, NS_TAG_IOC, TAG_MACROS
+                    )
                     for m in macros_xml:
-                        iocs[n.upper()].macros[m.attrib[TAG_NAME]] = {TAG_VALUE: str(m.attrib[TAG_VALUE])}
+                        iocs[n.upper()].macros[m.attrib[TAG_NAME]] = {
+                            TAG_VALUE: str(m.attrib[TAG_VALUE])
+                        }
                     # Get any pvs
                     pvs_xml = ConfigurationXmlConverter._find_single_node(i, NS_TAG_IOC, TAG_PVS)
                     for p in pvs_xml:
-                        iocs[n.upper()].pvs[p.attrib[TAG_NAME]] = {TAG_VALUE: str(p.attrib[TAG_VALUE])}
+                        iocs[n.upper()].pvs[p.attrib[TAG_NAME]] = {
+                            TAG_VALUE: str(p.attrib[TAG_VALUE])
+                        }
                     # Get any pvsets
-                    pvsets_xml = ConfigurationXmlConverter._find_single_node(i, NS_TAG_IOC,  TAG_PVSETS)
+                    pvsets_xml = ConfigurationXmlConverter._find_single_node(
+                        i, NS_TAG_IOC, TAG_PVSETS
+                    )
                     for ps in pvsets_xml:
-                        iocs[n.upper()].pvsets[ps.attrib[TAG_NAME]] = \
-                            {TAG_ENABLED: parse_boolean(str(ps.attrib[TAG_ENABLED]))}
+                        iocs[n.upper()].pvsets[ps.attrib[TAG_NAME]] = {
+                            TAG_ENABLED: parse_boolean(str(ps.attrib[TAG_ENABLED]))
+                        }
                 except Exception as err:
                     raise Exception("Tag not found in ioc.xml (" + str(err) + ")")
 
@@ -434,7 +465,9 @@ class ConfigurationXmlConverter:
             root_xml: The XML tree object
             components: The components dictionary
         """
-        components_xml = ConfigurationXmlConverter._find_all_nodes(root_xml, NS_TAG_COMP, TAG_COMPONENT)
+        components_xml = ConfigurationXmlConverter._find_all_nodes(
+            root_xml, NS_TAG_COMP, TAG_COMPONENT
+        )
         for i in components_xml:
             n = i.attrib[TAG_NAME]
             if n is not None and n != "":
@@ -443,7 +476,10 @@ class ConfigurationXmlConverter:
     @staticmethod
     def get_configuresBlockGWAndArchiver_from_xml(root_xml: ElementTree.Element) -> bool:
         configuresBlockGWAndArchiver = root_xml.find("./" + TAG_CONFIGURES_BLOCK_GW_AND_ARCHIVER)
-        if configuresBlockGWAndArchiver is not None and configuresBlockGWAndArchiver.text is not None:
+        if (
+            configuresBlockGWAndArchiver is not None
+            and configuresBlockGWAndArchiver.text is not None
+        ):
             return configuresBlockGWAndArchiver.text.lower() == "true"
         else:
             return False
@@ -471,7 +507,9 @@ class ConfigurationXmlConverter:
             else:
                 data.isProtected = False
 
-        data.configuresBlockGWAndArchiver = ConfigurationXmlConverter.get_configuresBlockGWAndArchiver_from_xml(root_xml)
+        data.configuresBlockGWAndArchiver = (
+            ConfigurationXmlConverter.get_configuresBlockGWAndArchiver_from_xml(root_xml)
+        )
 
         isDynamic = root_xml.find("./" + TAG_DYNAMIC)
         if isDynamic is not None:
@@ -497,7 +535,7 @@ class ConfigurationXmlConverter:
         Returns: list of children
         """
         # First try with namespace
-        nodes = root.findall(f'{tag}:{name}', NAMESPACES)
+        nodes = root.findall(f"{tag}:{name}", NAMESPACES)
         if len(nodes) == 0:
             # Try without namespace
             nodes = root.findall(name)
@@ -517,7 +555,7 @@ class ConfigurationXmlConverter:
         Returns: The found node
         """
         # First try with namespace
-        node = root.find(f'{tag}:{name}', NAMESPACES)
+        node = root.find(f"{tag}:{name}", NAMESPACES)
         if node is None:
             # Try without namespace
             node = root.find(name)
@@ -526,27 +564,33 @@ class ConfigurationXmlConverter:
     @staticmethod
     def _display(child, index):
         return {
-                    "index": index,
-                    "name": ConfigurationXmlConverter._find_single_node(child, "banner", "name").text,
-                    "pv": ConfigurationXmlConverter._find_single_node(child, "banner", "pv").text,
-                    "local": ConfigurationXmlConverter._find_single_node(child, "banner", "local").text,
-                    "width": ConfigurationXmlConverter._find_single_node(child, "banner", "width").text,
-               }
+            "index": index,
+            "name": ConfigurationXmlConverter._find_single_node(child, "banner", "name").text,
+            "pv": ConfigurationXmlConverter._find_single_node(child, "banner", "pv").text,
+            "local": ConfigurationXmlConverter._find_single_node(child, "banner", "local").text,
+            "width": ConfigurationXmlConverter._find_single_node(child, "banner", "width").text,
+        }
 
     @staticmethod
     def _button(child, index):
         return {
-                    "index": index,
-                    "name": ConfigurationXmlConverter._find_single_node(child, "banner", "name").text,
-                    "pv": ConfigurationXmlConverter._find_single_node(child, "banner", "pv").text,
-                    "local": ConfigurationXmlConverter._find_single_node(child, "banner", "local").text,
-                    "pvValue": ConfigurationXmlConverter._find_single_node(child, "banner", "pvValue").text,
-                    "textColour": ConfigurationXmlConverter._find_single_node(child, "banner", "textColour").text,
-                    "buttonColour": ConfigurationXmlConverter._find_single_node(child, "banner", "buttonColour").text,
-                    "fontSize": ConfigurationXmlConverter._find_single_node(child, "banner", "fontSize").text,
-                    "width": ConfigurationXmlConverter._find_single_node(child, "banner", "width").text,
-                    "height": ConfigurationXmlConverter._find_single_node(child, "banner", "height").text,
-               }
+            "index": index,
+            "name": ConfigurationXmlConverter._find_single_node(child, "banner", "name").text,
+            "pv": ConfigurationXmlConverter._find_single_node(child, "banner", "pv").text,
+            "local": ConfigurationXmlConverter._find_single_node(child, "banner", "local").text,
+            "pvValue": ConfigurationXmlConverter._find_single_node(child, "banner", "pvValue").text,
+            "textColour": ConfigurationXmlConverter._find_single_node(
+                child, "banner", "textColour"
+            ).text,
+            "buttonColour": ConfigurationXmlConverter._find_single_node(
+                child, "banner", "buttonColour"
+            ).text,
+            "fontSize": ConfigurationXmlConverter._find_single_node(
+                child, "banner", "fontSize"
+            ).text,
+            "width": ConfigurationXmlConverter._find_single_node(child, "banner", "width").text,
+            "height": ConfigurationXmlConverter._find_single_node(child, "banner", "height").text,
+        }
 
     @staticmethod
     def banner_config_from_xml(root):

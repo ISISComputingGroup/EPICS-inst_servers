@@ -31,7 +31,7 @@ BASE_PATH = "./example_base/"
 
 # Helper functions
 def add_block(ch, name, pv, group, local=True):
-    data = {'name': name, 'pv': pv, 'group': group, 'local': local}
+    data = {"name": name, "pv": pv, "group": group, "local": local}
     ch.add_block(data)
 
 
@@ -63,8 +63,7 @@ def on_rm_error(func, path, exc_info):
 
 
 def create_default_test_config_holder(file_manager):
-    ch = InactiveConfigHolder(MACROS, file_manager=file_manager,
-                      test_config=create_dummy_config())
+    ch = InactiveConfigHolder(MACROS, file_manager=file_manager, test_config=create_dummy_config())
     return ch
 
 
@@ -113,7 +112,6 @@ class TestConfigHolderSequence(unittest.TestCase):
         self.assertEqual(blk_details["TESTBLOCK3".lower()].local, True)
         self.assertEqual(blk_details["TESTBLOCK4".lower()].local, False)
 
-
     def test_dummy_config_blocks_add_component(self):
         ch = create_default_test_config_holder(self.mock_file_manager)
         comp = create_dummy_component()
@@ -136,7 +134,7 @@ class TestConfigHolderSequence(unittest.TestCase):
     def test_dummy_config_blocks_add_remove_component(self):
         ch = create_default_test_config_holder(self.mock_file_manager)
         comp = create_dummy_component()
-        
+
         self.mock_file_manager.comps["test_comp"] = comp
         ch.add_component("test_comp")
 
@@ -241,8 +239,9 @@ class TestConfigHolderSequence(unittest.TestCase):
         self.assertFalse("test_comp".lower() in comps)
 
     def test_add_block(self):
-        ch = ConfigHolder(MACROS, file_manager=self.mock_file_manager,
-                          test_config=Configuration(MACROS))
+        ch = ConfigHolder(
+            MACROS, file_manager=self.mock_file_manager, test_config=Configuration(MACROS)
+        )
 
         blk = {"name": "TESTBLOCK1", "pv": "PV1", "local": True, "group": "NONE"}
         ch.add_block(blk)
@@ -254,8 +253,9 @@ class TestConfigHolderSequence(unittest.TestCase):
         self.assertEqual(blk_details["TESTBLOCK1".lower()].local, True)
 
     def test_add_ioc(self):
-        ch = ConfigHolder(MACROS, file_manager=self.mock_file_manager,
-                          test_config=Configuration(MACROS))
+        ch = ConfigHolder(
+            MACROS, file_manager=self.mock_file_manager, test_config=Configuration(MACROS)
+        )
 
         ch._add_ioc("TESTIOC1")
 
@@ -264,8 +264,9 @@ class TestConfigHolderSequence(unittest.TestCase):
         self.assertTrue("TESTIOC1" in ioc_details)
 
     def test_add_ioc_component(self):
-        ch = ConfigHolder(MACROS, file_manager=self.mock_file_manager,
-                          test_config=Configuration(MACROS))
+        ch = ConfigHolder(
+            MACROS, file_manager=self.mock_file_manager, test_config=Configuration(MACROS)
+        )
 
         comp = Configuration(MACROS)
         self.mock_file_manager.comps["test_comp"] = comp
@@ -277,63 +278,66 @@ class TestConfigHolderSequence(unittest.TestCase):
         self.assertTrue("TESTIOC1" in ioc_details)
 
     def test_get_config_details_empty(self):
-        ch = ConfigHolder(MACROS, file_manager=self.mock_file_manager,
-                          test_config=Configuration(MACROS))
+        ch = ConfigHolder(
+            MACROS, file_manager=self.mock_file_manager, test_config=Configuration(MACROS)
+        )
         details = ch.get_config_details()
 
-        self.assertEqual(len(details['blocks']), 0)
-        self.assertEqual(len(details['groups']), 0)
-        self.assertEqual(len(details['iocs']), 0)
-        self.assertEqual(len(details['components']), 0)
-        self.assertEqual(details['name'], "")
-        self.assertEqual(details['description'], "")
-        self.assertEqual(details['synoptic'], "")
+        self.assertEqual(len(details["blocks"]), 0)
+        self.assertEqual(len(details["groups"]), 0)
+        self.assertEqual(len(details["iocs"]), 0)
+        self.assertEqual(len(details["components"]), 0)
+        self.assertEqual(details["name"], "")
+        self.assertEqual(details["description"], "")
+        self.assertEqual(details["synoptic"], "")
 
     def test_get_config_details(self):
         ch = create_default_test_config_holder(self.mock_file_manager)
         details = ch.get_config_details()
 
         self.assertEqual(details["name"], "DUMMY")
-        self.assertEqual(len(details['blocks']), 4)
-        blks = [x['name'] for x in details['blocks']]
+        self.assertEqual(len(details["blocks"]), 4)
+        blks = [x["name"] for x in details["blocks"]]
         self.assertTrue("TESTBLOCK1" in blks)
         self.assertTrue("TESTBLOCK2" in blks)
         self.assertTrue("TESTBLOCK3" in blks)
         self.assertTrue("TESTBLOCK4" in blks)
-        self.assertEqual(len(details['groups']), 3)
-        self.assertEqual(details['groups'][0]['blocks'], ["TESTBLOCK1"])
-        self.assertEqual(details['groups'][1]['blocks'], ["TESTBLOCK2", "TESTBLOCK3"])
-        self.assertEqual(details['groups'][2]['blocks'], ["TESTBLOCK4"])
-        self.assertEqual(len(details['iocs']), 2)
-        iocs = [x['name'] for x in details['iocs']]
+        self.assertEqual(len(details["groups"]), 3)
+        self.assertEqual(details["groups"][0]["blocks"], ["TESTBLOCK1"])
+        self.assertEqual(details["groups"][1]["blocks"], ["TESTBLOCK2", "TESTBLOCK3"])
+        self.assertEqual(details["groups"][2]["blocks"], ["TESTBLOCK4"])
+        self.assertEqual(len(details["iocs"]), 2)
+        iocs = [x["name"] for x in details["iocs"]]
         self.assertTrue("SIMPLE1" in iocs)
         self.assertTrue("SIMPLE2" in iocs)
-        self.assertEqual(len(details['components']), 0)
+        self.assertEqual(len(details["components"]), 0)
 
     def test_get_config_details_add_component(self):
-        ch = ConfigHolder(MACROS, file_manager=self.mock_file_manager,
-                          test_config=Configuration(MACROS))
+        ch = ConfigHolder(
+            MACROS, file_manager=self.mock_file_manager, test_config=Configuration(MACROS)
+        )
 
         comp = create_dummy_component()
         self.mock_file_manager.comps["test_comp"] = comp
         ch.add_component("test_comp")
 
         details = ch.get_config_details()
-        self.assertEqual(len(details['blocks']), 2)
-        blks = [x['name'] for x in details['blocks']]
+        self.assertEqual(len(details["blocks"]), 2)
+        blks = [x["name"] for x in details["blocks"]]
         self.assertTrue("COMPBLOCK1" in blks)
         self.assertTrue("COMPBLOCK2" in blks)
-        self.assertEqual(len(details['groups']), 2)
-        self.assertEqual(details['groups'][0]['blocks'], ["COMPBLOCK1"])
-        self.assertEqual(details['groups'][1]['blocks'], ["COMPBLOCK2"])
-        self.assertEqual(len(details['iocs']), 0)
-        iocs = [x['name'] for x in details['iocs']]
+        self.assertEqual(len(details["groups"]), 2)
+        self.assertEqual(details["groups"][0]["blocks"], ["COMPBLOCK1"])
+        self.assertEqual(details["groups"][1]["blocks"], ["COMPBLOCK2"])
+        self.assertEqual(len(details["iocs"]), 0)
+        iocs = [x["name"] for x in details["iocs"]]
         self.assertFalse("COMPSIMPLE1" in iocs)
-        self.assertEqual(len(details['components']), 1)
+        self.assertEqual(len(details["components"]), 1)
 
     def test_empty_config_save_and_load(self):
-        ch = ConfigHolder(MACROS, file_manager=self.mock_file_manager,
-                          test_config=Configuration(MACROS))
+        ch = ConfigHolder(
+            MACROS, file_manager=self.mock_file_manager, test_config=Configuration(MACROS)
+        )
         ch.save_configuration("TESTCONFIG", False)
         ch.clear_config()
 
@@ -347,8 +351,9 @@ class TestConfigHolderSequence(unittest.TestCase):
         self.assertEqual(len(ch.get_component_names()), 0)
 
     def test_empty_component_save_and_load(self):
-        ch = ConfigHolder(MACROS, file_manager=self.mock_file_manager,
-                          test_config=Configuration(MACROS))
+        ch = ConfigHolder(
+            MACROS, file_manager=self.mock_file_manager, test_config=Configuration(MACROS)
+        )
         ch.save_configuration("TESTCOMPONENT", True)
         ch.clear_config()
 
@@ -377,8 +382,9 @@ class TestConfigHolderSequence(unittest.TestCase):
 
     def test_save_comp_add_to_config(self):
         # Create and save a component
-        ch = ConfigHolder(MACROS, file_manager=self.mock_file_manager,
-                          test_config=create_dummy_component())
+        ch = ConfigHolder(
+            MACROS, file_manager=self.mock_file_manager, test_config=create_dummy_component()
+        )
         ch.save_configuration("TESTCOMPONENT", True)
         ch.clear_config()
 
@@ -405,12 +411,12 @@ class TestConfigHolderSequence(unittest.TestCase):
 
         grps = ch.get_group_details()
         self.assertEqual(len(grps), 3)
-        self.assertTrue('group1' in grps)
-        self.assertTrue('group2' in grps)
-        self.assertTrue("TESTBLOCK1" in grps['group1'].blocks)
-        self.assertTrue("TESTBLOCK2" in grps['group2'].blocks)
-        self.assertTrue("TESTBLOCK3" in grps['group2'].blocks)
-        self.assertTrue("TESTBLOCK4" in grps['none'].blocks)
+        self.assertTrue("group1" in grps)
+        self.assertTrue("group2" in grps)
+        self.assertTrue("TESTBLOCK1" in grps["group1"].blocks)
+        self.assertTrue("TESTBLOCK2" in grps["group2"].blocks)
+        self.assertTrue("TESTBLOCK3" in grps["group2"].blocks)
+        self.assertTrue("TESTBLOCK4" in grps["none"].blocks)
 
     def test_add_component_then_get_groups_list(self):
         ch = create_default_test_config_holder(self.mock_file_manager)
@@ -419,9 +425,9 @@ class TestConfigHolderSequence(unittest.TestCase):
 
         grps = ch.get_group_details()
         self.assertEqual(len(grps), 4)
-        self.assertTrue('compgroup' in grps)
-        self.assertTrue("COMPBLOCK1" in grps['group1'].blocks)
-        self.assertTrue("COMPBLOCK2" in grps['compgroup'].blocks)
+        self.assertTrue("compgroup" in grps)
+        self.assertTrue("COMPBLOCK1" in grps["group1"].blocks)
+        self.assertTrue("COMPBLOCK2" in grps["compgroup"].blocks)
 
     def test_add_component_remove_component_then_get_groups_list(self):
         ch = create_default_test_config_holder(self.mock_file_manager)
@@ -431,43 +437,54 @@ class TestConfigHolderSequence(unittest.TestCase):
 
         grps = ch.get_group_details()
         self.assertEqual(len(grps), 3)
-        self.assertFalse('compgroup' in grps)
-        self.assertFalse("COMPBLOCK1" in grps['group1'].blocks)
+        self.assertFalse("compgroup" in grps)
+        self.assertFalse("COMPBLOCK1" in grps["group1"].blocks)
 
     def test_redefine_groups_from_list_simple_move(self):
         ch = create_default_test_config_holder(self.mock_file_manager)
 
         # Move TESTBLOCK2 and TESTBLOCK4 into group 1
-        redef = [{"name": "group1", "blocks": ["TESTBLOCK1", "TESTBLOCK2", "TESTBLOCK4"], "component": None},
-                 {"name": "group2", "blocks": ["TESTBLOCK3"], "component": None}]
+        redef = [
+            {
+                "name": "group1",
+                "blocks": ["TESTBLOCK1", "TESTBLOCK2", "TESTBLOCK4"],
+                "component": None,
+            },
+            {"name": "group2", "blocks": ["TESTBLOCK3"], "component": None},
+        ]
         ch._set_group_details(redef)
 
         grps = ch.get_group_details()
         self.assertEqual(len(grps), 2)
-        self.assertTrue('group1' in grps)
-        self.assertTrue('group2' in grps)
-        self.assertTrue("TESTBLOCK1" in grps['group1'].blocks)
-        self.assertTrue("TESTBLOCK2" in grps['group1'].blocks)
-        self.assertTrue("TESTBLOCK3" in grps['group2'].blocks)
-        self.assertTrue("TESTBLOCK4" in grps['group1'].blocks)
+        self.assertTrue("group1" in grps)
+        self.assertTrue("group2" in grps)
+        self.assertTrue("TESTBLOCK1" in grps["group1"].blocks)
+        self.assertTrue("TESTBLOCK2" in grps["group1"].blocks)
+        self.assertTrue("TESTBLOCK3" in grps["group2"].blocks)
+        self.assertTrue("TESTBLOCK4" in grps["group1"].blocks)
 
     def test_redefine_groups_from_list_leave_group_empty(self):
         ch = create_default_test_config_holder(self.mock_file_manager)
 
         # Move TESTBLOCK2, TESTBLOCK3 and TESTBLOCK4 into group 1
-        redef = [{"name": "group1", "blocks": ["TESTBLOCK1", "TESTBLOCK2", "TESTBLOCK3", "TESTBLOCK4"]
-                     , "component": None},
-                 {"name": "group2", "blocks": [], "component": None}]
+        redef = [
+            {
+                "name": "group1",
+                "blocks": ["TESTBLOCK1", "TESTBLOCK2", "TESTBLOCK3", "TESTBLOCK4"],
+                "component": None,
+            },
+            {"name": "group2", "blocks": [], "component": None},
+        ]
         ch._set_group_details(redef)
 
         grps = ch.get_group_details()
         self.assertEqual(len(grps), 1)  # The group1
-        self.assertTrue('group1' in grps)
-        self.assertFalse('group2' in grps)
-        self.assertTrue("TESTBLOCK1" in grps['group1'].blocks)
-        self.assertTrue("TESTBLOCK2" in grps['group1'].blocks)
-        self.assertTrue("TESTBLOCK3" in grps['group1'].blocks)
-        self.assertTrue("TESTBLOCK4" in grps['group1'].blocks)
+        self.assertTrue("group1" in grps)
+        self.assertFalse("group2" in grps)
+        self.assertTrue("TESTBLOCK1" in grps["group1"].blocks)
+        self.assertTrue("TESTBLOCK2" in grps["group1"].blocks)
+        self.assertTrue("TESTBLOCK3" in grps["group1"].blocks)
+        self.assertTrue("TESTBLOCK4" in grps["group1"].blocks)
 
     def test_redefine_groups_from_list_component_changes(self):
         ch = create_default_test_config_holder(self.mock_file_manager)
@@ -476,137 +493,250 @@ class TestConfigHolderSequence(unittest.TestCase):
         ch.add_component("test_comp")
 
         # Move COMPBLOCK1 and COMPBLOCK2 into group 1
-        redef = [{"name": "group1", "blocks": ["TESTBLOCK1", "TESTBLOCK2", "TESTBLOCK3", "TESTBLOCK4", "COMPBLOCK1",
-                                               "COMPBLOCK2"], "component": None},
-                 {"name": "group2", "blocks": [], "component": None},
-                 {"name": "compgroup", "blocks": [], "component": None}]
+        redef = [
+            {
+                "name": "group1",
+                "blocks": [
+                    "TESTBLOCK1",
+                    "TESTBLOCK2",
+                    "TESTBLOCK3",
+                    "TESTBLOCK4",
+                    "COMPBLOCK1",
+                    "COMPBLOCK2",
+                ],
+                "component": None,
+            },
+            {"name": "group2", "blocks": [], "component": None},
+            {"name": "compgroup", "blocks": [], "component": None},
+        ]
         ch._set_group_details(redef)
 
         grps = ch.get_group_details()
         self.assertEqual(len(grps), 1)  # group1
-        self.assertTrue('group1' in grps)
-        self.assertFalse('group2' in grps)
-        self.assertFalse('compgroup' in grps)
-        self.assertTrue("TESTBLOCK1" in grps['group1'].blocks)
-        self.assertTrue("TESTBLOCK2" in grps['group1'].blocks)
-        self.assertTrue("TESTBLOCK3" in grps['group1'].blocks)
-        self.assertTrue("TESTBLOCK4" in grps['group1'].blocks)
+        self.assertTrue("group1" in grps)
+        self.assertFalse("group2" in grps)
+        self.assertFalse("compgroup" in grps)
+        self.assertTrue("TESTBLOCK1" in grps["group1"].blocks)
+        self.assertTrue("TESTBLOCK2" in grps["group1"].blocks)
+        self.assertTrue("TESTBLOCK3" in grps["group1"].blocks)
+        self.assertTrue("TESTBLOCK4" in grps["group1"].blocks)
 
     def test_set_config_details(self):
         # Need component
-        ch = InactiveConfigHolder(MACROS, file_manager=self.mock_file_manager, test_config=Configuration(MACROS))
+        ch = InactiveConfigHolder(
+            MACROS, file_manager=self.mock_file_manager, test_config=Configuration(MACROS)
+        )
         ch.save_configuration("TESTCOMPONENT", True)
 
-        new_details = {"iocs":
-                           [{"name": "TESTSIMPLE1", "autostart": True, "restart": True, "macros": [], "pvs": [],
-                             "pvsets": [], "component": None},
-                            {"name": "TESTSIMPLE2", "autostart": True, "restart": True, "macros": [], "pvs": [],
-                             "pvsets": [], "component": None}],
-                       "blocks":
-                           [{"name": "TESTBLOCK1", "local": True, "pv": "PV1", "component": None,
-                             "visible": True},
-                            {"name": "TESTBLOCK2", "local": True, "pv": "PV2", "component": None,
-                             "visible": True},
-                            {"name": "TESTBLOCK3", "local": True, "pv": "PV3", "component": None,
-                             "visible": True}],
-                       "components": [{"name": "TESTCOMPONENT"}],
-                       "groups":
-                           [{"blocks": ["TESTBLOCK1"], "name": "Group1", "component": None},
-                            {"blocks": ["TESTBLOCK2"], "name": "Group2", "component": None},
-                            {"blocks": ["TESTBLOCK3"], "name": "NONE", "component": None}],
-                       "name": "TESTCONFIG",
-                       "description": "Test Description",
-                       "synoptic": "TEST_SYNOPTIC"
-                       }
+        new_details = {
+            "iocs": [
+                {
+                    "name": "TESTSIMPLE1",
+                    "autostart": True,
+                    "restart": True,
+                    "macros": [],
+                    "pvs": [],
+                    "pvsets": [],
+                    "component": None,
+                },
+                {
+                    "name": "TESTSIMPLE2",
+                    "autostart": True,
+                    "restart": True,
+                    "macros": [],
+                    "pvs": [],
+                    "pvsets": [],
+                    "component": None,
+                },
+            ],
+            "blocks": [
+                {
+                    "name": "TESTBLOCK1",
+                    "local": True,
+                    "pv": "PV1",
+                    "component": None,
+                    "visible": True,
+                },
+                {
+                    "name": "TESTBLOCK2",
+                    "local": True,
+                    "pv": "PV2",
+                    "component": None,
+                    "visible": True,
+                },
+                {
+                    "name": "TESTBLOCK3",
+                    "local": True,
+                    "pv": "PV3",
+                    "component": None,
+                    "visible": True,
+                },
+            ],
+            "components": [{"name": "TESTCOMPONENT"}],
+            "groups": [
+                {"blocks": ["TESTBLOCK1"], "name": "Group1", "component": None},
+                {"blocks": ["TESTBLOCK2"], "name": "Group2", "component": None},
+                {"blocks": ["TESTBLOCK3"], "name": "NONE", "component": None},
+            ],
+            "name": "TESTCONFIG",
+            "description": "Test Description",
+            "synoptic": "TEST_SYNOPTIC",
+        }
         ch.set_config_details(new_details)
         details = ch.get_config_details()
-        iocs = [x['name'] for x in details['iocs']]
+        iocs = [x["name"] for x in details["iocs"]]
         self.assertEqual(len(iocs), 2)
         self.assertTrue("TESTSIMPLE1" in iocs)
         self.assertTrue("TESTSIMPLE2" in iocs)
 
-        self.assertEqual(len(details['blocks']), 3)
-        blks = [x['name'] for x in details['blocks']]
+        self.assertEqual(len(details["blocks"]), 3)
+        blks = [x["name"] for x in details["blocks"]]
         self.assertTrue("TESTBLOCK1" in blks)
         self.assertTrue("TESTBLOCK2" in blks)
         self.assertTrue("TESTBLOCK3" in blks)
 
-        self.assertEqual(len(details['groups']), 3)
-        self.assertEqual(details['groups'][0]['blocks'], ["TESTBLOCK1"])
-        self.assertEqual(details['groups'][1]['blocks'], ["TESTBLOCK2"])
-        self.assertEqual(details['groups'][2]['blocks'], ["TESTBLOCK3"])
+        self.assertEqual(len(details["groups"]), 3)
+        self.assertEqual(details["groups"][0]["blocks"], ["TESTBLOCK1"])
+        self.assertEqual(details["groups"][1]["blocks"], ["TESTBLOCK2"])
+        self.assertEqual(details["groups"][2]["blocks"], ["TESTBLOCK3"])
 
-        self.assertEqual(len(details['components']), 1)
-        self.assertEqual(details['components'][0]['name'], "TESTCOMPONENT")
+        self.assertEqual(len(details["components"]), 1)
+        self.assertEqual(details["components"][0]["name"], "TESTCOMPONENT")
 
-        self.assertEqual(details['name'], "TESTCONFIG")
-        self.assertEqual(details['description'], "Test Description")
-        self.assertEqual(details['synoptic'], "TEST_SYNOPTIC")
+        self.assertEqual(details["name"], "TESTCONFIG")
+        self.assertEqual(details["description"], "Test Description")
+        self.assertEqual(details["synoptic"], "TEST_SYNOPTIC")
 
     def test_set_config_details_nonexistant_block_in_group_is_removed(self):
         ch = create_default_test_config_holder(self.mock_file_manager)
 
-        new_details = {"iocs":
-                           [{"name": "TESTSIMPLE1", "autostart": True, "restart": True, "macros": [], "pvs": [],
-                             "pvsets": [], "component": None},
-                            {"name": "TESTSIMPLE2", "autostart": True, "restart": True, "macros": [], "pvs": [],
-                             "pvsets": [], "component": None}],
-                       "blocks":
-                           [{"name": "TESTBLOCK1", "local": True, "pv": "PV1", "component": None,
-                             "visible": True},
-                            {"name": "TESTBLOCK2", "local": True, "pv": "PV2", "component": None,
-                             "visible": True},
-                            {"name": "TESTBLOCK3", "local": True, "pv": "PV3", "component": None,
-                             "visible": True}],
-                       "components": [],
-                       "groups":
-                           [{"blocks": ["TESTBLOCK1", "IDONTEXIST"], "name": "Group1", "component": None},
-                            {"blocks": ["TESTBLOCK2"], "name": "Group2", "component": None},
-                            {"blocks": ["TESTBLOCK3"], "name": "NONE", "component": None}],
-                       "name": "TESTCONFIG"
+        new_details = {
+            "iocs": [
+                {
+                    "name": "TESTSIMPLE1",
+                    "autostart": True,
+                    "restart": True,
+                    "macros": [],
+                    "pvs": [],
+                    "pvsets": [],
+                    "component": None,
+                },
+                {
+                    "name": "TESTSIMPLE2",
+                    "autostart": True,
+                    "restart": True,
+                    "macros": [],
+                    "pvs": [],
+                    "pvsets": [],
+                    "component": None,
+                },
+            ],
+            "blocks": [
+                {
+                    "name": "TESTBLOCK1",
+                    "local": True,
+                    "pv": "PV1",
+                    "component": None,
+                    "visible": True,
+                },
+                {
+                    "name": "TESTBLOCK2",
+                    "local": True,
+                    "pv": "PV2",
+                    "component": None,
+                    "visible": True,
+                },
+                {
+                    "name": "TESTBLOCK3",
+                    "local": True,
+                    "pv": "PV3",
+                    "component": None,
+                    "visible": True,
+                },
+            ],
+            "components": [],
+            "groups": [
+                {"blocks": ["TESTBLOCK1", "IDONTEXIST"], "name": "Group1", "component": None},
+                {"blocks": ["TESTBLOCK2"], "name": "Group2", "component": None},
+                {"blocks": ["TESTBLOCK3"], "name": "NONE", "component": None},
+            ],
+            "name": "TESTCONFIG",
         }
         ch.set_config_details(new_details)
 
         # Check via get_config_details
         details = ch.get_config_details()
-        self.assertEqual(len(details['blocks']), 3)
-        blks = [x['name'] for x in details['blocks']]
+        self.assertEqual(len(details["blocks"]), 3)
+        blks = [x["name"] for x in details["blocks"]]
         self.assertFalse("IDONTEXIST" in blks)
 
-        self.assertEqual(len(details['groups']), 3)
-        self.assertEqual(details['groups'][0]['blocks'], ["TESTBLOCK1"])
+        self.assertEqual(len(details["groups"]), 3)
+        self.assertEqual(details["groups"][0]["blocks"], ["TESTBLOCK1"])
 
         # Also check via get_group_details
-        grp = ch.get_group_details()['group1']
+        grp = ch.get_group_details()["group1"]
         self.assertFalse("IDONTEXIST" in grp.blocks)
 
     def test_set_config_details_empty_group_is_removed(self):
         ch = create_default_test_config_holder(self.mock_file_manager)
 
-        new_details = {"iocs":
-                           [{"name": "TESTSIMPLE1", "autostart": True, "restart": True, "macros": {}, "pvs": {},
-                             "pvsets": {}, "component": None},
-                            {"name": "TESTSIMPLE2", "autostart": True, "restart": True, "macros": {}, "pvs": {},
-                             "pvsets": {}, "component": None}],
-                       "blocks":
-                           [{"name": "TESTBLOCK1", "local": True, "pv": "PV1", "component": None,
-                             "visible": True},
-                            {"name": "TESTBLOCK2", "local": True, "pv": "PV2", "component": None,
-                             "visible": True},
-                            {"name": "TESTBLOCK3", "local": True, "pv": "PV3", "component": None,
-                             "visible": True}],
-                       "components": [],
-                       "groups":
-                           [{"blocks": ["TESTBLOCK1", "TESTBLOCK2"], "name": "Group1", "component": None},
-                            {"blocks": [], "name": "Group2", "component": None},
-                            {"blocks": ["TESTBLOCK3"], "name": "NONE", "component": None}],
-                       "name": "TESTCONFIG"
+        new_details = {
+            "iocs": [
+                {
+                    "name": "TESTSIMPLE1",
+                    "autostart": True,
+                    "restart": True,
+                    "macros": {},
+                    "pvs": {},
+                    "pvsets": {},
+                    "component": None,
+                },
+                {
+                    "name": "TESTSIMPLE2",
+                    "autostart": True,
+                    "restart": True,
+                    "macros": {},
+                    "pvs": {},
+                    "pvsets": {},
+                    "component": None,
+                },
+            ],
+            "blocks": [
+                {
+                    "name": "TESTBLOCK1",
+                    "local": True,
+                    "pv": "PV1",
+                    "component": None,
+                    "visible": True,
+                },
+                {
+                    "name": "TESTBLOCK2",
+                    "local": True,
+                    "pv": "PV2",
+                    "component": None,
+                    "visible": True,
+                },
+                {
+                    "name": "TESTBLOCK3",
+                    "local": True,
+                    "pv": "PV3",
+                    "component": None,
+                    "visible": True,
+                },
+            ],
+            "components": [],
+            "groups": [
+                {"blocks": ["TESTBLOCK1", "TESTBLOCK2"], "name": "Group1", "component": None},
+                {"blocks": [], "name": "Group2", "component": None},
+                {"blocks": ["TESTBLOCK3"], "name": "NONE", "component": None},
+            ],
+            "name": "TESTCONFIG",
         }
         ch.set_config_details(new_details)
 
         # Check via get_config_details
         details = ch.get_config_details()
-        self.assertEqual(len(details['groups']), 2)
+        self.assertEqual(len(details["groups"]), 2)
 
         # Also check via get_group_details
         grps = ch.get_group_details()
@@ -614,68 +744,99 @@ class TestConfigHolderSequence(unittest.TestCase):
 
     def test_set_config_details_ioc_lists_filled(self):
         ch = create_default_test_config_holder(self.mock_file_manager)
-        new_details = {"iocs":
-                           [{"name": "TESTSIMPLE1", "autostart": True, "restart": True,
-                                "macros": [{"name": "TESTMACRO1", "value" : "TEST"}, {"name": "TESTMACRO2",
-                                                                                      "value" : 123}],
-                                "pvs": [{"name": "TESTPV1", "value": 123}],
-                                "pvsets": [{"name": "TESTPVSET1", "enabled": True}],
-                                "component": None},
-                            {"name": "TESTSIMPLE2", "autostart": True, "restart": True,
-                                "macros": [{"name": "TESTMACRO3", "value" : "TEST2"}],
-                                "pvs": [],
-                                "pvsets": [],
-                                "component": None}],
-                       "blocks":
-                           [{"name": "TESTBLOCK1", "local": True, "pv": "PV1", "component": None,
-                             "visible": True},
-                            {"name": "TESTBLOCK2", "local": True, "pv": "PV2", "component": None,
-                             "visible": True},
-                            {"name": "TESTBLOCK3", "local": True, "pv": "PV3", "component": None,
-                             "visible": True}],
-                       "components": [],
-                       "groups":
-                           [{"blocks": ["TESTBLOCK1", "IDONTEXIST"], "name": "Group1", "component": None},
-                            {"blocks": ["TESTBLOCK2"], "name": "Group2", "component": None},
-                            {"blocks": ["TESTBLOCK3"], "name": "NONE", "component": None}],
-                       "name": "TESTCONFIG"
+        new_details = {
+            "iocs": [
+                {
+                    "name": "TESTSIMPLE1",
+                    "autostart": True,
+                    "restart": True,
+                    "macros": [
+                        {"name": "TESTMACRO1", "value": "TEST"},
+                        {"name": "TESTMACRO2", "value": 123},
+                    ],
+                    "pvs": [{"name": "TESTPV1", "value": 123}],
+                    "pvsets": [{"name": "TESTPVSET1", "enabled": True}],
+                    "component": None,
+                },
+                {
+                    "name": "TESTSIMPLE2",
+                    "autostart": True,
+                    "restart": True,
+                    "macros": [{"name": "TESTMACRO3", "value": "TEST2"}],
+                    "pvs": [],
+                    "pvsets": [],
+                    "component": None,
+                },
+            ],
+            "blocks": [
+                {
+                    "name": "TESTBLOCK1",
+                    "local": True,
+                    "pv": "PV1",
+                    "component": None,
+                    "visible": True,
+                },
+                {
+                    "name": "TESTBLOCK2",
+                    "local": True,
+                    "pv": "PV2",
+                    "component": None,
+                    "visible": True,
+                },
+                {
+                    "name": "TESTBLOCK3",
+                    "local": True,
+                    "pv": "PV3",
+                    "component": None,
+                    "visible": True,
+                },
+            ],
+            "components": [],
+            "groups": [
+                {"blocks": ["TESTBLOCK1", "IDONTEXIST"], "name": "Group1", "component": None},
+                {"blocks": ["TESTBLOCK2"], "name": "Group2", "component": None},
+                {"blocks": ["TESTBLOCK3"], "name": "NONE", "component": None},
+            ],
+            "name": "TESTCONFIG",
         }
         ch.set_config_details(new_details)
 
         # Check via get_config_details
         details = ch.get_config_details()
-        self.assertEqual(len(details['iocs']), 2)
-        macros = [y for x in details['iocs'] for y in x['macros']]
-        macro_names = [x['name'] for x in macros]
+        self.assertEqual(len(details["iocs"]), 2)
+        macros = [y for x in details["iocs"] for y in x["macros"]]
+        macro_names = [x["name"] for x in macros]
         self.assertTrue("TESTMACRO1" in macro_names)
         self.assertTrue("TESTMACRO3" in macro_names)
 
     def test_set_config_details_empty_config(self):
         ch = create_default_test_config_holder(self.mock_file_manager)
-        new_details = {"iocs": [],
-                       "blocks": [],
-                       "components": [],
-                       "groups": [],
-                       "name": "EMPTYCONFIG",
-                       "description": "",
-                       "synoptic": ""
+        new_details = {
+            "iocs": [],
+            "blocks": [],
+            "components": [],
+            "groups": [],
+            "name": "EMPTYCONFIG",
+            "description": "",
+            "synoptic": "",
         }
         ch.set_config_details(new_details)
 
         # Check via get_config_details
         details = ch.get_config_details()
-        self.assertEqual(len(details['iocs']), 0)
-        self.assertEqual(len(details['blocks']), 0)
-        self.assertEqual(len(details['components']), 0)
-        self.assertEqual(len(details['groups']), 0)
-        self.assertEqual(details['description'], "")
-        self.assertEqual(details['synoptic'], "")
-        self.assertEqual(details['name'], "EMPTYCONFIG")
+        self.assertEqual(len(details["iocs"]), 0)
+        self.assertEqual(len(details["blocks"]), 0)
+        self.assertEqual(len(details["components"]), 0)
+        self.assertEqual(len(details["groups"]), 0)
+        self.assertEqual(details["description"], "")
+        self.assertEqual(details["synoptic"], "")
+        self.assertEqual(details["name"], "EMPTYCONFIG")
 
     def test_default_component_is_loaded(self):
         # Arrange
-        ch = ConfigHolder(MACROS, file_manager=self.mock_file_manager,
-                          test_config=Configuration(MACROS))
+        ch = ConfigHolder(
+            MACROS, file_manager=self.mock_file_manager, test_config=Configuration(MACROS)
+        )
         ch.save_configuration("TESTCONFIG", False)
         ch.clear_config()
 
@@ -689,7 +850,9 @@ class TestConfigHolderSequence(unittest.TestCase):
         self.assertTrue(comp_count_with_default > comp_count)
 
     def test_cannot_modify_default(self):
-        ch = ConfigHolder(MACROS, file_manager=self.mock_file_manager, test_config=Configuration(MACROS))
+        ch = ConfigHolder(
+            MACROS, file_manager=self.mock_file_manager, test_config=Configuration(MACROS)
+        )
 
         try:
             ch.save_configuration(DEFAULT_COMPONENT, True)
@@ -709,17 +872,20 @@ class TestConfigHolderSequence(unittest.TestCase):
         self.assertEqual(len(blocks), 0)
 
     def test_cannot_save_with_blank_name(self):
-        ch = ConfigHolder(MACROS, file_manager=self.mock_file_manager,
-                          test_config=Configuration(MACROS))
+        ch = ConfigHolder(
+            MACROS, file_manager=self.mock_file_manager, test_config=Configuration(MACROS)
+        )
         self.assertRaises(Exception, ch.save_configuration, "", False)
 
     def test_cannot_save_with_none_name(self):
-        ch = ConfigHolder(MACROS, file_manager=self.mock_file_manager,
-                          test_config=Configuration(MACROS))
+        ch = ConfigHolder(
+            MACROS, file_manager=self.mock_file_manager, test_config=Configuration(MACROS)
+        )
         self.assertRaises(Exception, ch.save_configuration, None, False)
 
     def test_cannot_save_with_invalid_name(self):
-        ch = ConfigHolder(MACROS, file_manager=self.mock_file_manager,
-                          test_config=Configuration(MACROS))
+        ch = ConfigHolder(
+            MACROS, file_manager=self.mock_file_manager, test_config=Configuration(MACROS)
+        )
         self.assertRaises(Exception, ch.save_configuration, "This is invalid", False)
         self.assertRaises(Exception, ch.save_configuration, "This_is_invalid!", False)

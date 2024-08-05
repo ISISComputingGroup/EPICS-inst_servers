@@ -41,7 +41,6 @@ ignore = []
 
 
 def moves(axes):
-
     baffle_to_detector_zero = 5789.74
 
     # Detector
@@ -55,6 +54,7 @@ def moves(axes):
     t.translate(x=axes[1] - baffle_x_size / 2)
 
     yield t
+
 
 # Attach monitors to readbacks
 pvs = [

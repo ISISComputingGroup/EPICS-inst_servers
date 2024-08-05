@@ -97,7 +97,9 @@ class MockDevicesFileIO:
 class TestDevicesManagerSequence(unittest.TestCase):
     def setUp(self):
         # Make directory and fill with fake content
-        FILEPATH_MANAGER.initialise(os.path.abspath(CONFIG_PATH), os.path.abspath(SCRIPT_PATH), os.path.abspath(SCHEMA_PATH))
+        FILEPATH_MANAGER.initialise(
+            os.path.abspath(CONFIG_PATH), os.path.abspath(SCRIPT_PATH), os.path.abspath(SCHEMA_PATH)
+        )
 
         # Find the schema directory
         dir = os.path.join(".")
@@ -126,7 +128,9 @@ class TestDevicesManagerSequence(unittest.TestCase):
     def test_when_devices_screens_file_does_not_exist_then_current_uses_blank_devices_data(self):
         # Assert
         self.assertTrue(len(self.file_io.files) == 0)
-        self.assertEqual(self.bs.pvs[GET_SCREENS], compress_and_hex(self.dm.get_blank_devices().decode("utf-8")))
+        self.assertEqual(
+            self.bs.pvs[GET_SCREENS], compress_and_hex(self.dm.get_blank_devices().decode("utf-8"))
+        )
 
     def test_given_invalid_devices_data_when_device_xml_saved_then_not_saved(self):
         # Act: Save invalid new data to file
@@ -134,7 +138,9 @@ class TestDevicesManagerSequence(unittest.TestCase):
 
         # Assert
         # Should stay as blank (i.e. the previous value)
-        self.assertEqual(self.dm.get_blank_devices(), dehex_and_decompress(self.bs.pvs[GET_SCREENS]))
+        self.assertEqual(
+            self.dm.get_blank_devices(), dehex_and_decompress(self.bs.pvs[GET_SCREENS])
+        )
 
     def test_given_valid_devices_data_when_device_xml_saved_then_saved(self):
         # Act: Save the new data to file
@@ -142,4 +148,6 @@ class TestDevicesManagerSequence(unittest.TestCase):
 
         # Assert:
         # Device screens in blockserver should have been updated with value written to device manager
-        self.assertEqual(bytes(EXAMPLE_DEVICES,"utf-8"), dehex_and_decompress(self.bs.pvs[GET_SCREENS]))
+        self.assertEqual(
+            bytes(EXAMPLE_DEVICES, "utf-8"), dehex_and_decompress(self.bs.pvs[GET_SCREENS])
+        )

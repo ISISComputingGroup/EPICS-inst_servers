@@ -17,9 +17,10 @@ from abc import ABCMeta, abstractmethod
 
 
 class OnTheFlyPvInterface:
-    """ This is an abstract base class to ensure that any class that needs to handle on-the-fly PVs
+    """This is an abstract base class to ensure that any class that needs to handle on-the-fly PVs
     implements all the correct methods.
     """
+
     __metaclass__ = ABCMeta
 
     def __init__(self):
@@ -27,7 +28,7 @@ class OnTheFlyPvInterface:
         self.pvs_to_write = []
 
     def read_pv_exists(self, pv):
-        """ Checks whether the read PV is handled by this class.
+        """Checks whether the read PV is handled by this class.
         If the read PV is handled by a monitor then this MUST return False
 
         Args:
@@ -39,7 +40,7 @@ class OnTheFlyPvInterface:
         return pv in self.pvs_to_read
 
     def write_pv_exists(self, pv):
-        """ Checks whether the write PV is handled by this class.
+        """Checks whether the write PV is handled by this class.
 
         Args:
             pv (string): The PV name
@@ -51,7 +52,7 @@ class OnTheFlyPvInterface:
 
     @abstractmethod
     def handle_pv_write(self, pv: str, data: str):
-        """ Handles the request to write to the PV.
+        """Handles the request to write to the PV.
 
         Note: implementations of this method MUST run on a separate thread.
 
@@ -63,7 +64,7 @@ class OnTheFlyPvInterface:
 
     @abstractmethod
     def handle_pv_read(self, pv):
-        """ Handles the request to read the PV value
+        """Handles the request to read the PV value
 
         Args:
             pv (string): The PV's name
@@ -75,13 +76,12 @@ class OnTheFlyPvInterface:
 
     @abstractmethod
     def update_monitors(self):
-        """ Updates any monitors associated with the class.
-        """
+        """Updates any monitors associated with the class."""
         pass
 
     @abstractmethod
     def on_config_change(self, full_init=False):
-        """ Performs any tasks that need to be carried out on initialisation.
+        """Performs any tasks that need to be carried out on initialisation.
 
         For example: on loading a new configuration.
 

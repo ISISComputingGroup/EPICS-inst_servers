@@ -25,14 +25,18 @@ from server_common.utilities import dehex_and_decompress
 
 
 class TestGroupRulesSequence(unittest.TestCase):
-    """ Unit tests for block rules, note that changes here may have to be propagated to clients """
+    """Unit tests for block rules, note that changes here may have to be propagated to clients"""
 
     def setUp(self):
         self.bs = MockBlockServer()
         self.group_rules = GroupRules(self.bs)
 
     def get_block_rules_json(self):
-        return json.loads(bytes(dehex_and_decompress(self.bs.pvs[BlockserverPVNames.GROUP_RULES]), encoding="utf-8"))
+        return json.loads(
+            bytes(
+                dehex_and_decompress(self.bs.pvs[BlockserverPVNames.GROUP_RULES]), encoding="utf-8"
+            )
+        )
 
     def get_regex(self):
         regex_string = self.group_rules.rules["regex"]

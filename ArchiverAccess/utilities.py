@@ -17,6 +17,7 @@
 """
 Module with useful utilities in
 """
+
 from datetime import datetime
 
 
@@ -51,7 +52,7 @@ def truncate(x, d):
 
     """
     if d > 0:
-        mult = 10.0 ** d
+        mult = 10.0**d
         return int(x * mult) / mult
     else:
         mult = 10 ** (-d)

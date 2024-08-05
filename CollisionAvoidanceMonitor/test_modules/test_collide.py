@@ -24,6 +24,7 @@ class MockGeometry(object):
     """
     Object to mock a geometry.
     """
+
     def __init__(self):
         self.geom = MagicMock()
 
@@ -57,25 +58,44 @@ class TestCollide(TestCase):
         collisions = collide([MockGeometry()], [])
         self.assertEqual(collisions, [False])
 
-    def test_GIVEN_two_geometries_WHEN_collide_called_and_geometries_colliding_THEN_returns_list_with_two_collided_bodies(self):
-        collisions = collide([MockGeometry(), MockGeometry()], [], collision_func=always_report_collisions)
+    def test_GIVEN_two_geometries_WHEN_collide_called_and_geometries_colliding_THEN_returns_list_with_two_collided_bodies(
+        self,
+    ):
+        collisions = collide(
+            [MockGeometry(), MockGeometry()], [], collision_func=always_report_collisions
+        )
         self.assertEqual(len([x for x in collisions if x is True]), 2)
 
-    def test_GIVEN_two_geometries_WHEN_collide_called_and_geometries_not_colliding_THEN_returns_list_with_no_collided_bodies(self):
-        collisions = collide([MockGeometry(), MockGeometry()], [], collision_func=never_report_collisions)
+    def test_GIVEN_two_geometries_WHEN_collide_called_and_geometries_not_colliding_THEN_returns_list_with_no_collided_bodies(
+        self,
+    ):
+        collisions = collide(
+            [MockGeometry(), MockGeometry()], [], collision_func=never_report_collisions
+        )
         self.assertEqual(len([x for x in collisions if x is True]), 0)
 
-    def test_GIVEN_three_geometries_all_colliding_with_each_other_WHEN_collide_called_THEN_returns_list_with_three_collided_bodies(self):
-        collisions = collide([MockGeometry(), MockGeometry(), MockGeometry()], [], collision_func=always_report_collisions)
+    def test_GIVEN_three_geometries_all_colliding_with_each_other_WHEN_collide_called_THEN_returns_list_with_three_collided_bodies(
+        self,
+    ):
+        collisions = collide(
+            [MockGeometry(), MockGeometry(), MockGeometry()],
+            [],
+            collision_func=always_report_collisions,
+        )
         self.assertEqual(len([x for x in collisions if x is True]), 3)
 
-    def test_GIVEN_three_geometries_all_colliding_with_each_other_but_collisions_with_one_of_the_bodies_are_ignored_WHEN_collide_called_THEN_returns_list_with_two_collided_bodies(self):
-
+    def test_GIVEN_three_geometries_all_colliding_with_each_other_but_collisions_with_one_of_the_bodies_are_ignored_WHEN_collide_called_THEN_returns_list_with_two_collided_bodies(
+        self,
+    ):
         # Ignore collisions from body 0 to everywhere else.
         ignored = [
             [0, 1],
             [0, 2],
         ]
 
-        collisions = collide([MockGeometry(), MockGeometry(), MockGeometry()], ignored, collision_func=always_report_collisions)
+        collisions = collide(
+            [MockGeometry(), MockGeometry(), MockGeometry()],
+            ignored,
+            collision_func=always_report_collisions,
+        )
         self.assertEqual(len([x for x in collisions if x is True]), 2)

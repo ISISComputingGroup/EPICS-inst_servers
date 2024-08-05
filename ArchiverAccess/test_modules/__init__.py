@@ -23,6 +23,6 @@ def load_tests(loader, standard_tests, pattern):
 
     The tests in this module are only added under Python 2.
     """
-    
+
     standard_tests.addTests(loader.discover(os.path.dirname(__file__), pattern=pattern))
     return standard_tests

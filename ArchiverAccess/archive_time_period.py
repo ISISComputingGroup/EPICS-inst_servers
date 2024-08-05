@@ -17,7 +17,6 @@
 Module for defining a time period for the archive access
 """
 
-
 from ArchiverAccess.utilities import truncate
 
 
@@ -40,7 +39,9 @@ class ArchiveTimePeriod(object):
         self.start_time = start_time.replace(microsecond=nearest_10th_second)
         self.delta = delta
         if point_count is None:
-            self.point_count = int((finish_time - self.start_time).total_seconds() // self.delta.total_seconds() + 1)
+            self.point_count = int(
+                (finish_time - self.start_time).total_seconds() // self.delta.total_seconds() + 1
+            )
         else:
             self.point_count = point_count
 
@@ -48,9 +49,11 @@ class ArchiveTimePeriod(object):
         self.end_time = self.start_time + number_of_deltas * self.delta
 
     def __eq__(self, other):
-        return other is self or (other.start_time == self.start_time and
-                                 other.point_count == self.point_count and
-                                 other.delta == self.delta)
+        return other is self or (
+            other.start_time == self.start_time
+            and other.point_count == self.point_count
+            and other.delta == self.delta
+        )
 
     def get_time_after(self, periods_count):
         """
@@ -64,4 +67,6 @@ class ArchiveTimePeriod(object):
         return self.start_time + self.delta * periods_count
 
     def __repr__(self):
-        return "From {0} to {1} in periods of {2}s".format(self.start_time, self.end_time, self.delta.total_seconds())
+        return "From {0} to {1} in periods of {2}s".format(
+            self.start_time, self.end_time, self.delta.total_seconds()
+        )

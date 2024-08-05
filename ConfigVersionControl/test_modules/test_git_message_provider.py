@@ -251,7 +251,9 @@ class TestMessageProvider(unittest.TestCase):
         # Assert
         self.assertEqual(actual_msg, expected_msg)
 
-    def test_WHEN_non_device_screens_file_in_comp_dir_modified_THEN_other_modified_in_commit_message(self):
+    def test_WHEN_non_device_screens_file_in_comp_dir_modified_THEN_other_modified_in_commit_message(
+        self,
+    ):
         # Arrange
         file_path = os.path.join("configurations", "devices", "something_else.xml")
         changed = Mock(a_rawpath=file_path, new_file=False)
@@ -265,7 +267,9 @@ class TestMessageProvider(unittest.TestCase):
         # Assert
         self.assertEqual(actual_msg, expected_msg)
 
-    def test_WHEN_non_device_screens_in_comp_dir_deleted_THEN_other_modified_in_commit_message(self):
+    def test_WHEN_non_device_screens_in_comp_dir_deleted_THEN_other_modified_in_commit_message(
+        self,
+    ):
         # Arrange
         file_path = os.path.join("configurations", "devices", "something_else.xml")
         changed = Mock(a_rawpath=file_path, new_file=True)
@@ -352,12 +356,19 @@ class TestMessageProvider(unittest.TestCase):
             self.diff.append(self.mock_diff(path, False))
             self.diff.append(self.mock_diff(path, True))
 
-        expected_msg = self.mp.CONFIGS_MODIFIED + self.add_comma(
-            self.mp.CONFIGS_DELETED) + self.add_comma(self.mp.COMPS_MODIFIED) + self.add_comma(
-            self.mp.COMPS_DELETED) + self.add_comma(self.mp.SYN_MODIFIED) + self.add_comma(
-            self.mp.SYN_DELETED) + self.add_comma(self.mp.DEVICES_MODIFIED) + self.add_comma(
-            self.mp.DEVICES_DELETED) + self.add_comma(self.mp.SCRIPTS_MODIFIED) + self.add_comma(
-            self.mp.SCRIPTS_DELETED) + self.add_comma(self.mp.OTHER_MODIFIED)
+        expected_msg = (
+            self.mp.CONFIGS_MODIFIED
+            + self.add_comma(self.mp.CONFIGS_DELETED)
+            + self.add_comma(self.mp.COMPS_MODIFIED)
+            + self.add_comma(self.mp.COMPS_DELETED)
+            + self.add_comma(self.mp.SYN_MODIFIED)
+            + self.add_comma(self.mp.SYN_DELETED)
+            + self.add_comma(self.mp.DEVICES_MODIFIED)
+            + self.add_comma(self.mp.DEVICES_DELETED)
+            + self.add_comma(self.mp.SCRIPTS_MODIFIED)
+            + self.add_comma(self.mp.SCRIPTS_DELETED)
+            + self.add_comma(self.mp.OTHER_MODIFIED)
+        )
 
         # Act
         actual_msg = self.mp.get_commit_message(self.diff)

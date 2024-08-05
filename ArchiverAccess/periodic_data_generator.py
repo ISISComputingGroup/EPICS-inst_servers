@@ -54,15 +54,20 @@ class PeriodicDataGenerator(object):
         :return: Generator for a data point which is a period_data_point tuple
         """
         if not self._does_new_time_period_start_at_end_of_last(time_period.start_time):
-            self._current_values = self._archiver_data_source.initial_values(pv_names, time_period.start_time)
+            self._current_values = self._archiver_data_source.initial_values(
+                pv_names, time_period.start_time
+            )
 
-        archiver_changes_generator = self._archiver_data_source.changes_generator(pv_names, time_period)
+        archiver_changes_generator = self._archiver_data_source.changes_generator(
+            pv_names, time_period
+        )
         self._set_next_change(archiver_changes_generator)
 
         for current_point_count in range(time_period.point_count):
             self._current_time = time_period.get_time_after(current_point_count)
-            self._current_values = self._get_values_at_time(self._current_values, self._current_time,
-                                                            archiver_changes_generator)
+            self._current_values = self._get_values_at_time(
+                self._current_values, self._current_time, archiver_changes_generator
+            )
 
             yield period_data_point(self._current_time, self._current_values)
 
@@ -87,8 +92,9 @@ class PeriodicDataGenerator(object):
         :return:
         """
         try:
-            self._next_change_time, self._next_change_index, self._next_change_value = \
-                next(_archiver_changes_generator)
+            self._next_change_time, self._next_change_index, self._next_change_value = next(
+                _archiver_changes_generator
+            )
         except StopIteration:
             self._next_change_time = None
 
@@ -101,5 +107,8 @@ class PeriodicDataGenerator(object):
         Returns: true if it has the same time; false otherwise
 
         """
-        return not (self._current_values is None or self._current_time is None or
-                    self._current_time != start_time)
+        return not (
+            self._current_values is None
+            or self._current_time is None
+            or self._current_time != start_time
+        )

@@ -84,9 +84,10 @@ def initialise_camera(transform):
     transform.translate(-200, 200, 200)
     return transform
 
+
 screensize = (820, 720)
 
-os.environ['SDL_VIDEO_WINDOW_POS'] = "%d,%d" % (5, 25)
+os.environ["SDL_VIDEO_WINDOW_POS"] = "%d,%d" % (5, 25)
 
 clock = pygame.time.Clock()
 
@@ -122,7 +123,7 @@ def glinit():
     glMatrixMode(GL_PROJECTION)
     glLoadIdentity()
     # FOV angle, aspect ratio, near clipping plane, far clipping plane
-    gluPerspective(60.0, float(screensize[0]) / screensize[1], 500, 10000.)
+    gluPerspective(60.0, float(screensize[0]) / screensize[1], 500, 10000.0)
     glMatrixMode(GL_MODELVIEW)
     glLoadIdentity()
 
@@ -140,8 +141,8 @@ def glinit():
 
     glLight(GL_LIGHT0, GL_POSITION, [0, 0, 0])
 
-    glLight(GL_LIGHT0, GL_AMBIENT, (.1, .1, .1, 1.))
-    glLight(GL_LIGHT0, GL_DIFFUSE, (1.0, 1.0, 1.0, 1.))
+    glLight(GL_LIGHT0, GL_AMBIENT, (0.1, 0.1, 0.1, 1.0))
+    glLight(GL_LIGHT0, GL_DIFFUSE, (1.0, 1.0, 1.0, 1.0))
 
     glMaterial(GL_FRONT, GL_AMBIENT, (0.1, 0.1, 0.1, 1.0))
     glMaterial(GL_FRONT, GL_DIFFUSE, (1.0, 1.0, 1.0, 1.0))
@@ -184,7 +185,7 @@ def check_controls(renderer):
             return
 
     time_passed = clock.tick()
-    time_passed_seconds = time_passed / 1000.
+    time_passed_seconds = time_passed / 1000.0
 
     logging.debug("Frame drawn in %d", time_passed)
 
@@ -292,7 +293,9 @@ def text(x, y, string, color=(0.4, 0.4, 0.4), align="left"):
     else:
         glRasterPos2d(x, y)
 
-    glDrawPixels(text_surface.get_width(), text_surface.get_height(), GL_RGBA, GL_UNSIGNED_BYTE, text_data)
+    glDrawPixels(
+        text_surface.get_width(), text_surface.get_height(), GL_RGBA, GL_UNSIGNED_BYTE, text_data
+    )
 
     glMatrixMode(GL_PROJECTION)
     glPopMatrix()
@@ -306,33 +309,38 @@ def render_box(geometry, color=None, fill=True):
     num_faces = 6
     num_edges = 12
 
-    normals = [(0.0, 0.0, +1.0),  # top
-               (0.0, 0.0, -1.0),  # bot
-               (-1.0, 0.0, 0.0),  # left
-               (+1.0, 0.0, 0.0),  # right
-               (0.0, +1.0, 0.0),  # front
-               (0.0, -1.0, 0.0),  # back
-               ]
+    normals = [
+        (0.0, 0.0, +1.0),  # top
+        (0.0, 0.0, -1.0),  # bot
+        (-1.0, 0.0, 0.0),  # left
+        (+1.0, 0.0, 0.0),  # right
+        (0.0, +1.0, 0.0),  # front
+        (0.0, -1.0, 0.0),  # back
+    ]
 
-    vertex_indices = [(0, 1, 2, 3),  # front
-                      (4, 5, 6, 7),  # back
-                      (1, 5, 6, 2),  # right
-                      (0, 4, 7, 3),  # left
-                      (3, 2, 6, 7),  # top
-                      (0, 1, 5, 4)]  # bottom
+    vertex_indices = [
+        (0, 1, 2, 3),  # front
+        (4, 5, 6, 7),  # back
+        (1, 5, 6, 2),  # right
+        (0, 4, 7, 3),  # left
+        (3, 2, 6, 7),  # top
+        (0, 1, 5, 4),
+    ]  # bottom
 
-    edge_indices = [(0, 1),
-                    (1, 2),
-                    (2, 3),
-                    (3, 0),
-                    (4, 5),
-                    (5, 6),
-                    (6, 7),
-                    (7, 4),
-                    (0, 4),
-                    (1, 5),
-                    (2, 6),
-                    (3, 7)]
+    edge_indices = [
+        (0, 1),
+        (1, 2),
+        (2, 3),
+        (3, 0),
+        (4, 5),
+        (5, 6),
+        (6, 7),
+        (7, 4),
+        (0, 4),
+        (1, 5),
+        (2, 6),
+        (3, 7),
+    ]
 
     # Set the color for rendering
     if color:
@@ -413,7 +421,7 @@ def draw(renderer, frozen):
             render_box(geometry)
 
     # Set the HUD normal to the camera's position - gives us full illumination?
-    glNormal3dv([0., -1., 0.])
+    glNormal3dv([0.0, -1.0, 0.0])
 
     # Display the status icon
     if any(collisions):
@@ -449,9 +457,27 @@ def draw(renderer, frozen):
         text(70, 35, "Not setting limits")
 
     for i, (monitor, limit) in enumerate(zip(frozen, softlimits)):
-        text(80 * 1, 70 + (30 * i), "%.2f" % limit[0], renderer.colors[i % len(renderer.colors)], align="right")
-        text(80 * 2, 70 + (30 * i), "%.2f" % monitor, renderer.colors[i % len(renderer.colors)], align="right")
-        text(80 * 3, 70 + (30 * i), "%.2f" % limit[1], renderer.colors[i % len(renderer.colors)], align="right")
+        text(
+            80 * 1,
+            70 + (30 * i),
+            "%.2f" % limit[0],
+            renderer.colors[i % len(renderer.colors)],
+            align="right",
+        )
+        text(
+            80 * 2,
+            70 + (30 * i),
+            "%.2f" % monitor,
+            renderer.colors[i % len(renderer.colors)],
+            align="right",
+        )
+        text(
+            80 * 3,
+            70 + (30 * i),
+            "%.2f" % limit[1],
+            renderer.colors[i % len(renderer.colors)],
+            align="right",
+        )
 
     if duration > 0:
         text(screensize[0] - 10, screensize[1] - 45, "%.0f" % duration, align="right")

@@ -14,7 +14,7 @@ CONFIG_DIR = os.getenv("ICPCONFIGROOT")
 
 THREADPOOL = ThreadPoolExecutor()
 
-__all__ = ['print_and_log', 'get_hostname_from_prefix', 'THREADPOOL']
+__all__ = ["print_and_log", "get_hostname_from_prefix", "THREADPOOL"]
 
 print_and_log = functools.partial(_common_print_and_log, src="REMIOC")
 
@@ -26,8 +26,11 @@ def get_hostname_from_prefix(pv_prefix):
     pv_name = "{}CS:IOC:INSTETC_01:DEVIOS:HOSTNAME".format(pv_prefix)
     name = ChannelAccess.caget(pv_name, as_string=True, timeout=5)
     if name is None:
-        print_and_log("get_hostname_from_prefix: Unable to get hostname because of error reading pv {}.".format(
-            pv_name))
+        print_and_log(
+            "get_hostname_from_prefix: Unable to get hostname because of error reading pv {}.".format(
+                pv_name
+            )
+        )
     else:
         print_and_log("get_hostname_from_prefix: hostname is '{}' (from DevIocStats)".format(name))
     return name

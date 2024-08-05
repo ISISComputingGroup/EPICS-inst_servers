@@ -85,13 +85,17 @@ class TestIocControlSequence(unittest.TestCase):
         self.ic.restart_ioc("TESTIOC")
         self.assertTrue(self.ic.ioc_restart_pending("TESTIOC"))
 
-    def test_GIVEN_reapply_auto_default_WHEN_ioc_restarts_requested_THEN_ioc_control_may_return_before_restart_complete(self):
+    def test_GIVEN_reapply_auto_default_WHEN_ioc_restarts_requested_THEN_ioc_control_may_return_before_restart_complete(
+        self,
+    ):
         self.ic.start_ioc("TESTIOC")
         self.assertFalse(self.ic.ioc_restart_pending("TESTIOC"))
         self.ic.restart_iocs(["TESTIOC"])
         self.assertTrue(self.ic.ioc_restart_pending("TESTIOC"))
 
-    def test_GIVEN_reapply_auto_true_WHEN_multiple_ioc_restarts_requested_THEN_ioc_control_waits_for_restart_complete(self):
+    def test_GIVEN_reapply_auto_true_WHEN_multiple_ioc_restarts_requested_THEN_ioc_control_waits_for_restart_complete(
+        self,
+    ):
         self.ic.start_ioc("TESTIOC")
         self.assertFalse(self.ic.ioc_restart_pending("TESTIOC"))
         self.ic.restart_iocs(["TESTIOC"], reapply_auto=True)

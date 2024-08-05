@@ -104,6 +104,8 @@ class ProcServWrapper:
 
         ans = ChannelAccess.caget(f"{ioc_prefix}:AUTORESTART", as_string=True)
         if ans not in ["On", "Off"]:
-            raise ValueError(f"Could not get auto-restart property for IOC {ioc_prefix}, got '{ans}'")
+            raise ValueError(
+                f"Could not get auto-restart property for IOC {ioc_prefix}, got '{ans}'"
+            )
 
         return ans == "On"

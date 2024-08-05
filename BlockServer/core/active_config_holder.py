@@ -1,4 +1,3 @@
-
 # This file is part of the ISIS IBEX application.
 # Copyright (C) 2012-2016 Science & Technology Facilities Council.
 # All rights reserved.
@@ -63,13 +62,15 @@ def _blocks_changed_in_config(old_config, new_config, block_comparator=_blocks_c
 
     for block_name in new_config.blocks.keys():
         # Check to see if there are any new blocks
-        if block_name not in old_config.blocks.keys() or \
-                block_comparator(old_config.blocks[block_name], new_config.blocks[block_name]):
+        if block_name not in old_config.blocks.keys() or block_comparator(
+            old_config.blocks[block_name], new_config.blocks[block_name]
+        ):
             return True
 
     for block_name in old_config.blocks.keys():
-        if block_name not in new_config.blocks.keys() \
-                or block_comparator(old_config.blocks[block_name], new_config.blocks[block_name]):
+        if block_name not in new_config.blocks.keys() or block_comparator(
+            old_config.blocks[block_name], new_config.blocks[block_name]
+        ):
             return True
 
     return False
@@ -96,7 +97,9 @@ def _compare_ioc_properties(old: Dict[str, IOC], new: Dict[str, IOC]):
         if ioc_name not in old.keys():
             # If not in previously then add it to new iocs
             new_iocs.add(ioc_name)
-        elif any(getattr(old[ioc_name], attr) != getattr(new[ioc_name], attr) for attr in _attributes):
+        elif any(
+            getattr(old[ioc_name], attr) != getattr(new[ioc_name], attr) for attr in _attributes
+        ):
             # If any attributes have changed, add to changed iocs
             changed_iocs.add(ioc_name)
 
@@ -111,8 +114,9 @@ class ActiveConfigHolder(ConfigHolder):
     """
     Class to serve up the active configuration.
     """
+
     def __init__(self, macros, archive_manager, file_manager, ioc_control, config_dir):
-        """ Constructor.
+        """Constructor.
 
         Args:
             macros (dict): The BlockServer macros
@@ -126,7 +130,7 @@ class ActiveConfigHolder(ConfigHolder):
         self._config_dir = config_dir
 
     def save_active(self, name, as_comp=False):
-        """ Save the active configuration.
+        """Save the active configuration.
 
         Args:
             name (string): The name to save the configuration under
@@ -139,7 +143,7 @@ class ActiveConfigHolder(ConfigHolder):
             self.set_last_config(name)
 
     def load_active(self, name):
-        """ Load a configuration as the active configuration.
+        """Load a configuration as the active configuration.
         Cannot load a component as the active configuration.
 
         Args:
@@ -149,31 +153,32 @@ class ActiveConfigHolder(ConfigHolder):
         self.set_last_config(name)
 
     def update_archiver(self, full_init=False):
-        """ Update the archiver configuration.
+        """Update the archiver configuration.
 
         Args:
             full_init: if True restart; if False only restart if blocks have changed
         """
         if full_init or self.blocks_changed():
             self._archive_manager.update_archiver(
-                MACROS["$(MYPVPREFIX)"] + BLOCK_PREFIX, self.get_block_details().values(),
+                MACROS["$(MYPVPREFIX)"] + BLOCK_PREFIX,
+                self.get_block_details().values(),
                 self.configures_block_gateway_and_archiver(),
-                os.path.join(self._config_dir, "configurations", self.get_config_name())
+                os.path.join(self._config_dir, "configurations", self.get_config_name()),
             )
 
     def set_last_config(self, config_name):
-        """ Save the last configuration used to file.
+        """Save the last configuration used to file.
 
         The last configuration is saved without any file path.
 
         Args:
             config_name (string): The name of the last configuration used
         """
-        with open(FILEPATH_MANAGER.get_last_config_file_path(), 'w') as f:
+        with open(FILEPATH_MANAGER.get_last_config_file_path(), "w") as f:
             f.write(config_name + "\n")
 
     def load_last_config(self):
-        """ Load the last used configuration.
+        """Load the last used configuration.
 
         The last configuration is saved without any file path.
 
@@ -202,7 +207,7 @@ class ActiveConfigHolder(ConfigHolder):
         return last_config_name
 
     def reload_current_config(self):
-        """ Reload the current configuration."""
+        """Reload the current configuration."""
         current_config_name = self.get_config_name()
         if current_config_name == "":
             print_and_log("No current configuration defined. Nothing to reload.")
@@ -225,6 +230,7 @@ class ActiveConfigHolder(ConfigHolder):
         Returns:
             set, set, set : IOCs to start, IOCs to restart, IOCs to stop.
         """
+
         def _get_config_iocs(config, components):
             iocs = {}
             for ioc_name, ioc in config.iocs.items():
@@ -238,8 +244,9 @@ class ActiveConfigHolder(ConfigHolder):
         iocs_in_current_config = _get_config_iocs(self._cached_config, self._cached_components)
         iocs_in_new_config = _get_config_iocs(self._config, self._components)
 
-        new_iocs, changed_iocs, removed_iocs = _compare_ioc_properties(old=iocs_in_current_config,
-                                                                       new=iocs_in_new_config)
+        new_iocs, changed_iocs, removed_iocs = _compare_ioc_properties(
+            old=iocs_in_current_config, new=iocs_in_new_config
+        )
 
         # Look for manually-started IOCS, which have been started with unknown macros and therefore should be assumed
         # to need stopping or restarting on config change.
@@ -256,7 +263,9 @@ class ActiveConfigHolder(ConfigHolder):
                 if ioc_name in iocs_in_new_config:
                     # If the IOC is in the new config, we need to restart it as the new config may have macros which
                     # were not used when the IOC was manually started outside the config.
-                    print_and_log(f"Found manually-started IOC {ioc_name}. Restarting as present in new config.")
+                    print_and_log(
+                        f"Found manually-started IOC {ioc_name}. Restarting as present in new config."
+                    )
                     if ioc_name in new_iocs:
                         new_iocs.remove(ioc_name)
 
@@ -264,7 +273,9 @@ class ActiveConfigHolder(ConfigHolder):
                 else:
                     # If the IOC is not in the new config, we should stop the IOC to ensure it does not accidentally
                     # interfere with any items being loaded in the new config.
-                    print_and_log(f"Found manually-started IOC {ioc_name}. Stopping as not present in new config")
+                    print_and_log(
+                        f"Found manually-started IOC {ioc_name}. Stopping as not present in new config"
+                    )
                     removed_iocs.add(ioc_name)
 
         print_and_log(f"New IOCS = {new_iocs}")
@@ -289,8 +300,9 @@ class ActiveConfigHolder(ConfigHolder):
         The checks for components containing blocks being added/removed occurs elsewhere.
         """
         for name, component in self._components.items():
-            if name in self._cached_components \
-                    and _blocks_changed_in_config(self._cached_components[name], self._components[name]):
+            if name in self._cached_components and _blocks_changed_in_config(
+                self._cached_components[name], self._components[name]
+            ):
                 return True
         return False
 
@@ -349,11 +361,13 @@ class ActiveConfigHolder(ConfigHolder):
         Returns:
             bool : True if blocks have changed, False otherwise
         """
-        return self._blocks_in_top_level_config_changed() \
-            or self._blocks_in_components_changed() \
-            or self._blocks_removed_from_top_level_config() \
-            or self._new_components_containing_blocks() \
+        return (
+            self._blocks_in_top_level_config_changed()
+            or self._blocks_in_components_changed()
+            or self._blocks_removed_from_top_level_config()
+            or self._new_components_containing_blocks()
             or self._removed_components_containing_blocks()
+        )
 
     def contains_rc_settings(self):
         return os.path.exists(self.get_rc_settings_filepath())

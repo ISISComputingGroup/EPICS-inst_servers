@@ -25,7 +25,7 @@ class DevicesFileIO:
         if not os.path.exists(file_name):
             # Break retry loop if file does not exist.
             raise MaxAttemptsExceededException
-        with open(file_name, 'rb') as devfile:
+        with open(file_name, "rb") as devfile:
             data = devfile.read()
             return data
 
@@ -42,6 +42,6 @@ class DevicesFileIO:
             os.remove(file_name)
 
         # Save the data
-        with open(file_name, 'w') as devfile:
+        with open(file_name, "w") as devfile:
             pretty_xml = minidom.parseString(data).toprettyxml()
             devfile.write(pretty_xml)

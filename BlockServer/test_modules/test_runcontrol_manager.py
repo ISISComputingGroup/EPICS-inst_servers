@@ -27,7 +27,7 @@ from BlockServer.core.constants import (
 from BlockServer.mocks.mock_file_manager import MockConfigurationFileManager
 from BlockServer.test_modules.helpers import modify_active
 
-os.environ['MYPVPREFIX'] = ""
+os.environ["MYPVPREFIX"] = ""
 
 import unittest
 from datetime import datetime, timedelta
@@ -39,22 +39,20 @@ from BlockServer.mocks.mock_channel_access import PVS, ChannelAccessEnv, MockCha
 from BlockServer.mocks.mock_ioc_control import MockIocControl
 from BlockServer.runcontrol.runcontrol_manager import RC_START_PV, RunControlManager
 
-MACROS = {
-    "$(MYPVPREFIX)": os.environ['MYPVPREFIX']
-}
+MACROS = {"$(MYPVPREFIX)": os.environ["MYPVPREFIX"]}
 
 
 # Helper methods
 def quick_block_to_json(name, pv, group, local=True):
-    return {'name': name, 'pv': pv, 'group': group, 'local': local}
+    return {"name": name, "pv": pv, "group": group, "local": local}
 
 
 def _get_relative_time(t, **kwargs):
-    return datetime.strftime(t + timedelta(**kwargs), '%m/%d/%Y %H:%M:%S')
+    return datetime.strftime(t + timedelta(**kwargs), "%m/%d/%Y %H:%M:%S")
 
 
 def _get_current_time():
-    return datetime.strftime(datetime.now(), '%m/%d/%Y %H:%M:%S')
+    return datetime.strftime(datetime.now(), "%m/%d/%Y %H:%M:%S")
 
 
 class TestRunControlSequence(unittest.TestCase):
@@ -62,14 +60,20 @@ class TestRunControlSequence(unittest.TestCase):
         self.cs = MockChannelAccess()
         self.set_start_time_of_run_control()
         self.mock_file_manager = MockConfigurationFileManager()
-        self.active_config, self.ioc_control, self.run_control_manager = self._create_initial_runcontrol_manager()
+        self.active_config, self.ioc_control, self.run_control_manager = (
+            self._create_initial_runcontrol_manager()
+        )
 
     def _create_initial_runcontrol_manager(self):
         prefix = ""
         ioc_control = MockIocControl("")
         config_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)), "settings")
-        config_holder = ActiveConfigHolder(MACROS, None, self.mock_file_manager, ioc_control, config_dir)
-        run_control_manager = RunControlManager(prefix, "", "", ioc_control, config_holder, MockBlockServer(), self.cs)
+        config_holder = ActiveConfigHolder(
+            MACROS, None, self.mock_file_manager, ioc_control, config_dir
+        )
+        run_control_manager = RunControlManager(
+            prefix, "", "", ioc_control, config_holder, MockBlockServer(), self.cs
+        )
 
         return config_holder, ioc_control, run_control_manager
 
@@ -100,8 +104,13 @@ class TestRunControlSequence(unittest.TestCase):
 
     @patch("BlockServer.runcontrol.runcontrol_manager.sleep")
     def test_get_runcontrol_settings_blocks_limits(self, sleep_patch):
-        data = {'name': "TESTBLOCK1", 'pv': "PV1",
-                'runcontrol': True, 'lowlimit': -5, 'highlimit': 5}
+        data = {
+            "name": "TESTBLOCK1",
+            "pv": "PV1",
+            "runcontrol": True,
+            "lowlimit": -5,
+            "highlimit": 5,
+        }
         self.active_config.add_block(data)
         self.set_start_time_of_run_control()
         self.run_control_manager.create_runcontrol_pvs(0)
@@ -119,7 +128,9 @@ class TestRunControlSequence(unittest.TestCase):
             self.assertEqual(channel.get_call_count(rc_pv), 1)
 
     @patch("BlockServer.runcontrol.runcontrol_manager.sleep")
-    def test_GIVEN_nonsense_runcontrol_start_time_WHEN_restart_runcontrol_THAT_code_loops_to_restart_runcontrol(self, sleep_patch):
+    def test_GIVEN_nonsense_runcontrol_start_time_WHEN_restart_runcontrol_THAT_code_loops_to_restart_runcontrol(
+        self, sleep_patch
+    ):
         rc_pv = RC_START_PV
         with ChannelAccessEnv({rc_pv: [""] * 60}) as channel:
             self._create_initial_runcontrol_manager()
@@ -130,8 +141,15 @@ class TestRunControlSequence(unittest.TestCase):
 
     def test_GIVEN_enabled_block_WHEN_restore_config_settings_THEN_PVs_written_to(self):
         expected_low_limit, expected_high_limit = 10, 20
-        blocks = {"my_block": Block("my_block", "my_pv", runcontrol=True,
-                                    lowlimit=expected_low_limit, highlimit=expected_high_limit)}
+        blocks = {
+            "my_block": Block(
+                "my_block",
+                "my_pv",
+                runcontrol=True,
+                lowlimit=expected_low_limit,
+                highlimit=expected_high_limit,
+            )
+        }
 
         self.run_control_manager.restore_config_settings(blocks)
         rc_prefix = "CS:SB:my_block{}"
@@ -140,7 +158,9 @@ class TestRunControlSequence(unittest.TestCase):
         self.assertFalse(self.cs.caget(rc_prefix.format(TAG_RC_SUSPEND_ON_INVALID)))
         self.assertTrue(self.cs.caget(rc_prefix.format(TAG_RC_ENABLE)))
 
-    def test_GIVEN_block_with_no_runcontrol_WHEN_restore_config_settings_THEN_runcontrol_disabled(self):
+    def test_GIVEN_block_with_no_runcontrol_WHEN_restore_config_settings_THEN_runcontrol_disabled(
+        self,
+    ):
         blocks = {"my_block": Block("my_block", "my_pv")}
 
         self.run_control_manager.restore_config_settings(blocks)
@@ -148,15 +168,22 @@ class TestRunControlSequence(unittest.TestCase):
         self.assertFalse(self.cs.caget(rc_prefix.format(TAG_RC_ENABLE)))
         self.assertFalse(self.cs.caget(rc_prefix.format(TAG_RC_SUSPEND_ON_INVALID)))
         self.assertFalse(rc_prefix.format(TAG_RC_LOW) in PVS)
-        self.assertFalse(rc_prefix.format(TAG_RC_HIGH)in PVS)
+        self.assertFalse(rc_prefix.format(TAG_RC_HIGH) in PVS)
 
     def test_GIVEN_multiple_blocks_WHEN_restore_config_settings_THEN_PVs_written_to(self):
         expected_low_limit, expected_high_limit = 30, 40
         blocks = dict()
-        blocks["my_block"] = Block("my_block", "my_pv", runcontrol=True,
-                                   lowlimit=expected_low_limit, highlimit=expected_high_limit)
+        blocks["my_block"] = Block(
+            "my_block",
+            "my_pv",
+            runcontrol=True,
+            lowlimit=expected_low_limit,
+            highlimit=expected_high_limit,
+        )
 
-        blocks["other_block"] = Block("other_block", "my_pv", runcontrol=False, suspend_on_invalid=True)
+        blocks["other_block"] = Block(
+            "other_block", "my_pv", runcontrol=False, suspend_on_invalid=True
+        )
 
         self.run_control_manager.restore_config_settings(blocks)
         rc_prefix = "CS:SB:my_block{}"
@@ -167,6 +194,6 @@ class TestRunControlSequence(unittest.TestCase):
 
         rc_prefix = "CS:SB:other_block{}"
         self.assertFalse(rc_prefix.format(TAG_RC_LOW) in PVS)
-        self.assertFalse(rc_prefix.format(TAG_RC_HIGH)in PVS)
+        self.assertFalse(rc_prefix.format(TAG_RC_HIGH) in PVS)
         self.assertTrue(self.cs.caget(rc_prefix.format(TAG_RC_SUSPEND_ON_INVALID)))
         self.assertFalse(self.cs.caget(rc_prefix.format(TAG_RC_ENABLE)))

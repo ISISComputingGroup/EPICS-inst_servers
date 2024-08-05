@@ -41,7 +41,8 @@ GET_COMPONENT_PV = ":GET_COMPONENT_DETAILS"
 DEPENDENCIES_PV = ":DEPENDENCIES"
 
 VALID_CONFIG = {
-        "iocs": [{
+    "iocs": [
+        {
             "simlevel": "None",
             "autostart": True,
             "restart": False,
@@ -49,19 +50,24 @@ VALID_CONFIG = {
             "pvs": [{"name": "A_PV", "value": "TEST"}],
             "macros": [{"name": "A_MACRO", "value": "TEST"}],
             "name": "AN_IOC",
-            "component": None}],
-        "blocks": [{
+            "component": None,
+        }
+    ],
+    "blocks": [
+        {
             "name": "TEST_BLOCK",
             "local": True,
             "pv": "NDWXXX:xxxx:TESTPV",
             "component": None,
-            "visible": True}],
-        "components": [],
-        "groups": [{
-            "blocks": ["TEST_BLOCK"], "name": "TEST_GROUP", "component": None}],
-        "name": "TEST_CONFIG",
-        "description": "A Test Configuration",
-        "synoptic": "TEST_SYNOPTIC"}
+            "visible": True,
+        }
+    ],
+    "components": [],
+    "groups": [{"blocks": ["TEST_BLOCK"], "name": "TEST_GROUP", "component": None}],
+    "name": "TEST_CONFIG",
+    "description": "A Test Configuration",
+    "synoptic": "TEST_SYNOPTIC",
+}
 
 
 def create_dummy_config(name="DUMMY"):
@@ -86,13 +92,14 @@ def create_dummy_component(name="DUMMY"):
 
 
 class TestInactiveConfigsSequence(unittest.TestCase):
-
     def setUp(self):
         self.bs = MockBlockServer()
         self.file_manager = MockConfigurationFileManager()
         self.mock_channel_access = MockChannelAccess()
         self.mock_channel_access.caput(MACROS["$(MYPVPREFIX)"] + "CS:MANAGER", "Yes")
-        self.clm = ConfigListManager(self.bs, self.file_manager, channel_access=self.mock_channel_access)
+        self.clm = ConfigListManager(
+            self.bs, self.file_manager, channel_access=self.mock_channel_access
+        )
         self.config_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)), "settings")
 
     def tearDown(self):
@@ -211,10 +218,10 @@ class TestInactiveConfigsSequence(unittest.TestCase):
 
         confs = self.clm.get_configs()
         self.assertEqual(len(confs), 1)
-        self.assertTrue("TEST_CONFIG" in [conf.get('name') for conf in confs])
-        self.assertTrue(create_pv_name("TEST_CONFIG", [], "") in [conf.get('pv') for conf in confs])
-        self.assertTrue("A Test Configuration" in [conf.get('description') for conf in confs])
-        self.assertTrue("TEST_SYNOPTIC" in [conf.get('synoptic') for conf in confs])
+        self.assertTrue("TEST_CONFIG" in [conf.get("name") for conf in confs])
+        self.assertTrue(create_pv_name("TEST_CONFIG", [], "") in [conf.get("pv") for conf in confs])
+        self.assertTrue("A Test Configuration" in [conf.get("description") for conf in confs])
+        self.assertTrue("TEST_SYNOPTIC" in [conf.get("synoptic") for conf in confs])
 
         comps = self.clm.get_components()
         self.assertEqual(len(comps), 0)
@@ -226,10 +233,10 @@ class TestInactiveConfigsSequence(unittest.TestCase):
 
         confs = self.clm.get_components()
         self.assertEqual(len(confs), 1)
-        self.assertTrue("TEST_CONFIG" in [conf.get('name') for conf in confs])
-        self.assertTrue(create_pv_name("TEST_CONFIG", [], "") in [conf.get('pv') for conf in confs])
-        self.assertTrue("A Test Configuration" in [conf.get('description') for conf in confs])
-        self.assertTrue("TEST_SYNOPTIC" in [conf.get('synoptic') for conf in confs])
+        self.assertTrue("TEST_CONFIG" in [conf.get("name") for conf in confs])
+        self.assertTrue(create_pv_name("TEST_CONFIG", [], "") in [conf.get("pv") for conf in confs])
+        self.assertTrue("A Test Configuration" in [conf.get("description") for conf in confs])
+        self.assertTrue("TEST_SYNOPTIC" in [conf.get("synoptic") for conf in confs])
 
         comps = self.clm.get_configs()
         self.assertEqual(len(comps), 0)
@@ -247,8 +254,8 @@ class TestInactiveConfigsSequence(unittest.TestCase):
             self.assertTrue("isProtected" in comp)
             self.assertTrue("isDynamic" in comp)
             self.assertTrue("configuresBlockGWAndArchiver" in comp)
-        self.assertTrue("TEST_COMPONENT1" in [comp.get('name') for comp in comps])
-        self.assertTrue("TEST_COMPONENT2" in [comp.get('name') for comp in comps])
+        self.assertTrue("TEST_COMPONENT1" in [comp.get("name") for comp in comps])
+        self.assertTrue("TEST_COMPONENT2" in [comp.get("name") for comp in comps])
 
     def test_pv_of_lower_case_name(self):
         config_name = "test_CONfig1"
@@ -304,8 +311,13 @@ class TestInactiveConfigsSequence(unittest.TestCase):
     def test_delete_active_config_throws(self):
         self._create_configs(["TEST_CONFIG1", "TEST_CONFIG2"], self.clm)
 
-        active = ActiveConfigHolder(MACROS, ArchiverManager(None, None, MockArchiverWrapper()), self.file_manager,
-                                    MockIocControl(""), self.config_dir)
+        active = ActiveConfigHolder(
+            MACROS,
+            ArchiverManager(None, None, MockArchiverWrapper()),
+            self.file_manager,
+            MockIocControl(""),
+            self.config_dir,
+        )
         active.save_active("TEST_ACTIVE")
         self.clm.update_a_config_in_list(active)
         self.clm.active_config_name = "TEST_ACTIVE"
@@ -313,15 +325,24 @@ class TestInactiveConfigsSequence(unittest.TestCase):
         self._check_no_configs_deleted()
         self.assertRaises(InvalidDeleteException, self.clm.delete_configs, ["TEST_ACTIVE"])
         self._check_no_configs_deleted()
-        self.assertRaises(InvalidDeleteException, self.clm.delete_configs, ["TEST_ACTIVE", "TEST_CONFIG1"])
+        self.assertRaises(
+            InvalidDeleteException, self.clm.delete_configs, ["TEST_ACTIVE", "TEST_CONFIG1"]
+        )
         self._check_no_configs_deleted()
-        self.assertRaises(InvalidDeleteException, self.clm.delete_configs, ["TEST_CONFIG1", "TEST_ACTIVE"])
+        self.assertRaises(
+            InvalidDeleteException, self.clm.delete_configs, ["TEST_CONFIG1", "TEST_ACTIVE"]
+        )
         self._check_no_configs_deleted()
 
     def test_delete_active_component_throws(self):
         self._create_components(["TEST_COMPONENT1", "TEST_COMPONENT2", "TEST_COMPONENT3"])
-        active = ActiveConfigHolder(MACROS, ArchiverManager(None, None, MockArchiverWrapper()), self.file_manager,
-                                    MockIocControl(""), self.config_dir)
+        active = ActiveConfigHolder(
+            MACROS,
+            ArchiverManager(None, None, MockArchiverWrapper()),
+            self.file_manager,
+            MockIocControl(""),
+            self.config_dir,
+        )
         active.add_component("TEST_COMPONENT1")
         active.save_active("TEST_ACTIVE")
         self.clm.active_config_name = "TEST_ACTIVE"
@@ -331,9 +352,15 @@ class TestInactiveConfigsSequence(unittest.TestCase):
         self._check_no_configs_deleted(True)
         self.assertRaises(InvalidDeleteException, self.clm.delete_components, ["TEST_COMPONENT1"])
         self._check_no_configs_deleted(True)
-        self.assertRaises(InvalidDeleteException, self.clm.delete_components, ["TEST_COMPONENT1", "TEST_COMPONENT2"])
+        self.assertRaises(
+            InvalidDeleteException,
+            self.clm.delete_components,
+            ["TEST_COMPONENT1", "TEST_COMPONENT2"],
+        )
         self._check_no_configs_deleted(True)
-        self.assertRaises(InvalidDeleteException, self.clm.delete_components, ["TEST_CONFIG2", "TEST_COMPONENT1"])
+        self.assertRaises(
+            InvalidDeleteException, self.clm.delete_components, ["TEST_CONFIG2", "TEST_COMPONENT1"]
+        )
         self._check_no_configs_deleted(True)
 
     def test_delete_used_component_throws(self):
@@ -349,9 +376,15 @@ class TestInactiveConfigsSequence(unittest.TestCase):
         self._check_no_configs_deleted(True)
         self.assertRaises(InvalidDeleteException, self.clm.delete_components, ["TEST_COMPONENT1"])
         self._check_no_configs_deleted(True)
-        self.assertRaises(InvalidDeleteException, self.clm.delete_components, ["TEST_COMPONENT1", "TEST_COMPONENT2"])
+        self.assertRaises(
+            InvalidDeleteException,
+            self.clm.delete_components,
+            ["TEST_COMPONENT1", "TEST_COMPONENT2"],
+        )
         self._check_no_configs_deleted(True)
-        self.assertRaises(InvalidDeleteException, self.clm.delete_components, ["TEST_CONFIG2", "TEST_COMPONENT1"])
+        self.assertRaises(
+            InvalidDeleteException, self.clm.delete_components, ["TEST_CONFIG2", "TEST_COMPONENT1"]
+        )
         self._check_no_configs_deleted(True)
 
     def test_delete_one_inactive_config_works(self):
@@ -532,7 +565,7 @@ class TestInactiveConfigsSequence(unittest.TestCase):
 
         self.assertEqual(len(self.clm.get_components()), 0)
         self.assertEqual(len(self.clm.get_configs()), 1)
-        self.assertTrue("TEST_INACTIVE" in [x['name'] for x in self.clm.get_configs()])
+        self.assertTrue("TEST_INACTIVE" in [x["name"] for x in self.clm.get_configs()])
 
     def test_update_inactive_component_from_filewatcher(self):
         inactive = self._create_inactive_config_holder()
@@ -543,7 +576,7 @@ class TestInactiveConfigsSequence(unittest.TestCase):
 
         self.assertEqual(len(self.clm.get_components()), 1)
         self.assertEqual(len(self.clm.get_configs()), 0)
-        self.assertTrue("TEST_INACTIVE_COMP" in [x['name'] for x in self.clm.get_components()])
+        self.assertTrue("TEST_INACTIVE_COMP" in [x["name"] for x in self.clm.get_components()])
 
     def test_update_active_config_from_filewatcher(self):
         active = self._create_inactive_config_holder()
@@ -557,7 +590,7 @@ class TestInactiveConfigsSequence(unittest.TestCase):
 
         self.assertEqual(len(self.clm.get_components()), 0)
         self.assertEqual(len(self.clm.get_configs()), 1)
-        self.assertTrue("TEST_ACTIVE" in [x['name'] for x in self.clm.get_configs()])
+        self.assertTrue("TEST_ACTIVE" in [x["name"] for x in self.clm.get_configs()])
 
     def test_update_active_component_from_filewatcher(self):
         inactive = self._create_inactive_config_holder()
@@ -573,7 +606,7 @@ class TestInactiveConfigsSequence(unittest.TestCase):
 
         self.assertEqual(len(self.clm.get_components()), 1)
         self.assertEqual(len(self.clm.get_configs()), 0)
-        self.assertTrue("TEST_ACTIVE_COMP" in [x['name'] for x in self.clm.get_components()])
+        self.assertTrue("TEST_ACTIVE_COMP" in [x["name"] for x in self.clm.get_components()])
 
     def test_default_filtered(self):
         comps = self.clm.get_components()

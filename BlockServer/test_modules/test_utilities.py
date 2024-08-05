@@ -8,8 +8,9 @@ from server_common.utilities import compress_and_hex
 
 
 class TestUtilities(unittest.TestCase):
-
-    def test_GIVEN_string_WHEN_compressing_and_hexing_THEN_output_is_compressed_and_hexed_correctly(self):
+    def test_GIVEN_string_WHEN_compressing_and_hexing_THEN_output_is_compressed_and_hexed_correctly(
+        self,
+    ):
         test = "test"
         value = compress_and_hex(test)
         expected_value = binascii.hexlify(zlib.compress(bytes(test, encoding="utf-8")))

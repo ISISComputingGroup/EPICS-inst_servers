@@ -11,7 +11,7 @@ from mock import MagicMock
 from BlockServer.component_switcher.component_switcher import ComponentSwitcher
 from BlockServer.core.macros import PVPREFIX_MACRO
 
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 
 class MockChannelAccess(object):
@@ -54,7 +54,6 @@ class MockComponentSwitcherFileManager(object):
 
 
 class TestComponentSwitcher(unittest.TestCase):
-
     def setUp(self) -> None:
         MockChannelAccess.MONITORS = []
 
@@ -70,7 +69,7 @@ class TestComponentSwitcher(unittest.TestCase):
                 "value_to_component_map": {
                     "A": "comp1",
                     "B": "comp2",
-                }
+                },
             }
         ]
 
@@ -91,16 +90,8 @@ class TestComponentSwitcher(unittest.TestCase):
 
     def test_GIVEN_2_pvs_in_config_file_WHEN_call_add_monitors_THEN_2_monitors_added(self):
         self.file_manager.config = [
-            {
-                "pv": "first",
-                "is_local": False,
-                "value_to_component_map": {}
-            },
-            {
-                "pv": "second",
-                "is_local": False,
-                "value_to_component_map": {}
-            },
+            {"pv": "first", "is_local": False, "value_to_component_map": {}},
+            {"pv": "second", "is_local": False, "value_to_component_map": {}},
         ]
 
         self.component_switcher.create_monitors()
@@ -111,25 +102,17 @@ class TestComponentSwitcher(unittest.TestCase):
 
     @mock.patch.dict("BlockServer.core.macros.MACROS", {PVPREFIX_MACRO: "some_prefix:"})
     def test_GIVEN_local_pv_monitored_THEN_monitored_pv_has_local_prefix_appended(self):
-        self.file_manager.config = [
-            {
-                "pv": "first",
-                "is_local": True,
-                "value_to_component_map": {}
-            }
-        ]
+        self.file_manager.config = [{"pv": "first", "is_local": True, "value_to_component_map": {}}]
 
         self.component_switcher.create_monitors()
         self.assertEqual(MockChannelAccess.MONITORS[0][0], "some_prefix:first")
 
     @mock.patch.dict("BlockServer.core.macros.MACROS", {PVPREFIX_MACRO: "some_prefix:"})
-    def test_GIVEN_non_local_pv_monitored_THEN_monitored_pv_does_not_have_local_prefix_appended(self):
+    def test_GIVEN_non_local_pv_monitored_THEN_monitored_pv_does_not_have_local_prefix_appended(
+        self,
+    ):
         self.file_manager.config = [
-            {
-                "pv": "first",
-                "is_local": False,
-                "value_to_component_map": {}
-            }
+            {"pv": "first", "is_local": False, "value_to_component_map": {}}
         ]
 
         self.component_switcher.create_monitors()
@@ -173,7 +156,9 @@ class TestComponentSwitcher(unittest.TestCase):
 
         self.assertEqual(self.write_queue.qsize(), 0)
 
-    def test_GIVEN_monitor_is_triggered_with_an_unknown_value_THEN_action_does_not_get_appended_to_bs_write_queue(self):
+    def test_GIVEN_monitor_is_triggered_with_an_unknown_value_THEN_action_does_not_get_appended_to_bs_write_queue(
+        self,
+    ):
         self.component_switcher.create_monitors()
 
         self.assertEqual(len(MockChannelAccess.MONITORS), 1)
@@ -213,7 +198,8 @@ class TestComponentSwitcher(unittest.TestCase):
         self.config_list.loaded_configs = {"active": mock_conf}
 
         self.component_switcher._edit_all_configurations(
-            components_to_be_added={"comp1"}, components_to_be_removed={"comp2"})
+            components_to_be_added={"comp1"}, components_to_be_removed={"comp2"}
+        )
 
         self.assertFalse(mock_conf.save_inactive.called)
         self.assertFalse(self.reload_func.called)
@@ -225,7 +211,8 @@ class TestComponentSwitcher(unittest.TestCase):
         self.config_list.loaded_configs = {"active": mock_conf}
 
         self.component_switcher._edit_all_configurations(
-            components_to_be_added={"comp2"}, components_to_be_removed={"comp1"})
+            components_to_be_added={"comp2"}, components_to_be_removed={"comp1"}
+        )
 
         mock_conf.remove_comp.assert_called_with("comp1")
         mock_conf.add_component.assert_called_with("comp2")

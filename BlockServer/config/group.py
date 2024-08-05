@@ -17,15 +17,16 @@ from typing import Dict, List, Union
 
 
 class Group:
-    """ Represents a group.
+    """Represents a group.
 
-        Attributes:
-            name (string): The name of the group
-            blocks (dict): The blocks that are in the group
-            component (string): The component the group belongs to
+    Attributes:
+        name (string): The name of the group
+        blocks (dict): The blocks that are in the group
+        component (string): The component the group belongs to
     """
+
     def __init__(self, name: str, component: str = None):
-        """ Constructor.
+        """Constructor.
 
         Args:
             name: The name for the group
@@ -39,9 +40,9 @@ class Group:
         return f"Name: {self.name}, COMPONENT: {self.component}, Blocks: {self.blocks}"
 
     def to_dict(self) -> Dict[str, Union[str, List]]:
-        """ Puts the group's details into a dictionary.
+        """Puts the group's details into a dictionary.
 
         Returns:
             The group's details
         """
-        return {'name': self.name, 'blocks': self.blocks, "component": self.component}
+        return {"name": self.name, "blocks": self.blocks, "component": self.component}

@@ -25,6 +25,7 @@ from server_common.ioc_data_source import IocDataSource
 
 class SQLAbstractionStubForIOC(AbstractSQLCommands):
     """Testing stub."""
+
     def __init__(self, query_return):
         self.sql_param = []
         self.sql = []
@@ -44,7 +45,9 @@ class SQLAbstractionStubForIOC(AbstractSQLCommands):
 
 
 class TestIocDataSource(unittest.TestCase):
-    def test_GIVEN_1_logging_annotations_request_WHEN_get_values_THEN_value_returned_grouped_by_ioc(self):
+    def test_GIVEN_1_logging_annotations_request_WHEN_get_values_THEN_value_returned_grouped_by_ioc(
+        self,
+    ):
         expected_result = {"ioc1": [["pv1", "log_header1", "an interesting value"]]}
 
         mysql_abstraction_layer = SQLAbstractionStubForIOC(expected_result)
@@ -54,7 +57,9 @@ class TestIocDataSource(unittest.TestCase):
 
         assert_that(result, is_(expected_result))
 
-    def test_GIVEN_no_logging_annotations_request_WHEN_get_values_THEN_empty_dictionary_returned(self):
+    def test_GIVEN_no_logging_annotations_request_WHEN_get_values_THEN_empty_dictionary_returned(
+        self,
+    ):
         expected_result = {}
 
         mysql_abstraction_layer = SQLAbstractionStubForIOC(expected_result)
@@ -64,13 +69,17 @@ class TestIocDataSource(unittest.TestCase):
 
         assert_that(result, is_(expected_result))
 
-    def test_GIVEN_multiple_logging_annotations_over_multiple_iocs_WHEN_get_values_THEN_values_returned_grouped_by_ioc(self):
+    def test_GIVEN_multiple_logging_annotations_over_multiple_iocs_WHEN_get_values_THEN_values_returned_grouped_by_ioc(
+        self,
+    ):
         expected_result = {
-            "ioc1": [["pv1", "log_header1", "an interesting value"],
-                     ["pv1", "log_header2", "an interesting value"],
-                     ["pv3", "log_trigger", "an interesting value"]],
+            "ioc1": [
+                ["pv1", "log_header1", "an interesting value"],
+                ["pv1", "log_header2", "an interesting value"],
+                ["pv3", "log_trigger", "an interesting value"],
+            ],
             "ioc2": [["pv5", "log_header1", "an interesting value"]],
-            "ioc3": [["pv1", "log_header1", "an interesting value"]]
+            "ioc3": [["pv1", "log_header1", "an interesting value"]],
         }
 
         mysql_abstraction_layer = SQLAbstractionStubForIOC(expected_result)
@@ -111,7 +120,9 @@ class TestIocDataSource(unittest.TestCase):
 
         assert_that(mysql_abstraction_layer.sql[2], contains_string("INSERT INTO iocrt"))
 
-    def test_GIVEN_ioc_with_pvs_WHEN_pvdump_THEN_calls_are_made_to_add_pvs_with_correct_types_and_names_and_default_type_is_float(self):
+    def test_GIVEN_ioc_with_pvs_WHEN_pvdump_THEN_calls_are_made_to_add_pvs_with_correct_types_and_names_and_default_type_is_float(
+        self,
+    ):
         mysql_abstraction_layer = SQLAbstractionStubForIOC({})
         data_source = IocDataSource(mysql_abstraction_layer)
 
@@ -123,8 +134,7 @@ class TestIocDataSource(unittest.TestCase):
         description = "desc1"
         expected_name1 = "{}{}".format(prefix, pv_name_1)
         expected_name2 = "{}{}".format(prefix, pv_name_2)
-        pvs = {pv_name_1: {"type": expected_type1, "description": description},
-               pv_name_2: {}}
+        pvs = {pv_name_1: {"type": expected_type1, "description": description}, pv_name_2: {}}
 
         iocname = "name"
         data_source.insert_ioc_start(iocname, 12, "path", pvs, prefix)
@@ -132,11 +142,17 @@ class TestIocDataSource(unittest.TestCase):
         for sql in mysql_abstraction_layer.sql[3:5]:
             assert_that(sql, contains_string("INSERT INTO pvs"))
 
-        assert_that(mysql_abstraction_layer.sql_param[3:5], contains_inanyorder(
+        assert_that(
+            mysql_abstraction_layer.sql_param[3:5],
+            contains_inanyorder(
                 (expected_name1, expected_type1, description, iocname),
-                (expected_name2, expected_type2, "", iocname)))
+                (expected_name2, expected_type2, "", iocname),
+            ),
+        )
 
-    def test_GIVEN_ioc_with_pvs_with_pv_info_WHEN_pvdump_THEN_calls_are_made_to_add_pv_info_with_correct_pv_names_info_names_and_values(self):
+    def test_GIVEN_ioc_with_pvs_with_pv_info_WHEN_pvdump_THEN_calls_are_made_to_add_pv_info_with_correct_pv_names_info_names_and_values(
+        self,
+    ):
         mysql_abstraction_layer = SQLAbstractionStubForIOC({})
         data_source = IocDataSource(mysql_abstraction_layer)
         name1 = "archive"
@@ -153,6 +169,7 @@ class TestIocDataSource(unittest.TestCase):
         for sql in mysql_abstraction_layer.sql[4:]:
             assert_that(sql, contains_string("INSERT INTO pvinfo"))
 
-        assert_that(mysql_abstraction_layer.sql_param[4:], contains_inanyorder(
-                (expected_name1, name1, value1),
-                (expected_name1, name2, value2)))
+        assert_that(
+            mysql_abstraction_layer.sql_param[4:],
+            contains_inanyorder((expected_name1, name1, value1), (expected_name1, name2, value2)),
+        )

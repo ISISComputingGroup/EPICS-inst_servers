@@ -31,11 +31,11 @@ class ProducerWrapper:
     """
 
     def __init__(
-            self,
-            server: str,
-            config_topic: str,
-            data_topic: str,
-            epics_protocol: Protocol = Protocol.CA,
+        self,
+        server: str,
+        config_topic: str,
+        data_topic: str,
+        epics_protocol: Protocol = Protocol.CA,
     ):
         self.topic = config_topic
         self.converter = ForwarderConfig(data_topic, epics_protocol)
@@ -46,7 +46,9 @@ class ProducerWrapper:
             self.client = KafkaConsumer(bootstrap_servers=server)
             self.producer = KafkaProducer(bootstrap_servers=server)
             if not self.topic_exists(self.topic):
-                print_and_log(f"WARNING: topic {self.topic} does not exist. It will be created by default.")
+                print_and_log(
+                    f"WARNING: topic {self.topic} does not exist. It will be created by default."
+                )
         except errors.NoBrokersAvailable:
             print_and_log(f"No brokers found on server: {server[0]}")
         except errors.ConnectionError:
@@ -55,8 +57,10 @@ class ProducerWrapper:
             print_and_log("Invalid configuration")
             quit()
         except errors.InvalidTopicError:
-            print_and_log("Invalid topic, to enable auto creation of topics set"
-                          " auto.create.topics.enable to false in broker configuration")
+            print_and_log(
+                "Invalid topic, to enable auto creation of topics set"
+                " auto.create.topics.enable to false in broker configuration"
+            )
         finally:
             print_and_log("Retrying in 10s")
             sleep(10)

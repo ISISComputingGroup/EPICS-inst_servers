@@ -42,12 +42,7 @@ BASE_PATH = "./example_base/"
 
 # Helper methods
 def quick_block_to_json(name, pv, group, local=True):
-    return {
-        'name': name,
-        'pv': pv,
-        'group': group,
-        'local': local
-    }
+    return {"name": name, "pv": pv, "group": group, "local": local}
 
 
 def add_basic_blocks_and_iocs(config_holder):
@@ -81,6 +76,7 @@ def patch_get_iocs_empty(f):
         with mock.mock.patch("BlockServer.core.active_config_holder.get_iocs") as mock_get_iocs:
             mock_get_iocs.return_value = []
             return f(*args, **kwargs)
+
     return _wrapper
 
 
@@ -91,7 +87,6 @@ def patch_get_iocs_empty(f):
 #   We are testing that ActiveConfigServerManager correctly interfaces with Configuration, not testing the
 #   functionality of Configuration, which is done in Configuration's own suite of tests.
 class TestActiveConfigHolderSequence(unittest.TestCase):
-
     def setUp(self):
         # Note: All configurations are saved in memory
         self.mock_archive = Mock()
@@ -101,7 +96,9 @@ class TestActiveConfigHolderSequence(unittest.TestCase):
 
     def create_active_config_holder(self):
         config_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)), "settings")
-        return ActiveConfigHolder(MACROS, self.mock_archive, self.mock_file_manager, MockIocControl(""), config_dir)
+        return ActiveConfigHolder(
+            MACROS, self.mock_archive, self.mock_file_manager, MockIocControl(""), config_dir
+        )
 
     def test_add_ioc(self):
         config_holder = self.active_config_holder
@@ -135,10 +132,10 @@ class TestActiveConfigHolderSequence(unittest.TestCase):
         config_holder.load_active("TEST_CONFIG")
         blocks = config_holder.get_blocknames()
         self.assertEqual(len(blocks), 4)
-        self.assertTrue('TESTBLOCK1' in blocks)
-        self.assertTrue('TESTBLOCK2' in blocks)
-        self.assertTrue('TESTBLOCK3' in blocks)
-        self.assertTrue('TESTBLOCK4' in blocks)
+        self.assertTrue("TESTBLOCK1" in blocks)
+        self.assertTrue("TESTBLOCK2" in blocks)
+        self.assertTrue("TESTBLOCK3" in blocks)
+        self.assertTrue("TESTBLOCK4" in blocks)
         iocs = config_holder.get_ioc_names()
         self.assertTrue("SIMPLE1" in iocs)
         self.assertTrue("SIMPLE2" in iocs)
@@ -207,10 +204,10 @@ class TestActiveConfigHolderSequence(unittest.TestCase):
         self.assertTrue(len(grps) == 3)
         blocks = config_holder.get_blocknames()
         self.assertEqual(len(blocks), 4)
-        self.assertTrue('TESTBLOCK1' in blocks)
-        self.assertTrue('TESTBLOCK2' in blocks)
-        self.assertTrue('TESTBLOCK3' in blocks)
-        self.assertTrue('TESTBLOCK4' in blocks)
+        self.assertTrue("TESTBLOCK1" in blocks)
+        self.assertTrue("TESTBLOCK2" in blocks)
+        self.assertTrue("TESTBLOCK3" in blocks)
+        self.assertTrue("TESTBLOCK4" in blocks)
         iocs = config_holder.get_ioc_names()
         self.assertTrue("SIMPLE1" in iocs)
         self.assertTrue("SIMPLE2" in iocs)
@@ -246,7 +243,7 @@ class TestActiveConfigHolderSequence(unittest.TestCase):
         # assert
         load_requests = self.mock_file_manager.get_load_config_history()
         self.assertEqual(load_requests.count(config_name), 1)
-        
+
     def _modify_active(self, config_holder, new_details, name="config1"):
         modify_active(name, MACROS, self.mock_file_manager, new_details, config_holder)
 
@@ -270,7 +267,7 @@ class TestActiveConfigHolderSequence(unittest.TestCase):
         config_holder = self.create_active_config_holder()
         details = config_holder.get_config_details()
         # Act
-        details['iocs'].append(IOC("NAME"))
+        details["iocs"].append(IOC("NAME"))
         self._modify_active(config_holder, details)
         # Assert
         start, restart, stop = config_holder.iocs_changed()
@@ -283,10 +280,10 @@ class TestActiveConfigHolderSequence(unittest.TestCase):
         # Arrange
         config_holder = self.create_active_config_holder()
         details = config_holder.get_config_details()
-        details['iocs'].append(IOC("NAME"))
+        details["iocs"].append(IOC("NAME"))
         self._modify_active(config_holder, details)
         # Act
-        details['iocs'].pop(0)
+        details["iocs"].pop(0)
         self._modify_active(config_holder, details)
         # Assert
         start, restart, stop = config_holder.iocs_changed()
@@ -295,8 +292,9 @@ class TestActiveConfigHolderSequence(unittest.TestCase):
         self.assertEqual(len(stop), 1)
 
     @patch_get_iocs_empty
-    def test_GIVEN_an_ioc_defined_in_a_component_WHEN_the_component_is_removed_THEN_the_ioc_is_stopped(self):
-
+    def test_GIVEN_an_ioc_defined_in_a_component_WHEN_the_component_is_removed_THEN_the_ioc_is_stopped(
+        self,
+    ):
         # Arrange
         config_holder = self.create_active_config_holder()
 
@@ -321,8 +319,9 @@ class TestActiveConfigHolderSequence(unittest.TestCase):
         self.assertEqual(len(stop), 1)
 
     @patch_get_iocs_empty
-    def test_GIVEN_an_ioc_defined_in_a_component_WHEN_the_ioc_simlevel_is_changed_THEN_the_ioc_is_restarted(self):
-
+    def test_GIVEN_an_ioc_defined_in_a_component_WHEN_the_ioc_simlevel_is_changed_THEN_the_ioc_is_restarted(
+        self,
+    ):
         # Arrange
         config_holder = self.create_active_config_holder()
 
@@ -351,8 +350,9 @@ class TestActiveConfigHolderSequence(unittest.TestCase):
         self.assertEqual(len(stop), 0)
 
     @patch_get_iocs_empty
-    def test_GIVEN_an_ioc_defined_in_a_component_WHEN_the_ioc_macros_are_changed_THEN_the_ioc_is_restarted(self):
-
+    def test_GIVEN_an_ioc_defined_in_a_component_WHEN_the_ioc_macros_are_changed_THEN_the_ioc_is_restarted(
+        self,
+    ):
         # Arrange
         config_holder = self.create_active_config_holder()
 
@@ -370,7 +370,9 @@ class TestActiveConfigHolderSequence(unittest.TestCase):
         # Act
         config_holder.remove_comp("component_name")
         new_component = create_dummy_component()
-        new_component.iocs = {"DUMMY_IOC": IOC("dummyname", macros={"macros": {"A_MACRO": "VALUE2"}})}
+        new_component.iocs = {
+            "DUMMY_IOC": IOC("dummyname", macros={"macros": {"A_MACRO": "VALUE2"}})
+        }
         self.mock_file_manager.comps["component_name"] = new_component
         config_holder.add_component("component_name")
 
@@ -381,8 +383,9 @@ class TestActiveConfigHolderSequence(unittest.TestCase):
         self.assertEqual(len(stop), 0)
 
     @patch_get_iocs_empty
-    def test_GIVEN_an_ioc_defined_in_a_component_WHEN_the_ioc_macros_are_not_changed_THEN_the_ioc_is_not_restarted(self):
-
+    def test_GIVEN_an_ioc_defined_in_a_component_WHEN_the_ioc_macros_are_not_changed_THEN_the_ioc_is_not_restarted(
+        self,
+    ):
         # Arrange
         config_holder = self.create_active_config_holder()
 
@@ -400,7 +403,9 @@ class TestActiveConfigHolderSequence(unittest.TestCase):
         # Act
         config_holder.remove_comp("component_name")
         new_component = create_dummy_component()
-        new_component.iocs = {"DUMMY_IOC": IOC("dummyname", macros={"macros": {"A_MACRO": "VALUE1"}})}
+        new_component.iocs = {
+            "DUMMY_IOC": IOC("dummyname", macros={"macros": {"A_MACRO": "VALUE1"}})
+        }
         self.mock_file_manager.comps["component_name"] = new_component
         config_holder.add_component("component_name")
 
@@ -411,16 +416,18 @@ class TestActiveConfigHolderSequence(unittest.TestCase):
         self.assertEqual(len(stop), 0)
 
     @patch_get_iocs_empty
-    def test_GIVEN_an_ioc_defined_in_the_top_level_config_WHEN_the_ioc_is_removed_THEN_the_ioc_is_stopped(self):
+    def test_GIVEN_an_ioc_defined_in_the_top_level_config_WHEN_the_ioc_is_removed_THEN_the_ioc_is_stopped(
+        self,
+    ):
         # Arrange
         config_holder = self.create_active_config_holder()
 
         details = config_holder.get_config_details()
-        details['iocs'].append(IOC("NAME"))
+        details["iocs"].append(IOC("NAME"))
         self._modify_active(config_holder, details)
 
         # Act
-        details['iocs'].pop(0)
+        details["iocs"].pop(0)
         self._modify_active(config_holder, details)
 
         # Assert
@@ -429,8 +436,9 @@ class TestActiveConfigHolderSequence(unittest.TestCase):
         self.assertEqual(len(restart), 0)
         self.assertEqual(len(stop), 1)
 
-    def test_GIVEN_a_manually_started_ioc_WHEN_config_not_containing_that_ioc_is_loaded_THEN_the_ioc_is_stopped(self):
-
+    def test_GIVEN_a_manually_started_ioc_WHEN_config_not_containing_that_ioc_is_loaded_THEN_the_ioc_is_stopped(
+        self,
+    ):
         with mock.mock.patch("BlockServer.core.active_config_holder.get_iocs") as mock_get_iocs:
             mock_get_iocs.return_value = ["IOCNAME1", "IOCNAME2"]
 
@@ -450,8 +458,9 @@ class TestActiveConfigHolderSequence(unittest.TestCase):
             self.assertEqual(restart, set())
             self.assertEqual(stop, {"IOCNAME1"})
 
-    def test_GIVEN_a_manually_started_ioc_WHEN_config_containing_that_ioc_is_loaded_THEN_the_ioc_is_restarted(self):
-
+    def test_GIVEN_a_manually_started_ioc_WHEN_config_containing_that_ioc_is_loaded_THEN_the_ioc_is_restarted(
+        self,
+    ):
         with mock.mock.patch("BlockServer.core.active_config_holder.get_iocs") as mock_get_iocs:
             mock_get_iocs.return_value = ["IOCNAME1", "IOCNAME2"]
 
@@ -462,7 +471,7 @@ class TestActiveConfigHolderSequence(unittest.TestCase):
             self._modify_active(config_holder, details)
 
             # Act
-            details['iocs'].append(IOC("IOCNAME1"))
+            details["iocs"].append(IOC("IOCNAME1"))
             self._modify_active(config_holder, details)
             config_holder._ioc_control._proc.start_ioc("IOCNAME1")
 
@@ -477,7 +486,7 @@ class TestActiveConfigHolderSequence(unittest.TestCase):
         config_holder = self.create_active_config_holder()
         details = config_holder.get_config_details()
         # Act
-        details['blocks'].append(Block(name="TESTNAME", pv="TESTPV").to_dict())
+        details["blocks"].append(Block(name="TESTNAME", pv="TESTPV").to_dict())
         self._modify_active(config_holder, details)
         # Assert
         self.assertTrue(config_holder.blocks_changed())
@@ -486,10 +495,10 @@ class TestActiveConfigHolderSequence(unittest.TestCase):
         # Arrange
         config_holder = self.create_active_config_holder()
         details = config_holder.get_config_details()
-        details['blocks'].append(Block(name="TESTNAME", pv="TESTPV").to_dict())
+        details["blocks"].append(Block(name="TESTNAME", pv="TESTPV").to_dict())
         self._modify_active(config_holder, details)
         # Act
-        details['blocks'][0]['local'] = False
+        details["blocks"][0]["local"] = False
         self._modify_active(config_holder, details)
         # Assert
         self.assertTrue(config_holder.blocks_changed())
@@ -498,10 +507,10 @@ class TestActiveConfigHolderSequence(unittest.TestCase):
         # Arrange
         config_holder = self.create_active_config_holder()
         details = config_holder.get_config_details()
-        details['blocks'].append(Block(name="TESTNAME", pv="TESTPV").to_dict())
+        details["blocks"].append(Block(name="TESTNAME", pv="TESTPV").to_dict())
         self._modify_active(config_holder, details)
         # Act
-        details['blocks'].pop(0)
+        details["blocks"].pop(0)
         self._modify_active(config_holder, details)
         # Assert
         self.assertTrue(config_holder.blocks_changed())
@@ -529,7 +538,7 @@ class TestActiveConfigHolderSequence(unittest.TestCase):
         # Arrange
         config_holder = self.create_active_config_holder()
         details = config_holder.get_config_details()
-        details['blocks'].append(Block(name="TESTNAME", pv="TESTPV").to_dict())
+        details["blocks"].append(Block(name="TESTNAME", pv="TESTPV").to_dict())
         self._modify_active(config_holder, details)
         # Act
         self._modify_active(config_holder, details)
@@ -540,7 +549,7 @@ class TestActiveConfigHolderSequence(unittest.TestCase):
         # Arrange
         config_holder = self.create_active_config_holder()
         details = config_holder.get_config_details()
-        details['blocks'].append(Block(name="TESTNAME", pv="TESTPV").to_dict())
+        details["blocks"].append(Block(name="TESTNAME", pv="TESTPV").to_dict())
         self._modify_active(config_holder, details)
         # Act
         self._modify_active(config_holder, details)
@@ -552,10 +561,10 @@ class TestActiveConfigHolderSequence(unittest.TestCase):
         # Arrange
         config_holder = self.create_active_config_holder()
         details = config_holder.get_config_details()
-        details['blocks'].append(Block(name="TESTNAME", pv="TESTPV").to_dict())
+        details["blocks"].append(Block(name="TESTNAME", pv="TESTPV").to_dict())
         self._modify_active(config_holder, details)
         # Act
-        details['blocks'].append(Block(name="TESTNAME2", pv="TESTPV2").to_dict())
+        details["blocks"].append(Block(name="TESTNAME2", pv="TESTPV2").to_dict())
         self._modify_active(config_holder, details)
         config_holder.update_archiver()
         # Assert
@@ -565,7 +574,7 @@ class TestActiveConfigHolderSequence(unittest.TestCase):
         # Arrange
         config_holder = self.create_active_config_holder()
         details = config_holder.get_config_details()
-        details['blocks'].append(Block(name="TESTNAME", pv="TESTPV").to_dict())
+        details["blocks"].append(Block(name="TESTNAME", pv="TESTPV").to_dict())
         self._modify_active(config_holder, details)
         # Act
         self._modify_active(config_holder, details)
@@ -573,25 +582,50 @@ class TestActiveConfigHolderSequence(unittest.TestCase):
         # Assert
         self.assertTrue(self.mock_archive.update_archiver.called)
 
-    @parameterized.expand([
-        (Block(name="name", pv="pv"), Block(name="other", pv="pv")),
-        (Block(name="name", pv="pv"), Block(name="name", pv="other")),
-        (Block(name="name", pv="pv", local=True), Block(name="name", pv="pv", local=False)),
-        (Block(name="name", pv="pv", component="A"), Block(name="name", pv="pv", component="B")),
-        (Block(name="name", pv="pv", runcontrol=True), Block(name="name", pv="pv", runcontrol=False)),
-        (Block(name="name", pv="pv", lowlimit=True), Block(name="name", pv="pv", lowlimit=False)),
-        (Block(name="name", pv="pv", highlimit=True), Block(name="name", pv="pv", highlimit=False)),
-        (Block(name="name", pv="pv", log_periodic=True), Block(name="name", pv="pv", log_periodic=False)),
-        (Block(name="name", pv="pv", log_rate=True), Block(name="name", pv="pv", log_rate=False)),
-        (Block(name="name", pv="pv", log_deadband=True), Block(name="name", pv="pv", log_deadband=False)),
-    ])
+    @parameterized.expand(
+        [
+            (Block(name="name", pv="pv"), Block(name="other", pv="pv")),
+            (Block(name="name", pv="pv"), Block(name="name", pv="other")),
+            (Block(name="name", pv="pv", local=True), Block(name="name", pv="pv", local=False)),
+            (
+                Block(name="name", pv="pv", component="A"),
+                Block(name="name", pv="pv", component="B"),
+            ),
+            (
+                Block(name="name", pv="pv", runcontrol=True),
+                Block(name="name", pv="pv", runcontrol=False),
+            ),
+            (
+                Block(name="name", pv="pv", lowlimit=True),
+                Block(name="name", pv="pv", lowlimit=False),
+            ),
+            (
+                Block(name="name", pv="pv", highlimit=True),
+                Block(name="name", pv="pv", highlimit=False),
+            ),
+            (
+                Block(name="name", pv="pv", log_periodic=True),
+                Block(name="name", pv="pv", log_periodic=False),
+            ),
+            (
+                Block(name="name", pv="pv", log_rate=True),
+                Block(name="name", pv="pv", log_rate=False),
+            ),
+            (
+                Block(name="name", pv="pv", log_deadband=True),
+                Block(name="name", pv="pv", log_deadband=False),
+            ),
+        ]
+    )
     def test_WHEN_block_attributes_different_THEN_blocks_changed_returns_true(self, block1, block2):
         self.assertTrue(_blocks_changed(block1, block2))
 
     def test_WHEN_block_attributes_different_THEN_blocks_changed_returns_false(self):
         self.assertFalse(_blocks_changed(Block(name="name", pv="pv"), Block(name="name", pv="pv")))
 
-    def test_WHEN_blocks_changed_in_config_called_for_configs_which_contain_same_blocks_THEN_returns_false(self):
+    def test_WHEN_blocks_changed_in_config_called_for_configs_which_contain_same_blocks_THEN_returns_false(
+        self,
+    ):
         config1 = Mock()
         config1.blocks = {"a": Block(name="a", pv="pv")}
 
@@ -600,7 +634,9 @@ class TestActiveConfigHolderSequence(unittest.TestCase):
 
         self.assertFalse(_blocks_changed_in_config(config1, config2))
 
-    def test_WHEN_blocks_changed_in_config_called_for_configs_with_removed_blocks_THEN_returns_true(self):
+    def test_WHEN_blocks_changed_in_config_called_for_configs_with_removed_blocks_THEN_returns_true(
+        self,
+    ):
         config1 = Mock()
         config1.blocks = {"a": Block(name="a", pv="pv")}
 
@@ -609,7 +645,9 @@ class TestActiveConfigHolderSequence(unittest.TestCase):
 
         self.assertTrue(_blocks_changed_in_config(config1, config2))
 
-    def test_WHEN_blocks_changed_in_config_called_for_configs_with_added_blocks_THEN_returns_true(self):
+    def test_WHEN_blocks_changed_in_config_called_for_configs_with_added_blocks_THEN_returns_true(
+        self,
+    ):
         config1 = Mock()
         config1.blocks = {}
 
@@ -618,25 +656,39 @@ class TestActiveConfigHolderSequence(unittest.TestCase):
 
         self.assertTrue(_blocks_changed_in_config(config1, config2))
 
-    def test_WHEN_blocks_changed_in_config_called_and_block_comparator_says_they_are_different_THEN_returns_true(self):
+    def test_WHEN_blocks_changed_in_config_called_and_block_comparator_says_they_are_different_THEN_returns_true(
+        self,
+    ):
         config1 = Mock()
         config1.blocks = {"a": Block(name="a", pv="pv")}
 
         config2 = Mock()
         config2.blocks = {"a": Block(name="a", pv="pv")}
 
-        self.assertTrue(_blocks_changed_in_config(config1, config2, block_comparator=lambda block1, block2: True))
+        self.assertTrue(
+            _blocks_changed_in_config(
+                config1, config2, block_comparator=lambda block1, block2: True
+            )
+        )
 
-    def test_WHEN_blocks_changed_in_config_called_and_block_comparator_says_they_are_the_same_THEN_returns_false(self):
+    def test_WHEN_blocks_changed_in_config_called_and_block_comparator_says_they_are_the_same_THEN_returns_false(
+        self,
+    ):
         config1 = Mock()
         config1.blocks = {"a": Block(name="a", pv="pv")}
 
         config2 = Mock()
         config2.blocks = {"a": Block(name="a", pv="pv")}
 
-        self.assertFalse(_blocks_changed_in_config(config1, config2, block_comparator=lambda block1, block2: False))
+        self.assertFalse(
+            _blocks_changed_in_config(
+                config1, config2, block_comparator=lambda block1, block2: False
+            )
+        )
 
-    def test_WHEN_compare_ioc_properties_called_with_the_same_ioc_then_returns_empty_set_of_iocs_to_start_restart(self):
+    def test_WHEN_compare_ioc_properties_called_with_the_same_ioc_then_returns_empty_set_of_iocs_to_start_restart(
+        self,
+    ):
         old_config = {"a": IOC("a")}
         new_config = {"a": IOC("a")}
 
@@ -644,15 +696,19 @@ class TestActiveConfigHolderSequence(unittest.TestCase):
         self.assertEqual(len(start), 0)
         self.assertEqual(len(restart), 0)
 
-    @parameterized.expand([
-        ({"a": IOC("a", macros=True)}, {"a": IOC("a", macros=False)}),
-        ({"a": IOC("a", pvs=True)}, {"a": IOC("a", pvs=False)}),
-        ({"a": IOC("a", pvsets=True)}, {"a": IOC("a", pvsets=False)}),
-        ({"a": IOC("a", simlevel="recsim")}, {"a": IOC("a", simlevel="devsim")}),
-        ({"a": IOC("a", restart=True)}, {"a": IOC("a", restart=False)}),
-        ({"a": IOC("a", autostart=True)}, {"a": IOC("a", autostart=False)}),
-    ])
-    def test_WHEN_compare_ioc_properties_called_with_different_then_restarts_ioc(self, old_iocs, new_iocs):
+    @parameterized.expand(
+        [
+            ({"a": IOC("a", macros=True)}, {"a": IOC("a", macros=False)}),
+            ({"a": IOC("a", pvs=True)}, {"a": IOC("a", pvs=False)}),
+            ({"a": IOC("a", pvsets=True)}, {"a": IOC("a", pvsets=False)}),
+            ({"a": IOC("a", simlevel="recsim")}, {"a": IOC("a", simlevel="devsim")}),
+            ({"a": IOC("a", restart=True)}, {"a": IOC("a", restart=False)}),
+            ({"a": IOC("a", autostart=True)}, {"a": IOC("a", autostart=False)}),
+        ]
+    )
+    def test_WHEN_compare_ioc_properties_called_with_different_then_restarts_ioc(
+        self, old_iocs, new_iocs
+    ):
         start, restart, stop = _compare_ioc_properties(old_iocs, new_iocs)
         self.assertEqual(len(start), 0)
         self.assertEqual(len(restart), 1)
@@ -675,6 +731,6 @@ class TestActiveConfigHolderSequence(unittest.TestCase):
         self.assertEqual(len(stop), 1)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     # Run tests
     unittest.main()

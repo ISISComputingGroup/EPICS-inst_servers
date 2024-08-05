@@ -109,8 +109,15 @@ class DataFileCreatorFactory(object):
     Factory for creating a data file creator
     """
 
-    def create(self, config, archiver_data_source, filename_template, file_open_method=open,
-               mkdir_for_file_fn=mkdir_for_file, make_file_readonly=make_file_readonly_fn):
+    def create(
+        self,
+        config,
+        archiver_data_source,
+        filename_template,
+        file_open_method=open,
+        mkdir_for_file_fn=mkdir_for_file,
+        make_file_readonly=make_file_readonly_fn,
+    ):
         """
         Create an instance of a data file creator.
         Args:
@@ -125,9 +132,14 @@ class DataFileCreatorFactory(object):
         Returns: ArchiveDataFileCreator
 
         """
-        return ArchiveDataFileCreator(config, archiver_data_source, filename_template,
-                                      file_open_method=file_open_method, mkdir_for_file_fn=mkdir_for_file_fn,
-                                      make_file_readonly=make_file_readonly)
+        return ArchiveDataFileCreator(
+            config,
+            archiver_data_source,
+            filename_template,
+            file_open_method=file_open_method,
+            mkdir_for_file_fn=mkdir_for_file_fn,
+            make_file_readonly=make_file_readonly,
+        )
 
 
 class ArchiveDataFileCreator(object):
@@ -135,8 +147,15 @@ class ArchiveDataFileCreator(object):
     Archive data file creator creates the log file based on the configuration.
     """
 
-    def __init__(self, config, archiver_data_source, filename_template, file_open_method=open,
-                 mkdir_for_file_fn=mkdir_for_file, make_file_readonly=make_file_readonly_fn):
+    def __init__(
+        self,
+        config,
+        archiver_data_source,
+        filename_template,
+        file_open_method=open,
+        mkdir_for_file_fn=mkdir_for_file,
+        make_file_readonly=make_file_readonly_fn,
+    ):
         """
         Constructor
         Args:
@@ -179,9 +198,11 @@ class ArchiveDataFileCreator(object):
         try:
             self._make_file_readonly_fn(self._filename)
         except Exception as ex:
-            raise DataFileCreationError("Failed to make log file {filename} readonly. "
-                                        "Error is: '{exception}'"
-                                        .format(exception=ex, filename=self._filename))
+            raise DataFileCreationError(
+                "Failed to make log file {filename} readonly. " "Error is: '{exception}'".format(
+                    exception=ex, filename=self._filename
+                )
+            )
 
     def write_file_header(self, start_time):
         """
@@ -210,9 +231,12 @@ class ArchiveDataFileCreator(object):
             self._periodic_data_generator = PeriodicDataGenerator(self._archiver_data_source)
 
         except Exception as ex:
-            raise DataFileCreationError("Failed to write header in log file {filename} for start time {time}. "
-                                        "Error is: '{exception}'"
-                                        .format(time=start_time, exception=ex, filename=self._filename))
+            raise DataFileCreationError(
+                "Failed to write header in log file {filename} for start time {time}. "
+                "Error is: '{exception}'".format(
+                    time=start_time, exception=ex, filename=self._filename
+                )
+            )
 
     def write_data_lines(self, time_period):
         """
@@ -229,7 +253,8 @@ class ArchiveDataFileCreator(object):
 
             with self._file_open_method(self._filename, mode="a") as f:
                 periodic_data = self._periodic_data_generator.get_generator(
-                    self._config.pv_names_in_columns, time_period)
+                    self._config.pv_names_in_columns, time_period
+                )
                 self._ignore_first_line_if_already_written(periodic_data)
 
                 for time, values in periodic_data:
@@ -238,9 +263,12 @@ class ArchiveDataFileCreator(object):
                     f.write("{0}\n".format(table_line))
 
         except Exception as ex:
-            raise DataFileCreationError("Failed to write lines in log file {filename} for time period {time_period}. "
-                                        "Error is: '{exception}'"
-                                        .format(time_period=time_period, exception=ex, filename=self._filename))
+            raise DataFileCreationError(
+                "Failed to write lines in log file {filename} for time period {time_period}. "
+                "Error is: '{exception}'".format(
+                    time_period=time_period, exception=ex, filename=self._filename
+                )
+            )
 
     def _ignore_first_line_if_already_written(self, periodic_data):
         """

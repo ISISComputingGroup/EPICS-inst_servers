@@ -16,7 +16,6 @@
 
 
 class MockProcServWrapper:
-
     def __init__(self, prefix):
         self.ps_status = dict()
         self.ps_status["simple1"] = "SHUTDOWN"

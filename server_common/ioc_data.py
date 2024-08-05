@@ -85,7 +85,7 @@ class IOCData(object):
         Returns:
             list : A list of the names of PVs associated with beamline parameters
         """
-        return self.get_pars('BEAMLINEPAR')
+        return self.get_pars("BEAMLINEPAR")
 
     def get_sample_pars(self):
         """
@@ -94,7 +94,7 @@ class IOCData(object):
         Returns:
             list : A list of the names of PVs associated with sample parameters
         """
-        return self.get_pars('SAMPLEPAR')
+        return self.get_pars("SAMPLEPAR")
 
     def get_user_pars(self):
         """
@@ -103,7 +103,7 @@ class IOCData(object):
         Returns:
             list : A list of the names of PVs associated with user parameters
         """
-        return self.get_pars('USERPAR')
+        return self.get_pars("USERPAR")
 
     def update_iocs_status(self):
         """

@@ -21,7 +21,6 @@ from ConfigVersionControl.git_version_control import GitVersionControl
 
 
 class TestVersionControl(unittest.TestCase):
-
     def test_WHEN_branch_is_master_THEN_branch_not_allowed(self):
         self.assertFalse(GitVersionControl.branch_allowed("master"))
 

@@ -11,4 +11,3 @@ def load_tests(loader, standard_tests, pattern):
     """
     standard_tests.addTests(loader.discover(os.path.dirname(__file__), pattern=pattern))
     return standard_tests
-

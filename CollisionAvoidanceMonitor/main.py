@@ -18,12 +18,15 @@ from CollisionAvoidanceMonitor.monitor import Monitor
 from CollisionAvoidanceMonitor.move import move_all
 from server_common.loggers.isis_logger import IsisLogger
 
-logging.basicConfig(level=logging.INFO,
-                    format='%(asctime)s (%(threadName)-2s) %(message)s',
-                    )
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s (%(threadName)-2s) %(message)s",
+)
 
 
-def auto_seek(start_step_size, start_values, end_value, geometries, moves, axis_index, ignore, fine_step=None):
+def auto_seek(
+    start_step_size, start_values, end_value, geometries, moves, axis_index, ignore, fine_step=None
+):
     limit = end_value
     current_value = start_values[axis_index]
 
@@ -71,7 +74,7 @@ def auto_seek(start_step_size, start_values, end_value, geometries, moves, axis_
                 delta = max_delta(geometries, new_points, old_points)
                 if delta > start_step_size:
                     # Work out a new step size
-                    step_size *= start_step_size/delta
+                    step_size *= start_step_size / delta
                     last_value = None
                     continue
                 step_checked = True
@@ -86,7 +89,9 @@ def auto_seek(start_step_size, start_values, end_value, geometries, moves, axis_
                 break
             elif fine_step and fine_step < step_size:
                 start_values[axis_index] = last_value
-                limit = auto_seek(fine_step, start_values, current_value, geometries, moves, axis_index, ignore)
+                limit = auto_seek(
+                    fine_step, start_values, current_value, geometries, moves, axis_index, ignore
+                )
             else:
                 limit = last_value
             break
@@ -131,8 +136,12 @@ def auto_seek_limits(geometries, ignore, moves, values, limits, coarse=1.0, fine
     for i in range(len(values)):
         logging.debug("Seeking for axis %d" % i)
 
-        lower_limit = auto_seek(coarse, values[:], min(limits[i]), geometries, moves, i, ignore, fine)
-        upper_limit = auto_seek(coarse, values[:], max(limits[i]), geometries, moves, i, ignore, fine)
+        lower_limit = auto_seek(
+            coarse, values[:], min(limits[i]), geometries, moves, i, ignore, fine
+        )
+        upper_limit = auto_seek(
+            coarse, values[:], max(limits[i]), geometries, moves, i, ignore, fine
+        )
 
         dynamic_limits.append([lower_limit, upper_limit])
 
@@ -141,7 +150,17 @@ def auto_seek_limits(geometries, ignore, moves, values, limits, coarse=1.0, fine
     return dynamic_limits
 
 
-def look_ahead(start_values, pvs, is_moving, geometries, moves, ignore, max_movement=1.0, max_time=10., time_step=0.1):
+def look_ahead(
+    start_values,
+    pvs,
+    is_moving,
+    geometries,
+    moves,
+    ignore,
+    max_movement=1.0,
+    max_time=10.0,
+    time_step=0.1,
+):
     # Get the indices of the axes currently moving
     moving = [i for i, m in enumerate(is_moving) if m == 0]  # DMOV = 0 when motors not moving
 
@@ -151,7 +170,6 @@ def look_ahead(start_values, pvs, is_moving, geometries, moves, ignore, max_move
 
     # Only worth calculating if more than one axis is moving
     if len(moving) > 1:
-
         set_points = [None] * len(pvs)
         speeds = [None] * len(pvs)
         directions = [None] * len(pvs)
@@ -163,15 +181,15 @@ def look_ahead(start_values, pvs, is_moving, geometries, moves, ignore, max_move
         for i in moving:
             pv = pvs[i]
 
-            set_point = get_pv(pv + '.DVAL')
-            speed = get_pv(pv + '.VELO')
+            set_point = get_pv(pv + ".DVAL")
+            speed = get_pv(pv + ".VELO")
 
-            direction = 0.
+            direction = 0.0
             move = set_point - start_values[i]
             if move > 0:
-                direction = 1.
+                direction = 1.0
             if move < 0:
-                direction = -1.
+                direction = -1.0
 
             set_points[i] = set_point
             speeds[i] = speed
@@ -180,7 +198,7 @@ def look_ahead(start_values, pvs, is_moving, geometries, moves, ignore, max_move
             # This axis has not finished moving!
             move_complete[i] = False
 
-        current_time = 0.
+        current_time = 0.0
         values = start_values[:]
         old_points = None
         step_checked = False
@@ -189,7 +207,7 @@ def look_ahead(start_values, pvs, is_moving, geometries, moves, ignore, max_move
         while current_time < max_time:
             if last_time is None:
                 values = start_values[:]
-                current_time = 0.
+                current_time = 0.0
                 old_points = None
             else:
                 current_time += time_step
@@ -211,7 +229,7 @@ def look_ahead(start_values, pvs, is_moving, geometries, moves, ignore, max_move
 
                     if delta > max_movement:
                         # Reduce the size of the time step
-                        time_step *= max_movement/delta
+                        time_step *= max_movement / delta
                         # Reset to starting point
                         last_time = None
                         old_points = None
@@ -225,7 +243,7 @@ def look_ahead(start_values, pvs, is_moving, geometries, moves, ignore, max_move
             if any(collisions):
                 if last_time is None:
                     msg = "There is already a collision"
-                    safe_time = 0.
+                    safe_time = 0.0
                 else:
                     msg = "Collision expected in %.1fs - %.1fs" % (last_time, current_time)
                     safe_time = last_time
@@ -241,8 +259,8 @@ def look_ahead(start_values, pvs, is_moving, geometries, moves, ignore, max_move
 # Set the high and low dial limits for each motor
 def set_limits(limits, pvs):
     for limit, pv in zip(limits, pvs):
-        set_pv(pv + '.DLLM', limit[0])
-        set_pv(pv + '.DHLM', limit[1])
+        set_pv(pv + ".DLLM", limit[0])
+        set_pv(pv + ".DHLM", limit[1])
 
 
 # Contains operating mode events
@@ -302,7 +320,9 @@ def main():
     for i, geometry in enumerate(config.geometries):
         geometries.append(GeometryBox(space, oversize=config.oversize, **geometry))
         render_geometries.append(GeometryBox(render_space, **geometry))
-        collision_geometries.append(GeometryBox(collision_space, oversize=config.oversize, **geometry))
+        collision_geometries.append(
+            GeometryBox(collision_space, oversize=config.oversize, **geometry)
+        )
 
     # Create and populate two lists of monitors
     monitors = []
@@ -328,9 +348,11 @@ def main():
     # Create a shared render parameter object to update the render thread
     parameters = render.RenderParams()
 
-    if 'blind' not in sys.argv:
+    if "blind" not in sys.argv:
         # Initialise the render thread, and set it to daemon - won't prevent the main thread from exiting
-        renderer = render.Renderer(parameters, render_geometries, colors, monitors, pvs, moves, op_mode)
+        renderer = render.Renderer(
+            parameters, render_geometries, colors, monitors, pvs, moves, op_mode
+        )
         renderer.daemon = True
 
     # Need to know if this is the first execution of the main loop
@@ -340,27 +362,35 @@ def main():
     # Loop over the pvdb and update the counts based on the number of aves/bodies
     for pv in pv_server.pvdb:
         for key, val in pv_server.pvdb[pv].items():
-            if key == 'count':
+            if key == "count":
                 if val is pv_server.axis_count:
-                    pv_server.pvdb[pv]['count'] = len(config.pvs)
+                    pv_server.pvdb[pv]["count"] = len(config.pvs)
                 if val is pv_server.body_count:
-                    pv_server.pvdb[pv]['count'] = len(config.geometries)
+                    pv_server.pvdb[pv]["count"] = len(config.geometries)
 
     driver = pv_server.start_thread(config.control_pv, op_mode)
 
-    driver.setParam('OVERSIZE', config.oversize)
-    driver.setParam('COARSE', config.coarse)
-    driver.setParam('FINE', config.fine)
-    driver.setParam('NAMES', [g['name'] for g in config.geometries])
+    driver.setParam("OVERSIZE", config.oversize)
+    driver.setParam("COARSE", config.coarse)
+    driver.setParam("FINE", config.fine)
+    driver.setParam("NAMES", [g["name"] for g in config.geometries])
 
     # Only report for new collisions
-    collision_detector = CollisionDetector(driver, collision_geometries, config.moves, monitors, config.ignore,
-                                           is_moving, logger, op_mode, config.pvs)
+    collision_detector = CollisionDetector(
+        driver,
+        collision_geometries,
+        config.moves,
+        monitors,
+        config.ignore,
+        is_moving,
+        logger,
+        op_mode,
+        config.pvs,
+    )
     collision_detector.start()
 
     # Main loop
     while True:
-
         # Freeze the positions of our current monitors by creating some dummies
         # This stops the threads from trying to reading each monitor sequentially, and holding each other up
         frozen = [m.value() for m in monitors]
@@ -371,8 +401,8 @@ def main():
         # Check if the oversize has been changed, ahead of any collision calcs
         if driver.new_data.isSet():
             for geometry, collision_geometry in zip(geometries, collision_geometries):
-                geometry.set_size(oversize=driver.getParam('OVERSIZE'))
-                collision_geometry.set_size(oversize=driver.getParam('OVERSIZE'))
+                geometry.set_size(oversize=driver.getParam("OVERSIZE"))
+                collision_geometry.set_size(oversize=driver.getParam("OVERSIZE"))
             driver.new_data.clear()
             op_mode.calc_limits.set()
 
@@ -391,16 +421,22 @@ def main():
         new_limits = []
 
         if fresh or any_moving or op_mode.calc_limits.isSet():
-
             # Look ahead some time to see if any collisions are going to happen in the future
-            msg, safe_time, safe = look_ahead(frozen, config.pvs, moving, geometries, moves, ignore,
-                                              max_movement=driver.getParam('COARSE'))
+            msg, safe_time, safe = look_ahead(
+                frozen,
+                config.pvs,
+                moving,
+                geometries,
+                moves,
+                ignore,
+                max_movement=driver.getParam("COARSE"),
+            )
 
             if not safe and not any(collisions):
                 logger.write_to_log(msg, "MAJOR", "COLLIDE")
-                driver.setParam('MSG', msg)
+                driver.setParam("MSG", msg)
             else:
-                driver.setParam('MSG', collision_message)
+                driver.setParam("MSG", collision_message)
 
             logging.info(msg)
 
@@ -408,8 +444,15 @@ def main():
             time_passed = time()
 
             # Seek the correct limit values
-            dynamic_limits = auto_seek_limits(geometries, ignore, moves, frozen, config_limits,
-                                              coarse=driver.getParam('COARSE'), fine=driver.getParam('FINE'))
+            dynamic_limits = auto_seek_limits(
+                geometries,
+                ignore,
+                moves,
+                frozen,
+                config_limits,
+                coarse=driver.getParam("COARSE"),
+                fine=driver.getParam("FINE"),
+            )
 
             # Calculate and log the time taken to calculate
             time_passed = (time() - time_passed) * 1000
@@ -429,17 +472,19 @@ def main():
             parameters.update_params(dynamic_limits, collisions, time_passed)
 
             # # Update the PVs
-            driver.setParam('TIME', time_passed)
-            driver.setParam('HI_LIM', [l[1] for l in dynamic_limits])
-            driver.setParam('LO_LIM', [l[0] for l in dynamic_limits])
-            driver.setParam('TRAVEL', [min([l[0] - m, l[1] - m], key=abs)
-                                       for l, m in zip(dynamic_limits, frozen)])
-            driver.setParam('TRAV_F', [l[1] - m for l, m in zip(dynamic_limits, frozen)])
-            driver.setParam('TRAV_R', [l[0] - m for l, m in zip(dynamic_limits, frozen)])
+            driver.setParam("TIME", time_passed)
+            driver.setParam("HI_LIM", [l[1] for l in dynamic_limits])
+            driver.setParam("LO_LIM", [l[0] for l in dynamic_limits])
+            driver.setParam(
+                "TRAVEL",
+                [min([l[0] - m, l[1] - m], key=abs) for l, m in zip(dynamic_limits, frozen)],
+            )
+            driver.setParam("TRAV_F", [l[1] - m for l, m in zip(dynamic_limits, frozen)])
+            driver.setParam("TRAV_R", [l[0] - m for l, m in zip(dynamic_limits, frozen)])
 
             driver.updatePVs()
 
-            if 'blind' not in sys.argv:
+            if "blind" not in sys.argv:
                 # On the first run, start the renderer
                 if renderer.is_alive() is False:
                     renderer.start()
@@ -466,7 +511,7 @@ def main():
         # Give the CPU a break
         sleep(0.01)
 
-        if 'return' in sys.argv:
+        if "return" in sys.argv:
             return
 
 

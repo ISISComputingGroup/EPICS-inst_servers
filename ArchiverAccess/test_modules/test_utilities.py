@@ -22,7 +22,6 @@ from ArchiverAccess.utilities import add_default_field, truncate
 
 
 class TestUtilities(TestCase):
-
     def test_GIVEN_pv_no_default_WHEN_pv_with_default_THEN_pv_as_is(self):
         default_field = ""
         pv = "pv:name"

@@ -8,7 +8,6 @@ SCRIPTS_DIR = os.path.join("Python", "")
 
 
 class GitMessageProvider:
-
     CONFIGS_MODIFIED = "Configurations modified"
     CONFIGS_DELETED = "Configurations deleted"
     COMPS_MODIFIED = "Components modified"
@@ -70,8 +69,13 @@ class GitMessageProvider:
         self._synoptics_modified |= self._is_synoptic(path)
         self._device_screens_modified |= self._is_device_screens(path)
         self._scripts_modified |= self._is_script(path)
-        self._other_modified |= not (self._is_config(path) or self._is_component(path) or self._is_synoptic(path) or
-                                     self._is_device_screens(path) or self._is_script(path))
+        self._other_modified |= not (
+            self._is_config(path)
+            or self._is_component(path)
+            or self._is_synoptic(path)
+            or self._is_device_screens(path)
+            or self._is_script(path)
+        )
 
     def _deleted(self, path):
         self._configs_deleted |= self._is_config(path)
@@ -79,8 +83,13 @@ class GitMessageProvider:
         self._synoptics_deleted |= self._is_synoptic(path)
         self._device_screens_deleted |= self._is_device_screens(path)
         self._scripts_deleted |= self._is_script(path)
-        self._other_modified |= not (self._is_config(path) or self._is_component(path) or self._is_synoptic(path) or
-                                     self._is_device_screens(path) or self._is_script(path))
+        self._other_modified |= not (
+            self._is_config(path)
+            or self._is_component(path)
+            or self._is_synoptic(path)
+            or self._is_device_screens(path)
+            or self._is_script(path)
+        )
 
     def _assemble_message(self):
         message = ""
@@ -107,7 +116,7 @@ class GitMessageProvider:
             message = self._append(message, self.SCRIPTS_DELETED)
         if self._other_modified:
             message = self._append(message, self.OTHER_MODIFIED)
-            
+
         self._reset()
 
         return message

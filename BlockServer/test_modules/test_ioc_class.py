@@ -22,7 +22,7 @@ from BlockServer.config.ioc import IOC
 class TestIocClassSequence(unittest.TestCase):
     def test_ioc_to_dict(self):
         ioc = IOC("SIMPLE1")
-        macros = {"macro1": {'value': 123}, "macro2": {'value': "Hello"}}
+        macros = {"macro1": {"value": 123}, "macro2": {"value": "Hello"}}
         ioc.macros = macros
 
         d = ioc.to_dict()
@@ -48,9 +48,12 @@ class TestIocClassSequence(unittest.TestCase):
         value1 = 123
         macro2 = "macro2"
         value2 = "hello"
-        macros = {macro1: {'value': value1}, macro2: {'value': value2}}
+        macros = {macro1: {"value": value1}, macro2: {"value": value2}}
         macro_copy = copy.deepcopy(macros)
 
-        self.assertEqual(IOC._dict_to_list(macros), [{"name": macro1, "value": value1}, {"name": macro2, "value": value2}])
+        self.assertEqual(
+            IOC._dict_to_list(macros),
+            [{"name": macro1, "value": value1}, {"name": macro2, "value": value2}],
+        )
         # Assert that the original macros dict has not changed
         self.assertEqual(macros, macro_copy)

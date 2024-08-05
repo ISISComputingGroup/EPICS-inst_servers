@@ -21,36 +21,37 @@ from lxml import etree
 
 class NotConfigFileException(Exception):
     def __init__(self, message):
-        super(Exception,self).__init__(message)
+        super(Exception, self).__init__(message)
         self.message = message
 
 
 class ConfigurationIncompleteException(Exception):
     def __init__(self, message):
-        super(Exception,self).__init__(message)
+        super(Exception, self).__init__(message)
         self.message = message
 
 
 class ConfigurationInvalidUnderSchema(Exception):
     def __init__(self, message):
-        super(Exception,self).__init__(message)
+        super(Exception, self).__init__(message)
         self.message = message
 
 
 class ConfigurationFileBlank(Exception):
     def __init__(self, message):
-        super(Exception,self).__init__(message)
+        super(Exception, self).__init__(message)
         self.message = message
 
 
 class ConfigurationSchemaChecker:
-    """ The ConfigurationSchemaChecker class
+    """The ConfigurationSchemaChecker class
 
     Contains utilities to check configurations against xml schema.
     """
+
     @staticmethod
     def check_xml_data_matches_schema(schema_filepath: str, xml_data: bytes):
-        """ This method takes xml data and checks it against a given schema.
+        """This method takes xml data and checks it against a given schema.
 
         A ConfigurationInvalidUnderSchema error is raised if the file is incorrect.
 
@@ -73,14 +74,17 @@ class ConfigurationSchemaChecker:
     @staticmethod
     def check_xml_matches_schema(schema_filepath, screen_xml_data, object_type):
         try:
-            ConfigurationSchemaChecker.check_xml_data_matches_schema(schema_filepath, screen_xml_data)
+            ConfigurationSchemaChecker.check_xml_data_matches_schema(
+                schema_filepath, screen_xml_data
+            )
         except ConfigurationInvalidUnderSchema as err:
             raise ConfigurationInvalidUnderSchema(
-                f"{object_type} incorrectly formatted: {err.message}")
+                f"{object_type} incorrectly formatted: {err.message}"
+            )
 
     @staticmethod
     def _check_file_against_schema(xml_file, schema_folder, schema_file):
-        """ This method takes an xml file and checks it against a given schema.
+        """This method takes an xml file and checks it against a given schema.
 
         Args:
             xml_file (string): The XML file to check
@@ -93,7 +97,7 @@ class ConfigurationSchemaChecker:
         schema = ConfigurationSchemaChecker._get_schema(schema_folder, schema_file)
 
         # Import the xml file
-        with open(xml_file, 'rb') as f:
+        with open(xml_file, "rb") as f:
             xml = f.read()
 
         doc = etree.fromstring(xml)
@@ -101,7 +105,7 @@ class ConfigurationSchemaChecker:
 
     @staticmethod
     def _get_schema(schema_folder, schema_file):
-        """ This method generates an xml schemaq object for later use in validation.
+        """This method generates an xml schemaq object for later use in validation.
 
         Args:
             schema_folder (string): The directory for schema files
@@ -110,7 +114,7 @@ class ConfigurationSchemaChecker:
         # must move to directory to handle schema includes
         cur = os.getcwd()
         os.chdir(schema_folder)
-        with open(schema_file, 'rb') as f:
+        with open(schema_file, "rb") as f:
             schema_raw = etree.XML(f.read())
 
         schema = etree.XMLSchema(schema_raw)

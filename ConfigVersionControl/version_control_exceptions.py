@@ -66,5 +66,3 @@ class NotUnderAllowedBranchException(VersionControlException):
 class PushToVersionControlException(VersionControlException):
     def __init__(self, err):
         super(PushToVersionControlException, self).__init__(err)
-
-

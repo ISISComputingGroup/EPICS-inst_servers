@@ -26,7 +26,6 @@ from ConfigVersionControl.version_control_exceptions import (
 
 
 class MockVersionControl:
-
     def add(self, file_path):
         pass
 

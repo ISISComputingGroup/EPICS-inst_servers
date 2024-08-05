@@ -4,7 +4,6 @@ from server_common.utilities import create_pv_name, lowercase_and_make_unique, r
 
 
 class TestCreatePVName(unittest.TestCase):
-
     def setUp(self):
         pass
 
@@ -18,14 +17,18 @@ class TestCreatePVName(unittest.TestCase):
         # Assert
         self.assertEquals(pv, "CONFIG")
 
-    def test_WHEN_pv_name_contains_non_alphanumeric_characters_THEN_remove_non_alphanumeric_characters(self):
+    def test_WHEN_pv_name_contains_non_alphanumeric_characters_THEN_remove_non_alphanumeric_characters(
+        self,
+    ):
         # Act
         pv = create_pv_name("c-onf@ig", [], "PEEVEE")
 
         # Assert
         self.assertEquals(pv, "CONFIG")
 
-    def test_WHEN_pv_name_contains_only_numbers_and_underscores_THEN_replace_pv_with_default_pv_name(self):
+    def test_WHEN_pv_name_contains_only_numbers_and_underscores_THEN_replace_pv_with_default_pv_name(
+        self,
+    ):
         # Act
         pv = create_pv_name("1_2_3_4", [], "PEEVEE")
 
@@ -70,7 +73,9 @@ class TestCreatePVName(unittest.TestCase):
         self.assertEquals(pv_01, "CONF")
         self.assertEquals(pv_02, "CONF01")
 
-    def test_GIVEN_an_existing_truncated_pv_WHEN_another_pv_of_same_name_THEN_truncate_and_rename_differently(self):
+    def test_GIVEN_an_existing_truncated_pv_WHEN_another_pv_of_same_name_THEN_truncate_and_rename_differently(
+        self,
+    ):
         # Arrange
         pv_01 = create_pv_name("Configuration", [], "PEEVEE")
 
@@ -83,7 +88,9 @@ class TestCreatePVName(unittest.TestCase):
         self.assertEquals(pv_02, "CONF01")
         self.assertEquals(pv_03, "CONF02")
 
-    def test_GIVEN_a_long_pv_WHEN_create_pv_with_same_name_and_invalid_chars_THEN_remove_invalid_chars_and_truncate_and_number_correctly(self):
+    def test_GIVEN_a_long_pv_WHEN_create_pv_with_same_name_and_invalid_chars_THEN_remove_invalid_chars_and_truncate_and_number_correctly(
+        self,
+    ):
         # Arrange
         pv_01 = create_pv_name("Configuration", [], "PEEVEE")
 
@@ -168,7 +175,9 @@ class TestMakeUniqueAndLowercase(unittest.TestCase):
         self.assertIn("a", result)
         self.assertIn("b", result)
 
-    def test_WHEN_called_with_same_string_in_both_upper_and_lower_case_THEN_only_lowercase_version_kept(self):
+    def test_WHEN_called_with_same_string_in_both_upper_and_lower_case_THEN_only_lowercase_version_kept(
+        self,
+    ):
         result = lowercase_and_make_unique(["a", "A"])
         self.assertEqual(1, len(result))
         self.assertIn("a", result)

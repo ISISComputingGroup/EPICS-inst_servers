@@ -20,10 +20,10 @@ import os
 
 import mock
 
-os.environ['MYDIRBLOCK'] = os.path.abspath('..')
-os.environ['MYPVPREFIX'] = ""
-os.environ['EPICS_KIT_ROOT'] = ""
-os.environ['ICPCONFIGROOT'] = ""
+os.environ["MYDIRBLOCK"] = os.path.abspath("..")
+os.environ["MYPVPREFIX"] = ""
+os.environ["EPICS_KIT_ROOT"] = ""
+os.environ["ICPCONFIGROOT"] = ""
 import unittest
 
 from DatabaseServer.database_server import DatabaseServer
@@ -50,37 +50,61 @@ set_logger(Logger())
 class TestDatabaseServer(unittest.TestCase):
     def setUp(self):
         self.ms = MockCAServer()
-        self.ioc_source = MockIocDataSource() # IocDataSource(SQLAbstraction("iocdb", "iocdb", "$iocdb"))
+        self.ioc_source = (
+            MockIocDataSource()
+        )  # IocDataSource(SQLAbstraction("iocdb", "iocdb", "$iocdb"))
         self.proc_server = MockProcServWrapper()
         self.exp_data = MockExpData()
         self.ioc_data = IOCData(self.ioc_source, self.proc_server, "")
         self.moxa_data = mock.Mock()
-        test_files_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "test_files")
-        self.db_server = DatabaseServer(self.ms, self.ioc_data, self.exp_data, self.moxa_data, test_files_dir, "block_prefix", True)
+        test_files_dir = os.path.join(
+            os.path.dirname(os.path.abspath(__file__)), "..", "test_files"
+        )
+        self.db_server = DatabaseServer(
+            self.ms,
+            self.ioc_data,
+            self.exp_data,
+            self.moxa_data,
+            test_files_dir,
+            "block_prefix",
+            True,
+        )
 
     @unittest.skipIf(IS_LINUX, "DB server not configured to run properly on Linux build")
     def test_interest_high_pvs_correct(self):
-        pv_data = json.loads(dehex_and_decompress(self.db_server.read(DatabasePVNames.HIGH_INTEREST)))
+        pv_data = json.loads(
+            dehex_and_decompress(self.db_server.read(DatabasePVNames.HIGH_INTEREST))
+        )
         pv_names = [item[0] for item in pv_data if len(item) > 0]
 
         for name in HIGH_PV_NAMES:
-            self.assertTrue(name in pv_names, msg="{name} in {pv_names}".format(name=name, pv_names=pv_names))
+            self.assertTrue(
+                name in pv_names, msg="{name} in {pv_names}".format(name=name, pv_names=pv_names)
+            )
 
     @unittest.skipIf(IS_LINUX, "DB server not configured to run properly on Linux build")
     def test_interest_medium_pvs_correct(self):
-        pv_data = json.loads(dehex_and_decompress(self.db_server.read(DatabasePVNames.MEDIUM_INTEREST)))
+        pv_data = json.loads(
+            dehex_and_decompress(self.db_server.read(DatabasePVNames.MEDIUM_INTEREST))
+        )
         pv_names = [item[0] for item in pv_data if len(item) > 0]
 
         for name in MEDIUM_PV_NAMES:
-            self.assertTrue(name in pv_names, msg="{name} in {pv_names}".format(name=name, pv_names=pv_names))
+            self.assertTrue(
+                name in pv_names, msg="{name} in {pv_names}".format(name=name, pv_names=pv_names)
+            )
 
     @unittest.skipIf(IS_LINUX, "DB server not configured to run properly on Linux build")
     def test_WHEN_asked_for_low_THEN_get_low_pvs(self):
-        pv_data = json.loads(dehex_and_decompress(self.db_server.read(DatabasePVNames.LOW_INTEREST)))
+        pv_data = json.loads(
+            dehex_and_decompress(self.db_server.read(DatabasePVNames.LOW_INTEREST))
+        )
         pv_names = [item[0] for item in pv_data if len(item) > 0]
 
         for name in LOW_PV_NAMES:
-            self.assertTrue(name in pv_names, msg="{name} in {pv_names}".format(name=name, pv_names=pv_names))
+            self.assertTrue(
+                name in pv_names, msg="{name} in {pv_names}".format(name=name, pv_names=pv_names)
+            )
 
     @unittest.skipIf(IS_LINUX, "DB server not configured to run properly on Linux build")
     def test_interest_facility_pvs_correct(self):
@@ -88,11 +112,14 @@ class TestDatabaseServer(unittest.TestCase):
         pv_names = [item[0] for item in pv_data if len(item) > 0]
 
         for name in FACILITY_PV_NAMES:
-            self.assertTrue(name in pv_names, msg="{name} in {pv_names}".format(name=name, pv_names=pv_names))
+            self.assertTrue(
+                name in pv_names, msg="{name} in {pv_names}".format(name=name, pv_names=pv_names)
+            )
 
     @unittest.skipIf(IS_LINUX, "DB server not configured to run properly on Linux build")
     def test_iocs_pvs_correct(self):
         pv_data = json.loads(dehex_and_decompress(self.db_server.read(DatabasePVNames.IOCS)))
         for name in IOCS:
-            self.assertTrue(name in pv_data, msg="{name} in {pv_names}".format(name=name, pv_names=pv_data))
-
+            self.assertTrue(
+                name in pv_data, msg="{name} in {pv_names}".format(name=name, pv_names=pv_data)
+            )

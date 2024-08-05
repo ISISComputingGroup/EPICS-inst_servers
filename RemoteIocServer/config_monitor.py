@@ -1,6 +1,7 @@
 """
 Module to help monitor and react to the configuration on the instrument server.
 """
+
 from __future__ import absolute_import, division, print_function, unicode_literals
 
 import json
@@ -27,10 +28,12 @@ def needs_config_updating_lock(func):
     Args:
         func: function to lock
     """
+
     @wraps(func)
     def _wrapper(*args, **kwargs):
         with CONFIG_UPDATING_LOCK:
             return func(*args, **kwargs)
+
     return _wrapper
 
 
@@ -38,6 +41,7 @@ class _EpicsMonitor(object):
     """
     Wrapper around an EPICS monitor.
     """
+
     def __init__(self, pv):
         """
         Initialise an epics monitor object without starting the monitor.
@@ -69,6 +73,7 @@ class ConfigurationMonitor(object):
 
     Calls back to the RemoteIocServer class on change of config.
     """
+
     def __init__(self, local_pv_prefix, restart_iocs_callback):
         """
         Init.
@@ -107,7 +112,9 @@ class ConfigurationMonitor(object):
         Monitors the PV and calls the provided callback function when the value changes
         """
         self._stop_monitoring()
-        self._monitor = _EpicsMonitor("{}CS:BLOCKSERVER:GET_CURR_CONFIG_DETAILS".format(self._remote_pv_prefix))
+        self._monitor = _EpicsMonitor(
+            "{}CS:BLOCKSERVER:GET_CURR_CONFIG_DETAILS".format(self._remote_pv_prefix)
+        )
         self._monitor.start(callback=self._config_updated)
 
     def _stop_monitoring(self):
@@ -122,8 +129,11 @@ class ConfigurationMonitor(object):
             self.write_new_config_as_xml(new_config)
             THREADPOOL.submit(self.restart_iocs_callback_func)
         except (TypeError, ValueError, IOError, zlib.error) as e:
-            print_and_log("ConfigMonitor: Config JSON from instrument not decoded correctly: {}: {}"
-                          .format(e.__class__.__name__, e))
+            print_and_log(
+                "ConfigMonitor: Config JSON from instrument not decoded correctly: {}: {}".format(
+                    e.__class__.__name__, e
+                )
+            )
             print_and_log("ConfigMonitor: Raw PV value was: {}".format(value))
 
     @needs_config_updating_lock
@@ -146,7 +156,6 @@ class ConfigurationMonitor(object):
         print_and_log("ConfigMonitor: Finished writing new config")
 
     def _create_config_from_instrument_config(self, config_from_json):
-
         config = Configuration({})
         config.set_name(REMOTE_IOC_CONFIG_NAME)
         config.meta.description = "Configuration for remote IOC"
@@ -155,18 +164,25 @@ class ConfigurationMonitor(object):
 
         if "component_iocs" in config_from_json and config_from_json["component_iocs"] is not None:
             for ioc in config_from_json["component_iocs"]:
-                if ioc["remotePvPrefix"] == self._local_pv_prefix:  # If the IOC is meant to run on this machine...
+                if (
+                    ioc["remotePvPrefix"] == self._local_pv_prefix
+                ):  # If the IOC is meant to run on this machine...
                     iocs_list.append(ioc)
 
         if "iocs" in config_from_json and config_from_json["iocs"] is not None:
             for ioc in config_from_json["iocs"]:
-                if ioc["remotePvPrefix"] == self._local_pv_prefix:  # If the IOC is meant to run on this machine...
+                if (
+                    ioc["remotePvPrefix"] == self._local_pv_prefix
+                ):  # If the IOC is meant to run on this machine...
                     iocs_list.append(ioc)
 
         iocs = {}
         for ioc in iocs_list:
             name = ioc["name"]
-            macros = {macro["name"]: {"name": macro["name"], "value": macro["value"]} for macro in ioc["macros"]}
+            macros = {
+                macro["name"]: {"name": macro["name"], "value": macro["value"]}
+                for macro in ioc["macros"]
+            }
             macros["ACF_IH1"] = {"name": "ACF_IH1", "value": self._remote_hostname}
             try:
                 iocs[name.upper()] = IOC(
@@ -175,14 +191,21 @@ class ConfigurationMonitor(object):
                     restart=ioc["restart"],
                     component=None,  # We don't care what component it was defined in.
                     macros=macros,
-                    pvsets={pvset["name"]: {"name": pvset["name"], "value": pvset["value"]} for pvset in ioc["pvsets"]},
-                    pvs={pv["name"]: {"name": pv["name"], "value": pv["value"]} for pv in ioc["pvs"]},
+                    pvsets={
+                        pvset["name"]: {"name": pvset["name"], "value": pvset["value"]}
+                        for pvset in ioc["pvsets"]
+                    },
+                    pvs={
+                        pv["name"]: {"name": pv["name"], "value": pv["value"]} for pv in ioc["pvs"]
+                    },
                     simlevel=ioc["simlevel"],
                     remotePvPrefix=ioc["remotePvPrefix"],
                 )
             except KeyError:
-                print_and_log("ConfigMonitor: not all attributes could be extracted from config."
-                              "The config may not have been updated to the correct schema. Ignoring this IOC.")
+                print_and_log(
+                    "ConfigMonitor: not all attributes could be extracted from config."
+                    "The config may not have been updated to the correct schema. Ignoring this IOC."
+                )
 
         config.iocs = iocs
 

@@ -29,12 +29,16 @@ try:
         UnableToConnectToPVException,
     )
 except ImportError:
+
     class UnableToConnectToPVException(IOError):
         """
         The system is unable to connect to a PV for some reason.
         """
+
         def __init__(self, pv_name, err):
-            super(UnableToConnectToPVException, self).__init__("Unable to connect to PV {0}: {1}".format(pv_name, err))
+            super(UnableToConnectToPVException, self).__init__(
+                "Unable to connect to PV {0}: {1}".format(pv_name, err)
+            )
 
     class ReadAccessException(IOError):
         """
@@ -42,7 +46,10 @@ except ImportError:
         """
 
         def __init__(self, pv_name):
-            super(ReadAccessException, self).__init__("Read access denied for PV {}".format(pv_name))
+            super(ReadAccessException, self).__init__(
+                "Read access denied for PV {}".format(pv_name)
+            )
+
 
 try:
     # noinspection PyUnresolvedReferences
@@ -56,21 +63,21 @@ try:
 except ImportError:
     from enum import IntEnum
 
-
     class AlarmSeverity(IntEnum):
         """
         Enum for severity of alarm
         """
+
         No = 0
         Minor = 1
         Major = 2
         Invalid = 3
 
-
     class AlarmStatus(IntEnum):
         """
         Enum for status of alarm
         """
+
         BadSub = 16
         Calc = 12
         Comm = 9
@@ -100,11 +107,15 @@ def _create_caput_pool():
     Returns: thread pool for the caputs, making sure it works for older versions of python
     """
     try:
-        executor = ThreadPoolExecutor(max_workers=NUMBER_OF_CAPUT_THREADS, thread_name_prefix="ChannelAccess_Pool")
+        executor = ThreadPoolExecutor(
+            max_workers=NUMBER_OF_CAPUT_THREADS, thread_name_prefix="ChannelAccess_Pool"
+        )
     except TypeError:
         executor = ThreadPoolExecutor(max_workers=NUMBER_OF_CAPUT_THREADS)
-        print("WARNING: thread_name_prefix does not exist for ThreadPoolExecutor in this python, "
-              "caput pool has generic name.")
+        print(
+            "WARNING: thread_name_prefix does not exist for ThreadPoolExecutor in this python, "
+            "caput pool has generic name."
+        )
     return executor
 
 
@@ -169,7 +180,7 @@ class ChannelAccess(object):
         """
         if set_pv_value is None:
             # We need to put the default here rather than as a python default argument because the linux build does
-            # not have CaChannelWrapper. The argument default would be looked up at class load time, causing the 
+            # not have CaChannelWrapper. The argument default would be looked up at class load time, causing the
             # linux build to fail to load the entire class.
             set_pv_value = CaChannelWrapper.set_pv_value
 
@@ -206,7 +217,11 @@ class ChannelAccess(object):
             if current_value == value:
                 break
         else:
-            raise IOError("PV value can not be set, pv {}, was {} expected {}".format(pv_name, current_value, value))
+            raise IOError(
+                "PV value can not be set, pv {}, was {} expected {}".format(
+                    pv_name, current_value, value
+                )
+            )
 
     @staticmethod
     def pv_exists(name, timeout=None):
@@ -260,11 +275,14 @@ class ManagerModeRequiredException(Exception):
     """
     Exception to be thrown if manager mode was required, but not enabled, for an operation.
     """
+
     def __init__(self, *args, **kwargs):
         super(ManagerModeRequiredException, self).__init__(*args, **kwargs)
 
 
-def verify_manager_mode(channel_access=ChannelAccess(), message="Operation must be performed in manager mode"):
+def verify_manager_mode(
+    channel_access=ChannelAccess(), message="Operation must be performed in manager mode"
+):
     """
     Verifies that manager mode is active, throwing an error if it was not active.
 
@@ -276,16 +294,25 @@ def verify_manager_mode(channel_access=ChannelAccess(), message="Operation must 
         ManagerModeRequiredException: if manager mode was not enabled or was unable to connect
     """
     try:
-        is_manager = channel_access.caget("{}CS:MANAGER".format(MACROS["$(MYPVPREFIX)"])).lower() == "yes"
+        is_manager = (
+            channel_access.caget("{}CS:MANAGER".format(MACROS["$(MYPVPREFIX)"])).lower() == "yes"
+        )
     except UnableToConnectToPVException as e:
-        raise ManagerModeRequiredException("Manager mode is required, but the manager mode PV did not connect "
-                                           "(caused by: {})".format(e))
+        raise ManagerModeRequiredException(
+            "Manager mode is required, but the manager mode PV did not connect "
+            "(caused by: {})".format(e)
+        )
     except ReadAccessException as e:
-        raise ManagerModeRequiredException("Manager mode is required, but the manager mode PV could not be read "
-                                           "(caused by: {})".format(e))
+        raise ManagerModeRequiredException(
+            "Manager mode is required, but the manager mode PV could not be read "
+            "(caused by: {})".format(e)
+        )
     except Exception as e:
-        raise ManagerModeRequiredException("Manager mode is required, but an unknown exception occurred "
-                                           "(caused by: {})".format(e))
+        raise ManagerModeRequiredException(
+            "Manager mode is required, but an unknown exception occurred " "(caused by: {})".format(
+                e
+            )
+        )
 
     if not is_manager:
         raise ManagerModeRequiredException(message)

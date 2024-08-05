@@ -27,8 +27,10 @@ from server_common.utilities import SEVERITY, print_and_log
 TIME_FORMAT = "%Y-%m-%dT%H:%M:%S"
 """Format to write time to file in"""
 
-TIME_LAST_ACTIVE_HEADER = "# File containing two line, 1. time the logger last wrote to file and " \
-                          "maximum number of days that the archiver access should go back to generate log files"
+TIME_LAST_ACTIVE_HEADER = (
+    "# File containing two line, 1. time the logger last wrote to file and "
+    "maximum number of days that the archiver access should go back to generate log files"
+)
 """Header for the last active file """
 
 TIME_LAST_ACTIVE_FILENAME = os.path.join(DEFAULT_LOG_PATH, "LOG_last_active_time")
@@ -42,6 +44,7 @@ class TimeLastActive(object):
     """
     Allow Getting and Settting of the time last active log was written. This is stored in a file.
     """
+
     def __init__(self, file_open_method=open, time_now_fn=utc_time_now):
         """
         Constructor
@@ -62,7 +65,10 @@ class TimeLastActive(object):
 
         """
         time_last_active, sample_id = self._get_last_active()
-        print_and_log("Last active: {0} ({1})".format(time_last_active.isoformat(), sample_id), src="ArchiverAccess")
+        print_and_log(
+            "Last active: {0} ({1})".format(time_last_active.isoformat(), sample_id),
+            src="ArchiverAccess",
+        )
         return time_last_active, sample_id
 
     def _get_last_active(self):
@@ -74,14 +80,21 @@ class TimeLastActive(object):
         time_now = self._time_now_fn()
         sample_id = 0
         try:
-            with self._file_open_method(TIME_LAST_ACTIVE_FILENAME, mode="r") as time_last_active_file:
+            with self._file_open_method(
+                TIME_LAST_ACTIVE_FILENAME, mode="r"
+            ) as time_last_active_file:
                 time_last_active_file.readline()
-                last_active_time = datetime.strptime(time_last_active_file.readline().strip(), TIME_FORMAT)
+                last_active_time = datetime.strptime(
+                    time_last_active_file.readline().strip(), TIME_FORMAT
+                )
                 max_delta = int(time_last_active_file.readline().strip())
                 sample_id = int(time_last_active_file.readline().strip())
         except (ValueError, TypeError, IOError) as ex:
-            print_and_log("Failed to read last active file error '{0}'".format(ex),
-                          severity=SEVERITY.MINOR, src="ArchiverAccess")
+            print_and_log(
+                "Failed to read last active file error '{0}'".format(ex),
+                severity=SEVERITY.MINOR,
+                src="ArchiverAccess",
+            )
             return time_now - timedelta(days=DEFAULT_DELTA), sample_id
         if max_delta < 0:
             max_delta = DEFAULT_DELTA
@@ -102,7 +115,9 @@ class TimeLastActive(object):
 
         """
         try:
-            with self._file_open_method(TIME_LAST_ACTIVE_FILENAME, mode="w") as time_last_active_file:
+            with self._file_open_method(
+                TIME_LAST_ACTIVE_FILENAME, mode="w"
+            ) as time_last_active_file:
                 time_last_active_file.write("{0}\n".format(TIME_LAST_ACTIVE_HEADER))
                 time_last_active_file.write("{0}\n".format(last_active_time.strftime(TIME_FORMAT)))
                 time_last_active_file.write("{0}\n".format(delta))

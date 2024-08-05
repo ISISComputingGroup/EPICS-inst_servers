@@ -16,6 +16,7 @@
 """
 Utilities for running block server and related ioc's.
 """
+
 import binascii
 import datetime
 import json
@@ -37,6 +38,7 @@ class SEVERITY(object):
     """
     Standard message severities.
     """
+
     INFO = "INFO"
     MINOR = "MINOR"
     MAJOR = "MAJOR"
@@ -52,7 +54,7 @@ def char_waveform(length):
     Return:
         The dictionary to add to the PVDB.
     """
-    return {'type': 'char', 'count': length, 'value': [0]}
+    return {"type": "char", "count": length, "value": [0]}
 
 
 def set_logger(logger):
@@ -88,9 +90,10 @@ def compress_and_hex(value):
     Returns:
         bytes : A compressed and hexed version of the inputted string
     """
-    assert type(value) == str, \
-        "Non-str argument passed to compress_and_hex, maybe Python 2/3 compatibility issue\n" \
+    assert type(value) == str, (
+        "Non-str argument passed to compress_and_hex, maybe Python 2/3 compatibility issue\n"
         "Argument was type {} with value {}".format(value.__class__.__name__, value)
+    )
     compr = zlib.compress(bytes(value, "utf-8"))
     return binascii.hexlify(compr)
 
@@ -104,9 +107,10 @@ def dehex_and_decompress(value):
     Returns:
         bytes : A decompressed version of the inputted string
     """
-    assert type(value) == bytes, \
-        "Non-bytes argument passed to dehex_and_decompress, maybe Python 2/3 compatibility issue\n" \
+    assert type(value) == bytes, (
+        "Non-bytes argument passed to dehex_and_decompress, maybe Python 2/3 compatibility issue\n"
         "Argument was type {} with value {}".format(value.__class__.__name__, value)
+    )
     return zlib.decompress(binascii.unhexlify(value))
 
 
@@ -119,9 +123,10 @@ def dehex_and_decompress_waveform(value):
     Returns:
         bytes : A decompressed version of the inputted string
     """
-    assert type(value) == list, \
-        "Non-list argument passed to dehex_and_decompress_waveform\n" \
+    assert type(value) == list, (
+        "Non-list argument passed to dehex_and_decompress_waveform\n"
         "Argument was type {} with value {}".format(value.__class__.__name__, value)
+    )
 
     unicode_rep = waveform_to_string(value)
     bytes_rep = unicode_rep.encode("ascii")
@@ -220,11 +225,11 @@ def create_pv_name(name, current_pvs, default_pv, limit=6, allow_colon=False):
     """
     pv_text = name.upper().replace(" ", "_")
 
-    replacement_string = r'[^:a-zA-Z0-9_]' if allow_colon else r'\W'
-    pv_text = re.sub(replacement_string, '', pv_text)
+    replacement_string = r"[^:a-zA-Z0-9_]" if allow_colon else r"\W"
+    pv_text = re.sub(replacement_string, "", pv_text)
 
     # Check some edge cases of unreasonable names
-    if re.search(r"[^0-9_]", pv_text) is None or pv_text == '':
+    if re.search(r"[^0-9_]", pv_text) is None or pv_text == "":
         pv_text = default_pv
 
     # Cut down pvs to limit
@@ -237,8 +242,8 @@ def create_pv_name(name, current_pvs, default_pv, limit=6, allow_colon=False):
     # Append a number if the PV already exists
     while pv in current_pvs:
         if len(pv) > limit - 2:
-            pv = pv[0:limit - 2]
-        pv += format(i, '02d')
+            pv = pv[0 : limit - 2]
+        pv += format(i, "02d")
         i += 1
 
     return pv
@@ -255,8 +260,8 @@ def parse_xml_removing_namespace(file_path):
     """
     it = ElementTree.iterparse(file_path)
     for _, el in it:
-        if ':' in el.tag:
-            el.tag = el.tag.split('}', 1)[1]
+        if ":" in el.tag:
+            el.tag = el.tag.split("}", 1)[1]
     return it.root
 
 
@@ -302,6 +307,7 @@ def retry(max_attempts, interval, exception):
         The input function wrapped in a retry loop
 
     """
+
     def _tags_decorator(func):
         def _wrapper(*args, **kwargs):
             attempts = 0
@@ -315,7 +321,9 @@ def retry(max_attempts, interval, exception):
                     time.sleep(interval)
 
             raise MaxAttemptsExceededException(last_exception)
+
         return _wrapper
+
     return _tags_decorator
 
 
@@ -330,7 +338,7 @@ def remove_from_end(string, text_to_remove):
 
     """
     if string is not None and string.endswith(text_to_remove):
-        return string[:-len(text_to_remove)]
+        return string[: -len(text_to_remove)]
     return string
 
 

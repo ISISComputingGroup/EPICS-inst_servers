@@ -21,7 +21,9 @@ from server_common.utilities import compress_and_hex
 
 ALLOWED_BLOCK_NAME_REGEX = r"^[a-zA-Z]\w{0,24}$"
 DISALLOWED_BLOCK_NAMES = ["lowlimit", "highlimit", "runcontrol", "wait"]
-BLOCK_REGEX_ERROR_MESSAGE = REGEX_ERROR_TEMPLATE_PV_NAME.format("Block name") + ", and be 25 characters or less."
+BLOCK_REGEX_ERROR_MESSAGE = (
+    REGEX_ERROR_TEMPLATE_PV_NAME.format("Block name") + ", and be 25 characters or less."
+)
 
 
 class BlockRules:
@@ -34,8 +36,11 @@ class BlockRules:
             block_server (BlockServer): A reference to the BlockServer instance.
         """
         self._bs = block_server
-        self.rules = {"disallowed": DISALLOWED_BLOCK_NAMES, "regex": ALLOWED_BLOCK_NAME_REGEX,
-                      "regexMessage": BLOCK_REGEX_ERROR_MESSAGE}
+        self.rules = {
+            "disallowed": DISALLOWED_BLOCK_NAMES,
+            "regex": ALLOWED_BLOCK_NAME_REGEX,
+            "regexMessage": BLOCK_REGEX_ERROR_MESSAGE,
+        }
         self._create_pv()
 
     def _create_pv(self):

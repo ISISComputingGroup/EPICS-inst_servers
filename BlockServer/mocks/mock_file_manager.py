@@ -19,7 +19,6 @@ from BlockServer.config.configuration import Configuration
 
 
 class MockConfigurationFileManager:
-
     def __init__(self):
         self.confs = dict()
         self.comps = dict()
@@ -31,7 +30,7 @@ class MockConfigurationFileManager:
 
     def find_ci(self, root_path, name):
         """Find a file with a case insensitive match"""
-        res = ''
+        res = ""
         for f in os.listdir(root_path):
             if f.lower() == name.lower():
                 res = f

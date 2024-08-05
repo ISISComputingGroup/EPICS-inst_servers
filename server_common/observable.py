@@ -10,6 +10,7 @@ class _ListenerInfo:
     last_value: the last value that was sent to the listeners
     pre_trigger_function: an optional piece of code to execute before triggering updates for this listener type.
     """
+
     def __init__(self):
         self.listeners = set()
         self.last_value = None
@@ -27,6 +28,7 @@ def observable(*allowed_listener_types):
 
     Returns:class with methods added
     """
+
     def _wrapper(cls):
         """
         Wrapper to allow arguments to be set in this wrapper
@@ -84,12 +86,17 @@ def observable(*allowed_listener_types):
                 try:
                     return self._listeners_info[listener_type.__name__]
                 except AttributeError:
-                    self._listeners_info = {allowed_type.__name__: _ListenerInfo()
-                                            for allowed_type in allowed_listener_types}
+                    self._listeners_info = {
+                        allowed_type.__name__: _ListenerInfo()
+                        for allowed_type in allowed_listener_types
+                    }
                     return self._listeners_info[listener_type.__name__]
             except KeyError:
-                raise TypeError("Trigger or add listener called with non observer type {}".format(
-                    listener_type.__name__))
+                raise TypeError(
+                    "Trigger or add listener called with non observer type {}".format(
+                        listener_type.__name__
+                    )
+                )
 
         def _trigger_listeners(self, new_value):
             """
@@ -136,4 +143,5 @@ def observable(*allowed_listener_types):
         setattr(cls, "listener_last_value", _listener_last_value)
 
         return cls
+
     return _wrapper

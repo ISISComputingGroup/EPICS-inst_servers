@@ -31,4 +31,3 @@ def load_tests(loader, standard_tests, pattern):
         return standard_tests
     else:
         return unittest.TestSuite()
-

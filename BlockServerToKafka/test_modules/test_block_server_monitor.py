@@ -25,14 +25,16 @@ class TestBlockServerMonitor(unittest.TestCase):
     test_address = "TEST_ADDRESS"
     test_prefix = "TEST_PREFIX"
 
-    @patch('CaChannel.CaChannel')
-    @patch('CaChannel.CaChannel.searchw')
-    @patch('CaChannel.CaChannel.add_masked_array_event')
-    @patch('CaChannel.CaChannel.field_type')
-    @patch('CaChannel.CaChannel.pend_event')
+    @patch("CaChannel.CaChannel")
+    @patch("CaChannel.CaChannel.searchw")
+    @patch("CaChannel.CaChannel.add_masked_array_event")
+    @patch("CaChannel.CaChannel.field_type")
+    @patch("CaChannel.CaChannel.pend_event")
     def setUp(self, mock_ca_channel, mock_search, mock_add_array, mock_field_type, mock_pend_event):
         self.mock_producer = MagicMock()
-        self.bs_monitor = BlockServerMonitor(self.test_address, self.test_prefix, self.mock_producer)
+        self.bs_monitor = BlockServerMonitor(
+            self.test_address, self.test_prefix, self.mock_producer
+        )
 
     def test_WHEN_convert_one_char_to_string_THEN_returns_character(self):
         c = "a"
@@ -72,18 +74,26 @@ class TestBlockServerMonitor(unittest.TestCase):
         self.bs_monitor.update_config(["BLOCK"])
         self.mock_producer.add_config.assert_called_once()
 
-    def test_GIVEN_no_previous_pvs_WHEN_update_config_called_THEN_producer_is_called_containing_block_name(self):
+    def test_GIVEN_no_previous_pvs_WHEN_update_config_called_THEN_producer_is_called_containing_block_name(
+        self,
+    ):
         block = "BLOCK"
         self.bs_monitor.update_config([block])
-        self.mock_producer.add_config.assert_called_with([self.bs_monitor.block_name_to_pv_name(block)])
+        self.mock_producer.add_config.assert_called_with(
+            [self.bs_monitor.block_name_to_pv_name(block)]
+        )
 
-    def test_GIVEN_previous_pvs_WHEN_update_config_called_with_same_pvs_THEN_producer_is_not_called(self):
+    def test_GIVEN_previous_pvs_WHEN_update_config_called_with_same_pvs_THEN_producer_is_not_called(
+        self,
+    ):
         block = "BLOCK"
         self.bs_monitor.update_config([block])
         self.bs_monitor.update_config([block])
         self.mock_producer.add_config.assert_called_once()
 
-    def test_GIVEN_previous_pvs_WHEN_update_config_called_with_different_pvs_THEN_producer_is_called(self):
+    def test_GIVEN_previous_pvs_WHEN_update_config_called_with_different_pvs_THEN_producer_is_called(
+        self,
+    ):
         self.bs_monitor.update_config(["OLD_BLOCK"])
         self.mock_producer.reset_mock()
         self.bs_monitor.update_config(["NEW_BLOCK"])

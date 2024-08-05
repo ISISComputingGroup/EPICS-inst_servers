@@ -41,10 +41,12 @@ def needs_lock(func):
     """
     Decorator which takes out the config list manager lock while the decorated function is running.
     """
+
     @wraps(func)
     def wrapper(self, *args, **kwargs):
         with self._lock:
             return func(self, *args, **kwargs)
+
     return wrapper
 
 
@@ -52,11 +54,13 @@ def update_monitors_when_finished(func):
     """
     Decorator which updates monitors once the decorated function has finished running.
     """
+
     @wraps(func)
     def wrapper(self, *args, **kwargs):
         result = func(self, *args, **kwargs)
         self.update_monitors()
         return result
+
     return wrapper
 
 
@@ -68,12 +72,13 @@ def deletion_context(func):
 
 
 class ConfigListManager:
-    """ Class to handle data on all available configurations and manage their associated PVs.
+    """Class to handle data on all available configurations and manage their associated PVs.
 
     Attributes:
         active_config_name (string): The name of the active configuration
         active_components (list): The names of the components in the active configuration
     """
+
     def __init__(self, block_server, file_manager, channel_access=ChannelAccess()):
         """Constructor.
 
@@ -219,13 +224,16 @@ class ConfigListManager:
         self.update_monitors()
         if is_component:
             if config.get_config_name().lower() in [x.lower() for x in self.active_components]:
-                print_and_log("Active component edited in filesystem, reloading to get changes",
-                              src="FILEWTCHR")
+                print_and_log(
+                    "Active component edited in filesystem, reloading to get changes",
+                    src="FILEWTCHR",
+                )
                 self._bs.load_last_config()
         else:
             if config.get_config_name().lower() == self.active_config_name.lower():
-                print_and_log("Active config edited in filesystem, reload to receive changes",
-                              src="FILEWTCHR")
+                print_and_log(
+                    "Active config edited in filesystem, reload to receive changes", src="FILEWTCHR"
+                )
 
     @update_monitors_when_finished
     def update_a_config_in_list(self, config, is_component=False):
@@ -304,8 +312,10 @@ class ConfigListManager:
 
         for config in lower_delete_list:
             if self._config_metas[config].isProtected:
-                verify_manager_mode(self.channel_access,
-                                    message=f"Attempting to delete protected configuration ('{config}')")
+                verify_manager_mode(
+                    self.channel_access,
+                    message=f"Attempting to delete protected configuration ('{config}')",
+                )
 
         for config in delete_list:
             self._delete_single_config(config)
@@ -314,11 +324,15 @@ class ConfigListManager:
         try:
             self.file_manager.delete(config, is_component=False)
         except MaxAttemptsExceededException:
-            print_and_log(f"Could not delete configuration {config} from file system. "
-                          f"Make sure its files are not in use by a different process.",
-                          "MINOR")
+            print_and_log(
+                f"Could not delete configuration {config} from file system. "
+                f"Make sure its files are not in use by a different process.",
+                "MINOR",
+            )
 
-        self._delete_pv(BlockserverPVNames.get_config_details_pv(self._config_metas[config.lower()].pv))
+        self._delete_pv(
+            BlockserverPVNames.get_config_details_pv(self._config_metas[config.lower()].pv)
+        )
         del self._config_metas[config.lower()]
         self._remove_config_from_dependencies(config)
 
@@ -344,15 +358,18 @@ class ConfigListManager:
         for component in lower_delete_list:
             if self._comp_dependencies.get(component):
                 raise InvalidDeleteException(
-                    f"{component} is in use in: {', '.join(self._comp_dependencies[component])}")
+                    f"{component} is in use in: {', '.join(self._comp_dependencies[component])}"
+                )
 
         if not lower_delete_list.issubset(self._component_metas.keys()):
             raise InvalidDeleteException("Delete list contains unknown components")
 
         for component in lower_delete_list:
             if self._component_metas[component].isProtected:
-                verify_manager_mode(self.channel_access,
-                                    message=f"Attempting to delete protected component ('{component}')")
+                verify_manager_mode(
+                    self.channel_access,
+                    message=f"Attempting to delete protected component ('{component}')",
+                )
 
         for component in lower_delete_list:
             self._delete_single_component(component)
@@ -371,10 +388,14 @@ class ConfigListManager:
         try:
             self.file_manager.delete(component, is_component=True)
         except MaxAttemptsExceededException:
-            print_and_log(f"Could not delete component {component} from file system. "
-                          f"Make sure its files are not in use by a different process.",
-                          "MINOR")
-        self._delete_pv(BlockserverPVNames.get_component_details_pv(self._component_metas[component].pv))
+            print_and_log(
+                f"Could not delete component {component} from file system. "
+                f"Make sure its files are not in use by a different process.",
+                "MINOR",
+            )
+        self._delete_pv(
+            BlockserverPVNames.get_component_details_pv(self._component_metas[component].pv)
+        )
         self._delete_pv(BlockserverPVNames.get_dependencies_pv(self._component_metas[component].pv))
         del self._component_metas[component]
         del self.all_components[component]
@@ -396,11 +417,17 @@ class ConfigListManager:
         with self._bs.monitor_lock:
             print_and_log("Updating config list monitors")
             # Set the available configs
-            self._bs.setParam(BlockserverPVNames.CONFIGS, compress_and_hex(convert_to_json(self.get_configs())))
+            self._bs.setParam(
+                BlockserverPVNames.CONFIGS, compress_and_hex(convert_to_json(self.get_configs()))
+            )
             # Set the available comps
-            self._bs.setParam(BlockserverPVNames.COMPS, compress_and_hex(convert_to_json(self.get_components())))
+            self._bs.setParam(
+                BlockserverPVNames.COMPS, compress_and_hex(convert_to_json(self.get_components()))
+            )
             # Set the available component details
-            self._bs.setParam(BlockserverPVNames.ALL_COMPONENT_DETAILS,
-                              compress_and_hex(convert_to_json(list(self.all_components.values()))))
+            self._bs.setParam(
+                BlockserverPVNames.ALL_COMPONENT_DETAILS,
+                compress_and_hex(convert_to_json(list(self.all_components.values()))),
+            )
             # Update them
             self._bs.updatePVs()

@@ -22,7 +22,7 @@ from BlockServer.site_specific.default.block_rules import BlockRules
 
 
 class TestBlockRulesSequence(unittest.TestCase):
-    """ Unit tests for block rules, note that changes here may have to be propagated to clients """
+    """Unit tests for block rules, note that changes here may have to be propagated to clients"""
 
     def setUp(self):
         self.bs = MockBlockServer()
