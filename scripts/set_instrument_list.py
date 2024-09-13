@@ -151,7 +151,7 @@ if __name__ == "__main__":
         inst_dictionary("MAPS", groups=["EXCITATIONS"]),
         inst_dictionary("OSIRIS", groups=["MOLSPEC"]),
         inst_dictionary("INES", groups=["CRYSTALLOGRAPHY"]),
-        inst_dictionary("SXD", seci=True),
+        inst_dictionary("SXD", groups=["CRYSTALLOGRAPHY"]),
         inst_dictionary("TOSCA", groups=["MOLSPEC"]),
         inst_dictionary("LOQ", groups=["SANS"]),
         inst_dictionary("LET", groups=["EXCITATIONS"]),
