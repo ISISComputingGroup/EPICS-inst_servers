@@ -184,13 +184,14 @@ class MoxaData:
 
             time.sleep(30)
 
-    def _get_moxa_num(self):
+    def _get_moxa_num(self) -> str:
         return str(len(self._mappings[0].keys()))
 
-    def _get_hostname(self, ip_addr):
+    def _get_hostname(self, ip_addr: str) -> str:
         try:
             return socket.gethostbyaddr(ip_addr)[0]
         except socket.herror:
+            print(f"unknown hostname for IP address {ip_addr}")
             return "unknown"
 
     def _get_mappings(self) -> Tuple[Dict[str, str], Dict[int, List[Tuple[int, int]]]]:
