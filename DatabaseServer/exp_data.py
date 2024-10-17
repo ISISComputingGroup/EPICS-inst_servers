@@ -22,7 +22,6 @@ import unicodedata
 from typing import Union
 
 from genie_python.mysql_abstraction_layer import SQLAbstraction
-
 from server_common.channel_access import ChannelAccess
 from server_common.utilities import char_waveform, compress_and_hex, print_and_log
 
