@@ -20,7 +20,7 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 class IocOptions(object):
     """Contains the possible macros and pvsets of an IOC."""
 
-    def __init__(self, name: str):
+    def __init__(self, name: str) -> None:
         """Constructor
 
         Args:
@@ -28,7 +28,8 @@ class IocOptions(object):
         """
         self.name = name
 
-        # The possible macros, pvsets and pvs for an IOC, along with associated parameters such as description
+        # The possible macros, pvsets and pvs for an IOC, along with associated parameters such as
+        # description
         self.macros = dict()
         self.pvsets = dict()
         self.pvs = dict()

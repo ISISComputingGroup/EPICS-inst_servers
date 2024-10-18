@@ -12,7 +12,7 @@ class MockExpData(object):
     def _get_surname_from_fullname(self, fullname: str) -> str:
         try:
             return fullname.split(" ")[-1]
-        except:
+        except ValueError | IndexError:
             return fullname
 
     def update_experiment_id(self, experiment_id: str) -> None:

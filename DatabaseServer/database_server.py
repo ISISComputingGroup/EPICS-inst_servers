@@ -25,6 +25,7 @@ import traceback
 from functools import partial
 from threading import RLock, Thread
 from time import sleep
+from typing import Callable, Literal
 
 from pcaspy import Driver
 
@@ -33,6 +34,7 @@ sys.path.insert(0, os.path.abspath(os.environ["MYDIRBLOCK"]))
 from genie_python.mysql_abstraction_layer import SQLAbstraction
 
 from DatabaseServer.exp_data import ExpData, ExpDataSource
+from DatabaseServer.mocks.mock_exp_data import MockExpData
 from DatabaseServer.moxa_data import MoxaData, MoxaDataSource
 from DatabaseServer.options_holder import OptionsHolder
 from DatabaseServer.options_loader import OptionsLoader
@@ -42,6 +44,7 @@ from server_common.constants import IOCS_NOT_TO_STOP
 from server_common.ioc_data import IOCData
 from server_common.ioc_data_source import IocDataSource
 from server_common.loggers.isis_logger import IsisLogger
+from server_common.mocks.mock_ca_server import MockCAServer
 from server_common.pv_names import DatabasePVNames as DbPVNames
 from server_common.utilities import (
     char_waveform,
@@ -72,14 +75,14 @@ class DatabaseServer(Driver):
 
     def __init__(
         self,
-        ca_server: CAServer,
+        ca_server: CAServer | MockCAServer,
         ioc_data: IOCData,
-        exp_data: ExpData,
+        exp_data: ExpData | MockExpData,
         moxa_data: MoxaData,
         options_folder: str,
         blockserver_prefix: str,
         test_mode: bool = False,
-    ):
+    ) -> None:
         """
         Constructor.
 
@@ -87,7 +90,8 @@ class DatabaseServer(Driver):
             ca_server: The CA server used for generating PVs on the fly
             ioc_data: The data source for IOC information
             exp_data: The data source for experiment information
-            options_folder: The location of the folder containing the config.xml file that holds IOC options
+            options_folder: The location of the folder containing the config.xml file that holds IOC
+             options
             blockserver_prefix: The PV prefix to use
             test_mode: Enables starting the server in a mode suitable for unit tests
         """
@@ -118,7 +122,7 @@ class DatabaseServer(Driver):
         """
         enhanced_info = DatabaseServer.generate_pv_info()
 
-        def add_get_method(pv, get_function):
+        def add_get_method(pv: str, get_function: Callable[[], list | str | dict]) -> None:
             enhanced_info[pv]["get"] = get_function
 
         add_get_method(DbPVNames.IOCS, self._get_iocs_info)
@@ -187,15 +191,17 @@ class DatabaseServer(Driver):
         self._check_pv_capacity(pv, len(data), self._blockserver_prefix)
         return data
 
-    def read(self, reason: str) -> str:
+    def read(self, reason: str) -> bytes:
         """
-        A method called by SimpleServer when a PV is read from the DatabaseServer over Channel Access.
+        A method called by SimpleServer when a PV is read from the DatabaseServer over Channel
+        Access.
 
         Args:
             reason: The PV that is being requested (without the PV prefix)
 
         Returns:
-            A compressed and hexed JSON formatted string that gives the desired information based on reason.
+            A compressed and hexed JSON formatted string that gives the desired information based on
+            reason.
         """
         return (
             self.get_data_for_pv(reason)
@@ -203,9 +209,10 @@ class DatabaseServer(Driver):
             else self.getParam(reason)
         )
 
-    def write(self, reason: str, value: str) -> bool:
+    def write(self, reason: str, value: str) -> Literal[True]:
         """
-        A method called by SimpleServer when a PV is written to the DatabaseServer over Channel Access.
+        A method called by SimpleServer when a PV is written to the DatabaseServer over Channel
+        Access.
 
         Args:
             reason: The PV that is being requested (without the PV prefix)
@@ -224,8 +231,10 @@ class DatabaseServer(Driver):
             elif reason == "UPDATE_MM":
                 self._moxa_data.update_mappings()
         except Exception as e:
-            value = compress_and_hex(convert_to_json("Error: " + str(e)))
+            value_bytes = compress_and_hex(convert_to_json("Error: " + str(e)))
             print_and_log(str(e), MAJOR_MSG)
+            self.setParam(reason, value_bytes)
+            return True
         # store the values
         self.setParam(reason, value)
         return True
@@ -266,9 +275,8 @@ class DatabaseServer(Driver):
         """
         if size > self._pv_info[pv]["count"]:
             print_and_log(
-                "Too much data to encode PV {0}. Current size is {1} characters but {2} are required".format(
-                    prefix + pv, self._pv_info[pv]["count"], size
-                ),
+                "Too much data to encode PV {0}. Current size is {1} characters "
+                "but {2} are required".format(prefix + pv, self._pv_info[pv]["count"], size),
                 MAJOR_MSG,
                 LOG_TARGET,
             )
@@ -281,10 +289,12 @@ class DatabaseServer(Driver):
                 iocs[iocname].update(options[iocname])
         return iocs
 
-    def _get_pvs(self, get_method: callable, replace_pv_prefix: bool, *get_args: list) -> list:
+    def _get_pvs(
+        self, get_method: Callable[[], list | str | dict], replace_pv_prefix: bool, *get_args: str
+    ) -> list | str | dict:
         """
-        Method to get pv data using the given method called with the given arguments and optionally remove instrument
-        prefixes from pv names.
+        Method to get pv data using the given method called with the given arguments and optionally
+        remove instrument prefixes from pv names.
 
         Args:
             get_method: The method used to get pv data.
@@ -301,17 +311,19 @@ class DatabaseServer(Driver):
         else:
             return []
 
-    def _get_interesting_pvs(self, level) -> list:
+    def _get_interesting_pvs(self, level: str) -> list:
         """
         Gets interesting pvs of the current instrument.
 
         Args:
-            level: The level of high interesting pvs, can be high, low, medium or facility. If level is an empty
-                   string, it returns all interesting pvs of all levels.
+            level: The level of high interesting pvs, can be high, low, medium or facility.
+            If level is an empty string, it returns all interesting pvs of all levels.
         Returns:
             a list of names of pvs with given level of interest.
         """
-        return self._get_pvs(self._iocs.get_interesting_pvs, False, level)
+        result = self._get_pvs(self._iocs.get_interesting_pvs, False, level)
+        assert isinstance(result, list)
+        return result
 
     def _get_active_pvs(self) -> list:
         """
@@ -320,7 +332,9 @@ class DatabaseServer(Driver):
         Returns:
              a list of names of pvs.
         """
-        return self._get_pvs(self._iocs.get_active_pvs, False)
+        result = self._get_pvs(self._iocs.get_active_pvs, False)
+        assert isinstance(result, list)
+        return result
 
     def _get_sample_par_names(self) -> list:
         """
@@ -329,7 +343,9 @@ class DatabaseServer(Driver):
         Returns:
             A list of sample parameter names, an empty list if the database does not exist
         """
-        return self._get_pvs(self._iocs.get_sample_pars, True)
+        result = self._get_pvs(self._iocs.get_sample_pars, True)
+        assert isinstance(result, list)
+        return result
 
     def _get_beamline_par_names(self) -> list:
         """
@@ -338,7 +354,9 @@ class DatabaseServer(Driver):
         Returns:
             A list of beamline parameter names, an empty list if the database does not exist
         """
-        return self._get_pvs(self._iocs.get_beamline_pars, True)
+        result = self._get_pvs(self._iocs.get_beamline_pars, True)
+        assert isinstance(result, list)
+        return result
 
     def _get_user_par_names(self) -> list:
         """
@@ -347,19 +365,25 @@ class DatabaseServer(Driver):
         Returns:
             A list of user parameter names, an empty list if the database does not exist
         """
-        return self._get_pvs(self._iocs.get_user_pars, True)
+        result = self._get_pvs(self._iocs.get_user_pars, True)
+        assert isinstance(result, list)
+        return result
 
-    def _get_moxa_mappings(self) -> list:
+    def _get_moxa_mappings(self) -> dict:
         """
         Returns the user parameters from the database, replacing the MYPVPREFIX macro.
 
         Returns:
             An ordered dict of moxa models and their respective COM mappings
         """
-        return self._get_pvs(self._moxa_data._get_mappings_str, False)
+        result = self._get_pvs(self._moxa_data._get_mappings_str, False)
+        assert isinstance(result, dict)
+        return result
 
-    def _get_num_of_moxas(self):
-        return self._get_pvs(self._moxa_data._get_moxa_num, True)
+    def _get_num_of_moxas(self) -> str:
+        result = self._get_pvs(self._moxa_data._get_moxa_num, True)
+        assert isinstance(result, str)
+        return result
 
     @staticmethod
     def _get_iocs_not_to_stop() -> list:
@@ -369,7 +393,7 @@ class DatabaseServer(Driver):
         Returns:
             A list of IOCs not to stop
         """
-        return IOCS_NOT_TO_STOP
+        return list(IOCS_NOT_TO_STOP)
 
 
 if __name__ == "__main__":
@@ -390,7 +414,8 @@ if __name__ == "__main__":
         nargs=1,
         type=str,
         default=["."],
-        help="The directory from which to load the configuration options(default=current directory)",
+        help="The directory from which to load the configuration options"
+        "(default=current directory)",
     )
 
     args = parser.parse_args()

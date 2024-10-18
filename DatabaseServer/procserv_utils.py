@@ -76,6 +76,7 @@ class ProcServWrapper(object):
         ans = ChannelAccess.caget(pv, as_string=True)
         if ans is None:
             raise IOError("Could not find IOC (%s)" % pv)
+        assert isinstance(ans, str)
         return ans.upper()
 
     def ioc_exists(self, prefix: str, ioc: str) -> bool:
@@ -91,5 +92,5 @@ class ProcServWrapper(object):
         try:
             self.get_ioc_status(prefix, ioc)
             return True
-        except:
+        except IOError:
             return False

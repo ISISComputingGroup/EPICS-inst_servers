@@ -1,5 +1,10 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from unittest import TestLoader, TestSuite
+
 # This file is part of the ISIS IBEX application.
 # Copyright (C) 2012-2016 Science & Technology Facilities Council.
 # All rights reserved.
@@ -16,10 +21,9 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 # https://www.eclipse.org/org/documents/epl-v10.php or
 # http://opensource.org/licenses/eclipse-1.0.php
 import os
-import unittest
 
 
-def load_tests(loader, standard_tests, pattern):
+def load_tests(loader: "TestLoader", standard_tests: "TestSuite", pattern: str) -> "TestSuite":
     """
     This function is needed by the load_tests protocol described at
     https://docs.python.org/3/library/unittest.html#load-tests-protocol

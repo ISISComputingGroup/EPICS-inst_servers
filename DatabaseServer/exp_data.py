@@ -17,14 +17,17 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 # http://opensource.org/licenses/eclipse-1.0.php
 import json
 import traceback
-import typing
 import unicodedata
-from typing import Union
+from typing import TYPE_CHECKING, Union
 
 from genie_python.mysql_abstraction_layer import SQLAbstraction
 
 from server_common.channel_access import ChannelAccess
+from server_common.mocks.mock_ca import MockChannelAccess
 from server_common.utilities import char_waveform, compress_and_hex, print_and_log
+
+if TYPE_CHECKING:
+    from DatabaseServer.test_modules.test_exp_data import MockExpDataSource
 
 
 class User(object):
@@ -32,7 +35,9 @@ class User(object):
     A user class to allow for easier conversions from database to json.
     """
 
-    def __init__(self, name: str = "UNKNOWN", institute: str = "UNKNOWN", role: str = "UNKNOWN"):
+    def __init__(
+        self, name: str = "UNKNOWN", institute: str = "UNKNOWN", role: str = "UNKNOWN"
+    ) -> None:
         self.name = name
         self.institute = institute
         self.role = role
@@ -43,7 +48,7 @@ class ExpDataSource(object):
     This is a humble object containing all the code for accessing the database.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         self._db = SQLAbstraction("exp_data", "exp_data", "$exp_data")
 
     def get_team(self, experiment_id: str) -> list:
@@ -64,7 +69,10 @@ class ExpDataSource(object):
             sqlquery += " AND experimentteams.experimentID = %s"
             sqlquery += " GROUP BY user.userID"
             sqlquery += " ORDER BY role.priority"
-            team = [list(element) for element in self._db.query(sqlquery, (experiment_id,))]
+            result = self._db.query(sqlquery, (experiment_id,))
+            if result is None:
+                return []
+            team = [list(element) for element in result]
             if len(team) == 0:
                 raise ValueError(
                     "unable to find team details for experiment ID {}".format(experiment_id)
@@ -90,6 +98,8 @@ class ExpDataSource(object):
             sqlquery += " FROM experiment "
             sqlquery += " WHERE experiment.experimentID = %s"
             id = self._db.query(sqlquery, (experiment_id,))
+            if id is None:
+                return False
             return len(id) >= 1
         except Exception:
             print_and_log(traceback.format_exc())
@@ -109,8 +119,8 @@ class ExpData(object):
         self,
         prefix: str,
         db: Union[ExpDataSource, "MockExpDataSource"],
-        ca: Union[ChannelAccess, "MockChannelAccess"] = ChannelAccess(),
-    ):
+        ca: Union[ChannelAccess, MockChannelAccess] = ChannelAccess(),
+    ) -> None:
         """
         Constructor.
 
@@ -148,7 +158,7 @@ class ExpData(object):
         d[ord("\xe6")] = "ae"
         return d
 
-    def encode_for_return(self, data: typing.Any) -> bytes:
+    def encode_for_return(self, data: dict | list) -> bytes:
         """
         Converts data to JSON, compresses it and converts it to hex.
 
@@ -163,7 +173,7 @@ class ExpData(object):
     def _get_surname_from_fullname(self, fullname: str) -> str:
         try:
             return fullname.split(" ")[-1]
-        except:
+        except ValueError | IndexError:
             return fullname
 
     def update_experiment_id(self, experiment_id: str) -> None:
@@ -210,11 +220,11 @@ class ExpData(object):
             self.ca.caput(self._simnames, self.encode_for_return(names))
             self.ca.caput(self._surnamepv, self.encode_for_return(surnames))
             self.ca.caput(self._orgspv, self.encode_for_return(orgs))
-            # The value put to the dae names pv will need changing in time to use compressed and hexed json etc. but
-            # this is not available at this time in the ICP
+            # The value put to the dae names pv will need changing in time to use compressed and
+            # hexed json etc. but this is not available at this time in the ICP
             self.ca.caput(self._daenamespv, ExpData.make_name_list_ascii(surnames))
 
-    def update_username(self, users: str) -> None:
+    def update_username(self, user_str: str) -> None:
         """
         Updates the associated PVs when the User Names are altered.
 
@@ -229,7 +239,7 @@ class ExpData(object):
         surnames = []
         orgs = []
 
-        users = json.loads(users) if users else []
+        users = json.loads(user_str) if user_str else []
 
         # Find user details in deserialized json user data
         for team_member in users:
@@ -249,8 +259,8 @@ class ExpData(object):
         self.ca.caput(self._simnames, self.encode_for_return(names))
         self.ca.caput(self._surnamepv, self.encode_for_return(surnames))
         self.ca.caput(self._orgspv, self.encode_for_return(orgs))
-        # The value put to the dae names pv will need changing in time to use compressed and hexed json etc. but
-        # this is not available at this time in the ICP
+        # The value put to the dae names pv will need changing in time to use compressed and hexed
+        # json etc. but this is not available at this time in the ICP
         if not surnames:
             self.ca.caput(self._daenamespv, " ")
         else:
@@ -259,8 +269,8 @@ class ExpData(object):
     @staticmethod
     def make_name_list_ascii(names: list) -> bytes:
         """
-        Takes a unicode list of names and creates a best ascii comma separated list this implementation is a temporary
-        fix until we install the PyPi unidecode module.
+        Takes a unicode list of names and creates a best ascii comma separated list this
+        implementation is a temporary  fix until we install the PyPi unidecode module.
 
         Args:
             names: list of unicode names
