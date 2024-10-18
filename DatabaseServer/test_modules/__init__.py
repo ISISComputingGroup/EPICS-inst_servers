@@ -23,7 +23,7 @@ if TYPE_CHECKING:
 import os
 
 
-def load_tests(loader: TestLoader, standard_tests: TestSuite, pattern: str) -> TestSuite:
+def load_tests(loader: "TestLoader", standard_tests: "TestSuite", pattern: str) -> "TestSuite":
     """
     This function is needed by the load_tests protocol described at
     https://docs.python.org/3/library/unittest.html#load-tests-protocol

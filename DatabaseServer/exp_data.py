@@ -118,7 +118,7 @@ class ExpData(object):
     def __init__(
         self,
         prefix: str,
-        db: Union[ExpDataSource, MockExpDataSource],
+        db: Union[ExpDataSource, "MockExpDataSource"],
         ca: Union[ChannelAccess, MockChannelAccess] = ChannelAccess(),
     ) -> None:
         """
