@@ -39,7 +39,7 @@ DELETE FROM moxa_details.moxa_ips;"""
 DELETE_PORTS = """
 DELETE FROM moxa_details.port_mappings;"""
 
-SYSTEM_MIBS = ["DISMAN-EXPRESSION-MIB::sysUpTimeInstance", "SNMPv2-MIB::sys_name"]
+SYSTEM_MIBS = ["DISMAN-EXPRESSION-MIB::sysUpTimeInstance", "SNMPv2-MIB::sysName"]
 PORT_MIBS = ["IF-MIB::ifOperStatus", "IF-MIB::ifSpeed", "IF-MIB::ifInOctets", "IF-MIB::ifOutOctets"]
 
 
