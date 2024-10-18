@@ -19,12 +19,10 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 class MockProcServWrapper(object):
     """
-    Note: this file cannot currently be given type hints as it is included from the "server_common" tests.
-
-    It can get type hints added once server_common has been migrated to Py3.
+    Mock ProcServer
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.ps_status = dict()
         self.ps_status["simple1"] = "SHUTDOWN"
         self.ps_status["simple2"] = "SHUTDOWN"
@@ -32,28 +30,28 @@ class MockProcServWrapper(object):
         self.ps_status["stopdioc"] = "SHUTDOWN"
 
     @staticmethod
-    def generate_prefix(prefix, ioc):
-        return "%sCS:PS:%s" % (prefix, ioc)
+    def generate_prefix(prefix: str, ioc: str) -> str:
+        return f"{prefix}CS:PS:{ioc}"
 
-    def start_ioc(self, prefix, ioc):
+    def start_ioc(self, prefix: str, ioc: str) -> None:
         self.ps_status[ioc.lower()] = "RUNNING"
 
-    def stop_ioc(self, prefix, ioc):
+    def stop_ioc(self, prefix: str, ioc: str) -> None:
         """Stops the specified IOC"""
         self.ps_status[ioc.lower()] = "SHUTDOWN"
 
-    def restart_ioc(self, prefix, ioc):
+    def restart_ioc(self, prefix: str, ioc: str) -> None:
         self.ps_status[ioc.lower()] = "RUNNING"
 
-    def get_ioc_status(self, prefix, ioc):
+    def get_ioc_status(self, prefix: str, ioc: str) -> str:
         if ioc.lower() not in self.ps_status.keys():
-            raise Exception("Could not find IOC (%s)" % self.generate_prefix(prefix, ioc))
+            raise TimeoutError("Could not find IOC (%s)" % self.generate_prefix(prefix, ioc))
         else:
             return self.ps_status[ioc.lower()]
 
-    def ioc_exists(self, prefix, ioc):
+    def ioc_exists(self, prefix: str, ioc: str) -> bool:
         try:
             self.get_ioc_status(prefix, ioc)
             return True
-        except:
+        except TimeoutError:
             return False

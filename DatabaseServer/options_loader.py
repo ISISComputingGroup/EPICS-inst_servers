@@ -16,8 +16,8 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 # https://www.eclipse.org/org/documents/epl-v10.php or
 # http://opensource.org/licenses/eclipse-1.0.php
 import os
-import xml
 from collections import OrderedDict
+from xml.etree.ElementTree import Element
 
 from DatabaseServer.ioc_options import IocOptions
 from server_common.utilities import parse_xml_removing_namespace, print_and_log
@@ -61,7 +61,7 @@ class OptionsLoader(object):
         return iocs
 
     @staticmethod
-    def _options_from_xml(root_xml: xml.etree.ElementTree.Element, iocs: OrderedDict) -> None:
+    def _options_from_xml(root_xml: Element, iocs: OrderedDict) -> None:
         """Populates the supplied list of iocs based on an XML tree within a config.xml file"""
         for ioc in root_xml.findall("./" + TAG_IOC_CONFIG):
             name = ioc.attrib[TAG_NAME]

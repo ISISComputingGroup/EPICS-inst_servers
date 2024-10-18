@@ -21,7 +21,7 @@ from DatabaseServer.options_loader import OptionsLoader
 class OptionsHolder(object):
     """Holds all the IOC options"""
 
-    def __init__(self, options_folder: str, options_loader: OptionsLoader):
+    def __init__(self, options_folder: str, options_loader: OptionsLoader) -> None:
         """Constructor
 
         Args:

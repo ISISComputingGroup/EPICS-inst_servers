@@ -16,7 +16,6 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 # https://www.eclipse.org/org/documents/epl-v10.php or
 # http://opensource.org/licenses/eclipse-1.0.php
 import os
-import unittest
 
 
 def load_tests(loader, standard_tests, pattern):

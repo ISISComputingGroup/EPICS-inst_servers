@@ -68,7 +68,7 @@ class TestExpData(unittest.TestCase):
         try:
             self.exp_data.update_experiment_id("000000")
             self.fail("Setting invalid experiment id did not throw")
-        except:
+        except Exception:
             pass
 
     def test_single_surname_returns_surname(self):
