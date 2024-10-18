@@ -31,13 +31,14 @@ from pcaspy import Driver
 
 sys.path.insert(0, os.path.abspath(os.environ["MYDIRBLOCK"]))
 
+from genie_python.mysql_abstraction_layer import SQLAbstraction
+
 from DatabaseServer.exp_data import ExpData, ExpDataSource
 from DatabaseServer.mocks.mock_exp_data import MockExpData
 from DatabaseServer.moxa_data import MoxaData, MoxaDataSource
 from DatabaseServer.options_holder import OptionsHolder
 from DatabaseServer.options_loader import OptionsLoader
 from DatabaseServer.procserv_utils import ProcServWrapper
-from genie_python.mysql_abstraction_layer import SQLAbstraction
 from server_common.channel_access_server import CAServer
 from server_common.constants import IOCS_NOT_TO_STOP
 from server_common.ioc_data import IOCData
