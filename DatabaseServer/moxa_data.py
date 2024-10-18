@@ -5,7 +5,10 @@ from collections import OrderedDict
 from threading import RLock, Thread
 from typing import Dict, List, Optional, Tuple, TypeGuard
 
-from genie_python.mysql_abstraction_layer import AbstractSQLCommands, ParamsSequenceOrDictType
+from genie_python.mysql_abstraction_layer import (  # type: ignore
+    AbstractSQLCommands,
+    ParamsSequenceOrDictType,
+)
 
 from server_common.snmpWalker import walk
 from server_common.utilities import SEVERITY, print_and_log
