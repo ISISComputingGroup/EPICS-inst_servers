@@ -6,7 +6,6 @@ Contains:
 
 1. [Archive Access](https://github.com/ISISComputingGroup/ibex_developers_manual/wiki/Logging-from-the-archive)
 1. [Blocks Server (with kafka extension)](https://github.com/ISISComputingGroup/ibex_developers_manual/wiki/BlockServer)
-1. [Collision Avoidance Monitor](https://github.com/ISISComputingGroup/ibex_developers_manual/wiki/Collision-Detection-Project)
 1. [Database Server](https://github.com/ISISComputingGroup/ibex_developers_manual/wiki/The-DatabaseServer)
 1. [Reflectometry Server](https://github.com/ISISComputingGroup/ibex_developers_manual/wiki/Reflectometers)
 
