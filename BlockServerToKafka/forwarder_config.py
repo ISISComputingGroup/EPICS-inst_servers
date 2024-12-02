@@ -29,7 +29,7 @@ class ForwarderConfig:
     Class that converts the pv information to a forwarder config message payload
     """
 
-    def __init__(self, topic: str, epics_protocol: Protocol = Protocol.CA, schema: str = "f144"):
+    def __init__(self, topic: str, epics_protocol: Protocol = Protocol.CA, schema: str = "f144") -> None:
         self.schema = schema
         self.topic = topic
         self.epics_protocol = epics_protocol
