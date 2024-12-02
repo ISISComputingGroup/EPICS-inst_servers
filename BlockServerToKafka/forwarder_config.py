@@ -38,11 +38,11 @@ class ForwarderConfig:
         return [StreamInfo(pv, self.schema, self.topic, self.epics_protocol) for pv in pvs]
 
     def create_forwarder_configuration(self, pvs: List[str]) -> bytes:
-        return serialise_rf5k(UpdateType.ADD, self._create_streams(pvs))
+        return serialise_fc00(UpdateType.ADD, self._create_streams(pvs))
 
     def remove_forwarder_configuration(self, pvs: List[str]) -> bytes:
-        return serialise_rf5k(UpdateType.REMOVE, self._create_streams(pvs))
+        return serialise_fc00(UpdateType.REMOVE, self._create_streams(pvs))
 
     @staticmethod
     def remove_all_forwarder_configuration() -> bytes:
-        return serialise_rf5k(UpdateType.REMOVEALL, [])
+        return serialise_fc00(UpdateType.REMOVEALL, [])
