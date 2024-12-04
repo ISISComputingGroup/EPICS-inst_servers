@@ -17,19 +17,20 @@
 import json
 import os
 import sys
+from typing import TypedDict
 
 try:
-    from server_common.channel_access import ChannelAccess as ca
+    from server_common.channel_access import ChannelAccess
     from server_common.utilities import compress_and_hex, dehex_and_decompress
 except ImportError:
     sys.path.append(
         os.path.join(os.path.dirname(sys.path[0]))
     )  # to allow server common from dir below
-    from server_common.channel_access import ChannelAccess as ca
+    from server_common.channel_access import ChannelAccess
     from server_common.utilities import compress_and_hex, dehex_and_decompress
 
 
-def set_env():
+def set_env() -> None:
     epics_ca_addr_list = "EPICS_CA_ADDR_LIST"
     """ If we're not in an EPICS terminal, add the address list to the set of
     environment keys """
@@ -38,15 +39,24 @@ def set_env():
     print(epics_ca_addr_list + " = " + str(os.environ.get(epics_ca_addr_list)))
 
 
+class Instrument(TypedDict):
+    name: str
+    hostName: str
+    pvPrefix: str
+    isScheduled: bool
+    groups: list[str]
+    seci: bool
+
+
 def inst_dictionary(
-    instrument_name,
-    hostname_prefix="NDX",
-    hostname=None,
-    pv_prefix=None,
-    is_scheduled=True,
-    groups=None,
-    seci=False,
-):
+    instrument_name: str,
+    hostname_prefix: str = "NDX",
+    hostname: str | None = None,
+    pv_prefix: str | None = None,
+    is_scheduled: bool = True,
+    groups: list[str] | None = None,
+    seci: bool = False,
+) -> Instrument:
     """
     Generate the instrument dictionary for the instrument list
     Args:
@@ -54,8 +64,10 @@ def inst_dictionary(
         hostname_prefix: prefix for hostname (defaults to NDX)
         hostname: whole host name overrides prefix, defaults to hostname_prefix + instrument name
         pv_prefix: the pv prefeix; default to IN:instrument_name
-        is_scheduled: whether the instrument has scheduled users and so should have user details written to it; default to True
-        groups (List[str]): which science groups (e.g. SANS, MUONS) this instrument is in. Defaults to empty list
+        is_scheduled: whether the instrument has scheduled users,
+          and so should have user details written to it;
+        groups: which science groups (e.g. SANS, MUONS) this instrument is in.
+        seci: Whether the instrument is running SECI
 
     Returns: dictionary for instrument
 
@@ -89,13 +101,14 @@ def inst_dictionary(
     }
 
 
-def set_instlist(instruments_list, pv_address):
+def set_instlist(instruments_list: list[Instrument], pv_address: str) -> None:
     new_value = json.dumps(instruments_list)
     new_value_compressed = compress_and_hex(new_value)
 
-    ca.caput(pv_address, new_value_compressed, True)
-
-    result_compr = ca.caget(pv_address, True)
+    ChannelAccess.caput(pv_address, new_value_compressed, True)
+    # Type ignore here because caget WILL return a string due to the as_string argument,
+    # but the signature says it can return lots of different types.
+    result_compr: str = ChannelAccess.caget(pv_address, True)  # type: ignore
     result = dehex_and_decompress(bytes(result_compr, encoding="utf8")).decode("utf-8")
 
     if result != new_value:
@@ -111,8 +124,11 @@ if __name__ == "__main__":
 
     # The PV address list
     pv_address = "CS:INSTLIST"
-    # Any instrument on here that has a EPICS/genie/GUI version other than 12.0.01 or 13.0.1 http://beamlog.nd.rl.ac.uk/inst_summary.xml, plus OFFSPEC and MUSR for the moment
-    # instrument list values to set (uses utility to return the dictionary but you can use a dictionary directly)
+    # Any instrument on here that has a EPICS/genie/GUI version
+    # other than 12.0.01 or 13.0.1 http://beamlog.nd.rl.ac.uk/inst_summary.xml,
+    # plus OFFSPEC and MUSR for the moment
+    # instrument list values to set (uses utility to return the dictionary,
+    # but you can use a dictionary directly)
     instruments_list = [
         inst_dictionary("ARGUS", seci=True),
         inst_dictionary("CHRONUS", groups=["MUONS"]),
@@ -193,7 +209,7 @@ if __name__ == "__main__":
 
     set_instlist(instruments_list, pv_address)
 
-    ## set group based PVs
+    # set group based PVs
     groups = set()
     for inst in instruments_list:
         groups.update(inst["groups"])
