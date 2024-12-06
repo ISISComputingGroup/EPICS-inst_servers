@@ -29,7 +29,14 @@ class TestBlockServerMonitor(unittest.TestCase):
     @patch("CaChannel.CaChannel.add_masked_array_event")
     @patch("CaChannel.CaChannel.field_type")
     @patch("CaChannel.CaChannel.pend_event")
-    def setUp(self, mock_ca_channel, mock_search, mock_add_array, mock_field_type, mock_pend_event):
+    def setUp(
+        self,
+        mock_ca_channel,
+        mock_search,
+        mock_add_array,
+        mock_field_type,
+        mock_pend_event,
+    ):
         self.mock_producer = MagicMock()
         self.bs_monitor = BlockServerMonitor(
             self.test_address, self.test_prefix, self.mock_producer
@@ -69,7 +76,9 @@ class TestBlockServerMonitor(unittest.TestCase):
         arr = [0] * 10
         self.assertEqual("", self.bs_monitor.convert_to_string(arr))
 
-    def test_GIVEN_no_previous_pvs_WHEN_update_config_called_THEN_producer_is_called(self):
+    def test_GIVEN_no_previous_pvs_WHEN_update_config_called_THEN_producer_is_called(
+        self,
+    ):
         self.bs_monitor.update_config(["BLOCK"])
         self.mock_producer.add_config.assert_called_once()
 

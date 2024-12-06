@@ -19,7 +19,9 @@ from BlockServerToKafka.forwarder_config import ForwarderConfig
 from streaming_data_types.fbschemas.forwarder_config_update_fc00.Protocol import (
     Protocol,
 )
-from streaming_data_types.fbschemas.forwarder_config_update_fc00.UpdateType import UpdateType
+from streaming_data_types.fbschemas.forwarder_config_update_fc00.UpdateType import (
+    UpdateType,
+)
 from streaming_data_types.forwarder_config_update_fc00 import deserialise_fc00
 
 
