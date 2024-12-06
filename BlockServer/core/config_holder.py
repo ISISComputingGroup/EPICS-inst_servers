@@ -323,7 +323,7 @@ class ConfigHolder:
                 f"Can't add IOC '{name}' to component '{component}': component does not exist"
             )
 
-    def get_config_details(self) -> Dict[str, Any]:
+    def get_config_details(self, exclude_macros: bool = False) -> Dict[str, Any]:
         """Get the details of the configuration.
 
         Returns:
@@ -333,8 +333,8 @@ class ConfigHolder:
             "blocks": self._blocks_to_list(True),
             "groups": self._groups_to_list(),
             "iocs": self._iocs_to_list(),
-            "component_iocs": self._iocs_to_list_with_components(),
-            "components": self._comps_to_list(),  # Just return the names of the components
+            "component_iocs": self._iocs_to_list_with_components(exclude_macros),
+            "components": self._comps_to_list(exclude_macros),  # Just return the names of the components
             "name": self._config.get_name(),
             "description": self._config.meta.description,
             "synoptic": self._config.meta.synoptic,
@@ -402,10 +402,10 @@ class ConfigHolder:
                 grps.append(groups[GRP_NONE.lower()].to_dict())
         return grps
 
-    def _iocs_to_list(self):
+    def _iocs_to_list(self, exclude_macros: bool = False):
         return [ioc.to_dict() for ioc in self._config.iocs.values()]
 
-    def _iocs_to_list_with_components(self):
+    def _iocs_to_list_with_components(self, exclude_macros: bool = False):
         ioc_list = self._iocs_to_list()
 
         for component in self._components.values():

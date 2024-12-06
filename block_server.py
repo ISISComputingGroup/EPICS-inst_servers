@@ -84,7 +84,7 @@ CAEN_DISCRIMINATOR_IOC_NAME = "CAENV895_01"
 initial_dbs = {
     BlockserverPVNames.BLOCKNAMES: char_waveform(16000),
     BlockserverPVNames.HEARTBEAT: {"type": "int", "count": 1, "value": [0]},
-    BlockserverPVNames.BLOCK_DETAILS: char_waveform(16000),
+    BlockserverPVNames.WD_CONF_DETAILS: char_waveform(16000),
     BlockserverPVNames.GROUPS: char_waveform(16000),
     BlockserverPVNames.COMPS: char_waveform(16000),
     BlockserverPVNames.LOAD_CONFIG: char_waveform(1000),
@@ -465,6 +465,7 @@ class BlockServer(Driver):
         self.update_blocks_monitors()
 
         self.update_get_details_monitors()
+        self.update_wd_details_monitors()
         self.update_curr_config_name_monitors()
         self._active_configserver.update_archiver(full_init)
         for handler in self.on_the_fly_handlers:
@@ -653,6 +654,15 @@ class BlockServer(Driver):
             config_details_json = convert_to_json(self._active_configserver.get_config_details())
             self.setParam(
                 BlockserverPVNames.GET_CURR_CONFIG_DETAILS, compress_and_hex(config_details_json)
+            )
+            self.updatePVs()
+
+    def update_wd_details_monitors(self):
+        """Updates the monitor for the active configuration, so the clients can see any changes."""
+        with self.monitor_lock:
+            config_details_json = convert_to_json(self._active_configserver.get_config_details(exclude_macros=True))
+            self.setParam(
+                BlockserverPVNames.WD_CONF_DETAILS, compress_and_hex(config_details_json)
             )
             self.updatePVs()
 
