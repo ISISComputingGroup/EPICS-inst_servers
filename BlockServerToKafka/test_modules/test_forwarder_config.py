@@ -15,13 +15,12 @@
 # http://opensource.org/licenses/eclipse-1.0.php
 import unittest
 
+from BlockServerToKafka.forwarder_config import ForwarderConfig
 from streaming_data_types.fbschemas.forwarder_config_update_fc00.Protocol import (
     Protocol,
 )
 from streaming_data_types.fbschemas.forwarder_config_update_fc00.UpdateType import UpdateType
 from streaming_data_types.forwarder_config_update_fc00 import deserialise_fc00
-
-from BlockServerToKafka.forwarder_config import ForwarderConfig
 
 
 class TestForwarderConfig(unittest.TestCase):
