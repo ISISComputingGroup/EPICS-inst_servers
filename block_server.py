@@ -19,6 +19,7 @@ import json
 import os
 import sys
 import traceback
+from distutils.command.config import config
 
 from server_common.channel_access import ManagerModeRequiredException, verify_manager_mode
 
@@ -660,7 +661,10 @@ class BlockServer(Driver):
     def update_wd_details_monitors(self):
         """Updates the monitor for the active configuration, so the clients can see any changes."""
         with self.monitor_lock:
-            config_details_json = convert_to_json(self._active_configserver.get_config_details(exclude_macros=True))
+            config_details = self._active_configserver.get_config_details(exclude_macros=True)
+            config_details = config_details.pop("component_iocs")
+            config_details = config_details.pop("iocs")
+            config_details_json = convert_to_json(config_details)
             self.setParam(
                 BlockserverPVNames.WD_CONF_DETAILS, compress_and_hex(config_details_json)
             )

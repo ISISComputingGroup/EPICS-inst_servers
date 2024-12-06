@@ -107,7 +107,7 @@ class IOC:
     def __str__(self) -> str:
         return f"{self.__class__.__name__}(name={self.name}, component={self.component})"
 
-    def to_dict(self, exclude_macros: bool = False) -> Dict[str, Union[str, bool, List[Any]]]:
+    def to_dict(self) -> Dict[str, Union[str, bool, List[Any]]]:
         """Puts the IOC's details into a dictionary.
 
         Returns:
@@ -120,7 +120,7 @@ class IOC:
             "simlevel": self.simlevel,
             "pvs": self._dict_to_list(self.pvs),
             "pvsets": self._dict_to_list(self.pvsets),
-            "macros": self._dict_to_list(self.macros) if not exclude_macros else [],
+            "macros": self._dict_to_list(self.macros),
             "component": self.component,
             "remotePvPrefix": self.remotePvPrefix,
         }
