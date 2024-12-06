@@ -17,7 +17,7 @@ from time import sleep
 from typing import List
 
 from kafka import KafkaConsumer, KafkaProducer, errors
-from streaming_data_types.fbschemas.forwarder_config_update_rf5k.Protocol import (
+from streaming_data_types.fbschemas.forwarder_config_update_fc00.Protocol import (
     Protocol,
 )
 
