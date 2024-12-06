@@ -18,9 +18,10 @@ from threading import RLock
 from typing import Any
 
 import ca
+from CaChannel import CaChannel, CaChannelException
+
 from BlockServer.core.macros import BLOCK_PREFIX
 from BlockServerToKafka.kafka_producer import ProducerWrapper
-from CaChannel import CaChannel, CaChannelException
 from server_common.utilities import dehex_and_decompress, print_and_log
 
 

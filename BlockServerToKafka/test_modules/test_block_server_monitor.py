@@ -16,8 +16,9 @@
 
 import unittest
 
-from BlockServerToKafka.block_server_monitor import BlockServerMonitor
 from mock import MagicMock, patch
+
+from BlockServerToKafka.block_server_monitor import BlockServerMonitor
 
 
 class TestBlockServerMonitor(unittest.TestCase):
