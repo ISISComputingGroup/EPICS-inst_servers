@@ -149,29 +149,19 @@ class DatabaseServer(Driver):
         Returns:
             Dictionary containing the information to construct PVs
         """
+        pv_size_1m = 1000000
         pv_size_256k = 256000
         pv_size_10k = 10000
         pv_info = {}
 
-        for pv in [
-            DbPVNames.IOCS,
-            DbPVNames.HIGH_INTEREST,
-            DbPVNames.MEDIUM_INTEREST,
-            DbPVNames.LOW_INTEREST,
-            DbPVNames.FACILITY,
-            DbPVNames.ACTIVE_PVS,
-            DbPVNames.ALL_PVS,
-            DbPVNames.IOCS_NOT_TO_STOP,
-        ]:
+        for pv in [DbPVNames.IOCS, DbPVNames.HIGH_INTEREST, DbPVNames.MEDIUM_INTEREST, DbPVNames.LOW_INTEREST,
+                   DbPVNames.FACILITY, DbPVNames.IOCS_NOT_TO_STOP]:
             pv_info[pv] = char_waveform(pv_size_256k)
 
-        for pv in [
-            DbPVNames.SAMPLE_PARS,
-            DbPVNames.BEAMLINE_PARS,
-            DbPVNames.USER_PARS,
-            DbPVNames.MOXA_MAPPINGS,
-            DbPVNames.NUM_MOXAS,
-        ]:
+        for pv in [DbPVNames.ACTIVE_PVS, DbPVNames.ALL_PVS]:
+            pv_info[pv] = char_waveform(pv_size_1m)
+
+        for pv in [DbPVNames.SAMPLE_PARS, DbPVNames.BEAMLINE_PARS, DbPVNames.USER_PARS, DbPVNames.MOXA_MAPPINGS, DbPVNames.NUM_MOXAS]:
             pv_info[pv] = char_waveform(pv_size_10k)
 
         return pv_info

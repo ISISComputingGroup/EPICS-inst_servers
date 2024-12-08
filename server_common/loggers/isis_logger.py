@@ -80,7 +80,7 @@ class IsisLogger(Logger):
         """
         if src is None:
             src = self._ioc_name
-        msg_time = datetime.datetime.now()
+        msg_time = datetime.datetime.now(datetime.timezone.utc).astimezone()
         IsisLogger.executor.submit(
             self._queued_write_to_log,
             message,
