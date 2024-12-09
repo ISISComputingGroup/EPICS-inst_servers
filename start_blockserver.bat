@@ -2,7 +2,7 @@ REM @echo off
 setlocal
 set MYDIRBLOCK=%~dp0
 call %MYDIRBLOCK%stop_blockserver.bat
-set CYGWIN=nodosfilewarning
+set CYGWIN=disable_pcon
 call %MYDIRBLOCK%..\..\..\config_env_base.bat
 
 set EPICS_CAS_INTF_ADDR_LIST=127.0.0.1
