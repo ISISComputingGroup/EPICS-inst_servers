@@ -40,10 +40,7 @@ class ForwarderConfig:
         self.epics_protocol = epics_protocol
 
     def _create_streams(self, pvs: List[str]) -> List[StreamInfo]:
-        return [
-            StreamInfo(pv, self.schema, self.topic, self.epics_protocol, 0)
-            for pv in pvs
-        ]  # pyright: ignore
+        return [StreamInfo(pv, self.schema, self.topic, self.epics_protocol, 0) for pv in pvs]  # pyright: ignore
 
     def create_forwarder_configuration(self, pvs: List[str]) -> bytes:
         return serialise_fc00(UpdateType.ADD, self._create_streams(pvs))  # pyright: ignore

@@ -46,24 +46,18 @@ class TestForwarderConfig(unittest.TestCase):
         self.config_with_two_blocks = [self.test_block_1, self.test_block_2]
 
     def test_WHEN_new_forwarder_config_created_THEN_returns_valid_flatbuffers(self):
-        output = self.kafka_forwarder.create_forwarder_configuration(
-            self.config_with_one_block
-        )
+        output = self.kafka_forwarder.create_forwarder_configuration(self.config_with_one_block)
         self.assertTrue(self.is_flatbuffers(output))
 
     def test_WHEN_new_forwarder_config_created_THEN_returns_configuration_update_containing_add_command(
         self,
     ):
-        raw_output = self.kafka_forwarder.create_forwarder_configuration(
-            self.config_with_one_block
-        )
+        raw_output = self.kafka_forwarder.create_forwarder_configuration(self.config_with_one_block)
         output = deserialise_fc00(raw_output)
         self.assertEqual(output.config_change, UpdateType.ADD)
 
     def test_WHEN_forwarder_config_removed_THEN_output_has_correct_command_type(self):
-        raw_output = self.kafka_forwarder.remove_forwarder_configuration(
-            self.config_with_one_block
-        )
+        raw_output = self.kafka_forwarder.remove_forwarder_configuration(self.config_with_one_block)
         output = deserialise_fc00(raw_output)
         self.assertEqual(output.config_change, UpdateType.REMOVE)
 
@@ -75,9 +69,7 @@ class TestForwarderConfig(unittest.TestCase):
     def test_WHEN_new_forwarder_config_created_THEN_returns_flatbuffer_containing_streams_with_channels_and_converters(
         self,
     ):
-        raw_output = self.kafka_forwarder.create_forwarder_configuration(
-            self.config_with_one_block
-        )
+        raw_output = self.kafka_forwarder.create_forwarder_configuration(self.config_with_one_block)
         output = deserialise_fc00(raw_output)
         self.assertNotEqual(0, len(output[1]))
         for stream in output[1]:
@@ -92,9 +84,7 @@ class TestForwarderConfig(unittest.TestCase):
             epics_protocol=Protocol.PVA,  # pyright: ignore noqa
             topic=self.test_topic,
         )
-        raw_output = kafka_version_4.create_forwarder_configuration(
-            self.config_with_one_block
-        )
+        raw_output = kafka_version_4.create_forwarder_configuration(self.config_with_one_block)
         output = deserialise_fc00(raw_output)
         self.assertNotEqual(0, len(output[1]))
         for stream in output[1]:
@@ -103,9 +93,7 @@ class TestForwarderConfig(unittest.TestCase):
     def test_GIVEN_configuration_with_one_block_WHEN_new_forwarder_config_created_THEN_returns_JSON_containing_one_stream(
         self,
     ):
-        raw_output = self.kafka_forwarder.create_forwarder_configuration(
-            self.config_with_one_block
-        )
+        raw_output = self.kafka_forwarder.create_forwarder_configuration(self.config_with_one_block)
         output = deserialise_fc00(raw_output)
         self.assertEqual(1, len(output[1]))
 
@@ -121,9 +109,7 @@ class TestForwarderConfig(unittest.TestCase):
     def test_GIVEN_configuration_with_one_block_WHEN_new_forwarder_config_created_THEN_returns_block_pv_string(
         self,
     ):
-        raw_output = self.kafka_forwarder.create_forwarder_configuration(
-            self.config_with_one_block
-        )
+        raw_output = self.kafka_forwarder.create_forwarder_configuration(self.config_with_one_block)
         output = deserialise_fc00(raw_output)
         stream = output[1][0]
         self.assertEqual(self.test_block_1, stream.channel)
@@ -139,17 +125,13 @@ class TestForwarderConfig(unittest.TestCase):
             self.assertTrue(blk in [stream.channel for stream in output[1]])
 
     def test_WHEN_removed_old_forwarder_THEN_JSON_returns_valid(self):
-        output = self.kafka_forwarder.remove_forwarder_configuration(
-            self.config_with_one_block
-        )
+        output = self.kafka_forwarder.remove_forwarder_configuration(self.config_with_one_block)
         self.assertTrue(self.is_flatbuffers(output))
 
     def test_GIVEN_configuration_with_one_block_WHEN_removed_old_forwarder_THEN_returns_JSON_containing_block_pv_string(
         self,
     ):
-        raw_output = self.kafka_forwarder.remove_forwarder_configuration(
-            self.config_with_one_block
-        )
+        raw_output = self.kafka_forwarder.remove_forwarder_configuration(self.config_with_one_block)
         output = deserialise_fc00(raw_output)
         self.assertEqual(self.test_block_1, output[1][0].channel)
 

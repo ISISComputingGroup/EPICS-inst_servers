@@ -40,9 +40,7 @@ class TestBlockServerMonitor(unittest.TestCase):
         arr = [ord(c)]
         self.assertEqual(c, self.bs_monitor.convert_to_string(bytearray(arr)))
 
-    def test_WHEN_convert_many_chars_to_string_THEN_returns_characters(
-        self, mock_ca_channel
-    ):
+    def test_WHEN_convert_many_chars_to_string_THEN_returns_characters(self, mock_ca_channel):
         chars = "hello world"
         arr = [ord(c) for c in chars]
         self.assertEqual(chars, self.bs_monitor.convert_to_string(bytearray(arr)))
@@ -67,9 +65,7 @@ class TestBlockServerMonitor(unittest.TestCase):
             arr.insert(0, 0)
         self.assertEqual(chars, self.bs_monitor.convert_to_string(bytearray(arr)))
 
-    def test_WHEN_convert_chars_with_nulls_in_centre_THEN_nulls_removed(
-        self, mock_ca_channel
-    ):
+    def test_WHEN_convert_chars_with_nulls_in_centre_THEN_nulls_removed(self, mock_ca_channel):
         chars = "hello world"
         arr = [ord(c) for c in chars]
         arr.insert(4, 0)
