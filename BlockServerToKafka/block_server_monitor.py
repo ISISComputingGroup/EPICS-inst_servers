@@ -47,9 +47,9 @@ class BlockServerMonitor:
 
         # Create the CA monitor callback
         self.channel.add_masked_array_event(
-            ca.dbf_type_to_DBR_STS(self.channel.field_type()),
+            ca.dbf_type_to_DBR_STS(self.channel.field_type()),  # pyright: ignore
             0,
-            ca.DBE_VALUE,
+            ca.DBE_VALUE,  # pyright: ignore
             self.update,
             None,
         )

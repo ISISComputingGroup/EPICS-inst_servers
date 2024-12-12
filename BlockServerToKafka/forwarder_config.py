@@ -30,21 +30,27 @@ class ForwarderConfig:
     """
 
     def __init__(
-        self, topic: str, epics_protocol: Protocol = Protocol.CA, schema: str = "f144"
+        self,
+        topic: str,
+        epics_protocol: Protocol = Protocol.CA,  # pyright: ignore
+        schema: str = "f144",
     ) -> None:
         self.schema = schema
         self.topic = topic
         self.epics_protocol = epics_protocol
 
     def _create_streams(self, pvs: List[str]) -> List[StreamInfo]:
-        return [StreamInfo(pv, self.schema, self.topic, self.epics_protocol, 0) for pv in pvs]
+        return [
+            StreamInfo(pv, self.schema, self.topic, self.epics_protocol, 0)
+            for pv in pvs
+        ]  # pyright: ignore
 
     def create_forwarder_configuration(self, pvs: List[str]) -> bytes:
-        return serialise_fc00(UpdateType.ADD, self._create_streams(pvs))
+        return serialise_fc00(UpdateType.ADD, self._create_streams(pvs))  # pyright: ignore
 
     def remove_forwarder_configuration(self, pvs: List[str]) -> bytes:
-        return serialise_fc00(UpdateType.REMOVE, self._create_streams(pvs))
+        return serialise_fc00(UpdateType.REMOVE, self._create_streams(pvs))  # pyright: ignore
 
     @staticmethod
     def remove_all_forwarder_configuration() -> bytes:
-        return serialise_fc00(UpdateType.REMOVEALL, [])
+        return serialise_fc00(UpdateType.REMOVEALL, [])  # pyright: ignore
