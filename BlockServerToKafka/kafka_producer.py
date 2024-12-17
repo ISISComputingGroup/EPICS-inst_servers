@@ -17,7 +17,7 @@ from time import sleep
 from typing import List
 
 from kafka import KafkaConsumer, KafkaProducer, errors
-from streaming_data_types.fbschemas.forwarder_config_update_rf5k.Protocol import (
+from streaming_data_types.fbschemas.forwarder_config_update_fc00.Protocol import (
     Protocol,
 )
 
@@ -35,13 +35,13 @@ class ProducerWrapper:
         server: str,
         config_topic: str,
         data_topic: str,
-        epics_protocol: Protocol = Protocol.CA,
-    ):
+        epics_protocol: Protocol = Protocol.CA,  # pyright: ignore
+    ) -> None:
         self.topic = config_topic
         self.converter = ForwarderConfig(data_topic, epics_protocol)
         self._set_up_producer(server)
 
-    def _set_up_producer(self, server: str):
+    def _set_up_producer(self, server: str) -> None:
         try:
             self.client = KafkaConsumer(bootstrap_servers=server)
             self.producer = KafkaProducer(bootstrap_servers=server)
@@ -51,7 +51,7 @@ class ProducerWrapper:
                 )
         except errors.NoBrokersAvailable:
             print_and_log(f"No brokers found on server: {server[0]}")
-        except errors.ConnectionError:
+        except errors.KafkaConnectionError:
             print_and_log("No server found, connection error")
         except errors.InvalidConfigurationError:
             print_and_log("Invalid configuration")
@@ -67,7 +67,7 @@ class ProducerWrapper:
             # Recursive call after waiting
             self._set_up_producer(server)
 
-    def add_config(self, pvs: List[str]):
+    def add_config(self, pvs: List[str]) -> None:
         """
         Create a forwarder configuration to add more pvs to be monitored.
 
@@ -79,7 +79,7 @@ class ProducerWrapper:
     def topic_exists(self, topic_name: str) -> bool:
         return topic_name in self.client.topics()
 
-    def remove_config(self, pvs: List[str]):
+    def remove_config(self, pvs: List[str]) -> None:
         """
         Create a forwarder configuration to remove pvs that are being monitored.
 
@@ -88,7 +88,7 @@ class ProducerWrapper:
         message_buffer = self.converter.remove_forwarder_configuration(pvs)
         self.producer.send(self.topic, message_buffer)
 
-    def stop_all_pvs(self):
+    def stop_all_pvs(self) -> None:
         """
         Sends a stop_all command to the forwarder to clear all configuration.
         """
