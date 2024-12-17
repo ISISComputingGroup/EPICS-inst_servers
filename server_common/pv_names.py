@@ -46,7 +46,7 @@ class BlockserverPVNames:
     """Holds and manages blockserver PV names"""
 
     BLOCKNAMES = prepend_blockserver("BLOCKNAMES")
-    WD_CONF_DETAILS = prepend_blockserver("WD_CONF_DETAILS")
+    BLOCK_DETAILS = prepend_blockserver("BLOCK_DETAILS")
     BLOCK_RULES = prepend_blockserver("BLOCK_RULES")
     GROUPS = prepend_blockserver("GROUPS")
     GROUP_RULES = prepend_blockserver("GROUP_RULES")
