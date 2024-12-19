@@ -80,7 +80,10 @@ class TestForwarderConfig(unittest.TestCase):
     def test_GIVEN_using_version_4_WHEN_new_forwarder_config_created_THEN_returns_JSON_containing_streams_with_pva_channel_type(
         self,
     ):
-        kafka_version_4 = ForwarderConfig(epics_protocol=Protocol.PVA, topic=self.test_topic)
+        kafka_version_4 = ForwarderConfig(
+            epics_protocol=Protocol.PVA,  # pyright: ignore noqa
+            topic=self.test_topic,
+        )
         raw_output = kafka_version_4.create_forwarder_configuration(self.config_with_one_block)
         output = deserialise_fc00(raw_output)
         self.assertNotEqual(0, len(output[1]))

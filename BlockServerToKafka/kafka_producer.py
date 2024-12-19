@@ -35,7 +35,7 @@ class ProducerWrapper:
         server: str,
         config_topic: str,
         data_topic: str,
-        epics_protocol: Protocol = Protocol.CA,
+        epics_protocol: Protocol = Protocol.CA,  # pyright: ignore
     ) -> None:
         self.topic = config_topic
         self.converter = ForwarderConfig(data_topic, epics_protocol)
@@ -51,7 +51,7 @@ class ProducerWrapper:
                 )
         except errors.NoBrokersAvailable:
             print_and_log(f"No brokers found on server: {server[0]}")
-        except errors.ConnectionError:
+        except errors.KafkaConnectionError:
             print_and_log("No server found, connection error")
         except errors.InvalidConfigurationError:
             print_and_log("Invalid configuration")
