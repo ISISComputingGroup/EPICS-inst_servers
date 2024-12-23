@@ -660,7 +660,7 @@ class BlockServer(Driver):
     def update_wd_details_monitors(self):
         """Updates the monitor for the active configuration, so the web dashboard can see any changes."""
         with self.monitor_lock:
-            config_details_json = convert_to_json({k: v for k, v in self._active_configserver.get_config_details(exclude_macros=True).items() if k not in ["component_iocs", "iocs"]})
+            config_details_json = convert_to_json({k: v for k, v in self._active_configserver.get_config_details().items() if k not in ["component_iocs", "iocs"]})
             self.setParam(
                 BlockserverPVNames.WD_CONF_DETAILS, compress_and_hex(config_details_json)
             )
