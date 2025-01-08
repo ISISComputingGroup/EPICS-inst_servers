@@ -22,7 +22,7 @@ from streaming_data_types.fbschemas.forwarder_config_update_fc00.Protocol import
 )
 
 from BlockServerToKafka.forwarder_config import ForwarderConfig
-from server_common.utilities import print_and_log
+from server_common.utilities import SEVERITY, print_and_log
 
 
 class ProducerWrapper:
@@ -39,9 +39,14 @@ class ProducerWrapper:
     ) -> None:
         self.topic = config_topic
         self.converter = ForwarderConfig(data_topic, epics_protocol)
-        self._set_up_producer(server)
+        while not self._set_up_producer(server):
+            print_and_log("Failed to create producer, retrying in 30s")
+            sleep(30)
 
-    def _set_up_producer(self, server: str) -> None:
+    def _set_up_producer(self, server: str) -> bool:
+        """
+        Attempts to create a Kafka producer and consumer. Retries with a recursive call every 30s.
+        """
         try:
             self.client = KafkaConsumer(bootstrap_servers=server)
             self.producer = KafkaProducer(bootstrap_servers=server)
@@ -49,23 +54,26 @@ class ProducerWrapper:
                 print_and_log(
                     f"WARNING: topic {self.topic} does not exist. It will be created by default."
                 )
+            return True
         except errors.NoBrokersAvailable:
-            print_and_log(f"No brokers found on server: {server[0]}")
+            print_and_log(f"No brokers found on server: {server[0]}", severity=SEVERITY.MAJOR)
         except errors.KafkaConnectionError:
-            print_and_log("No server found, connection error")
+            print_and_log("No server found, connection error", severity=SEVERITY.MAJOR)
         except errors.InvalidConfigurationError:
-            print_and_log("Invalid configuration")
+            print_and_log("Invalid configuration", severity=SEVERITY.MAJOR)
             quit()
         except errors.InvalidTopicError:
             print_and_log(
                 "Invalid topic, to enable auto creation of topics set"
-                " auto.create.topics.enable to false in broker configuration"
+                " auto.create.topics.enable to false in broker configuration",
+                severity=SEVERITY.MAJOR,
             )
-        finally:
-            print_and_log("Retrying in 10s")
-            sleep(10)
-            # Recursive call after waiting
-            self._set_up_producer(server)
+        except Exception as e:
+            print_and_log(
+                f"Unexpected error while creating producer or consumer: {str(e)}",
+                severity=SEVERITY.MAJOR,
+            )
+        return False
 
     def add_config(self, pvs: List[str]) -> None:
         """
