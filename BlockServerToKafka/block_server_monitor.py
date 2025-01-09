@@ -15,11 +15,13 @@
 # http://opensource.org/licenses/eclipse-1.0.php
 import json
 from threading import RLock
+from typing import Any
 
 import ca
 from CaChannel import CaChannel, CaChannelException
 
 from BlockServer.core.macros import BLOCK_PREFIX
+from BlockServerToKafka.kafka_producer import ProducerWrapper
 from server_common.utilities import dehex_and_decompress, print_and_log
 
 
@@ -30,7 +32,7 @@ class BlockServerMonitor:
     Uses a Channel Access Monitor.
     """
 
-    def __init__(self, address, pvprefix, producer):
+    def __init__(self, address: str, pvprefix: str, producer: ProducerWrapper) -> None:
         self.PVPREFIX = pvprefix
         self.address = address
         self.channel = CaChannel()
@@ -45,15 +47,15 @@ class BlockServerMonitor:
 
         # Create the CA monitor callback
         self.channel.add_masked_array_event(
-            ca.dbf_type_to_DBR_STS(self.channel.field_type()),
+            ca.dbf_type_to_DBR_STS(self.channel.field_type()),  # pyright: ignore
             0,
-            ca.DBE_VALUE,
+            ca.DBE_VALUE,  # pyright: ignore
             self.update,
             None,
         )
         self.channel.pend_event()
 
-    def block_name_to_pv_name(self, blk):
+    def block_name_to_pv_name(self, blk: str) -> str:
         """
         Converts a block name to a PV name by adding the prefixes.
 
@@ -66,11 +68,12 @@ class BlockServerMonitor:
         return f"{self.PVPREFIX}{BLOCK_PREFIX}{blk}"
 
     @staticmethod
-    def convert_to_string(pv_array):
+    def convert_to_string(pv_array: bytearray) -> str:
         """
         Convert from byte array to string and remove null characters.
 
-        We cannot get the number of elements in the array so convert to bytes and remove the null characters.
+        We cannot get the number of elements in the array so convert to bytes and remove the
+        null characters.
 
         Args:
             pv_array (bytearray): The byte array of PVs.
@@ -81,7 +84,7 @@ class BlockServerMonitor:
 
         return bytearray(pv_array).decode("utf-8").replace("\x00", "")
 
-    def update_config(self, blocks):
+    def update_config(self, blocks: list[str]) -> None:
         """
         Updates the forwarder configuration to monitor the supplied blocks.
 
@@ -99,7 +102,7 @@ class BlockServerMonitor:
             self.producer.add_config(pvs)
             self.last_pvs = pvs
 
-    def update(self, epics_args, user_args):
+    def update(self, epics_args: dict[str, bytearray], user_args: Any) -> None:  # noqa: ANN401
         """
         Updates the kafka config when the blockserver changes. This is called from the monitor.
 
