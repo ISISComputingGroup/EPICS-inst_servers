@@ -4,9 +4,9 @@ import os
 import re
 import unittest
 from datetime import datetime
+from unittest.mock import Mock, patch
 
 from hamcrest import *
-from mock import Mock, patch
 
 from server_common.loggers.isis_logger import IsisLogger, IsisPutLog
 

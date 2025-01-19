@@ -5,8 +5,7 @@ import unittest
 from queue import Queue
 from typing import Any, Dict, List, Tuple
 from unittest import mock
-
-from mock import MagicMock
+from unittest.mock import MagicMock
 
 from BlockServer.component_switcher.component_switcher import ComponentSwitcher
 from BlockServer.core.macros import PVPREFIX_MACRO

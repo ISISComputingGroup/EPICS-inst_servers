@@ -16,9 +16,9 @@
 import os
 from datetime import timedelta
 from unittest import TestCase
+from unittest.mock import Mock
 
 from hamcrest import *
-from mock import Mock
 
 from ArchiverAccess.archive_access_config_builder import ArchiverAccessDatabaseConfigBuilder
 from ArchiverAccess.archive_access_configuration import (

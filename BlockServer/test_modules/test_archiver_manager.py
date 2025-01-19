@@ -14,10 +14,10 @@
 # https://www.eclipse.org/org/documents/epl-v10.php or
 # http://opensource.org/licenses/eclipse-1.0.php
 import os
+from unittest.mock import mock_open, patch
 
 # Set MYPVPREFIX env var
 from hamcrest import *
-from mock import mock_open, patch
 
 from ArchiverAccess.test_modules.stubs import FileStub
 from BlockServer.config.block import Block

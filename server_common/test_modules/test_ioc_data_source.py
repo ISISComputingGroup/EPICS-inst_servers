@@ -15,10 +15,10 @@
 # http://opensource.org/licenses/eclipse-1.0.php
 
 import unittest
+from unittest.mock import Mock
 
 from genie_python.mysql_abstraction_layer import AbstractSQLCommands, DatabaseError
 from hamcrest import *
-from mock import Mock
 
 from server_common.ioc_data_source import IocDataSource
 
