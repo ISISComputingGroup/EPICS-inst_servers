@@ -6,7 +6,7 @@ import unittest
 from datetime import datetime
 from unittest.mock import Mock, patch
 
-from hamcrest import *
+from hamcrest import assert_that, contains_string, is_
 
 from server_common.loggers.isis_logger import IsisLogger, IsisPutLog
 

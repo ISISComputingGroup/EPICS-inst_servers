@@ -6,7 +6,7 @@ import sys
 import unittest
 from unittest.mock import MagicMock, patch
 
-from hamcrest import *
+from hamcrest import assert_that, has_item
 
 from BlockServer import fileIO
 from BlockServer.core.file_path_manager import FILEPATH_MANAGER

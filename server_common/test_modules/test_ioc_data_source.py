@@ -18,7 +18,7 @@ import unittest
 from unittest.mock import Mock
 
 from genie_python.mysql_abstraction_layer import AbstractSQLCommands, DatabaseError
-from hamcrest import *
+from hamcrest import assert_that, calling, contains_inanyorder, contains_string, is_, raises
 
 from server_common.ioc_data_source import IocDataSource
 

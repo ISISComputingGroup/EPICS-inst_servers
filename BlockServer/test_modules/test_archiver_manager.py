@@ -17,7 +17,7 @@ import os
 from unittest.mock import mock_open, patch
 
 # Set MYPVPREFIX env var
-from hamcrest import *
+from hamcrest import assert_that, contains_exactly, empty, has_items
 
 from ArchiverAccess.test_modules.stubs import FileStub
 from BlockServer.config.block import Block
