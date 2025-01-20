@@ -122,9 +122,9 @@ class FileStub(object):
 
     @classmethod
     def contents_of_only_file(cls):
-        assert len(FileStub.file_contents) == 1, (
-            "Number of files created is not 1. Filenames are {0}".format(
-                FileStub.file_contents.keys()
-            )
+        assert (
+            len(FileStub.file_contents) == 1
+        ), "Number of files created is not 1. Filenames are {0}".format(
+            FileStub.file_contents.keys()
         )
         return next(iter(FileStub.file_contents.values()))  # get the one and only value

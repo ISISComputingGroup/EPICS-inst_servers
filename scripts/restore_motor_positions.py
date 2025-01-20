@@ -153,13 +153,13 @@ def print_summary(archive_values, pv_values, data_time, log_file):
     """
     print_and_log(f"PVs at time {data_time}", log_file)
     print_and_log(
-        f"{'name':12} {'motor':7}: {'archive val':12} {'diff from':12} - {'last update':19} "
-        f"{'next update':19} {'alarm':5}",
+        f'{"name":12} {"motor":7}: {"archive val":12} {"diff from":12} - {"last update":19} '
+        f'{"next update":19} {"alarm":5}',
         log_file,
     )
     print_and_log(
-        f"{'':12} {'':7}: {'':12} {'current val':12} - {'(sample time)':19} "
-        f"{'(within window)':19} {'':5}",
+        f'{"":12} {"":7}: {"":12} {"current val":12} - {"(sample time)":19} '
+        f'{"(within window)":19} {"":5}',
         log_file,
     )
 
@@ -174,7 +174,7 @@ def print_summary(archive_values, pv_values, data_time, log_file):
             try:
                 val_as_float = float(pv_value.value)
                 diff_from_current = val_as_float - value
-                val = f"{val_as_float:12.3f}"
+                val = f"{val_as_float :12.3f}"
             except ValueError:
                 val = f"{pv_value.value:12}"
             except TypeError:
@@ -194,7 +194,7 @@ def print_summary(archive_values, pv_values, data_time, log_file):
 
         print_and_log(
             f"{motor_name[:12]:12} {pv_name[-7:]}: {val} {diff_from_current:12.3f} - {last_change[:19]:19} "
-            f"{next_change_str:19} {Severity.get(pv_value.severity_id):5}",
+            f"{next_change_str:19} {Severity.get(pv_value.severity_id) :5}",
             log_file,
         )
 

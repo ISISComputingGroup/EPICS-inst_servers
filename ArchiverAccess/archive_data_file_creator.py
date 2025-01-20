@@ -199,7 +199,7 @@ class ArchiveDataFileCreator(object):
             self._make_file_readonly_fn(self._filename)
         except Exception as ex:
             raise DataFileCreationError(
-                "Failed to make log file {filename} readonly. Error is: '{exception}'".format(
+                "Failed to make log file {filename} readonly. " "Error is: '{exception}'".format(
                     exception=ex, filename=self._filename
                 )
             )

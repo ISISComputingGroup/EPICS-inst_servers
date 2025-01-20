@@ -309,7 +309,9 @@ def verify_manager_mode(
         )
     except Exception as e:
         raise ManagerModeRequiredException(
-            "Manager mode is required, but an unknown exception occurred (caused by: {})".format(e)
+            "Manager mode is required, but an unknown exception occurred " "(caused by: {})".format(
+                e
+            )
         )
 
     if not is_manager:
