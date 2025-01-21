@@ -17,7 +17,7 @@
 import json
 import os
 import sys
-from typing import TypedDict
+from typing import Literal, TypedDict
 
 try:
     from server_common.channel_access import ChannelAccess
@@ -45,7 +45,7 @@ class Instrument(TypedDict):
     pvPrefix: str
     isScheduled: bool
     groups: list[str]
-    seci: bool
+    seci: Literal[False]
 
 
 def inst_dictionary(
@@ -55,7 +55,6 @@ def inst_dictionary(
     pv_prefix: str | None = None,
     is_scheduled: bool = True,
     groups: list[str] | None = None,
-    seci: bool = False,
 ) -> Instrument:
     """
     Generate the instrument dictionary for the instrument list
@@ -67,7 +66,6 @@ def inst_dictionary(
         is_scheduled: whether the instrument has scheduled users,
           and so should have user details written to it;
         groups: which science groups (e.g. SANS, MUONS) this instrument is in.
-        seci: Whether the instrument is running SECI
 
     Returns: dictionary for instrument
 
@@ -86,18 +84,13 @@ def inst_dictionary(
     else:
         groups_to_use = groups
 
-    if seci is True:
-        seci_to_use = True
-    else:
-        seci_to_use = False
-
     return {
         "name": instrument_name,
         "hostName": hostname_to_use,
         "pvPrefix": pv_prefix_to_use,
         "isScheduled": is_scheduled,
         "groups": groups_to_use,
-        "seci": seci_to_use,
+        "seci": False,
     }
 
 
@@ -130,9 +123,9 @@ if __name__ == "__main__":
     # instrument list values to set (uses utility to return the dictionary,
     # but you can use a dictionary directly)
     instruments_list = [
-        inst_dictionary("ARGUS", seci=True),
+        inst_dictionary("ARGUS", groups=["MUONS"]),
         inst_dictionary("CHRONUS", groups=["MUONS"]),
-        inst_dictionary("HIFI", seci=True),
+        inst_dictionary("HIFI", groups=["MUONS"]),
         inst_dictionary("CHIPIR"),
         inst_dictionary(
             "CRYOLAB_R80", groups=["SUPPORT"], pv_prefix="IN:CRYOLA7E:", is_scheduled=False
