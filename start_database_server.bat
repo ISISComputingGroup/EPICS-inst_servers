@@ -13,7 +13,7 @@ for /F "usebackq" %%I in (`%ICPCYGBIN%\cygpath %IOCLOGROOT%`) do SET IOCCYGLOGRO
 
 set DBSERVER_CONSOLEPORT=9009
 
-@echo Starting dbserver (console port %DBSERVER_CONSOLEPORT%)
+@echo %DATE% %TIME% Starting dbserver (console port %DBSERVER_CONSOLEPORT%)
 set DBSERVER_CMD=%MYDIRBLOCK%start_database_server_cmd.bat
 
 REM Unlike IOC we are not using "--noautorestart --wait" so gateway will start immediately and also automatically restart on exit
