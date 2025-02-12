@@ -16,10 +16,10 @@
 
 import unittest
 from datetime import timedelta
+from unittest.mock import Mock
 
 from genie_python.mysql_abstraction_layer import DatabaseError
-from hamcrest import *
-from mock import Mock
+from hamcrest import assert_that, is_
 
 from ArchiverAccess.logging_period_providers import (
     MINIMUM_LOGGING_PERIOD,
