@@ -155,6 +155,7 @@ if __name__ == "__main__":
         inst_dictionary("RIKENFE", groups=["MUONS"], is_scheduled=False),
         inst_dictionary("SELAB", groups=["SUPPORT"], is_scheduled=False),
         inst_dictionary("EMMA-A", groups=["SUPPORT"], is_scheduled=False),
+        inst_dictionary("EMMA-B", groups=["SUPPORT"], is_scheduled=False),
         inst_dictionary("SANDALS", groups=["DISORDERED"]),
         inst_dictionary("GEM", groups=["DISORDERED", "CRYSTALLOGRAPHY"]),
         inst_dictionary("MAPS", groups=["EXCITATIONS"]),
@@ -181,6 +182,7 @@ if __name__ == "__main__":
         inst_dictionary("POLREF", groups=["REFLECTOMETRY"]),
         inst_dictionary("SANS2D", groups=["SANS"]),
         inst_dictionary("MUSR", groups=["MUONS"]),
+        inst_dictionary("MUX", groups=["MUONS"]),
         inst_dictionary("WISH", groups=["CRYSTALLOGRAPHY"]),
         inst_dictionary(
             "WISH_SETUP", groups=["CRYSTALLOGRAPHY"], pv_prefix="IN:WISH_S9C:", is_scheduled=False
