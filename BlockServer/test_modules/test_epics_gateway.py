@@ -16,9 +16,9 @@
 
 import os
 import unittest
+from unittest.mock import MagicMock, mock_open, patch
 
-from hamcrest import *
-from mock import MagicMock, mock_open, patch
+from hamcrest import assert_that, empty
 
 from ArchiverAccess.test_modules.stubs import FileStub
 from BlockServer.config.block import Block
