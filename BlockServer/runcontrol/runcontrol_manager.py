@@ -163,7 +163,6 @@ class RunControlManager(OnTheFlyPvInterface):
         self._start_ioc()
         # Need to wait for RUNCONTROL_IOC to start
         self.wait_for_ioc_start()
-        print_and_log("Runcontrol IOC started")
 
     def create_runcontrol_pvs(self, full_init=False, time_between_tries=2):
         """
@@ -333,6 +332,7 @@ class RunControlManager(OnTheFlyPvInterface):
                 sleep(time_between_tries)
             else:
                 self._rc_ioc_start_time = latest_ioc_start
+                print_and_log("Runcontrol IOC started")
                 break
         else:
             print_and_log("Runcontrol appears not to have started", "MAJOR")
