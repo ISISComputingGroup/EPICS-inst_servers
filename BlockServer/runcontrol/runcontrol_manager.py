@@ -22,7 +22,7 @@ from datetime import datetime
 from shutil import copyfile
 from time import sleep
 
-import BlockServer
+from block_server import BlockServer
 from BlockServer.config.block import Block
 from BlockServer.core.active_config_holder import ActiveConfigHolder
 from BlockServer.core.constants import (
