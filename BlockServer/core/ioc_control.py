@@ -26,7 +26,7 @@ from server_common.utilities import print_and_log
 class IocControl:
     """A class for starting, stopping and restarting IOCs"""
 
-    def __init__(self, prefix):
+    def __init__(self, prefix: str) -> None:
         """Constructor.
 
         Args:
@@ -34,7 +34,7 @@ class IocControl:
         """
         self._proc = ProcServWrapper(prefix)
 
-    def start_ioc(self, ioc: str, restart_alarm_server: bool = True):
+    def start_ioc(self, ioc: str, restart_alarm_server: bool = True) -> None:
         """Start an IOC.
 
         Args:
@@ -48,11 +48,11 @@ class IocControl:
         except Exception as err:
             print_and_log(f"Could not start IOC {ioc}: {err}", "MAJOR")
 
-    def restart_ioc(self, ioc: str, force: bool = False, restart_alarm_server: bool = True):
+    def restart_ioc(self, ioc: str, force: bool = False, restart_alarm_server: bool = True) -> None:
         """Restart an IOC.
 
-        Note: restarting an IOC automatically sets the IOC to auto-restart, so it is neccessary to reapply the
-        previous auto-restart setting
+        Note: restarting an IOC automatically sets the IOC to auto-restart,
+        so it is neccessary to reapply the previous auto-restart setting
 
         Args:
             ioc (string): The name of the IOC
@@ -69,7 +69,7 @@ class IocControl:
         except Exception as err:
             print_and_log(f"Could not restart IOC {ioc}: {err}", "MAJOR")
 
-    def stop_ioc(self, ioc: str, force: bool = False):
+    def stop_ioc(self, ioc: str, force: bool = False) -> None:
         """Stop an IOC.
 
         Args:
@@ -86,7 +86,7 @@ class IocControl:
         except Exception as err:
             print_and_log(f"Could not stop IOC {ioc}: {err}", "MAJOR")
 
-    def get_ioc_status(self, ioc: str):
+    def get_ioc_status(self, ioc: str) -> str:
         """Get the running status of an IOC.
 
         Args:
@@ -97,7 +97,7 @@ class IocControl:
         """
         return self._proc.get_ioc_status(ioc)
 
-    def ioc_restart_pending(self, ioc: str):
+    def ioc_restart_pending(self, ioc: str) -> bool:
         """Tests if the IOC has a pending restart
 
         Args:
@@ -108,7 +108,7 @@ class IocControl:
         """
         return self._proc.ioc_restart_pending(ioc)
 
-    def start_iocs(self, iocs: List[str]):
+    def start_iocs(self, iocs: List[str]) -> None:
         """Start a number of IOCs.
 
         Args:
@@ -117,7 +117,7 @@ class IocControl:
         for ioc in iocs:
             self.start_ioc(ioc)
 
-    def restart_iocs(self, iocs: List[str], reapply_auto: bool = False):
+    def restart_iocs(self, iocs: List[str], reapply_auto: bool = False) -> None:
         """Restart a number of IOCs.
 
         Args:
@@ -135,7 +135,7 @@ class IocControl:
                 self.waitfor_running(ioc)
                 self.set_autorestart(ioc, auto[ioc])
 
-    def stop_iocs(self, iocs: List[str]):
+    def stop_iocs(self, iocs: List[str]) -> None:
         """Stop a number of IOCs.
 
         Args:
@@ -156,10 +156,10 @@ class IocControl:
         try:
             self.get_ioc_status(ioc)
             return True
-        except:
+        except Exception:
             return False
 
-    def set_autorestart(self, ioc: str, enable: bool):
+    def set_autorestart(self, ioc: str, enable: bool) -> None:
         """Used to set the auto-restart property.
 
         Args:
@@ -172,7 +172,7 @@ class IocControl:
                 curr = self._proc.get_autorestart(ioc)
                 if curr != enable:
                     # If different to requested then change it
-                    print_and_log(f"Auto-restart for IOC {ioc} is not {enable}")
+                    print_and_log(f"Auto-restart for IOC {ioc} not set to {enable}")
                     self._proc.toggle_autorestart(ioc)
                     return
                 print_and_log(f"Auto-restart for IOC {ioc} is already {enable}")
@@ -195,7 +195,7 @@ class IocControl:
         except Exception as err:
             print_and_log(f"Could not get auto-restart setting for IOC {ioc}: {err}", "MAJOR")
 
-    def waitfor_running(self, ioc: str, timeout: int = 5):
+    def waitfor_running(self, ioc: str, timeout: int = 5) -> None:
         """Waits for the IOC to start running.
 
         Args:
