@@ -172,9 +172,10 @@ class IocControl:
                 curr = self._proc.get_autorestart(ioc)
                 if curr != enable:
                     # If different to requested then change it
+                    print_and_log(f"Auto-restart for IOC {ioc} is not {enable}")
                     self._proc.toggle_autorestart(ioc)
                     return
-                print_and_log(f"Auto-restart for IOC {ioc} unchanged as value has not changed")
+                print_and_log(f"Auto-restart for IOC {ioc} is already {curr}")
             else:
                 print_and_log(f"Auto-restart for IOC {ioc} unchanged as IOC is not running")
         except Exception as err:
