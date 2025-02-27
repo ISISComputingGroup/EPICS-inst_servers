@@ -6,3 +6,5 @@ parameterized
 PyHamcrest
 pytest
 pytest-cov
+ruff 
+pyright
