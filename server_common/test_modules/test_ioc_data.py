@@ -16,7 +16,6 @@
 
 import unittest
 
-from server_common.mocks.mock_procserv_utils import MockProcServWrapper
 from server_common.ioc_data import IOCData
 from server_common.mocks.mock_ioc_data_source import (
     BL_PVS,
@@ -28,6 +27,7 @@ from server_common.mocks.mock_ioc_data_source import (
     USER_PVS,
     MockIocDataSource,
 )
+from server_common.mocks.mock_procserv_utils import MockProcServWrapper
 
 
 class TestIocDataSequence(unittest.TestCase):

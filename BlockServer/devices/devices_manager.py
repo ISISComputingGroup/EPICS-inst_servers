@@ -87,7 +87,7 @@ class DevicesManager(OnTheFlyPvInterface):
                 self.update_monitors()
             except IOError as err:
                 print_and_log(
-                    f"Could not save device screens: {err} " f"The PV data will not be updated.",
+                    f"Could not save device screens: {err} The PV data will not be updated.",
                     "MINOR",
                 )
 

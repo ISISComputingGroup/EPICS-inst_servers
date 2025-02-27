@@ -16,11 +16,11 @@
 import unittest
 
 from BlockServer.config.configuration import Configuration
-from server_common.helpers import MACROS
 from BlockServer.mocks.mock_configuration import (
     MockConfigurationFileManager,
     MockConfigurationJsonConverter,
 )
+from server_common.helpers import MACROS
 
 # Args are : name, pv, group, local and visible
 NEW_BLOCK_ARGS = {

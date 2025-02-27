@@ -24,9 +24,9 @@ from BlockServer.core.config_list_manager_exceptions import InvalidDeleteExcepti
 from BlockServer.core.constants import DEFAULT_COMPONENT
 from BlockServer.core.file_path_manager import FILEPATH_MANAGER
 from BlockServer.core.inactive_config_holder import InactiveConfigHolder
-from server_common.helpers import MACROS
 from server_common.channel_access import ChannelAccess, verify_manager_mode
 from server_common.common_exceptions import MaxAttemptsExceededException
+from server_common.helpers import MACROS
 from server_common.pv_names import BlockserverPVNames
 from server_common.utilities import (
     compress_and_hex,
