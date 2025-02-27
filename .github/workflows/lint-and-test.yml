@@ -21,7 +21,7 @@ jobs:
         with:
           python-version: ${{ matrix.version }}
       - name: install requirements
-        run: pip install -r requirements.txt
+        run: pip install -r requirements-dev.txt
       - name: run tests (linux)
         run: python -m pytest . --cov
         if: startsWith(matrix.os,'ubuntu')
