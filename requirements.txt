@@ -12,13 +12,3 @@ pysnmp-lextudio==5.0.34
 snmpsim-lextudio==1.0.5
 pyasn1==0.6.0
 pysnmp-mibs
-
-# dev
-mock
-lxml-stubs
-coverage
-parameterized
-PyHamcrest
-pytest
-pytest-cov
-
