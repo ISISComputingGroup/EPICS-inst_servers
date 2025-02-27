@@ -15,3 +15,4 @@ tornado
 unittest_xml_reporting
 pytest
 pysnmp-lextudio==5.0.34
+snmpsim-lextudio==1.0.5
