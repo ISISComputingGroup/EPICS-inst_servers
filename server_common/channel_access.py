@@ -35,7 +35,7 @@ except ImportError:
         The system is unable to connect to a PV for some reason.
         """
 
-        def __init__(self, pv_name, err):
+        def __init__(self, pv_name, err) -> None:
             super(UnableToConnectToPVException, self).__init__(
                 "Unable to connect to PV {0}: {1}".format(pv_name, err)
             )
@@ -45,7 +45,7 @@ except ImportError:
         PV exists but its value is unavailable to read.
         """
 
-        def __init__(self, pv_name):
+        def __init__(self, pv_name) -> None:
             super(ReadAccessException, self).__init__(
                 "Read access denied for PV {}".format(pv_name)
             )
@@ -125,7 +125,7 @@ class ChannelAccess(object):
     thread_pool = _create_caput_pool()
 
     @staticmethod
-    def wait_for_tasks():
+    def wait_for_tasks() -> None:
         """
         Wait for all requested tasks to complete, i.e. all caputs.
 
@@ -184,7 +184,7 @@ class ChannelAccess(object):
             # linux build to fail to load the entire class.
             set_pv_value = CaChannelWrapper.set_pv_value
 
-        def _put_value():
+        def _put_value() -> None:
             set_pv_value(name, value, wait, safe_not_quick=safe_not_quick)
 
         if wait:
@@ -197,7 +197,7 @@ class ChannelAccess(object):
             return ChannelAccess.thread_pool.submit(_put_value)
 
     @staticmethod
-    def caput_retry_on_fail(pv_name, value, retry_count=5, safe_not_quick=True):
+    def caput_retry_on_fail(pv_name, value, retry_count=5, safe_not_quick=True) -> None:
         """
         Write to a pv and check the value is set, retry if not; raise if run out of retries
         Args:
@@ -240,7 +240,7 @@ class ChannelAccess(object):
         return CaChannelWrapper.pv_exists(name, timeout)
 
     @staticmethod
-    def add_monitor(name, call_back_function):
+    def add_monitor(name, call_back_function) -> None:
         """
         Add a callback to a pv which responds on a monitor (i.e. value change). This currently only tested for
         numbers.
@@ -253,7 +253,7 @@ class ChannelAccess(object):
         CaChannelWrapper.add_monitor(name, call_back_function)
 
     @staticmethod
-    def poll():
+    def poll() -> None:
         """
         Flush the send buffer and execute any outstanding background activity for all connected pvs.
         NB Connected pv is one which is in the cache
@@ -261,7 +261,7 @@ class ChannelAccess(object):
         CaChannelWrapper.poll()
 
     @staticmethod
-    def clear_monitor(name):
+    def clear_monitor(name) -> None:
         """
         Clears the monitor on a pv if it exists
         """
@@ -276,13 +276,13 @@ class ManagerModeRequiredException(Exception):
     Exception to be thrown if manager mode was required, but not enabled, for an operation.
     """
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         super(ManagerModeRequiredException, self).__init__(*args, **kwargs)
 
 
 def verify_manager_mode(
     channel_access=ChannelAccess(), message="Operation must be performed in manager mode"
-):
+) -> None:
     """
     Verifies that manager mode is active, throwing an error if it was not active.
 

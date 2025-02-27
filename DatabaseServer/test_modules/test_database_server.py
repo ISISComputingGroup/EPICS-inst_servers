@@ -28,12 +28,12 @@ import unittest
 
 from DatabaseServer.database_server import DatabaseServer
 from DatabaseServer.mocks.mock_exp_data import MockExpData
-from server_common.mocks.mock_procserv_utils import MockProcServWrapper
 from server_common.constants import IS_LINUX
 from server_common.ioc_data import IOCData
 from server_common.loggers.logger import Logger
 from server_common.mocks.mock_ca_server import MockCAServer
 from server_common.mocks.mock_ioc_data_source import IOCS, MockIocDataSource
+from server_common.mocks.mock_procserv_utils import MockProcServWrapper
 from server_common.pv_names import DatabasePVNames
 from server_common.test_modules.test_ioc_data import (
     FACILITY_PV_NAMES,

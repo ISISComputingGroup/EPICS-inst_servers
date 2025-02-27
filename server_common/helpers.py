@@ -9,7 +9,7 @@ from server_common.ioc_data_source import IocDataSource
 from server_common.utilities import SEVERITY, print_and_log
 
 
-def register_ioc_start(ioc_name, pv_database=None, prefix=None):
+def register_ioc_start(ioc_name, pv_database=None, prefix=None) -> None:
     """
     A helper function to register the start of an ioc.
     Args:

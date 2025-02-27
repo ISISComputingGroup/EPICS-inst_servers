@@ -117,7 +117,7 @@ initial_dbs = {
 class BlockServer(Driver):
     """The class for handling all the static PV access and monitors etc."""
 
-    def __init__(self, ca_server):
+    def __init__(self, ca_server) -> None:
         """Constructor.
 
         Args:
@@ -215,7 +215,7 @@ class BlockServer(Driver):
         )
         self._component_switcher.create_monitors()
 
-    def initialise_configserver(self, facility):
+    def initialise_configserver(self, facility) -> None:
         """Initialises the ActiveConfigHolder.
 
         Args:
@@ -384,7 +384,7 @@ class BlockServer(Driver):
             self.setParam(reason, value)
         return status
 
-    def load_last_config(self):
+    def load_last_config(self) -> None:
         """Loads the last configuration used.
 
         The information is saved in a text file.
@@ -397,7 +397,7 @@ class BlockServer(Driver):
             print_and_log("Loaded last configuration: %s" % last)
         self._initialise_config()
 
-    def _set_curr_config(self, details):
+    def _set_curr_config(self, details) -> None:
         """Sets the current configuration details to that defined in the JSON, saves to disk,
         then re-initialises the current configuration.
 
@@ -419,7 +419,7 @@ class BlockServer(Driver):
 
         self.save_config(details)
 
-    def _initialise_config(self, full_init=False):
+    def _initialise_config(self, full_init=False) -> None:
         """Responsible for initialising the configuration.
         Sets all the monitors, initialises the gateway, etc.
 
@@ -476,7 +476,7 @@ class BlockServer(Driver):
         self.server.set_config(convert_to_json(self._active_configserver.get_config_details()))
         self.write_queue.put((self.set_config_block_values, (), "LOADING_BLOCK_SETS"))
 
-    def _start_config_iocs(self, iocs_to_start, iocs_to_restart):
+    def _start_config_iocs(self, iocs_to_start, iocs_to_restart) -> None:
         # Start the IOCs, if they are available and if they are flagged for autostart
         # Note: autostart means the IOC is started when the config is loaded,
         # restart means the IOC should automatically restart if it stops for some reason (e.g. it crashes)
@@ -511,7 +511,7 @@ class BlockServer(Driver):
             ]
         )
 
-    def load_config(self, config, full_init=True):
+    def load_config(self, config, full_init=True) -> None:
         """Load a configuration.
 
         Args:
@@ -527,7 +527,7 @@ class BlockServer(Driver):
             print_and_log(f"Exception while loading configuration '{config}': {err}", "MAJOR")
             traceback.print_exc()
 
-    def reload_current_config(self):
+    def reload_current_config(self) -> None:
         """Reload the current configuration."""
         try:
             print_and_log("Reloading current configuration")
@@ -539,7 +539,7 @@ class BlockServer(Driver):
             )
             traceback.print_exc()
 
-    def save_config(self, json_data, as_comp=False):
+    def save_config(self, json_data, as_comp=False) -> None:
         """Save a configuration.
 
         Args:
@@ -622,7 +622,7 @@ class BlockServer(Driver):
     def _get_timestamp(self):
         return datetime.datetime.strftime(datetime.datetime.now(), "%Y-%m-%d %H:%M:%S")
 
-    def update_blocks_monitors(self):
+    def update_blocks_monitors(self) -> None:
         """Updates the PV monitors for the blocks and groups, so the clients can see any changes."""
         with self.monitor_lock:
             block_names = convert_to_json(self._active_configserver.get_blocknames())
@@ -635,7 +635,7 @@ class BlockServer(Driver):
 
             self.updatePVs()
 
-    def update_server_status(self, status=""):
+    def update_server_status(self, status="") -> None:
         """Updates the monitor for the server status, so the clients can see any changes.
 
         Args:
@@ -649,7 +649,7 @@ class BlockServer(Driver):
                 )
                 self.updatePVs()
 
-    def update_get_details_monitors(self):
+    def update_get_details_monitors(self) -> None:
         """Updates the monitor for the active configuration, so the clients can see any changes."""
         with self.monitor_lock:
             config_details_json = convert_to_json(self._active_configserver.get_config_details())
@@ -658,7 +658,7 @@ class BlockServer(Driver):
             )
             self.updatePVs()
 
-    def update_wd_details_monitors(self):
+    def update_wd_details_monitors(self) -> None:
         """Updates the monitor for the active configuration, so the web dashboard can see any changes."""
         with self.monitor_lock:
             config_details_json = convert_to_json(
@@ -671,7 +671,7 @@ class BlockServer(Driver):
             self.setParam(BlockserverPVNames.WD_CONF_DETAILS, compress_and_hex(config_details_json))
             self.updatePVs()
 
-    def update_curr_config_name_monitors(self):
+    def update_curr_config_name_monitors(self) -> None:
         """Updates the monitor for the active configuration name, so the clients can see any changes."""
         with self.monitor_lock:
             self.setParam(
@@ -680,7 +680,7 @@ class BlockServer(Driver):
             self.setParam(BlockserverPVNames.CURR_CONFIG_NAME_SEVR, CURR_CONFIG_NAME_SEVR_VALUE)
             self.updatePVs()
 
-    def consume_write_queue(self):
+    def consume_write_queue(self) -> None:
         """Actions any requests on the write queue.
 
         Queue items are tuples with three values:
@@ -713,7 +713,7 @@ class BlockServer(Driver):
         temp_config = InactiveConfigHolder(MACROS, ConfigurationFileManager())
         return temp_config.get_config_details()
 
-    def start_iocs(self, iocs):
+    def start_iocs(self, iocs) -> None:
         # If the IOC is in the config and auto-restart is set to true then
         # reapply the auto-restart setting after starting.
         # This is because stopping an IOC via procServ turns auto-restart off.
@@ -739,7 +739,7 @@ class BlockServer(Driver):
         return name in manager.pvs[self.port]
 
     # Code for handling block-sets
-    def set_config_block_values(self):
+    def set_config_block_values(self) -> None:
         blocks = {
             block_details
             for block_details in self._active_configserver.get_block_details().values()
@@ -765,7 +765,7 @@ class BlockServer(Driver):
             else:
                 ChannelAccess.caput(pv, block_details.set_block_val)
 
-    def delete_pv_from_db(self, name):
+    def delete_pv_from_db(self, name) -> None:
         if name in manager.pvs[self.port]:
             print_and_log(f"Removing PV {name}")
             fullname = manager.pvs[self.port][name].name
@@ -773,7 +773,7 @@ class BlockServer(Driver):
             del manager.pvf[fullname]
             del self.pvDB[name]
 
-    def add_string_pv_to_db(self, name, count=1000):
+    def add_string_pv_to_db(self, name, count=1000) -> None:
         # Check name not already in PVDB and that a PV does not already exist
         if name not in manager.pvs[self.port]:
             try:

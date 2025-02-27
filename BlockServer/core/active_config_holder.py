@@ -26,7 +26,7 @@ from server_common.helpers import CONTROL_SYSTEM_PREFIX, MACROS
 from server_common.utilities import print_and_log
 
 
-def _blocks_changed(block1, block2):
+def _blocks_changed(block1, block2) -> bool:
     """
     Compare two Block objects
 
@@ -48,7 +48,7 @@ def _blocks_changed(block1, block2):
     return False
 
 
-def _blocks_changed_in_config(old_config, new_config, block_comparator=_blocks_changed):
+def _blocks_changed_in_config(old_config, new_config, block_comparator=_blocks_changed) -> bool:
     """
     Given a new configuration/component and an old one, find out whether blocks have changed between them.
 
@@ -116,7 +116,7 @@ class ActiveConfigHolder(ConfigHolder):
     Class to serve up the active configuration.
     """
 
-    def __init__(self, macros, archive_manager, file_manager, ioc_control, config_dir):
+    def __init__(self, macros, archive_manager, file_manager, ioc_control, config_dir) -> None:
         """Constructor.
 
         Args:
@@ -130,7 +130,7 @@ class ActiveConfigHolder(ConfigHolder):
         self._ioc_control = ioc_control
         self._config_dir = config_dir
 
-    def save_active(self, name, as_comp=False):
+    def save_active(self, name, as_comp=False) -> None:
         """Save the active configuration.
 
         Args:
@@ -143,7 +143,7 @@ class ActiveConfigHolder(ConfigHolder):
             self.save_configuration(name, False)
             self.set_last_config(name)
 
-    def load_active(self, name):
+    def load_active(self, name) -> None:
         """Load a configuration as the active configuration.
         Cannot load a component as the active configuration.
 
@@ -153,7 +153,7 @@ class ActiveConfigHolder(ConfigHolder):
         self.set_config(self.load_configuration(name))
         self.set_last_config(name)
 
-    def update_archiver(self, full_init=False):
+    def update_archiver(self, full_init=False) -> None:
         """Update the archiver configuration.
 
         Args:
@@ -167,7 +167,7 @@ class ActiveConfigHolder(ConfigHolder):
                 os.path.join(self._config_dir, "configurations", self.get_config_name()),
             )
 
-    def set_last_config(self, config_name):
+    def set_last_config(self, config_name) -> None:
         """Save the last configuration used to file.
 
         The last configuration is saved without any file path.
@@ -207,7 +207,7 @@ class ActiveConfigHolder(ConfigHolder):
         self.load_active(last_config_name)
         return last_config_name
 
-    def reload_current_config(self):
+    def reload_current_config(self) -> None:
         """Reload the current configuration."""
         current_config_name = self.get_config_name()
         if current_config_name == "":
@@ -294,7 +294,7 @@ class ActiveConfigHolder(ConfigHolder):
         """
         return _blocks_changed_in_config(self._cached_config, self._config)
 
-    def _blocks_in_components_changed(self):
+    def _blocks_in_components_changed(self) -> bool:
         """
         Checks whether blocks that appear in both the old and the new components have changed.
 
@@ -317,7 +317,7 @@ class ActiveConfigHolder(ConfigHolder):
         return any(name not in self._config.blocks for name in self._cached_config.blocks)
 
     @staticmethod
-    def _check_for_added_blocks(old_components, new_components):
+    def _check_for_added_blocks(old_components, new_components) -> bool:
         """
         Checks whether there are any new blocks when moving between two sets of components.
 

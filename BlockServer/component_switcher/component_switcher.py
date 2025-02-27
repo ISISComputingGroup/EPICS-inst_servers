@@ -14,7 +14,7 @@ from server_common.utilities import SEVERITY
 from server_common.utilities import print_and_log as _common_print_and_log
 
 
-def print_and_log(message: str, *args, **kwargs):
+def print_and_log(message: str, *args, **kwargs) -> None:
     _common_print_and_log(f"ComponentSwitcher: {message}", *args, **kwargs)
 
 
@@ -47,7 +47,7 @@ class ComponentSwitcher(object):
         reload_current_config_func: types.FunctionType,
         file_manager: ComponentSwitcherConfigFileManager = None,
         channel_access_class: Type[ChannelAccess] = None,
-    ):
+    ) -> None:
         self._config_list = config_list
         self._blockserver_write_queue = blockserver_write_queue
         self._reload_current_config = reload_current_config_func
@@ -90,7 +90,7 @@ class ComponentSwitcher(object):
 
             print_and_log("Adding monitor to PV {}".format(pv))
 
-            def callback(val: Any, stat: int, sevr: int):
+            def callback(val: Any, stat: int, sevr: int) -> None:
                 """
                 Callback function called when the monitored PV changes.
 

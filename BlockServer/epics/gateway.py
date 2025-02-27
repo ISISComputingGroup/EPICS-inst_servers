@@ -91,7 +91,7 @@ class Gateway:
         pvlist_file,
         block_prefix,
         control_sys_prefix=CONTROL_SYSTEM_PREFIX,
-    ):
+    ) -> None:
         """Constructor.
 
         Args:
@@ -115,7 +115,7 @@ class Gateway:
         """
         return ChannelAccess.caget(self._gateway_prefix + "pvtotal") is not None
 
-    def _reload(self):
+    def _reload(self) -> None:
         print_and_log("Reloading gateway")
         try:
             # Have to wait after put as the gateway does not do completion callbacks (it is not an IOC)
@@ -127,7 +127,7 @@ class Gateway:
         except Exception as err:
             print_and_log(f"Problem with reloading the gateway {err}")
 
-    def _generate_alias_file(self, blocks=None):
+    def _generate_alias_file(self, blocks=None) -> None:
         # Generate blocks.pvlist for gateway
         with open(self._pvlist_file, "w") as f:
             header = ALIAS_HEADER.format(self._inst_prefix)
@@ -168,7 +168,7 @@ class Gateway:
         lines.append("")  # New line to seperate out each block
         return lines
 
-    def set_new_aliases(self, blocks, configures_block_gateway, config_dir):
+    def set_new_aliases(self, blocks, configures_block_gateway, config_dir) -> None:
         """Creates the aliases for the blocks and restarts the gateway.
 
         Args:
