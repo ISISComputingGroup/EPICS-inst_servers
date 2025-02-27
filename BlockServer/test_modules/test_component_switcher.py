@@ -100,14 +100,14 @@ class TestComponentSwitcher(unittest.TestCase):
         self.assertEqual(MockChannelAccess.MONITORS[0][0], "first")
         self.assertEqual(MockChannelAccess.MONITORS[1][0], "second")
 
-    @mock.patch.dict("BlockServer.core.macros.MACROS", {PVPREFIX_MACRO: "some_prefix:"})
+    @mock.patch.dict("server_common.helpers.MACROS", {PVPREFIX_MACRO: "some_prefix:"})
     def test_GIVEN_local_pv_monitored_THEN_monitored_pv_has_local_prefix_appended(self):
         self.file_manager.config = [{"pv": "first", "is_local": True, "value_to_component_map": {}}]
 
         self.component_switcher.create_monitors()
         self.assertEqual(MockChannelAccess.MONITORS[0][0], "some_prefix:first")
 
-    @mock.patch.dict("BlockServer.core.macros.MACROS", {PVPREFIX_MACRO: "some_prefix:"})
+    @mock.patch.dict("server_common.helpers.MACROS", {PVPREFIX_MACRO: "some_prefix:"})
     def test_GIVEN_non_local_pv_monitored_THEN_monitored_pv_does_not_have_local_prefix_appended(
         self,
     ):

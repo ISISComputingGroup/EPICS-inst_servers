@@ -16,7 +16,7 @@
 import unittest
 
 from BlockServer.config.configuration import Configuration
-from BlockServer.core.macros import MACROS
+from server_common.helpers import MACROS
 from BlockServer.mocks.mock_configuration import (
     MockConfigurationFileManager,
     MockConfigurationJsonConverter,

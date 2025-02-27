@@ -22,7 +22,7 @@ from BlockServer.config.configuration import Configuration
 from BlockServer.config.xml_converter import ConfigurationXmlConverter
 from BlockServer.core.file_path_manager import FILEPATH_MANAGER
 from BlockServer.core.inactive_config_holder import InactiveConfigHolder
-from BlockServer.core.macros import MACROS
+from server_common.helpers import MACROS
 from BlockServer.fileIO.schema_checker import (
     ConfigurationInvalidUnderSchema,
     ConfigurationSchemaChecker,

@@ -30,7 +30,7 @@ from BlockServer.core.active_config_holder import (
     _blocks_changed_in_config,
     _compare_ioc_properties,
 )
-from BlockServer.core.macros import MACROS
+from server_common.helpers import MACROS
 from BlockServer.mocks.mock_file_manager import MockConfigurationFileManager
 from BlockServer.mocks.mock_ioc_control import MockIocControl
 from BlockServer.test_modules.helpers import modify_active

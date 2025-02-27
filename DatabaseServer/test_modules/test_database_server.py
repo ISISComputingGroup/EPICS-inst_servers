@@ -28,7 +28,7 @@ import unittest
 
 from DatabaseServer.database_server import DatabaseServer
 from DatabaseServer.mocks.mock_exp_data import MockExpData
-from DatabaseServer.mocks.mock_procserv_utils import MockProcServWrapper
+from server_common.mocks.mock_procserv_utils import MockProcServWrapper
 from server_common.constants import IS_LINUX
 from server_common.ioc_data import IOCData
 from server_common.loggers.logger import Logger

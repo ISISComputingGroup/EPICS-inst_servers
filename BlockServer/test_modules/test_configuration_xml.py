@@ -25,7 +25,7 @@ from BlockServer.config.group import Group
 from BlockServer.config.ioc import IOC
 from BlockServer.config.metadata import MetaData
 from BlockServer.config.xml_converter import ConfigurationXmlConverter
-from BlockServer.core.macros import MACROS
+from server_common.helpers import MACROS
 
 BLOCKS_XML = """
 <?xml version="1.0" ?>

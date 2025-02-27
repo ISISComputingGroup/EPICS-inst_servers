@@ -19,7 +19,7 @@ import re
 import time
 from shutil import copyfile
 
-from BlockServer.core.macros import CONTROL_SYSTEM_PREFIX
+from server_common.helpers import CONTROL_SYSTEM_PREFIX
 from server_common.channel_access import ChannelAccess
 from server_common.utilities import print_and_log
 

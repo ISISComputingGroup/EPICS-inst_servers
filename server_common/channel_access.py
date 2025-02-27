@@ -17,7 +17,7 @@ from concurrent.futures import ThreadPoolExecutor
 # along with this program; if not, you can obtain a copy from
 # https://www.eclipse.org/org/documents/epl-v10.php or
 # http://opensource.org/licenses/eclipse-1.0.php
-from BlockServer.core.macros import MACROS
+from server_common.helpers import MACROS
 from server_common.utilities import print_and_log
 
 # Number of threads to serve caputs

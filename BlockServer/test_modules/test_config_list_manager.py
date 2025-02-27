@@ -22,7 +22,7 @@ from BlockServer.core.active_config_holder import ActiveConfigHolder
 from BlockServer.core.config_list_manager import ConfigListManager, InvalidDeleteException
 from BlockServer.core.constants import DEFAULT_COMPONENT
 from BlockServer.core.inactive_config_holder import InactiveConfigHolder
-from BlockServer.core.macros import MACROS
+from server_common.helpers import MACROS
 from BlockServer.epics.archiver_manager import ArchiverManager
 from BlockServer.mocks.mock_archiver_wrapper import MockArchiverWrapper
 from BlockServer.mocks.mock_block_server import MockBlockServer

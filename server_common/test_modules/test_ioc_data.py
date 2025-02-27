@@ -16,7 +16,7 @@
 
 import unittest
 
-from DatabaseServer.mocks.mock_procserv_utils import MockProcServWrapper
+from server_common.mocks.mock_procserv_utils import MockProcServWrapper
 from server_common.ioc_data import IOCData
 from server_common.mocks.mock_ioc_data_source import (
     BL_PVS,

@@ -22,7 +22,7 @@ from BlockServer.config.configuration import Configuration
 from BlockServer.core.config_holder import ConfigHolder
 from BlockServer.core.constants import DEFAULT_COMPONENT
 from BlockServer.core.inactive_config_holder import InactiveConfigHolder
-from BlockServer.core.macros import MACROS
+from server_common.helpers import MACROS
 from BlockServer.mocks.mock_file_manager import MockConfigurationFileManager
 
 CONFIG_PATH = "./test_configs/"
