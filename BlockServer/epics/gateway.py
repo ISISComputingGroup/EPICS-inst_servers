@@ -19,8 +19,8 @@ import re
 import time
 from shutil import copyfile
 
-from server_common.helpers import CONTROL_SYSTEM_PREFIX
 from server_common.channel_access import ChannelAccess
+from server_common.helpers import CONTROL_SYSTEM_PREFIX
 from server_common.utilities import print_and_log
 
 ALIAS_HEADER = """\
@@ -65,7 +65,7 @@ def build_block_alias_lines(full_block_pv, pv_suffix, underlying_pv, include_com
 
         # Pattern match is for picking up any extras like :RBV or .EGU
         lines.append(
-            f'{full_block_pv}\\([.:].*\\)    ALIAS    {underlying_pv.replace(pv_suffix, "")}\\1'
+            f"{full_block_pv}\\([.:].*\\)    ALIAS    {underlying_pv.replace(pv_suffix, '')}\\1"
         )
         lines.append(f"{full_block_pv}[.]VAL    ALIAS    {underlying_pv}")
     else:
