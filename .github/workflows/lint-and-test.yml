@@ -22,9 +22,9 @@ jobs:
       - name: install requirements
         run: pip install -r requirements.txt
       - name: run tests (linux)
-        run: python -m pytest . 
+        run: python -m pytest . --cov
         if: startsWith(matrix.os,'ubuntu')
       - name: run tests (windows)
-        run: python -m pytest . 
+        run: python -m pytest . --cov
         if: startsWith(matrix.os,'windows')
  
