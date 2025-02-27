@@ -10,3 +10,5 @@ Contains:
 1. [Reflectometry Server](https://github.com/ISISComputingGroup/ibex_developers_manual/wiki/Reflectometers)
 
 For more details see the [developer wiki](https://github.com/ISISComputingGroup/ibex_developers_manual/wiki//System-components)
+
+To run tests use `pytest .`
