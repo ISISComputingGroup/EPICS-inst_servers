@@ -384,7 +384,7 @@ class ActiveConfigHolder(ConfigHolder):
             or self._removed_components_containing_blocks()
         )
 
-    def contains_rc_settings(self) -> str:
+    def contains_rc_settings(self) -> bool:
         return os.path.exists(self.get_rc_settings_filepath())
 
     def get_rc_settings_filepath(self) -> str:
