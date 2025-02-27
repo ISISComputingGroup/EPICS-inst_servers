@@ -7,6 +7,7 @@ jobs:
       compare-branch: origin/master
       runs-on: windows-latest
       python-ver: '3.11'
+      requirements-path: requirements-dev.txt
   tests:
     runs-on: ${{ matrix.os }}
     strategy:
