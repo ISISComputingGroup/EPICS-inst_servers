@@ -22,7 +22,7 @@ from server_common.utilities import print_and_log
 
 
 def validate(schema_file, xml_file):
-    print "\nTrying to valid %s using %s" % (schema_file, xml_file)
+    print("\nTrying to valid %s using %s" % (schema_file, xml_file))
     try:
         # Import the schema file (must move to path for includes)
         cur = os.getcwd()
@@ -36,10 +36,10 @@ def validate(schema_file, xml_file):
         with open(xml_file, 'r') as f:
             str = f.read()
         etree.fromstring(str, xmlparser)
-        print "Successfully validated"
+        print("Successfully validated")
     except Exception as err:
-        print "Failed to validate"
-        print err
+        print("Failed to validate")
+        print(err)
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
