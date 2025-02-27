@@ -21,7 +21,6 @@ from mock import MagicMock, patch
 from BlockServerToKafka.block_server_monitor import BlockServerMonitor
 
 
-
 class TestBlockServerMonitor(unittest.TestCase):
     test_address = "TEST_ADDRESS"
     test_prefix = "TEST_PREFIX"
@@ -79,14 +78,12 @@ class TestBlockServerMonitor(unittest.TestCase):
         arr = [0] * 10
         self.assertEqual("", self.bs_monitor.convert_to_string(bytearray(arr)))
 
-    def test_GIVEN_no_previous_pvs_WHEN_update_config_called_THEN_producer_is_called(
-        self
-    ):
+    def test_GIVEN_no_previous_pvs_WHEN_update_config_called_THEN_producer_is_called(self):
         self.bs_monitor.update_config(["BLOCK"])
         self.mock_producer.add_config.assert_called_once()
 
     def test_GIVEN_no_previous_pvs_WHEN_update_config_called_THEN_producer_is_called_containing_block_name(
-        self
+        self,
     ):
         block = "BLOCK"
         self.bs_monitor.update_config([block])
@@ -95,7 +92,7 @@ class TestBlockServerMonitor(unittest.TestCase):
         )
 
     def test_GIVEN_previous_pvs_WHEN_update_config_called_with_same_pvs_THEN_producer_is_not_called(
-        self
+        self,
     ):
         block = "BLOCK"
         self.bs_monitor.update_config([block])
@@ -103,7 +100,7 @@ class TestBlockServerMonitor(unittest.TestCase):
         self.mock_producer.add_config.assert_called_once()
 
     def test_GIVEN_previous_pvs_WHEN_update_config_called_with_different_pvs_THEN_producer_is_called(
-        self
+        self,
     ):
         self.bs_monitor.update_config(["OLD_BLOCK"])
         self.mock_producer.reset_mock()
