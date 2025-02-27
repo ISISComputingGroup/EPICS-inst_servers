@@ -21,8 +21,8 @@ from collections import OrderedDict
 from datetime import datetime
 from shutil import copyfile
 from time import sleep
+from typing import TYPE_CHECKING
 
-from block_server import BlockServer
 from BlockServer.config.block import Block
 from BlockServer.core.active_config_holder import ActiveConfigHolder
 from BlockServer.core.constants import (
@@ -42,6 +42,9 @@ from server_common.utilities import (
     ioc_restart_pending,
     print_and_log,
 )
+
+if TYPE_CHECKING:
+    from block_server import BlockServer
 
 TAG_RC_DICT = {
     "LOW": TAG_RC_LOW,
@@ -91,7 +94,7 @@ class RunControlManager(OnTheFlyPvInterface):
         var_dir: str,
         ioc_control: IocControl,
         active_configholder: ActiveConfigHolder,
-        block_server: BlockServer,
+        block_server: "BlockServer",
         channel_access: ChannelAccess = ChannelAccess(),
     ) -> None:
         """
