@@ -39,6 +39,12 @@ def set_env() -> None:
     print(epics_ca_addr_list + " = " + str(os.environ.get(epics_ca_addr_list)))
 
 
+TS1 = "TS1"
+TS2 = "TS2"
+MUON_TARGET = "MUON"
+MISC = "MISC"
+
+
 class Instrument(TypedDict):
     name: str
     hostName: str
@@ -46,6 +52,7 @@ class Instrument(TypedDict):
     isScheduled: bool
     groups: list[str]
     seci: Literal[False]
+    targetStation: str
 
 
 def inst_dictionary(
@@ -55,6 +62,7 @@ def inst_dictionary(
     pv_prefix: str | None = None,
     is_scheduled: bool = True,
     groups: list[str] | None = None,
+    target_station: str = MISC,
 ) -> Instrument:
     """
     Generate the instrument dictionary for the instrument list
@@ -66,6 +74,7 @@ def inst_dictionary(
         is_scheduled: whether the instrument has scheduled users,
           and so should have user details written to it;
         groups: which science groups (e.g. SANS, MUONS) this instrument is in.
+        target_station: the target station or "MISC" if no target station
 
     Returns: dictionary for instrument
 
@@ -91,6 +100,7 @@ def inst_dictionary(
         "isScheduled": is_scheduled,
         "groups": groups_to_use,
         "seci": False,
+        "targetStation": target_station,
     }
 
 
@@ -112,6 +122,16 @@ def set_instlist(instruments_list: list[Instrument], pv_address: str) -> None:
         print("Success! Updated value for {0}".format(pv_address))
 
 
+MUONS = "MUONS"
+EXCITATIONS = "EXCITATIONS"
+SANS = "SANS"
+ENGINEERING = "ENGINEERING"
+MOLSPEC = "MOLSPEC"
+CRYSTALLOGRAPHY = "CRYSTALLOGRAPHY"
+SUPPORT = "SUPPORT"
+DISORDERED = "DISORDERED"
+REFLECTOMETRY = "REFLECTOMETRY"
+
 if __name__ == "__main__":
     set_env()
 
@@ -123,80 +143,115 @@ if __name__ == "__main__":
     # instrument list values to set (uses utility to return the dictionary,
     # but you can use a dictionary directly)
     instruments_list = [
-        inst_dictionary("ARGUS", groups=["MUONS"]),
-        inst_dictionary("CHRONUS", groups=["MUONS"]),
-        inst_dictionary("HIFI", groups=["MUONS"]),
-        inst_dictionary("CHIPIR"),
+        inst_dictionary("ARGUS", groups=[MUONS], target_station=MUON_TARGET),
+        inst_dictionary("CHRONUS", groups=[MUONS], target_station=MUON_TARGET),
+        inst_dictionary("HIFI", groups=[MUONS], target_station=MUON_TARGET),
+        inst_dictionary("CHIPIR", groups=[EXCITATIONS], target_station=TS2),
         inst_dictionary(
-            "CRYOLAB_R80", groups=["SUPPORT"], pv_prefix="IN:CRYOLA7E:", is_scheduled=False
+            "CRYOLAB_R80",
+            groups=[SUPPORT],
+            pv_prefix="IN:CRYOLA7E:",
+            is_scheduled=False,
+            target_station=MISC,
         ),
-        inst_dictionary("DCLAB", groups=["SUPPORT"], is_scheduled=False),
-        inst_dictionary("LARMOR", groups=["SANS"]),
-        inst_dictionary("ALF", groups=["EXCITATIONS"]),
-        inst_dictionary("DEMO", groups=[], is_scheduled=False),
-        inst_dictionary("IMAT", groups=["ENGINEERING"]),
-        inst_dictionary("MUONFE", groups=["MUONS"], is_scheduled=False),
-        inst_dictionary("ZOOM", groups=["SANS"]),
-        inst_dictionary("IRIS", groups=["MOLSPEC"]),
+        inst_dictionary("DCLAB", groups=[SUPPORT], is_scheduled=False, target_station=MISC),
+        inst_dictionary("LARMOR", groups=[SANS], target_station=TS2),
+        inst_dictionary("ALF", groups=[EXCITATIONS], target_station=TS1),
+        inst_dictionary("DEMO", groups=[], is_scheduled=False, target_station=MISC),
+        inst_dictionary("IMAT", groups=[ENGINEERING], target_station=TS2),
+        inst_dictionary("MUONFE", groups=[MUONS], is_scheduled=False, target_station=MUON_TARGET),
+        inst_dictionary("ZOOM", groups=[SANS], target_station=TS2),
+        inst_dictionary("IRIS", groups=[MOLSPEC], target_station=TS1),
         inst_dictionary(
-            "IRIS_SETUP", groups=["MOLSPEC"], pv_prefix="IN:IRIS_S29:", is_scheduled=False
+            "IRIS_SETUP",
+            groups=[MOLSPEC],
+            pv_prefix="IN:IRIS_S29:",
+            is_scheduled=False,
+            target_station=TS1,
         ),
         inst_dictionary(
-            "ENGINX_SETUP", groups=["ENGINEERING"], pv_prefix="IN:ENGINX49:", is_scheduled=False
+            "ENGINX_SETUP",
+            groups=[ENGINEERING],
+            pv_prefix="IN:ENGINX49:",
+            is_scheduled=False,
+            target_station=TS1,
         ),
         inst_dictionary(
-            "HRPD_SETUP", groups=["CRYSTALLOGRAPHY"], pv_prefix="IN:HRPD_S3D:", is_scheduled=False
+            "HRPD_SETUP",
+            groups=[CRYSTALLOGRAPHY],
+            pv_prefix="IN:HRPD_S3D:",
+            is_scheduled=False,
+            target_station=TS1,
         ),
-        inst_dictionary("HRPD", groups=["CRYSTALLOGRAPHY"]),
-        inst_dictionary("POLARIS", groups=["CRYSTALLOGRAPHY"]),
-        inst_dictionary("VESUVIO", groups=["MOLSPEC"]),
-        inst_dictionary("ENGINX", groups=["ENGINEERING", "CRYSTALLOGRAPHY"]),
-        inst_dictionary("MERLIN", groups=["EXCITATIONS"]),
-        inst_dictionary("RIKENFE", groups=["MUONS"], is_scheduled=False),
-        inst_dictionary("SELAB", groups=["SUPPORT"], is_scheduled=False),
-        inst_dictionary("EMMA-A", groups=["SUPPORT"], is_scheduled=False),
-        inst_dictionary("SANDALS", groups=["DISORDERED"]),
-        inst_dictionary("GEM", groups=["DISORDERED", "CRYSTALLOGRAPHY"]),
-        inst_dictionary("MAPS", groups=["EXCITATIONS"]),
-        inst_dictionary("OSIRIS", groups=["MOLSPEC"]),
-        inst_dictionary("INES", groups=["CRYSTALLOGRAPHY"]),
-        inst_dictionary("SXD", groups=["CRYSTALLOGRAPHY"]),
-        inst_dictionary("TOSCA", groups=["MOLSPEC"]),
-        inst_dictionary("LOQ", groups=["SANS"]),
-        inst_dictionary("LET", groups=["EXCITATIONS"]),
-        inst_dictionary("MARI", groups=["EXCITATIONS"]),
-        inst_dictionary("CRISP", groups=["REFLECTOMETRY"], is_scheduled=False),
-        inst_dictionary("SOFTMAT", groups=["SUPPORT"], is_scheduled=False),
-        inst_dictionary("SURF", groups=["REFLECTOMETRY"]),
-        inst_dictionary("NIMROD", groups=["DISORDERED"]),
+        inst_dictionary("HRPD", groups=[CRYSTALLOGRAPHY], target_station=TS1),
+        inst_dictionary("POLARIS", groups=[CRYSTALLOGRAPHY], target_station=TS1),
+        inst_dictionary("VESUVIO", groups=[MOLSPEC], target_station=TS1),
+        inst_dictionary("ENGINX", groups=[ENGINEERING, CRYSTALLOGRAPHY], target_station=TS1),
+        inst_dictionary("MERLIN", groups=[EXCITATIONS], target_station=TS1),
+        inst_dictionary("RIKENFE", groups=[MUONS], is_scheduled=False, target_station=MUON_TARGET),
+        inst_dictionary("SELAB", groups=[SUPPORT], is_scheduled=False, target_station=MISC),
+        inst_dictionary("EMMA-A", groups=[SUPPORT], is_scheduled=False, target_station=TS1),
+        inst_dictionary("EMMA-B", groups=[SUPPORT], is_scheduled=False, target_station=TS1),
+        inst_dictionary("SANDALS", groups=[DISORDERED], target_station=TS1),
+        inst_dictionary("GEM", groups=[DISORDERED, CRYSTALLOGRAPHY], target_station=TS1),
+        inst_dictionary("MAPS", groups=[EXCITATIONS], target_station=TS1),
+        inst_dictionary("OSIRIS", groups=[MOLSPEC], target_station=TS1),
+        inst_dictionary("INES", groups=[CRYSTALLOGRAPHY], target_station=TS1),
+        inst_dictionary("SXD", groups=[CRYSTALLOGRAPHY], target_station=TS1),
+        inst_dictionary("TOSCA", groups=[MOLSPEC], target_station=TS1),
+        inst_dictionary("LOQ", groups=[SANS], target_station=TS1),
+        inst_dictionary("LET", groups=[EXCITATIONS], target_station=TS2),
+        inst_dictionary("MARI", groups=[EXCITATIONS], target_station=TS1),
+        inst_dictionary("CRISP", groups=[REFLECTOMETRY], is_scheduled=False, target_station=TS1),
+        inst_dictionary("SOFTMAT", groups=[SUPPORT], is_scheduled=False, target_station=MISC),
+        inst_dictionary("SURF", groups=[REFLECTOMETRY], target_station=TS1),
+        inst_dictionary("NIMROD", groups=[DISORDERED], target_station=TS2),
         inst_dictionary(
             "DETMON",
-            groups=["SUPPORT"],
+            groups=[SUPPORT],
             hostname_prefix="NDA",
             is_scheduled=False,
             pv_prefix="TE:NDADETF1:",
+            target_station=MISC,
         ),
-        inst_dictionary("EMU", groups=["MUONS"]),
-        inst_dictionary("INTER", groups=["REFLECTOMETRY"]),
-        inst_dictionary("POLREF", groups=["REFLECTOMETRY"]),
-        inst_dictionary("SANS2D", groups=["SANS"]),
-        inst_dictionary("MUSR", groups=["MUONS"]),
-        inst_dictionary("WISH", groups=["CRYSTALLOGRAPHY"]),
+        inst_dictionary("EMU", groups=[MUONS], target_station=MUON_TARGET),
+        inst_dictionary("INTER", groups=[REFLECTOMETRY], target_station=TS2),
+        inst_dictionary("POLREF", groups=[REFLECTOMETRY], target_station=TS2),
+        inst_dictionary("SANS2D", groups=[SANS], target_station=TS2),
+        inst_dictionary("MUSR", groups=[MUONS], target_station=MUON_TARGET),
+        inst_dictionary("MUX", groups=[MUONS], target_station=MUON_TARGET),
+        inst_dictionary("WISH", groups=[CRYSTALLOGRAPHY], target_station=TS2),
         inst_dictionary(
-            "WISH_SETUP", groups=["CRYSTALLOGRAPHY"], pv_prefix="IN:WISH_S9C:", is_scheduled=False
+            "WISH_SETUP",
+            groups=[CRYSTALLOGRAPHY],
+            pv_prefix="IN:WISH_S9C:",
+            is_scheduled=False,
+            target_station=TS2,
         ),
-        inst_dictionary("PEARL", groups=["CRYSTALLOGRAPHY"]),
+        inst_dictionary("PEARL", groups=[CRYSTALLOGRAPHY], target_station=TS1),
         inst_dictionary(
-            "PEARL_SETUP", groups=["CRYSTALLOGRAPHY"], pv_prefix="IN:PEARL_5B:", is_scheduled=False
+            "PEARL_SETUP",
+            groups=[CRYSTALLOGRAPHY],
+            pv_prefix="IN:PEARL_5B:",
+            is_scheduled=False,
+            target_station=TS1,
         ),
         inst_dictionary(
-            "HIFI-CRYOMAG", groups=["MUONS"], pv_prefix="IN:HIFI-C11:", is_scheduled=False
+            "HIFI-CRYOMAG",
+            groups=[MUONS],
+            pv_prefix="IN:HIFI-C11:",
+            is_scheduled=False,
+            target_station=MUON_TARGET,
         ),
-        inst_dictionary("OFFSPEC", groups=["REFLECTOMETRY"]),
-        inst_dictionary("MOTION", groups=["SUPPORT"], is_scheduled=False),
-        inst_dictionary("SCIDEMO", groups=["SUPPORT"], is_scheduled=False),
+        inst_dictionary("OFFSPEC", groups=[REFLECTOMETRY], target_station=TS2),
+        inst_dictionary("MOTION", groups=[SUPPORT], is_scheduled=False, target_station=MISC),
+        inst_dictionary("SCIDEMO", groups=[SUPPORT], is_scheduled=False, target_station=MISC),
         inst_dictionary(
-            "IBEXGUITEST", groups=["SUPPORT"], pv_prefix="IN:IBEXGUAD:", is_scheduled=False
+            "IBEXGUITEST",
+            groups=[SUPPORT],
+            pv_prefix="IN:IBEXGUAD:",
+            is_scheduled=False,
+            target_station=MISC,
         ),
     ]
 
