@@ -123,7 +123,7 @@ class TestSchemaChecker(unittest.TestCase):
             ConfigurationSchemaChecker.check_xml_data_matches_schema(
                 os.path.join(self.schema_dir, "blocks.xsd"), xml
             )
-        except:
+        except:  # noqa: E722
             self.fail()
 
     def test_blocks_xml_does_not_match_schema_raises(self):
@@ -202,7 +202,7 @@ class TestSchemaChecker(unittest.TestCase):
             ConfigurationSchemaChecker.check_xml_data_matches_schema(
                 os.path.join(self.schema_dir, "meta.xsd"), xml
             )
-        except:
+        except:  # noqa: E722
             self.fail()
 
     def test_meta_xml_does_not_match_schema_raises(self):
@@ -230,7 +230,7 @@ class TestSchemaChecker(unittest.TestCase):
             ConfigurationSchemaChecker.check_xml_data_matches_schema(
                 os.path.join(self.schema_dir, "components.xsd"), xml
             )
-        except:
+        except:  # noqa: E722
             self.fail()
 
     def test_components_xml_does_not_match_schema_raises(self):

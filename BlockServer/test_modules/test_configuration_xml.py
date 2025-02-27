@@ -197,12 +197,12 @@ def make_groups():
 
 def make_iocs():
     iocs = OrderedDict()
-    SIM_LEVELS = ["recsim", "devsim"]
+    sim_levels = ["recsim", "devsim"]
     for i in range(1, 3):
         iocs["TESTIOC" + str(i)] = IOC("TESTIOC" + str(i))
         iocs["TESTIOC" + str(i)].autostart = True
         iocs["TESTIOC" + str(i)].restart = False
-        iocs["TESTIOC" + str(i)].simlevel = SIM_LEVELS[i - 1]
+        iocs["TESTIOC" + str(i)].simlevel = sim_levels[i - 1]
         iocs["TESTIOC" + str(i)].macros["TESTIOC1MACRO"] = {"value": i}
         iocs["TESTIOC" + str(i)].macros["TESTIOC2MACRO"] = {"value": i}
         iocs["TESTIOC" + str(i)].pvs["TESTIOC1PV"] = {"value": i}

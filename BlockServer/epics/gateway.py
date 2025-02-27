@@ -38,10 +38,12 @@ ALIAS_FOOTER = r"""
 {0}CS:SB:[^:]*:[ADR]C:.*                     DENY
 ## ignore any request not related to local blocks or gateway itself
 !{0}CS:\(SB\|GATEWAY\):.*                    DENY
-"""
+"""  # noqa: E501
 
 
-def build_block_alias_lines(full_block_pv, pv_suffix, underlying_pv, include_comments=True):
+def build_block_alias_lines(
+    full_block_pv: str, pv_suffix: str, underlying_pv: str, include_comments: bool = True
+) -> list[str]:
     lines = list()
     if underlying_pv.endswith(":SP"):
         # The block points at a setpoint
@@ -59,8 +61,8 @@ def build_block_alias_lines(full_block_pv, pv_suffix, underlying_pv, include_com
         # The block points at a readback value (most likely for a motor)
         if include_comments:
             lines.append(
-                f"## The block points at a {pv_suffix} field, so it needs entries for both reading the field "
-                f"and for the rest"
+                f"## The block points at a {pv_suffix} field, so it needs entries for"
+                f" both reading the field and for the rest"
             )
 
         # Pattern match is for picking up any extras like :RBV or .EGU
@@ -82,24 +84,28 @@ def build_block_alias_lines(full_block_pv, pv_suffix, underlying_pv, include_com
 
 
 class Gateway:
-    """A class for interacting with the EPICS gateway that creates the aliases used for implementing blocks"""
+    """A class for interacting with the EPICS gateway that creates the aliases used
+    for implementing blocks"""
 
     def __init__(
         self,
-        gateway_prefix,
-        instrument_prefix,
-        pvlist_file,
-        block_prefix,
-        control_sys_prefix=CONTROL_SYSTEM_PREFIX,
+        gateway_prefix: str,
+        instrument_prefix: str,
+        pvlist_file: str,
+        block_prefix: str,
+        control_sys_prefix: str = CONTROL_SYSTEM_PREFIX,
     ) -> None:
         """Constructor.
 
         Args:
-            gateway_prefix (string): The full prefix for the gateway, including the instrument prefix etc.
+            gateway_prefix (string): The full prefix for the gateway, including the
+            instrument prefix etc.
             instrument_prefix (string): Prefix for instrument PVs
             pvlist_file (string): Where to write the gateway file
-            block_prefix (string): The prefix for information about a block, including the instrument_prefix etc.
-            control_sys_prefix (string): The prefix for the control system, including the instrument_prefix etc.
+            block_prefix (string): The prefix for information about a block, including
+             the instrument_prefix etc.
+            control_sys_prefix (string): The prefix for the control system, including
+             the instrument_prefix etc.
         """
         self._gateway_prefix = gateway_prefix
         self._block_prefix = block_prefix
@@ -107,7 +113,7 @@ class Gateway:
         self._inst_prefix = instrument_prefix
         self._control_sys_prefix = control_sys_prefix
 
-    def exists(self):
+    def exists(self) -> bool:
         """Checks the gateway exists by querying one of the PVs.
 
         Returns:
@@ -118,7 +124,8 @@ class Gateway:
     def _reload(self) -> None:
         print_and_log("Reloading gateway")
         try:
-            # Have to wait after put as the gateway does not do completion callbacks (it is not an IOC)
+            # Have to wait after put as the gateway does not do completion callbacks
+            # (it is not an IOC)
             ChannelAccess.caput(self._gateway_prefix + "newAsFlag", 1)
 
             while ChannelAccess.caget(self._gateway_prefix + "newAsFlag") == 1:
@@ -140,7 +147,7 @@ class Gateway:
             # Add a blank line at the end!
             f.write("\n")
 
-    def generate_alias(self, block_name, underlying_pv, local):
+    def generate_alias(self, block_name: str, underlying_pv: str, local: bool) -> list[str]:
         print_and_log(f"Creating block: {block_name} for {underlying_pv}")
 
         underlying_pv = underlying_pv.replace(".VAL", "")
@@ -168,14 +175,15 @@ class Gateway:
         lines.append("")  # New line to seperate out each block
         return lines
 
-    def set_new_aliases(self, blocks, configures_block_gateway, config_dir) -> None:
+    def set_new_aliases(self, blocks, configures_block_gateway: bool, config_dir: str) -> None:
         """Creates the aliases for the blocks and restarts the gateway.
 
         Args:
             blocks (OrderedDict): The blocks that belong to the configuration
-            configures_block_gateway (bool): If true indicates that the config contains a gwblock.pvlist to configure
-                the block gateway with.
-            config_dir (str): The directory the configuration we are loading the blocks for lives in.
+            configures_block_gateway (bool): If true indicates that the config contains a
+             gwblock.pvlist to configure the block gateway with.
+            config_dir (str): The directory the configuration we are loading the
+             blocks for lives in.
         """
         pvlist_file = os.path.join(config_dir, "gwblock.pvlist")
         if configures_block_gateway and os.path.exists(pvlist_file):

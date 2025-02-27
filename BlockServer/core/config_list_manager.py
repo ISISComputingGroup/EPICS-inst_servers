@@ -19,6 +19,7 @@ import os
 import traceback
 from functools import wraps
 from threading import RLock
+from typing import TYPE_CHECKING
 
 from BlockServer.core.config_list_manager_exceptions import InvalidDeleteException
 from BlockServer.core.constants import DEFAULT_COMPONENT
@@ -35,6 +36,10 @@ from server_common.utilities import (
     lowercase_and_make_unique,
     print_and_log,
 )
+
+if TYPE_CHECKING:
+    from block_server import BlockServer
+    from BlockServer.fileIO.file_manager import ConfigurationFileManager
 
 
 def needs_lock(func):
@@ -66,7 +71,8 @@ def update_monitors_when_finished(func):
 
 def deletion_context(func):
     """
-    Decorator which takes out the config manager lock, and updates monitors after decorated function has finished
+    Decorator which takes out the config manager lock,
+    and updates monitors after decorated function has finished
     """
     return needs_lock(update_monitors_when_finished(func))
 
@@ -79,7 +85,12 @@ class ConfigListManager:
         active_components (list): The names of the components in the active configuration
     """
 
-    def __init__(self, block_server, file_manager, channel_access=ChannelAccess()) -> None:
+    def __init__(
+        self,
+        block_server: "BlockServer",
+        file_manager: "ConfigurationFileManager",
+        channel_access: ChannelAccess = ChannelAccess(),
+    ) -> None:
         """Constructor.
 
         Args:
@@ -111,21 +122,22 @@ class ConfigListManager:
         self._bs.setParam(fullname, data)
         self._bs.updatePVs()
 
-    def _delete_pv(self, fullname) -> None:
+    def _delete_pv(self, fullname: str) -> None:
         self._bs.delete_pv_from_db(fullname)
 
-    def _get_config_names(self):
+    def _get_config_names(self) -> list:
         return self._get_file_list(os.path.abspath(self._conf_path))
 
-    def _get_component_names(self):
+    def _get_component_names(self) -> list:
         comp_list = self._get_file_list(os.path.abspath(self._comp_path))
         return [component_name for component_name in comp_list]
 
-    def _get_file_list(self, path):
+    def _get_file_list(self, path: str):
         return self.file_manager.get_files_in_directory(path)
 
     def get_configs(self):
-        """Returns all of the valid configurations, made up of those found on startup and those subsequently created.
+        """Returns all of the valid configurations,
+        made up of those found on startup and those subsequently created.
 
         Returns:
             list : A list of available configurations
@@ -136,7 +148,8 @@ class ConfigListManager:
         return configs_string
 
     def get_components(self):
-        """Returns all of the valid components, made up of those found on startup and those subsequently created.
+        """Returns all of the valid components,
+        made up of those found on startup and those subsequently created.
 
         Returns:
             list : A list of available components
@@ -175,7 +188,7 @@ class ConfigListManager:
                 print_and_log(f"Error in loading config: {err}", "MINOR")
                 print_and_log(traceback.format_exc())
 
-    def load_config(self, name, is_component=False):
+    def load_config(self, name: str, is_component: bool = False) -> InactiveConfigHolder:
         """Loads an inactive configuration or component.
 
         Args:
@@ -189,7 +202,7 @@ class ConfigListManager:
         config.load_inactive(name, is_component)
         return config
 
-    def _update_component_dependencies_pv(self, name) -> None:
+    def _update_component_dependencies_pv(self, name: str) -> None:
         # Updates PV with list of configs that depend on a component
         configs = []
         if name in self._comp_dependencies.keys():
@@ -210,7 +223,7 @@ class ConfigListManager:
         self._update_pv_value(pv_name, compress_and_hex(json.dumps(data)))
 
     @needs_lock
-    def update(self, config, is_component=False) -> None:
+    def update(self, config, is_component: bool = False) -> None:
         """Updates the PVs associated with a configuration
 
         Args:
@@ -237,7 +250,8 @@ class ConfigListManager:
 
     @update_monitors_when_finished
     def update_a_config_in_list(self, config, is_component=False) -> None:
-        """Takes a ConfigServerManager object and updates the list of meta data and the individual PVs.
+        """Takes a ConfigServerManager object and updates the list of meta data and
+        the individual PVs.
 
         Args:
             config (ConfigHolder): The configuration holder
@@ -284,8 +298,9 @@ class ConfigListManager:
                 self._comp_dependencies[comp.lower()].remove(config)
                 self._update_component_dependencies_pv(comp.lower())
 
-    def _get_pv_name(self, config_name, is_component=False):
-        """Returns the name of the pv corresponding to config_name, this name is generated if not already created."""
+    def _get_pv_name(self, config_name: str, is_component: bool = False) -> str:
+        """Returns the name of the pv corresponding to config_name,
+        this name is generated if not already created."""
         if not is_component:
             if config_name in self._config_metas:
                 pv_name = self._config_metas[config_name].pv
@@ -320,7 +335,7 @@ class ConfigListManager:
         for config in delete_list:
             self._delete_single_config(config)
 
-    def _delete_single_config(self, config) -> None:
+    def _delete_single_config(self, config: str) -> None:
         try:
             self.file_manager.delete(config, is_component=False)
         except MaxAttemptsExceededException:
@@ -337,7 +352,7 @@ class ConfigListManager:
         self._remove_config_from_dependencies(config)
 
     @deletion_context
-    def delete_components(self, delete_list) -> None:
+    def delete_components(self, delete_list: list[str]) -> None:
         """
         Deletes all components in supplied list
 
@@ -374,7 +389,7 @@ class ConfigListManager:
         for component in lower_delete_list:
             self._delete_single_component(component)
 
-    def _delete_single_component(self, component) -> None:
+    def _delete_single_component(self, component: str) -> None:
         """
         Deletes a single component
 
@@ -401,7 +416,7 @@ class ConfigListManager:
         del self.all_components[component]
 
     @needs_lock
-    def get_dependencies(self, comp_name):
+    def get_dependencies(self, comp_name: str) -> dict[str, list[str]]:
         """Get the names of any configurations that depend on this component.
 
         Args:

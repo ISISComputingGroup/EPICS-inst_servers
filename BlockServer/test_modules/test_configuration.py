@@ -103,7 +103,7 @@ class TestConfigurationSequence(unittest.TestCase):
         # assert
         try:
             cf.add_ioc(ioc_name)
-        except:
+        except:  # noqa: E722
             self.fail("Adding the same ioc twice raised Exception unexpectedly!")
 
     def test_get_blocks_names_returns_empty_list_when_no_blocks(self):

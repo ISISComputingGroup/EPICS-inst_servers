@@ -91,7 +91,7 @@ class DevicesManager(OnTheFlyPvInterface):
                     "MINOR",
                 )
 
-    def handle_pv_read(self, _) -> None:
+    def handle_pv_read(self, _: str) -> None:
         """
         Nothing to do as it is all handled by monitors
         """
@@ -125,7 +125,8 @@ class DevicesManager(OnTheFlyPvInterface):
         except (MaxAttemptsExceededException, IOError):
             self._data = self.get_blank_devices()
             print_and_log(
-                "Unable to load devices file. Please check the file is not in use by another process. "
+                "Unable to load devices file. "
+                "Please check the file is not in use by another process. "
                 "The PV data will default to a blank set of devices.",
                 "MINOR",
             )
@@ -181,7 +182,8 @@ class DevicesManager(OnTheFlyPvInterface):
             self._file_io.save_devices_file(self.get_devices_filename(), xml_data_as_bytes)
         except MaxAttemptsExceededException:
             raise IOError(
-                "Unable to save devices file. Please check the file is not in use by another process."
+                "Unable to save devices file. "
+                "Please check the file is not in use by another process."
             )
 
         # Update PVs
@@ -191,7 +193,8 @@ class DevicesManager(OnTheFlyPvInterface):
     def get_devices_schema(self) -> bytes:
         """Gets the XSD data for the devices screens.
 
-        Note: Only reads file once, if the file changes then the BlockServer will need to be restarted
+        Note: Only reads file once, if the file changes then the BlockServer
+        will need to be restarted
 
         Returns:
             str : The XML for the devices screens schema

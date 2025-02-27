@@ -1,6 +1,7 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 
 from concurrent.futures import ThreadPoolExecutor
+from typing import Callable
 
 # This file is part of the ISIS IBEX application.
 # Copyright (C) 2012-2016 Science & Technology Facilities Council.
@@ -27,25 +28,25 @@ try:
     from genie_python.channel_access_exceptions import (
         ReadAccessException,
         UnableToConnectToPVException,
-    )
+    )  # noqa: F401
 except ImportError:
 
-    class UnableToConnectToPVException(IOError):
+    class UnableToConnectToPVException(IOError):  # noqa: N818
         """
         The system is unable to connect to a PV for some reason.
         """
 
-        def __init__(self, pv_name, err) -> None:
+        def __init__(self, pv_name: str, err: Exception) -> None:
             super(UnableToConnectToPVException, self).__init__(
                 "Unable to connect to PV {0}: {1}".format(pv_name, err)
             )
 
-    class ReadAccessException(IOError):
+    class ReadAccessException(IOError):  # noqa: N818
         """
         PV exists but its value is unavailable to read.
         """
 
-        def __init__(self, pv_name) -> None:
+        def __init__(self, pv_name: str) -> None:
             super(ReadAccessException, self).__init__(
                 "Read access denied for PV {}".format(pv_name)
             )
@@ -102,7 +103,7 @@ except ImportError:
         WriteAccess = 21
 
 
-def _create_caput_pool():
+def _create_caput_pool() -> ThreadPoolExecutor:
     """
     Returns: thread pool for the caputs, making sure it works for older versions of python
     """
@@ -120,7 +121,8 @@ def _create_caput_pool():
 
 
 class ChannelAccess(object):
-    # Create a thread poll so that threads are reused and so ca contexts that each thread gets are shared. This also
+    # Create a thread poll so that threads are reused and so ca contexts that each thread gets are
+    # shared. This also
     # caps the number of ca library threads. 20 is chosen as being probably enough but limited.
     thread_pool = _create_caput_pool()
 
@@ -129,16 +131,16 @@ class ChannelAccess(object):
         """
         Wait for all requested tasks to complete, i.e. all caputs.
 
-        It does this by shutting down the current threadpool waiting for all tasks to complete and then create a new
-        pool.
+        It does this by shutting down the current threadpool waiting for all tasks to complete and
+        then create a new pool.
         """
         ChannelAccess.thread_pool.shutdown()
         ChannelAccess.thread_pool = _create_caput_pool()
 
     @staticmethod
-    def caget(name, as_string=False, timeout=None):
-        """Uses CaChannelWrapper from genie_python to get a pv value. We import CaChannelWrapper when used as this means
-        the tests can run without having genie_python installed
+    def caget(name: str, as_string: bool = False, timeout: float | None = None):
+        """Uses CaChannelWrapper from genie_python to get a pv value. We import CaChannelWrapper
+         when used as this means the tests can run without having genie_python installed
 
         Args:
             name (string): The name of the PV to be read
@@ -160,27 +162,38 @@ class ChannelAccess(object):
             return None
 
     @staticmethod
-    def caput(name, value, wait=False, set_pv_value=None, safe_not_quick=True):
+    def caput(
+        name: str,
+        value,
+        wait: bool = False,
+        set_pv_value: Callable | None = None,
+        safe_not_quick: bool = True,
+    ):
         """
-        Uses CaChannelWrapper from genie_python to set a pv value. Waiting will put the call in a thread so the order
-        is no longer guarenteed. Also if the call take time a queue will be formed of put tasks.
+        Uses CaChannelWrapper from genie_python to set a pv value. Waiting will put the call in a
+        thread so the order is no longer guaranteed.
+         Also if the call take time a queue will be formed of put tasks.
 
-        We import CaChannelWrapper when used as this means the tests can run without having genie_python installed
+        We import CaChannelWrapper when used as this means the tests can run without
+        having genie_python installed
 
         Args:
             name (string): The name of the PV to be set
             value (object): The data to send to the PV
             wait (bool, optional): Wait for the PV to set before returning
-            set_pv_value: function to call to set a pv, used only in testing; None to use CaChannelWrapper set value
-            safe_not_quick (bool): True run all checks while setting the pv, False don't run checks just write the value,
+            set_pv_value: function to call to set a pv, used only in testing; None to
+             use CaChannelWrapper set value
+            safe_not_quick (bool): True run all checks while setting the pv, False don't run
+            checks just write the value,
                 e.g. disp check
         Returns:
             None: if wait is False
             Future: if wait if True
         """
         if set_pv_value is None:
-            # We need to put the default here rather than as a python default argument because the linux build does
-            # not have CaChannelWrapper. The argument default would be looked up at class load time, causing the
+            # We need to put the default here rather than as a python default argument because
+            # the linux build does not have CaChannelWrapper.
+            # The argument default would be looked up at class load time, causing the
             # linux build to fail to load the entire class.
             set_pv_value = CaChannelWrapper.set_pv_value
 
@@ -193,18 +206,22 @@ class ChannelAccess(object):
             return None
         else:
             # If not waiting, run in a different thread.
-            # Even if not waiting genie_python sometimes takes a while to return from a set_pv_value call.
+            # Even if not waiting genie_python sometimes takes a while to return from a
+            # set_pv_value call.
             return ChannelAccess.thread_pool.submit(_put_value)
 
     @staticmethod
-    def caput_retry_on_fail(pv_name, value, retry_count=5, safe_not_quick=True) -> None:
+    def caput_retry_on_fail(
+        pv_name: str, value, retry_count: int = 5, safe_not_quick: bool = True
+    ) -> None:
         """
         Write to a pv and check the value is set, retry if not; raise if run out of retries
         Args:
             pv_name: pv name to write to
             value: value to write
             retry_count: number of retries
-            safe_not_quick (bool): True run all checks while setting the pv, False don't run checks just write the value,
+            safe_not_quick (bool): True run all checks while setting the pv, False don't run checks
+             just write the value,
                 e.g. disp check
         Raises:
             IOError: if pv can not be set
@@ -224,7 +241,7 @@ class ChannelAccess(object):
             )
 
     @staticmethod
-    def pv_exists(name, timeout=None):
+    def pv_exists(name: str, timeout: float = None) -> bool:
         """
         See if the PV exists.
 
@@ -240,9 +257,10 @@ class ChannelAccess(object):
         return CaChannelWrapper.pv_exists(name, timeout)
 
     @staticmethod
-    def add_monitor(name, call_back_function) -> None:
+    def add_monitor(name: str, call_back_function: Callable) -> None:
         """
-        Add a callback to a pv which responds on a monitor (i.e. value change). This currently only tested for
+        Add a callback to a pv which responds on a monitor (i.e. value change).
+         This currently only tested for
         numbers.
         Args:
             name: name of the pv
@@ -261,7 +279,7 @@ class ChannelAccess(object):
         CaChannelWrapper.poll()
 
     @staticmethod
-    def clear_monitor(name) -> None:
+    def clear_monitor(name: str) -> None:
         """
         Clears the monitor on a pv if it exists
         """
@@ -271,17 +289,18 @@ class ChannelAccess(object):
             pass
 
 
-class ManagerModeRequiredException(Exception):
+class ManagerModeRequiredError(Exception):
     """
     Exception to be thrown if manager mode was required, but not enabled, for an operation.
     """
 
     def __init__(self, *args, **kwargs) -> None:
-        super(ManagerModeRequiredException, self).__init__(*args, **kwargs)
+        super(ManagerModeRequiredError, self).__init__(*args, **kwargs)
 
 
 def verify_manager_mode(
-    channel_access=ChannelAccess(), message="Operation must be performed in manager mode"
+    channel_access: ChannelAccess = ChannelAccess(),
+    message: str = "Operation must be performed in manager mode",
 ) -> None:
     """
     Verifies that manager mode is active, throwing an error if it was not active.
@@ -298,22 +317,22 @@ def verify_manager_mode(
             channel_access.caget("{}CS:MANAGER".format(MACROS["$(MYPVPREFIX)"])).lower() == "yes"
         )
     except UnableToConnectToPVException as e:
-        raise ManagerModeRequiredException(
+        raise ManagerModeRequiredError(
             "Manager mode is required, but the manager mode PV did not connect "
             "(caused by: {})".format(e)
         )
     except ReadAccessException as e:
-        raise ManagerModeRequiredException(
+        raise ManagerModeRequiredError(
             "Manager mode is required, but the manager mode PV could not be read "
             "(caused by: {})".format(e)
         )
     except Exception as e:
-        raise ManagerModeRequiredException(
+        raise ManagerModeRequiredError(
             "Manager mode is required, but an unknown exception occurred (caused by: {})".format(e)
         )
 
     if not is_manager:
-        raise ManagerModeRequiredException(message)
+        raise ManagerModeRequiredError(message)
 
 
 def maximum_severity(*alarms):
@@ -323,7 +342,8 @@ def maximum_severity(*alarms):
         *alarms (Tuple[AlarmSeverity, AlarmStatus]): alarms to choose from
 
     Returns:
-        (Optional[Tuple[AlarmSeverity, AlarmStatus]]) alarm with maximum severity; none for no arguments
+        (Optional[Tuple[AlarmSeverity, AlarmStatus]]) alarm with maximum severity;
+        none for no arguments
     """
 
     maximum_severity_alarm = None
