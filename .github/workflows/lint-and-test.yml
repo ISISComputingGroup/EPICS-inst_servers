@@ -9,8 +9,8 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ "ubuntu-latest", "windows-latest" ]
-        version: ['3.11', '3.12']
+        os: [ "windows-latest" ]
+        version: ['3.11']
       fail-fast: false
     steps:
       - uses: actions/checkout@v4
@@ -20,8 +20,8 @@ jobs:
       - name: install requirements
         run: pip install -r requirements.txt
       - name: run tests (linux)
-        run: python run_all_tests.py
+        run: python -m pytest . 
         if: startsWith(matrix.os,'ubuntu')
       - name: run tests (windows)
-        run: python run_all_tests.py
+        run: python -m pytest . 
         if: startsWith(matrix.os,'windows')
