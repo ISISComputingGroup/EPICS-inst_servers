@@ -6,7 +6,7 @@ jobs:
     with:
       compare-branch: origin/master
       runs-on: windows-latest
-      python-ver: 3.11
+      python-ver: '3.11'
   tests:
     runs-on: ${{ matrix.os }}
     strategy:
