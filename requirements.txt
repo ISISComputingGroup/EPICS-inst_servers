@@ -1,6 +1,6 @@
 ess-streaming-data-types
 genie-python
-pcaspy
+git+https://github.com/ISISComputingGroup/pcaspy
 git+https://github.com/ISISComputingGroup/CaChannel.git
 contextlib2
 GitPython
