@@ -26,3 +26,4 @@ jobs:
       - name: run tests (windows)
         run: python -m pytest . 
         if: startsWith(matrix.os,'windows')
+        
