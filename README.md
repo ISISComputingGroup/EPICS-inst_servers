@@ -1,5 +1,7 @@
 # Instrument Servers
 
+[<img src="https://github.com/ISISComputingGroup/EPICS-inst_servers/actions/workflows/lint-and-test-nightly.yml/badge.svg">](https://github.com/ISISComputingGroup/EPICS-inst_servers/actions/workflows/lint-and-test-nightly.yml)
+
 Channel access servers which help run the instrument. They are written in python and share some code. Many are based on [pcaspy](https://pypi.org/project/pcaspy/).
 
 Contains:
