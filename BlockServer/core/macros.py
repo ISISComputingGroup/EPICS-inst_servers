@@ -14,23 +14,6 @@
 # https://www.eclipse.org/org/documents/epl-v10.php or
 # http://opensource.org/licenses/eclipse-1.0.php
 
-import os
-
-
-def _get_env_var(name):
-    try:
-        return os.environ[name]
-    except:
-        return ""
-
-
-MACROS = {
-    "$(MYPVPREFIX)": _get_env_var("MYPVPREFIX"),
-    "$(EPICS_KIT_ROOT)": _get_env_var("EPICS_KIT_ROOT"),
-    "$(ICPCONFIGROOT)": _get_env_var("ICPCONFIGROOT"),
-    "$(ICPVARDIR)": _get_env_var("ICPVARDIR"),
-}
 
 BLOCK_PREFIX = "CS:SB:"
-CONTROL_SYSTEM_PREFIX = MACROS["$(MYPVPREFIX)"] + "CS:"
 PVPREFIX_MACRO = "$(MYPVPREFIX)"

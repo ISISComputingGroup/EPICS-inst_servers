@@ -22,14 +22,14 @@ from BlockServer.core.active_config_holder import ActiveConfigHolder
 from BlockServer.core.config_list_manager import ConfigListManager, InvalidDeleteException
 from BlockServer.core.constants import DEFAULT_COMPONENT
 from BlockServer.core.inactive_config_holder import InactiveConfigHolder
-from BlockServer.core.macros import MACROS
 from BlockServer.epics.archiver_manager import ArchiverManager
 from BlockServer.mocks.mock_archiver_wrapper import MockArchiverWrapper
 from BlockServer.mocks.mock_block_server import MockBlockServer
 from BlockServer.mocks.mock_channel_access import MockChannelAccess
 from BlockServer.mocks.mock_file_manager import MockConfigurationFileManager
 from BlockServer.mocks.mock_ioc_control import MockIocControl
-from server_common.channel_access import ManagerModeRequiredException
+from server_common.channel_access import ManagerModeRequiredError
+from server_common.helpers import MACROS
 from server_common.pv_names import prepend_blockserver
 from server_common.utilities import create_pv_name
 
@@ -629,7 +629,7 @@ class TestInactiveConfigsSequence(unittest.TestCase):
 
         self.clm._config_metas["test_config1"].isProtected = True
 
-        with self.assertRaises(ManagerModeRequiredException):
+        with self.assertRaises(ManagerModeRequiredError):
             self.clm.delete_configs(["TEST_CONFIG1"])
 
     def test_GIVEN_manager_mode_active_WHEN_protected_component_deleted_THEN_successful(self):
@@ -649,5 +649,5 @@ class TestInactiveConfigsSequence(unittest.TestCase):
 
         self.clm._component_metas["test_component1"].isProtected = True
 
-        with self.assertRaises(ManagerModeRequiredException):
+        with self.assertRaises(ManagerModeRequiredError):
             self.clm.delete_components(["TEST_COMPONENT1"])
