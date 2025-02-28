@@ -31,8 +31,7 @@ os.environ["MYPVPREFIX"] = ""
 
 import unittest
 from datetime import datetime, timedelta
-
-from mock import patch
+from unittest.mock import patch
 
 from BlockServer.mocks.mock_block_server import MockBlockServer
 from BlockServer.mocks.mock_channel_access import PVS, ChannelAccessEnv, MockChannelAccess

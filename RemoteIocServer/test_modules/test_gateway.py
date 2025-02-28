@@ -2,8 +2,7 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 import os
 import unittest
-
-from mock import patch
+from unittest.mock import patch
 
 from RemoteIocServer.gateway import GateWay
 
