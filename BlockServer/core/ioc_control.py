@@ -195,8 +195,11 @@ class IocControl:
         except Exception as err:
             print_and_log(f"Could not get auto-restart setting for IOC {ioc}: {err}", "MAJOR")
 
-    def waitfor_running(self, ioc: str, timeout: int = 5) -> None:
+    def waitfor_running(self, ioc: str, timeout: int = 15) -> None:
         """Waits for the IOC to start running.
+           we may need to wait for procServ to lauch, asyn to connect and PSCTR
+           to report which can take up to 15 seconds - however once procServ is
+           running it will be much quicker
 
         Args:
             ioc (string): The name of the IOC
@@ -207,5 +210,5 @@ class IocControl:
             while self.ioc_restart_pending(ioc) or self.get_ioc_status(ioc) != "RUNNING":
                 sleep(0.5)
                 if time() - start >= timeout:
-                    print_and_log(f"Gave up waiting for IOC {ioc} to be running", "MAJOR")
+                    print_and_log(f"Gave up waiting for IOC {ioc} to be running after {timeout} seconds", "MAJOR")
                     return
