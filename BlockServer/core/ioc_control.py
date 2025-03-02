@@ -210,5 +210,8 @@ class IocControl:
             while self.ioc_restart_pending(ioc) or self.get_ioc_status(ioc) != "RUNNING":
                 sleep(0.5)
                 if time() - start >= timeout:
-                    print_and_log(f"Gave up waiting for IOC {ioc} to be running after {timeout} seconds", "MAJOR")
+                    print_and_log(
+                        f"Gave up waiting for IOC {ioc} to be running after {timeout} seconds",
+                        "MAJOR",
+                    )
                     return
