@@ -16,9 +16,9 @@
 
 import unittest
 from datetime import datetime, timedelta
+from unittest.mock import Mock
 
-from hamcrest import *
-from mock import Mock
+from hamcrest import assert_that, is_
 
 from ArchiverAccess.archive_time_period import ArchiveTimePeriod
 from ArchiverAccess.periodic_data_generator import PeriodicDataGenerator

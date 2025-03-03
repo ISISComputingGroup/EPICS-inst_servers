@@ -16,9 +16,9 @@
 
 import unittest
 from datetime import datetime, timedelta
+from unittest.mock import Mock
 
-from hamcrest import *
-from mock import Mock
+from hamcrest import assert_that, is_
 
 from ArchiverAccess.archive_access_configuration import ArchiveAccessConfigBuilder
 from ArchiverAccess.archive_data_file_creator import DataFileCreationError
