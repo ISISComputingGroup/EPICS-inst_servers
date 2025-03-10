@@ -1,7 +1,5 @@
 name: Lint-and-test
 on: [pull_request]
-env:
-  PIP_CONSTRAINT: "constraints.txt"
 jobs:
   call-workflow:
     uses: ISISComputingGroup/reusable-workflows/.github/workflows/linters.yml@main
@@ -25,6 +23,8 @@ jobs:
           python-version: ${{ matrix.version }}
       - name: install requirements
         run: pip install -r requirements-dev.txt
+        env:
+          PIP_CONSTRAINT: "constraints.txt"
       - name: run tests (linux)
         run: python -m pytest . --cov
         if: startsWith(matrix.os,'ubuntu')
