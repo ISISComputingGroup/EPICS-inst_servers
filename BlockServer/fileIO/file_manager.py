@@ -33,7 +33,7 @@ from BlockServer.core.constants import (
     FILENAME_META,
     GRP_NONE,
 )
-from BlockServer.core.file_path_manager import FILEPATH_MANAGER
+from server_common.file_path_manager import FILEPATH_MANAGER
 from BlockServer.fileIO.schema_checker import (
     ConfigurationIncompleteException,
     ConfigurationSchemaChecker,

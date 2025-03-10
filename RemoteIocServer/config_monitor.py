@@ -11,7 +11,7 @@ from functools import wraps
 
 from BlockServer.config.configuration import Configuration
 from BlockServer.config.ioc import IOC
-from BlockServer.core.file_path_manager import FILEPATH_MANAGER
+from server_common.file_path_manager import FILEPATH_MANAGER
 from BlockServer.fileIO.file_manager import ConfigurationFileManager
 from RemoteIocServer.utilities import THREADPOOL, get_hostname_from_prefix, print_and_log
 from server_common.channel_access import ChannelAccess

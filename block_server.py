@@ -39,7 +39,7 @@ from BlockServer.component_switcher.component_switcher import ComponentSwitcher
 from BlockServer.config.json_converter import ConfigurationJsonConverter
 from BlockServer.core.active_config_holder import ActiveConfigHolder
 from BlockServer.core.config_list_manager import ConfigListManager
-from BlockServer.core.file_path_manager import FILEPATH_MANAGER
+from server_common.file_path_manager import FILEPATH_MANAGER
 from BlockServer.core.inactive_config_holder import InactiveConfigHolder
 from BlockServer.core.ioc_control import IocControl
 from BlockServer.core.macros import BLOCK_PREFIX, PVPREFIX_MACRO

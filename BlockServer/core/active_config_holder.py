@@ -19,7 +19,7 @@ from typing import Dict
 from BlockServer.config.ioc import IOC
 from BlockServer.core.config_holder import ConfigHolder
 from BlockServer.core.database_client import get_iocs
-from BlockServer.core.file_path_manager import FILEPATH_MANAGER
+from server_common.file_path_manager import FILEPATH_MANAGER
 from BlockServer.core.macros import BLOCK_PREFIX
 from server_common.constants import IOCS_NOT_TO_STOP
 from server_common.helpers import CONTROL_SYSTEM_PREFIX, MACROS

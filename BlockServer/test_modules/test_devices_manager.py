@@ -17,7 +17,7 @@
 import os
 import unittest
 
-from BlockServer.core.file_path_manager import FILEPATH_MANAGER
+from server_common.file_path_manager import FILEPATH_MANAGER
 from BlockServer.devices.devices_manager import GET_SCREENS, DevicesManager
 from BlockServer.mocks.mock_block_server import MockBlockServer
 from server_common.utilities import compress_and_hex, dehex_and_decompress

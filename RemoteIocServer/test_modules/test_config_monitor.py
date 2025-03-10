@@ -9,7 +9,7 @@ from hamcrest import *
 from mock import MagicMock, patch
 
 from BlockServer import fileIO
-from BlockServer.core.file_path_manager import FILEPATH_MANAGER
+from server_common.file_path_manager import FILEPATH_MANAGER
 from RemoteIocServer.config_monitor import REMOTE_IOC_CONFIG_NAME, ConfigurationMonitor
 from server_common.utilities import compress_and_hex
 
