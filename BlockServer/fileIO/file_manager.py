@@ -296,7 +296,7 @@ class ConfigurationFileManager:
             f.write(data)
             return
 
-    def get_files_in_directory(self, path:str)->list[str]:
+    def get_files_in_directory(self, path: str) -> list[str]:
         """Gets a list of the files in the specified folder
 
         Args:

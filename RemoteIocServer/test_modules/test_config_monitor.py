@@ -217,9 +217,10 @@ class TestConfigMonitor(unittest.TestCase):
         self, epicsmonitor, mock_open, print_and_log
     ):
         FILEPATH_MANAGER.initialise("test_dir", "", "")
-        with patch.object(
-            FILEPATH_MANAGER, "get_config_path", return_value="test_dir"
-        ), patch.object(fileIO.file_manager.os.path, "isdir", return_value=True):
+        with (
+            patch.object(FILEPATH_MANAGER, "get_config_path", return_value="test_dir"),
+            patch.object(fileIO.file_manager.os.path, "isdir", return_value=True),
+        ):
             monitor = ConfigurationMonitor(LOCAL_TEST_PREFIX, lambda *a, **k: None)
             monitor.write_new_config_as_xml("{}")
 
