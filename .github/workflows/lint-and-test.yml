@@ -1,5 +1,7 @@
 name: Lint-and-test
 on: [pull_request]
+env:
+  PIP_CONSTRAINT: "constraints.txt"
 jobs:
   call-workflow:
     uses: ISISComputingGroup/reusable-workflows/.github/workflows/linters.yml@main
