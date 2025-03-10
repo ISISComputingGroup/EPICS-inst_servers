@@ -8,7 +8,6 @@ jobs:
       runs-on: windows-latest
       python-ver: '3.11'
       requirements-path: requirements-dev.txt
-      constraints-file: constraints.txt
   tests:
     runs-on: ${{ matrix.os }}
     strategy:
