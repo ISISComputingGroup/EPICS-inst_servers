@@ -9,25 +9,16 @@ jobs:
       python-ver: '3.11'
       requirements-path: requirements-dev.txt
   tests:
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [ "windows-latest" ]
-        version: ['3.11']
-      fail-fast: false
+    runs-on: "windows-latest"
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
-          python-version: ${{ matrix.version }}
+          python-version: '3.11'
       - name: install requirements
         run: pip install -r requirements-dev.txt
         env:
           PIP_CONSTRAINT: "constraints.txt"
-      - name: run tests (linux)
-        run: python -m pytest . --cov
-        if: startsWith(matrix.os,'ubuntu')
       - name: run tests (windows)
-        run: python -m pytest . --cov
-        if: startsWith(matrix.os,'windows')
+        run: python -m pytest --cov
  

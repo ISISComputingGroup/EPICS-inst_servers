@@ -7,13 +7,14 @@ from queue import Queue
 from typing import Any, Dict, Iterable, List, Set, Type
 
 from BlockServer.core.config_list_manager import ConfigListManager
-from BlockServer.core.macros import MACROS, PVPREFIX_MACRO
+from BlockServer.core.macros import PVPREFIX_MACRO
 from server_common.channel_access import ChannelAccess
+from server_common.helpers import MACROS
 from server_common.utilities import SEVERITY
 from server_common.utilities import print_and_log as _common_print_and_log
 
 
-def print_and_log(message: str, *args, **kwargs):
+def print_and_log(message: str, *args, **kwargs) -> None:
     _common_print_and_log(f"ComponentSwitcher: {message}", *args, **kwargs)
 
 
@@ -46,7 +47,7 @@ class ComponentSwitcher(object):
         reload_current_config_func: types.FunctionType,
         file_manager: ComponentSwitcherConfigFileManager = None,
         channel_access_class: Type[ChannelAccess] = None,
-    ):
+    ) -> None:
         self._config_list = config_list
         self._blockserver_write_queue = blockserver_write_queue
         self._reload_current_config = reload_current_config_func
@@ -89,7 +90,7 @@ class ComponentSwitcher(object):
 
             print_and_log("Adding monitor to PV {}".format(pv))
 
-            def callback(val: Any, stat: int, sevr: int):
+            def callback(val: Any, stat: int, sevr: int) -> None:
                 """
                 Callback function called when the monitored PV changes.
 
@@ -102,14 +103,16 @@ class ComponentSwitcher(object):
 
                 if stat != 0 or sevr != 0:
                     print_and_log(
-                        f"Got value '{val}' (stat={stat}, sevr={sevr}) for pv '{pv}', ignoring as it has "
+                        f"Got value '{val}' (stat={stat}, sevr={sevr}) for "
+                        f"pv '{pv}', ignoring as it has "
                         f"non-zero STAT/SEVR"
                     )
                     return
 
                 if val not in value_to_component_map:
                     print_and_log(
-                        f"Got value '{val}' (stat={stat}, sevr={sevr}) for pv '{pv}', ignoring as value did "
+                        f"Got value '{val}' (stat={stat}, sevr={sevr}) for "
+                        f"pv '{pv}', ignoring as value did "
                         f"not map to any component"
                     )
                     return
@@ -118,12 +121,14 @@ class ComponentSwitcher(object):
                 comps_to_add = {value_to_component_map[val]}
 
                 print_and_log(
-                    f"Got value '{val}' (stat={stat}, sevr={sevr}) for pv '{pv}'. Editing configurations to "
+                    f"Got value '{val}' (stat={stat}, sevr={sevr}) "
+                    f"for pv '{pv}'. Editing configurations to "
                     f"remove components {comps_to_remove} and add components {comps_to_add}."
                 )
 
-                # Put these actions onto the blockserver write queue so that we avoid any multithreading problems
-                # with concurrent edits from multiple sources in the blockserver. This also ensures we don't do any
+                # Put these actions onto the blockserver write queue so that we avoid
+                # any multithreading problems with concurrent edits from multiple sources in the
+                # blockserver. This also ensures we don't do any
                 # CA calls from within a monitor context, which would be invalid.
                 self._blockserver_write_queue.put(
                     (
@@ -142,8 +147,10 @@ class ComponentSwitcher(object):
         Edits all configurations by adding or removing the specified components.
 
         Args:
-            components_to_be_removed: A set of component names which will be removed from all configurations if present
-            components_to_be_added: A set of component names which will be added to all configurations
+            components_to_be_removed: A set of component names which will be removed from
+             all configurations if present
+            components_to_be_added: A set of component names which will be added to
+             all configurations
         """
 
         current_config_name = self._config_list.active_config_name

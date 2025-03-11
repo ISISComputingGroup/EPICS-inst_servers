@@ -22,12 +22,12 @@ from BlockServer.config.configuration import Configuration
 from BlockServer.config.xml_converter import ConfigurationXmlConverter
 from BlockServer.core.file_path_manager import FILEPATH_MANAGER
 from BlockServer.core.inactive_config_holder import InactiveConfigHolder
-from BlockServer.core.macros import MACROS
 from BlockServer.fileIO.schema_checker import (
     ConfigurationInvalidUnderSchema,
     ConfigurationSchemaChecker,
 )
 from BlockServer.mocks.mock_file_manager import MockConfigurationFileManager
+from server_common.helpers import MACROS
 
 TEST_DIRECTORY = os.path.abspath("test_configs")
 SCRIPT_DIRECTORY = os.path.abspath("test_scripts")
@@ -123,7 +123,7 @@ class TestSchemaChecker(unittest.TestCase):
             ConfigurationSchemaChecker.check_xml_data_matches_schema(
                 os.path.join(self.schema_dir, "blocks.xsd"), xml
             )
-        except:
+        except:  # noqa: E722
             self.fail()
 
     def test_blocks_xml_does_not_match_schema_raises(self):
@@ -202,7 +202,7 @@ class TestSchemaChecker(unittest.TestCase):
             ConfigurationSchemaChecker.check_xml_data_matches_schema(
                 os.path.join(self.schema_dir, "meta.xsd"), xml
             )
-        except:
+        except:  # noqa: E722
             self.fail()
 
     def test_meta_xml_does_not_match_schema_raises(self):
@@ -230,7 +230,7 @@ class TestSchemaChecker(unittest.TestCase):
             ConfigurationSchemaChecker.check_xml_data_matches_schema(
                 os.path.join(self.schema_dir, "components.xsd"), xml
             )
-        except:
+        except:  # noqa: E722
             self.fail()
 
     def test_components_xml_does_not_match_schema_raises(self):

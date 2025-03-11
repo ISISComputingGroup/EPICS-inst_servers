@@ -48,7 +48,7 @@ class DevicesManager(OnTheFlyPvInterface):
         block_server: "BlockServer",
         schema_folder: str,
         file_io: DevicesFileIO = DevicesFileIO(),
-    ):
+    ) -> None:
         """Constructor.
 
         Args:
@@ -68,13 +68,13 @@ class DevicesManager(OnTheFlyPvInterface):
         self._load_current()
         self.update_monitors()
 
-    def _create_standard_pvs(self):
+    def _create_standard_pvs(self) -> None:
         """Creates new PVs holding information relevant to the device screens."""
         self._bs.add_string_pv_to_db(GET_SCREENS, 16000)
         self._bs.add_string_pv_to_db(SET_SCREENS, 16000)
         self._bs.add_string_pv_to_db(GET_SCHEMA, 16000)
 
-    def handle_pv_write(self, pv: str, data: str):
+    def handle_pv_write(self, pv: str, data: str) -> None:
         """Handles the request to write device screen PVs.
 
         Args:
@@ -87,18 +87,18 @@ class DevicesManager(OnTheFlyPvInterface):
                 self.update_monitors()
             except IOError as err:
                 print_and_log(
-                    f"Could not save device screens: {err} " f"The PV data will not be updated.",
+                    f"Could not save device screens: {err} The PV data will not be updated.",
                     "MINOR",
                 )
 
-    def handle_pv_read(self, _):
+    def handle_pv_read(self, _: str) -> None:
         """
         Nothing to do as it is all handled by monitors
         """
 
         pass
 
-    def update_monitors(self):
+    def update_monitors(self) -> None:
         """Writes new device screens data to PVs"""
         with self._bs.monitor_lock:
             print_and_log("Updating devices monitors")
@@ -108,7 +108,7 @@ class DevicesManager(OnTheFlyPvInterface):
             self._bs.setParam(GET_SCREENS, compress_and_hex(self._data.decode("utf-8")))
             self._bs.updatePVs()
 
-    def on_config_change(self, full_init=False):
+    def on_config_change(self, full_init=False) -> None:
         """
         Devices don't need to change with config
 
@@ -117,7 +117,7 @@ class DevicesManager(OnTheFlyPvInterface):
         """
         pass
 
-    def _load_current(self):
+    def _load_current(self) -> None:
         """Gets the devices XML for the current instrument"""
         # Read the data from file
         try:
@@ -125,7 +125,8 @@ class DevicesManager(OnTheFlyPvInterface):
         except (MaxAttemptsExceededException, IOError):
             self._data = self.get_blank_devices()
             print_and_log(
-                "Unable to load devices file. Please check the file is not in use by another process. "
+                "Unable to load devices file. "
+                "Please check the file is not in use by another process. "
                 "The PV data will default to a blank set of devices.",
                 "MINOR",
             )
@@ -149,7 +150,7 @@ class DevicesManager(OnTheFlyPvInterface):
 
         return os.path.join(FILEPATH_MANAGER.devices_dir, SCREENS_FILE)
 
-    def update(self, xml_data: bytes, message: str = None):
+    def update(self, xml_data: bytes, message: str = None) -> None:
         """Updates the current device screens with new data.
 
         Args:
@@ -160,7 +161,7 @@ class DevicesManager(OnTheFlyPvInterface):
         self._data = xml_data
         self.update_monitors()
 
-    def save_devices_xml(self, xml_data: str):
+    def save_devices_xml(self, xml_data: str) -> None:
         """Saves the xml in the current "screens.xml" config file.
 
         Args:
@@ -181,7 +182,8 @@ class DevicesManager(OnTheFlyPvInterface):
             self._file_io.save_devices_file(self.get_devices_filename(), xml_data_as_bytes)
         except MaxAttemptsExceededException:
             raise IOError(
-                "Unable to save devices file. Please check the file is not in use by another process."
+                "Unable to save devices file. "
+                "Please check the file is not in use by another process."
             )
 
         # Update PVs
@@ -191,7 +193,8 @@ class DevicesManager(OnTheFlyPvInterface):
     def get_devices_schema(self) -> bytes:
         """Gets the XSD data for the devices screens.
 
-        Note: Only reads file once, if the file changes then the BlockServer will need to be restarted
+        Note: Only reads file once, if the file changes then the BlockServer
+        will need to be restarted
 
         Returns:
             str : The XML for the devices screens schema
