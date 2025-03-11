@@ -21,12 +21,16 @@ from mock import MagicMock, patch
 from BlockServerToKafka.block_server_monitor import BlockServerMonitor
 
 
-@patch("CaChannel.CaChannel")
 class TestBlockServerMonitor(unittest.TestCase):
     test_address = "TEST_ADDRESS"
     test_prefix = "TEST_PREFIX"
 
-    def setUp(self):
+    @patch("CaChannel.CaChannel")
+    @patch("CaChannel.CaChannel.searchw")
+    @patch("CaChannel.CaChannel.add_masked_array_event")
+    @patch("CaChannel.CaChannel.field_type")
+    @patch("CaChannel.CaChannel.pend_event")
+    def setUp(self, *args, **kwargs):
         self.mock_producer = MagicMock()
         self.bs_monitor = BlockServerMonitor(
             self.test_address, self.test_prefix, self.mock_producer
@@ -34,20 +38,18 @@ class TestBlockServerMonitor(unittest.TestCase):
 
     def test_WHEN_convert_one_char_to_string_THEN_returns_character(
         self,
-        mock_ca_channel,
     ):
         c = "a"
         arr = [ord(c)]
         self.assertEqual(c, self.bs_monitor.convert_to_string(bytearray(arr)))
 
-    def test_WHEN_convert_many_chars_to_string_THEN_returns_characters(self, mock_ca_channel):
+    def test_WHEN_convert_many_chars_to_string_THEN_returns_characters(self):
         chars = "hello world"
         arr = [ord(c) for c in chars]
         self.assertEqual(chars, self.bs_monitor.convert_to_string(bytearray(arr)))
 
     def test_WHEN_convert_chars_with_null_at_end_THEN_nulls_removed(
         self,
-        mock_ca_channel,
     ):
         chars = "hello world"
         arr = [ord(c) for c in chars]
@@ -57,7 +59,6 @@ class TestBlockServerMonitor(unittest.TestCase):
 
     def test_WHEN_convert_chars_with_null_at_start_THEN_nulls_removed(
         self,
-        mock_ca_channel,
     ):
         chars = "hello world"
         arr = [ord(c) for c in chars]
@@ -65,7 +66,7 @@ class TestBlockServerMonitor(unittest.TestCase):
             arr.insert(0, 0)
         self.assertEqual(chars, self.bs_monitor.convert_to_string(bytearray(arr)))
 
-    def test_WHEN_convert_chars_with_nulls_in_centre_THEN_nulls_removed(self, mock_ca_channel):
+    def test_WHEN_convert_chars_with_nulls_in_centre_THEN_nulls_removed(self):
         chars = "hello world"
         arr = [ord(c) for c in chars]
         arr.insert(4, 0)
@@ -73,19 +74,16 @@ class TestBlockServerMonitor(unittest.TestCase):
 
     def test_WHEN_convert_nulls_THEN_empty_string_returned(
         self,
-        mock_ca_channel,
     ):
         arr = [0] * 10
         self.assertEqual("", self.bs_monitor.convert_to_string(bytearray(arr)))
 
-    def test_GIVEN_no_previous_pvs_WHEN_update_config_called_THEN_producer_is_called(
-        self, mock_ca_channel
-    ):
+    def test_GIVEN_no_previous_pvs_WHEN_update_config_called_THEN_producer_is_called(self):
         self.bs_monitor.update_config(["BLOCK"])
         self.mock_producer.add_config.assert_called_once()
 
     def test_GIVEN_no_previous_pvs_WHEN_update_config_called_THEN_producer_is_called_containing_block_name(
-        self, mock_ca_channel
+        self,
     ):
         block = "BLOCK"
         self.bs_monitor.update_config([block])
@@ -94,7 +92,7 @@ class TestBlockServerMonitor(unittest.TestCase):
         )
 
     def test_GIVEN_previous_pvs_WHEN_update_config_called_with_same_pvs_THEN_producer_is_not_called(
-        self, mock_ca_channel
+        self,
     ):
         block = "BLOCK"
         self.bs_monitor.update_config([block])
@@ -102,7 +100,7 @@ class TestBlockServerMonitor(unittest.TestCase):
         self.mock_producer.add_config.assert_called_once()
 
     def test_GIVEN_previous_pvs_WHEN_update_config_called_with_different_pvs_THEN_producer_is_called(
-        self, mock_ca_channel
+        self,
     ):
         self.bs_monitor.update_config(["OLD_BLOCK"])
         self.mock_producer.reset_mock()
