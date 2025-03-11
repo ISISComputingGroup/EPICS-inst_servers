@@ -13,4 +13,4 @@ Contains:
 
 For more details see the [developer wiki](https://github.com/ISISComputingGroup/ibex_developers_manual/wiki//System-components)
 
-To run tests use `pytest .`
+To run tests use `pytest`
