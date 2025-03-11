@@ -7,9 +7,8 @@ from queue import Queue
 from typing import Any, Dict, Iterable, List, Set, Type
 
 from BlockServer.core.config_list_manager import ConfigListManager
-from BlockServer.core.macros import PVPREFIX_MACRO
 from server_common.channel_access import ChannelAccess
-from server_common.helpers import MACROS
+from server_common.helpers import MACROS, PVPREFIX_MACRO
 from server_common.utilities import SEVERITY
 from server_common.utilities import print_and_log as _common_print_and_log
 
