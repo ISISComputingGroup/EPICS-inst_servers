@@ -1,7 +1,6 @@
 -r requirements.txt
 mock
 lxml-stubs
-coverage
 parameterized
 PyHamcrest
 pytest
