@@ -9,7 +9,7 @@ from hamcrest import *
 from mock import MagicMock, patch
 
 from BlockServer import fileIO
-from BlockServer.core.file_path_manager import FILEPATH_MANAGER
+from server_common.file_path_manager import FILEPATH_MANAGER
 from RemoteIocServer.config_monitor import REMOTE_IOC_CONFIG_NAME, ConfigurationMonitor
 from server_common.utilities import compress_and_hex
 
@@ -217,9 +217,10 @@ class TestConfigMonitor(unittest.TestCase):
         self, epicsmonitor, mock_open, print_and_log
     ):
         FILEPATH_MANAGER.initialise("test_dir", "", "")
-        with patch.object(
-            FILEPATH_MANAGER, "get_config_path", return_value="test_dir"
-        ), patch.object(fileIO.file_manager.os.path, "isdir", return_value=True):
+        with (
+            patch.object(FILEPATH_MANAGER, "get_config_path", return_value="test_dir"),
+            patch.object(fileIO.file_manager.os.path, "isdir", return_value=True),
+        ):
             monitor = ConfigurationMonitor(LOCAL_TEST_PREFIX, lambda *a, **k: None)
             monitor.write_new_config_as_xml("{}")
 

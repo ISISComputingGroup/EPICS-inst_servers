@@ -23,7 +23,7 @@ from lxml import etree
 
 from BlockServer.core.active_config_holder import ActiveConfigHolder
 from BlockServer.core.config_list_manager import InvalidDeleteException
-from BlockServer.core.file_path_manager import FILEPATH_MANAGER
+from server_common.file_path_manager import FILEPATH_MANAGER
 from BlockServer.core.on_the_fly_pv_interface import OnTheFlyPvInterface
 from BlockServer.fileIO.schema_checker import ConfigurationSchemaChecker
 from BlockServer.synoptic.synoptic_file_io import SynopticFileIO

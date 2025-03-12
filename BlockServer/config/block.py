@@ -15,7 +15,7 @@
 # http://opensource.org/licenses/eclipse-1.0.php
 from typing import Dict, Union
 
-from BlockServer.core.macros import PVPREFIX_MACRO
+from server_common.helpers import PVPREFIX_MACRO
 
 
 class Block:

@@ -23,7 +23,7 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from block_server import BlockServer
 from BlockServer.core.constants import FILENAME_SCREENS as SCREENS_FILE
-from BlockServer.core.file_path_manager import FILEPATH_MANAGER
+from server_common.file_path_manager import FILEPATH_MANAGER
 from BlockServer.core.on_the_fly_pv_interface import OnTheFlyPvInterface
 from BlockServer.devices.devices_file_io import DevicesFileIO
 from BlockServer.fileIO.schema_checker import (

@@ -9,7 +9,7 @@ import traceback
 from pcaspy import Driver, SimpleServer
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir)))
-from BlockServer.core.file_path_manager import FILEPATH_MANAGER
+from server_common.file_path_manager import FILEPATH_MANAGER
 from BlockServer.core.ioc_control import IocControl
 from RemoteIocServer.config_monitor import ConfigurationMonitor
 from RemoteIocServer.gateway import GateWay

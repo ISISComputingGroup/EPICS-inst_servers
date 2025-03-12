@@ -17,7 +17,7 @@
 import os
 import unittest
 
-from BlockServer.core.file_path_manager import (
+from server_common.file_path_manager import (
     COMPONENT_DIRECTORY,
     CONFIG_DIRECTORY,
     FILEPATH_MANAGER,

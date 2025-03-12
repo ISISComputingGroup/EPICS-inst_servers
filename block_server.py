@@ -39,10 +39,9 @@ from BlockServer.component_switcher.component_switcher import ComponentSwitcher
 from BlockServer.config.json_converter import ConfigurationJsonConverter
 from BlockServer.core.active_config_holder import ActiveConfigHolder
 from BlockServer.core.config_list_manager import ConfigListManager
-from BlockServer.core.file_path_manager import FILEPATH_MANAGER
+from server_common.file_path_manager import FILEPATH_MANAGER
 from BlockServer.core.inactive_config_holder import InactiveConfigHolder
 from BlockServer.core.ioc_control import IocControl
-from BlockServer.core.macros import BLOCK_PREFIX, PVPREFIX_MACRO
 from BlockServer.devices.devices_manager import DevicesManager
 from BlockServer.epics.archiver_manager import ArchiverManager
 from BlockServer.epics.gateway import Gateway
@@ -61,7 +60,7 @@ from ConfigVersionControl.version_control_exceptions import (
     VersionControlException,
 )
 from server_common.channel_access import ChannelAccess
-from server_common.helpers import CONTROL_SYSTEM_PREFIX, MACROS
+from server_common.helpers import CONTROL_SYSTEM_PREFIX, MACROS, PVPREFIX_MACRO, BLOCK_PREFIX
 from server_common.pv_names import BlockserverPVNames
 from server_common.utilities import (
     char_waveform,

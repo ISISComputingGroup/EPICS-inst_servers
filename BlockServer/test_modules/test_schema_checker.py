@@ -20,7 +20,7 @@ import unittest
 
 from BlockServer.config.configuration import Configuration
 from BlockServer.config.xml_converter import ConfigurationXmlConverter
-from BlockServer.core.file_path_manager import FILEPATH_MANAGER
+from server_common.file_path_manager import FILEPATH_MANAGER
 from BlockServer.core.inactive_config_holder import InactiveConfigHolder
 from BlockServer.fileIO.schema_checker import (
     ConfigurationInvalidUnderSchema,
