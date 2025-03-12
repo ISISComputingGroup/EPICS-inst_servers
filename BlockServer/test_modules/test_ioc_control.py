@@ -15,8 +15,7 @@
 # http://opensource.org/licenses/eclipse-1.0.php
 
 import unittest
-
-from mock import patch
+from unittest.mock import patch
 
 from BlockServer.core.ioc_control import IocControl
 from BlockServer.mocks.mock_procserv_utils import MockProcServWrapper

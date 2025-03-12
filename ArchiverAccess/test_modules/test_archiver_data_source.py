@@ -16,10 +16,10 @@
 
 import unittest
 from datetime import datetime, timedelta
+from unittest.mock import Mock
 
 from genie_python.mysql_abstraction_layer import DatabaseError
-from hamcrest import *
-from mock import Mock
+from hamcrest import assert_that, calling, empty, is_, raises
 
 from ArchiverAccess.archive_time_period import ArchiveTimePeriod
 from ArchiverAccess.archiver_data_source import (

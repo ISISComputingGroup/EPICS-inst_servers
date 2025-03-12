@@ -1,7 +1,6 @@
 import os
 import unittest
-
-from mock import Mock
+from unittest.mock import Mock
 
 from ConfigVersionControl.git_version_control import GitMessageProvider
 
@@ -191,7 +190,7 @@ class TestMessageProvider(unittest.TestCase):
         # Assert
         self.assertEqual(actual_msg, expected_msg)
 
-    def test_WHEN_non_xml_file_in_comp_dir_modified_THEN_other_modified_in_commit_message(self):
+    def test_WHEN_non_xml_file_in_synoptic_dir_modified_THEN_other_modified_in_commit_message(self):
         # Arrange
         file_path = os.path.join("configurations", "synoptics", "synoptic_name.txt")
         changed = Mock(a_rawpath=file_path, new_file=False)
@@ -205,7 +204,7 @@ class TestMessageProvider(unittest.TestCase):
         # Assert
         self.assertEqual(actual_msg, expected_msg)
 
-    def test_WHEN_non_xml_file_in_comp_dir_deleted_THEN_other_modified_in_commit_message(self):
+    def test_WHEN_non_xml_file_in_synoptic_dir_added_THEN_other_modified_in_commit_message(self):
         # Arrange
         file_path = os.path.join("configurations", "synoptics", "synoptic_name.txt")
         changed = Mock(a_rawpath=file_path, new_file=True)

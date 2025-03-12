@@ -17,8 +17,7 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 # http://opensource.org/licenses/eclipse-1.0.php
 import json
 import os
-
-import mock
+import unittest.mock as mock
 
 os.environ["MYDIRBLOCK"] = os.path.abspath("..")
 os.environ["MYPVPREFIX"] = ""

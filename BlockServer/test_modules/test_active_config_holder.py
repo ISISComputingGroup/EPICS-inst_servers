@@ -16,9 +16,8 @@
 import json
 import os
 import unittest
+from unittest.mock import Mock, patch
 
-import mock.mock
-from mock import Mock
 from parameterized import parameterized
 
 from BlockServer.config.block import Block
@@ -73,7 +72,7 @@ def create_dummy_component():
 
 def patch_get_iocs_empty(f):
     def _wrapper(*args, **kwargs):
-        with mock.mock.patch("BlockServer.core.active_config_holder.get_iocs") as mock_get_iocs:
+        with patch("BlockServer.core.active_config_holder.get_iocs") as mock_get_iocs:
             mock_get_iocs.return_value = []
             return f(*args, **kwargs)
 
@@ -439,7 +438,7 @@ class TestActiveConfigHolderSequence(unittest.TestCase):
     def test_GIVEN_a_manually_started_ioc_WHEN_config_not_containing_that_ioc_is_loaded_THEN_the_ioc_is_stopped(
         self,
     ):
-        with mock.mock.patch("BlockServer.core.active_config_holder.get_iocs") as mock_get_iocs:
+        with patch("BlockServer.core.active_config_holder.get_iocs") as mock_get_iocs:
             mock_get_iocs.return_value = ["IOCNAME1", "IOCNAME2"]
 
             # Arrange
@@ -461,7 +460,7 @@ class TestActiveConfigHolderSequence(unittest.TestCase):
     def test_GIVEN_a_manually_started_ioc_WHEN_config_containing_that_ioc_is_loaded_THEN_the_ioc_is_restarted(
         self,
     ):
-        with mock.mock.patch("BlockServer.core.active_config_holder.get_iocs") as mock_get_iocs:
+        with patch("BlockServer.core.active_config_holder.get_iocs") as mock_get_iocs:
             mock_get_iocs.return_value = ["IOCNAME1", "IOCNAME2"]
 
             # Arrange
