@@ -11,6 +11,8 @@ set EPICS_CAS_INTF_ADDR_LIST=127.0.0.1
 set EPICS_CAS_BEACON_ADDR_LIST=127.255.255.255
 set EPICS_CA_MAX_ARRAY_BYTES=65536
 
+call %MYDIRBLOCK%activate_virtual_env.bat
+
 set PYTHONUNBUFFERED=TRUE
 
 C:\instrument\apps\python3\python.exe %MYDIRBLOCK%RemoteIocServer\remote_ioc_server.py --pv_prefix %MYPVPREFIX%
