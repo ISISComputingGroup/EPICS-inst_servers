@@ -21,7 +21,7 @@ from BlockServer.config.group import Group
 from BlockServer.config.ioc import IOC
 from BlockServer.config.metadata import MetaData
 from BlockServer.core.constants import *
-from BlockServer.core.macros import PVPREFIX_MACRO
+from server_common.helpers import PVPREFIX_MACRO
 from server_common.utilities import *
 
 KEY_NONE = GRP_NONE.lower()

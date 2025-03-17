@@ -9,7 +9,7 @@ from unittest import mock
 from mock import MagicMock
 
 from BlockServer.component_switcher.component_switcher import ComponentSwitcher
-from BlockServer.core.macros import PVPREFIX_MACRO
+from server_common.helpers import PVPREFIX_MACRO
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 

@@ -23,7 +23,7 @@ from typing import TYPE_CHECKING
 
 from BlockServer.core.config_list_manager_exceptions import InvalidDeleteException
 from BlockServer.core.constants import DEFAULT_COMPONENT
-from BlockServer.core.file_path_manager import FILEPATH_MANAGER
+from server_common.file_path_manager import FILEPATH_MANAGER
 from BlockServer.core.inactive_config_holder import InactiveConfigHolder
 from server_common.channel_access import ChannelAccess, verify_manager_mode
 from server_common.common_exceptions import MaxAttemptsExceededException
