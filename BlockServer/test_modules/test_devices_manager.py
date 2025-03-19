@@ -99,11 +99,11 @@ class MockDevicesFileIO:
 class TestDevicesManagerSequence(unittest.TestCase):
     def setUp(self):
         # Make directory and fill with fake content
-        with as_file(SCHEMA_PATH) as _SCHEMA_PATH:
+        with as_file(SCHEMA_PATH) as _schema_path:
             FILEPATH_MANAGER.initialise(
                 os.path.abspath(CONFIG_PATH),
                 os.path.abspath(SCRIPT_PATH),
-                os.path.abspath(_SCHEMA_PATH),
+                os.path.abspath(_schema_path),
             )
         self.dir = SCHEMA_PATH
 
