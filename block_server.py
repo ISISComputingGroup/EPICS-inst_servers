@@ -28,19 +28,31 @@ sys.path.insert(0, os.path.abspath(os.path.dirname(__file__)))
 # Standard imports
 import argparse
 import datetime
+from importlib.resources import files
 from queue import Queue
 from threading import RLock, Thread
 from time import sleep, time
-from importlib.resources import files
 
 from pcaspy import Driver, SimpleServer
 from pcaspy.driver import Data, manager
+from server_common.channel_access import ChannelAccess
+from server_common.file_path_manager import FILEPATH_MANAGER
+from server_common.helpers import BLOCK_PREFIX, CONTROL_SYSTEM_PREFIX, MACROS, PVPREFIX_MACRO
+from server_common.pv_names import BlockserverPVNames
+from server_common.utilities import (
+    char_waveform,
+    compress_and_hex,
+    convert_from_json,
+    convert_to_json,
+    dehex_and_decompress,
+    print_and_log,
+    set_logger,
+)
 
 from BlockServer.component_switcher.component_switcher import ComponentSwitcher
 from BlockServer.config.json_converter import ConfigurationJsonConverter
 from BlockServer.core.active_config_holder import ActiveConfigHolder
 from BlockServer.core.config_list_manager import ConfigListManager
-from server_common.file_path_manager import FILEPATH_MANAGER
 from BlockServer.core.inactive_config_holder import InactiveConfigHolder
 from BlockServer.core.ioc_control import IocControl
 from BlockServer.devices.devices_manager import DevicesManager
@@ -59,18 +71,6 @@ from ConfigVersionControl.git_version_control import GitVersionControl, RepoFact
 from ConfigVersionControl.version_control_exceptions import (
     NotUnderVersionControl,
     VersionControlException,
-)
-from server_common.channel_access import ChannelAccess
-from server_common.helpers import CONTROL_SYSTEM_PREFIX, MACROS, PVPREFIX_MACRO, BLOCK_PREFIX
-from server_common.pv_names import BlockserverPVNames
-from server_common.utilities import (
-    char_waveform,
-    compress_and_hex,
-    convert_from_json,
-    convert_to_json,
-    dehex_and_decompress,
-    print_and_log,
-    set_logger,
 )
 from WebServer.simple_webserver import Server
 
