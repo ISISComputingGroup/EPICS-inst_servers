@@ -21,6 +21,7 @@ from server_common.file_path_manager import FILEPATH_MANAGER
 from BlockServer.devices.devices_manager import GET_SCREENS, DevicesManager
 from BlockServer.mocks.mock_block_server import MockBlockServer
 from server_common.utilities import compress_and_hex, dehex_and_decompress
+from importlib.resources import files
 
 CONFIG_PATH = os.path.join(os.getcwd(), "test_configs")
 SCRIPT_PATH = os.path.join(os.getcwd(), "test_scripts")
@@ -73,7 +74,7 @@ INVALID_DEVICES = """<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
     </device>
 </devices>"""
 
-SCHEMA_PATH = os.path.abspath(os.path.join(".", "..", "schema"))
+SCHEMA_PATH = files("server_common.schema").joinpath("")
 
 
 def get_expected_devices_file_path():
@@ -100,13 +101,7 @@ class TestDevicesManagerSequence(unittest.TestCase):
         FILEPATH_MANAGER.initialise(
             os.path.abspath(CONFIG_PATH), os.path.abspath(SCRIPT_PATH), os.path.abspath(SCHEMA_PATH)
         )
-
-        # Find the schema directory
-        dir = os.path.join(".")
-        while SCHEMA_FOLDER not in os.listdir(dir):
-            dir = os.path.join(dir, "..")
-
-        self.dir = os.path.join(dir, SCHEMA_FOLDER)
+        self.dir = SCHEMA_PATH
 
         self.bs = MockBlockServer()
         self.file_io = MockDevicesFileIO()

@@ -17,6 +17,7 @@ import os
 import shutil
 import traceback
 import unittest
+from importlib.resources import files
 
 from BlockServer.config.configuration import Configuration
 from BlockServer.config.xml_converter import ConfigurationXmlConverter
@@ -31,7 +32,6 @@ from server_common.helpers import MACROS
 
 TEST_DIRECTORY = os.path.abspath("test_configs")
 SCRIPT_DIRECTORY = os.path.abspath("test_scripts")
-SCHEMA_FOLDER = "schema"
 
 TEST_CONFIG = {
     "iocs": [
@@ -103,10 +103,7 @@ def strip_out_whitespace(string):
 class TestSchemaChecker(unittest.TestCase):
     def setUp(self):
         # Find the schema directory
-        dir = os.path.join(".")
-        while SCHEMA_FOLDER not in os.listdir(dir):
-            dir = os.path.join(dir, "..")
-        self.schema_dir = os.path.join(dir, SCHEMA_FOLDER)
+        self.schema_dir = files("server_common.schema").joinpath("")
 
         FILEPATH_MANAGER.initialise(TEST_DIRECTORY, SCRIPT_DIRECTORY, self.schema_dir)
         self.cs = InactiveConfigHolder(MACROS, MockConfigurationFileManager())

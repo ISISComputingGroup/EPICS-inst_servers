@@ -31,6 +31,7 @@ import datetime
 from queue import Queue
 from threading import RLock, Thread
 from time import sleep, time
+from importlib.resources import files
 
 from pcaspy import Driver, SimpleServer
 from pcaspy.driver import Data, manager
@@ -912,7 +913,8 @@ if __name__ == "__main__":
     SCRIPT_DIR = os.path.abspath(args.script_dir[0])
     print_and_log(f"SCRIPTS DIRECTORY {SCRIPT_DIR}")
 
-    SCHEMA_DIR = os.path.abspath(args.schema_dir[0])
+    SCHEMA_DIR = files("server_common.schema").joinpath("")
+
     print_and_log(f"SCHEMA DIRECTORY = {SCHEMA_DIR}")
 
     ARCHIVE_UPLOADER = args.archive_uploader[0].replace(
