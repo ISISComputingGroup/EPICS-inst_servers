@@ -829,8 +829,8 @@ if __name__ == "__main__":
         "--schema_dir",
         nargs=1,
         type=str,
-        default=["."],
-        help="Directory from which to load the configuration schema (default=current directory)",
+        default=[""],
+        help="Directory from which to load the configuration schema (default=server_common)",
     )
     parser.add_argument(
         "-od",
@@ -914,8 +914,11 @@ if __name__ == "__main__":
     SCRIPT_DIR = os.path.abspath(args.script_dir[0])
     print_and_log(f"SCRIPTS DIRECTORY {SCRIPT_DIR}")
 
-    with as_file(files("server_common.schema").joinpath("")) as schema_dir:
-        SCHEMA_DIR = schema_dir
+    if not args.schema_dir:
+        with as_file(files("server_common.schema").joinpath("")) as schema_dir:
+            SCHEMA_DIR = schema_dir
+    else:
+        SCHEMA_DIR = os.path.abspath(args.schema_dir[0])
 
     print_and_log(f"SCHEMA DIRECTORY = {SCHEMA_DIR}")
 

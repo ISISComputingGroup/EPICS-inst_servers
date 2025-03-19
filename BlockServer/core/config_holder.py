@@ -21,14 +21,15 @@ import re
 from collections import OrderedDict
 from typing import Any, Dict, List
 
+from server_common.file_path_manager import FILEPATH_MANAGER
+from server_common.helpers import PVPREFIX_MACRO
+from server_common.utilities import print_and_log
+
 from BlockServer.config.configuration import Configuration
 from BlockServer.config.group import Group
 from BlockServer.config.metadata import MetaData
 from BlockServer.core.constants import DEFAULT_COMPONENT, GRP_NONE
-from server_common.file_path_manager import FILEPATH_MANAGER
-from server_common.helpers import PVPREFIX_MACRO
 from BlockServer.fileIO.file_manager import ConfigurationFileManager
-from server_common.utilities import print_and_log
 
 
 class ConfigHolder:
@@ -43,7 +44,7 @@ class ConfigHolder:
         file_manager: ConfigurationFileManager,
         is_component: bool = False,
         test_config: Configuration = None,
-    ):
+    ) -> None:
         """Constructor.
 
         Args:
@@ -67,13 +68,13 @@ class ConfigHolder:
         self._cached_config = Configuration(macros)
         self._cached_components = OrderedDict()
 
-    def clear_config(self):
+    def clear_config(self) -> None:
         """Clears the configuration."""
         self._config = Configuration(self._macros)
         self._components = OrderedDict()
         self._is_component = False
 
-    def add_component(self, name: str):
+    def add_component(self, name: str) -> None:
         """Add a component with the specified name to the configuration.
 
         Args:
@@ -95,7 +96,7 @@ class ConfigHolder:
                 "Requested component is already part of the configuration: " + str(name)
             )
 
-    def remove_comp(self, name: str):
+    def remove_comp(self, name: str) -> None:
         """Removes a component from the configuration.
 
         This is not needed as part of the BlockServer as such, but it helps with unit testing.
@@ -173,7 +174,8 @@ class ConfigHolder:
                             used_blocks.append(bn)
 
         # If any groups are empty now we've filled in from the components, get rid of them
-        # This is an ordered dict so we need to copy it before iterating - throws a runtime error if it has mutated.
+        # This is an ordered dict so we need to copy it before iterating - throws a runtime error
+        # if it has mutated.
         groups_copy = groups.copy()
         for key in groups_copy.keys():
             if len(groups[key].blocks) == 0:
@@ -181,7 +183,7 @@ class ConfigHolder:
 
         return groups
 
-    def _set_group_details(self, redefinition):
+    def _set_group_details(self, redefinition) -> None:
         # Any redefinition only affects the main configuration
         homeless_blocks = self.get_blocknames()
         for grp in redefinition:
@@ -201,8 +203,8 @@ class ConfigHolder:
                         homeless_blocks.remove(blk)
             else:
                 component = grp.get("component")
-                # Ignore empty groups, except those with components. Component groups are included just
-                # for ordering
+                # Ignore empty groups, except those with components. Component groups are
+                # included just for ordering
                 if len(grp["blocks"]) > 0 or component is not None:
                     self._config.groups[grp["name"].lower()] = Group(
                         grp["name"], component=component
@@ -225,7 +227,7 @@ class ConfigHolder:
         """
         return self._config.get_name()
 
-    def _set_config_name(self, name):
+    def _set_config_name(self, name: str) -> None:
         self._config.set_name(name)
 
     def get_ioc_names(self, include_base: bool = False) -> List[str]:
@@ -289,7 +291,7 @@ class ConfigHolder:
                 component_names.append(component.get_name())
         return component_names
 
-    def add_block(self, blockargs: Dict):
+    def add_block(self, blockargs: Dict) -> None:
         """Add a block to the configuration.
 
         Args:
@@ -299,16 +301,16 @@ class ConfigHolder:
 
     def _add_ioc(
         self,
-        name,
-        component=None,
-        autostart=True,
-        restart=True,
-        macros=None,
-        pvs=None,
-        pvsets=None,
-        simlevel=None,
-        remotePvPrefix=None,
-    ):
+        name: str,
+        component: str | None = None,
+        autostart: bool =True,
+        restart: bool = True,
+        macros: Dict | None=None,
+        pvs: Dict | None = None,
+        pvsets: Dict | None = None,
+        simlevel: str | None =None,
+        remotePvPrefix: str | None = None,  # noqa: N803
+    ) -> None:
         # TODO: use IOC object instead?
         if component is None:
             self._config.add_ioc(
@@ -377,7 +379,7 @@ class ConfigHolder:
                 comps.append({"name": component_value.get_name()})
         return comps
 
-    def _blocks_to_list(self, expand_macro=False):
+    def _blocks_to_list(self, expand_macro: bool = False):
         blocks = self.get_block_details()
         blks = []
         if blocks is not None:
@@ -416,7 +418,7 @@ class ConfigHolder:
     def _to_dict(self, data_list):
         return None if data_list is None else {item["name"]: item for item in data_list}
 
-    def set_config(self, config: Configuration, is_component: bool = False):
+    def set_config(self, config: Configuration, is_component: bool = False) -> None:
         """Replace the existing configuration with the supplied configuration.
 
         Args:
@@ -435,7 +437,7 @@ class ConfigHolder:
             # add default component to list of components
             self.add_component(DEFAULT_COMPONENT)
 
-    def _set_component_names(self, comp, name):
+    def _set_component_names(self, comp: Configuration, name: str) -> None:
         # Set the component for blocks, groups and IOCs
         for block in comp.blocks.values():
             block.component = name
@@ -446,7 +448,7 @@ class ConfigHolder:
 
     def load_configuration(
         self, name: str, is_component: bool = False, set_component_names: bool = True
-    ):
+    ) -> Configuration:
         """Load a configuration.
 
         Args:
@@ -462,7 +464,7 @@ class ConfigHolder:
         else:
             return self._filemanager.load_config(name, self._macros, False)
 
-    def save_configuration(self, name: str, as_component: bool):
+    def save_configuration(self, name: str, as_component: bool) -> None:
         """Save the configuration.
 
         Args:
@@ -481,7 +483,7 @@ class ConfigHolder:
             # TODO: CHECK WHAT COMPONENTS self._config contains and remove _base if it is in there
             self._filemanager.save_config(self._config, False)
 
-    def _check_name(self, name, is_comp=False):
+    def _check_name(self, name:str, is_comp:bool=False) -> None:
         # Not empty
         if name is None or name.strip() == "":
             raise ValueError("Configuration name cannot be blank")
@@ -493,13 +495,14 @@ class ConfigHolder:
         if m is None:
             raise ValueError("Configuration name contains invalid characters")
 
-    def _set_as_component(self, value):
+    def _set_as_component(self, value: bool) -> None:
         if value is True:
             if len(self._components) == 0:
                 self._is_component = True
             else:
                 raise ValueError(
-                    "Can not cast to a component as the configuration contains at least one component"
+                    "Can not cast to a component as the configuration contains at least one "
+                    "component"
                 )
 
             # Strip out any remaining groups that belong to components
@@ -509,11 +512,11 @@ class ConfigHolder:
         else:
             self._is_component = False
 
-    def _cache_config(self):
+    def _cache_config(self) -> None:
         self._cached_config = copy.deepcopy(self._config)
         self._cached_components = copy.deepcopy(self._components)
 
-    def _retrieve_cache(self):
+    def _retrieve_cache(self) -> None:
         print_and_log("Retrieving cached configuration...")
         self._config = copy.deepcopy(self._cached_config)
         self._components = copy.deepcopy(self._cached_components)
@@ -534,7 +537,7 @@ class ConfigHolder:
         """
         return self._cached_config.get_name()
 
-    def set_history(self, history: List[str | None]):
+    def set_history(self, history: List[str | None]) -> None:
         """Set history for configuration.
 
         Args:
