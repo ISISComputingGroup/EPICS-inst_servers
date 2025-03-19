@@ -17,7 +17,7 @@ import os
 import shutil
 import traceback
 import unittest
-from importlib.resources import files
+from importlib.resources import files, as_file
 
 from server_common.file_path_manager import FILEPATH_MANAGER
 from server_common.helpers import MACROS
@@ -104,7 +104,8 @@ def strip_out_whitespace(string):
 class TestSchemaChecker(unittest.TestCase):
     def setUp(self):
         # Find the schema directory
-        self.schema_dir = files("server_common.schema").joinpath("")
+        with as_file(files("server_common.schema").joinpath("")) as _schema_dir:
+            self.schema_dir = _schema_dir
 
         FILEPATH_MANAGER.initialise(TEST_DIRECTORY, SCRIPT_DIRECTORY, self.schema_dir)
         self.cs = InactiveConfigHolder(MACROS, MockConfigurationFileManager())

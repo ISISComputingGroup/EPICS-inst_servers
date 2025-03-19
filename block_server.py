@@ -28,7 +28,7 @@ sys.path.insert(0, os.path.abspath(os.path.dirname(__file__)))
 # Standard imports
 import argparse
 import datetime
-from importlib.resources import files
+from importlib.resources import files, as_file
 from queue import Queue
 from threading import RLock, Thread
 from time import sleep, time
@@ -913,7 +913,8 @@ if __name__ == "__main__":
     SCRIPT_DIR = os.path.abspath(args.script_dir[0])
     print_and_log(f"SCRIPTS DIRECTORY {SCRIPT_DIR}")
 
-    SCHEMA_DIR = files("server_common.schema").joinpath("")
+    with as_file(files("server_common.schema").joinpath("")) as schema_dir:
+        SCHEMA_DIR = schema_dir
 
     print_and_log(f"SCHEMA DIRECTORY = {SCHEMA_DIR}")
 

@@ -16,7 +16,7 @@
 
 import os
 import unittest
-from importlib.resources import files
+from importlib.resources import files, as_file
 
 from server_common.file_path_manager import FILEPATH_MANAGER
 from server_common.utilities import compress_and_hex, dehex_and_decompress
@@ -99,11 +99,12 @@ class MockDevicesFileIO:
 class TestDevicesManagerSequence(unittest.TestCase):
     def setUp(self):
         # Make directory and fill with fake content
-        FILEPATH_MANAGER.initialise(
-            os.path.abspath(CONFIG_PATH),
-            os.path.abspath(SCRIPT_PATH),
-            os.path.abspath(SCHEMA_PATH),
-        )
+        with as_file(SCHEMA_PATH) as _SCHEMA_PATH:
+            FILEPATH_MANAGER.initialise(
+                os.path.abspath(CONFIG_PATH),
+                os.path.abspath(SCRIPT_PATH),
+                os.path.abspath(_SCHEMA_PATH),
+            )
         self.dir = SCHEMA_PATH
 
         self.bs = MockBlockServer()
