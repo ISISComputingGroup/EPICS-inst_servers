@@ -19,6 +19,7 @@ import json
 import os
 import sys
 import traceback
+from typing import Any, Dict
 
 from server_common.channel_access import ManagerModeRequiredError, verify_manager_mode
 from server_common.channel_access_server import CAServer
@@ -267,7 +268,7 @@ class BlockServer(Driver):
             self._active_configserver.clear_config()
             self._initialise_config()
 
-    def read(self, reason: str):
+    def read(self, reason: str) -> str:
         """A method called by SimpleServer when a PV is read from the BlockServer over
          Channel Access.
 
@@ -317,7 +318,7 @@ class BlockServer(Driver):
             print_and_log(str(err), "MAJOR")
         return value
 
-    def write(self, reason: str, value: str):
+    def write(self, reason: str, value: str) -> str:
         """A method called by SimpleServer when a PV is written to the BlockServer over
          Channel Access. The write commands are queued as Channel Access is single-threaded.
 
@@ -491,7 +492,7 @@ class BlockServer(Driver):
         # Note: autostart means the IOC is started when the config is loaded,
         # restart means the IOC should automatically restart if it stops for some reason
         # (e.g. it crashes)
-        def _ioc_from_name(ioc_name: str):
+        def _ioc_from_name(ioc_name: str) -> str:
             return self._active_configserver.get_all_ioc_details()[ioc_name]
 
         def _is_remote(ioc_name: str) -> bool:
@@ -621,7 +622,7 @@ class BlockServer(Driver):
         if config_name == self._active_configserver.get_config_name():
             self.load_config(config_name, full_init=False)
 
-    def _get_inactive_history(self, name: str, is_component: bool = False):
+    def _get_inactive_history(self, name: str, is_component: bool = False) -> list[str | None]:
         # If it already exists load it
         try:
             inactive = InactiveConfigHolder(MACROS, ConfigurationFileManager())
@@ -721,7 +722,7 @@ class BlockServer(Driver):
                 traceback.print_exc()
             self.update_server_status("")
 
-    def get_blank_config(self):
+    def get_blank_config(self) -> Dict[str, Any]:
         """Get a blank configuration which can be used to create a new configuration from scratch.
 
         Returns:

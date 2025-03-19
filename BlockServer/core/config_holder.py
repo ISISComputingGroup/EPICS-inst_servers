@@ -534,7 +534,7 @@ class ConfigHolder:
         """
         return self._cached_config.get_name()
 
-    def set_history(self, history: List[Any]):
+    def set_history(self, history: List[str | None]):
         """Set history for configuration.
 
         Args:
@@ -542,7 +542,7 @@ class ConfigHolder:
         """
         self._config.meta.history = history
 
-    def get_history(self) -> List[Any]:
+    def get_history(self) -> List[str | None]:
         """Get the history for configuration.
 
         Returns:
