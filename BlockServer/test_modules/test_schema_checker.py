@@ -17,7 +17,7 @@ import os
 import shutil
 import traceback
 import unittest
-from importlib.resources import files, as_file
+from importlib.resources import as_file, files
 
 from server_common.file_path_manager import FILEPATH_MANAGER
 from server_common.helpers import MACROS

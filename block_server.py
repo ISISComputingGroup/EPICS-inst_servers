@@ -28,7 +28,7 @@ sys.path.insert(0, os.path.abspath(os.path.dirname(__file__)))
 # Standard imports
 import argparse
 import datetime
-from importlib.resources import files, as_file
+from importlib.resources import as_file, files
 from queue import Queue
 from threading import RLock, Thread
 from time import sleep, time

@@ -16,7 +16,7 @@
 
 import os
 import unittest
-from importlib.resources import files, as_file
+from importlib.resources import as_file, files
 
 from server_common.file_path_manager import FILEPATH_MANAGER
 from server_common.utilities import compress_and_hex, dehex_and_decompress
