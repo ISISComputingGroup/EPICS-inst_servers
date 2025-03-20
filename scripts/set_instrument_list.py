@@ -183,7 +183,7 @@ if __name__ == "__main__":
             is_scheduled=False,
             target_station=TS1,
         ),
-        inst_dictionary("HRPD", groups=[CRYSTALLOGRAPHY], target_station=TS1),
+        inst_dictionary("HRPD", groups=[CRYSTALLOGRAPHY], target_station=MISC),
         inst_dictionary("POLARIS", groups=[CRYSTALLOGRAPHY], target_station=TS1),
         inst_dictionary("VESUVIO", groups=[MOLSPEC], target_station=TS1),
         inst_dictionary("ENGINX", groups=[ENGINEERING, CRYSTALLOGRAPHY], target_station=TS1),
