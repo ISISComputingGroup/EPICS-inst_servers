@@ -303,12 +303,12 @@ class ConfigHolder:
         self,
         name: str,
         component: str | None = None,
-        autostart: bool =True,
+        autostart: bool = True,
         restart: bool = True,
-        macros: Dict | None=None,
+        macros: Dict | None = None,
         pvs: Dict | None = None,
         pvsets: Dict | None = None,
-        simlevel: str | None =None,
+        simlevel: str | None = None,
         remotePvPrefix: str | None = None,  # noqa: N803
     ) -> None:
         # TODO: use IOC object instead?
@@ -483,7 +483,7 @@ class ConfigHolder:
             # TODO: CHECK WHAT COMPONENTS self._config contains and remove _base if it is in there
             self._filemanager.save_config(self._config, False)
 
-    def _check_name(self, name:str, is_comp:bool=False) -> None:
+    def _check_name(self, name: str, is_comp: bool = False) -> None:
         # Not empty
         if name is None or name.strip() == "":
             raise ValueError("Configuration name cannot be blank")
