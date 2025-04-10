@@ -829,7 +829,6 @@ if __name__ == "__main__":
         "--schema_dir",
         nargs=1,
         type=str,
-        default=[""],
         help="Directory from which to load the configuration schema (default=server_common)",
     )
     parser.add_argument(
