@@ -337,7 +337,6 @@ if __name__ == "__main__":
     )
 
     current_host = socket.gethostname()
-    current_prefix = g.prefix_pv_name("")
     default_controllers = range(1, MAX_CONTROLLER + 1)
 
     parser = argparse.ArgumentParser(
@@ -355,8 +354,8 @@ if __name__ == "__main__":
         "--prefix",
         "-p",
         help="(optional) PV prefix for motor controller, defaults to current instrument prefix.",
-        default=current_prefix,
         required=False,
+        default=None,
     )
     parser.add_argument(
         "--controller",
@@ -380,4 +379,9 @@ if __name__ == "__main__":
     # if args.host is none then this defaults to the current instrument
     g.set_instrument(args.host, import_instrument_init=False)
 
-    summarise_and_restore_positions(args.time, args.prefix, list(args.controller), args.host)
+    if args.prefix is None:
+        prefix = g.prefix_pv_name("")
+    else:
+        prefix = args.prefix
+
+    summarise_and_restore_positions(args.time, prefix, list(args.controller), args.host)
