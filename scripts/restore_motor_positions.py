@@ -101,9 +101,11 @@ def get_archived_positions(
         check_movement_for: time to check for motor movement
 
     Returns:
-        list of pvs containing tuple of name, archiver data value of next move, and time at which value was found
+        list of pvs containing tuple of name, archiver data value of next move, and time at which
+        value was found
     """
-    archive_mysql_abstraction_layer = SQLAbstraction("archive", "report", "$report", host=host)
+    archive_mysql_abstraction_layer = SQLAbstraction("archive", "report",
+                                                     "$report", host=host)
 
     Severity.populate(archive_mysql_abstraction_layer)
     archiver_data_source = ArchiverDataSource(archive_mysql_abstraction_layer)
@@ -153,13 +155,14 @@ def print_summary(archive_values, pv_values, data_time, log_file):
     """
     print_and_log(f"PVs at time {data_time}", log_file)
     print_and_log(
-        f'{"name":12} {"motor":7}: {"archive val":12} {"diff from":12} - {"last update":19} '
-        f'{"next update":19} {"alarm":5}',
+        f"{'name':12} {'motor':7}: {'archive val':12} {'diff from':12}"
+        f" - {'last update':19} "
+        f"{'next update':19} {'alarm':5}",
         log_file,
     )
     print_and_log(
-        f'{"":12} {"":7}: {"":12} {"current val":12} - {"(sample time)":19} '
-        f'{"(within window)":19} {"":5}',
+        f"{'':12} {'':7}: {'':12} {'current val':12} - {'(sample time)':19} "
+        f"{'(within window)':19} {'':5}",
         log_file,
     )
 
@@ -174,7 +177,7 @@ def print_summary(archive_values, pv_values, data_time, log_file):
             try:
                 val_as_float = float(pv_value.value)
                 diff_from_current = val_as_float - value
-                val = f"{val_as_float :12.3f}"
+                val = f"{val_as_float:12.3f}"
             except ValueError:
                 val = f"{pv_value.value:12}"
             except TypeError:
@@ -193,8 +196,9 @@ def print_summary(archive_values, pv_values, data_time, log_file):
             last_change = pv_value.sample_time.strftime(DATA_TIME_DISPLAY_FORMAT)
 
         print_and_log(
-            f"{motor_name[:12]:12} {pv_name[-7:]}: {val} {diff_from_current:12.3f} - {last_change[:19]:19} "
-            f"{next_change_str:19} {Severity.get(pv_value.severity_id) :5}",
+            f"{motor_name[:12]:12} {pv_name[-7:]}: {val} {diff_from_current:12.3f}"
+            f" - {last_change[:19]:19} "
+            f"{next_change_str:19} {Severity.get(pv_value.severity_id):5}",
             log_file,
         )
 
@@ -212,15 +216,16 @@ def define_position_as(pv_name, value, current_pos, motor_name, log_file):
     """
     try:
         print_and_log(
-            f"Defining motor position {pv_name} ({motor_name}) from {current_pos} to {value} at {datetime.now()}",
+            f"Defining motor position {pv_name} ({motor_name}) from {current_pos} to"
+            f" {value} at {datetime.now()}",
             log_file,
         )
         with motor_in_set_mode(pv_name):
             g.set_pv(pv_name, value)
     except ValueError:
         print_and_log(
-            f"Issue setting motor pv {pv_name}, please ensure it has a sensible value and that the "
-            f"calibration is set to USE",
+            f"Issue setting motor pv {pv_name}, please ensure it has a sensible value"
+            f" and that the calibration is set to USE",
             log_file,
         )
         input("Press a key to continue")
@@ -315,24 +320,36 @@ if __name__ == "__main__":
         "\n\nExample: restore_motor_positions.py --time 2018-01-10T09:00:00 "
     )
 
+    current_host = socket.gethostname()
+    current_prefix = g.prefix_pv_name("")
+    default_controllers = range(1, MAX_CONTROLLER + 1)
+
     parser = argparse.ArgumentParser(
         description=description, formatter_class=argparse.RawTextHelpFormatter
     )
 
     parser.add_argument(
         "--host",
-        help="(optional) Host to get data from e.g. NDXPOLREF. defaults to current instrument host name.",
+        help="(optional) Host to get data from e.g. NDXPOLREF."
+             " defaults to current instrument host name.",
+        default=current_host,
+        required=False,
     )
     parser.add_argument(
         "--prefix",
         "-p",
         help="(optional) PV prefix for motor controller, defaults to current instrument prefix.",
+        default=current_prefix,
+        required=False,
     )
     parser.add_argument(
         "--controller",
         "-c",
         help="(optional) Controller number, for single controller restoring."
-        f"defaults to restoring controllers 1-{MAX_CONTROLLER}",
+        f"defaults to restoring controllers {default_controllers.start}-{default_controllers.stop}",
+        required=False,
+        default=list(default_controllers),
+        type=lambda x: [int(x)],
     )
     parser.add_argument(
         "--time",
@@ -348,19 +365,4 @@ if __name__ == "__main__":
     # if args.host is none then this defaults to the current instrument
     g.set_instrument(args.host, import_instrument_init=False)
 
-    if args.prefix is None:
-        prefix = g.prefix_pv_name("")
-    else:
-        prefix = args.prefix
-
-    if args.host is None:
-        host = socket.gethostname()
-    else:
-        host = args.host
-
-    if args.controller is None:
-        controllers = range(1, MAX_CONTROLLER + 1)
-    else:
-        controllers = [int(args.controller)]
-
-    summarise_and_restore_positions(data_time, prefix, controllers, host)
+    summarise_and_restore_positions(data_time, args.prefix, list(args.controller), args.host)
