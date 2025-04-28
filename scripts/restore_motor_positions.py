@@ -5,13 +5,17 @@ Script to restore motor positions from the archive.
 import argparse
 import os
 import socket
-import sys
 from datetime import datetime, timedelta
 from io import TextIOWrapper
 from typing import Dict, List, Optional, TextIO, Tuple
 
 from genie_python import genie as g
 from genie_python.mysql_abstraction_layer import SQLAbstraction
+
+from ArchiverAccess.archive_time_period import ArchiveTimePeriod
+from ArchiverAccess.archiver_data_source import ArchiverDataSource, ArchiverDataValue
+from server_common.helpers import motor_in_set_mode
+from server_common.utilities import parse_date_time_arg_exit_on_fail
 
 DATA_TIME_DISPLAY_FORMAT = "%Y-%m-%d %H:%M:%S"
 
@@ -32,15 +36,6 @@ except KeyError:
 LOG_FILENAME = os.path.join(
     LOG_DIR, f"restore_motor_positions_{datetime.now().strftime('%Y%m%d_%H%M%S')}.log"
 )
-
-try:
-    from ArchiverAccess.archive_data_file_creator import ArchiveDataFileCreator
-except ImportError:
-    sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir)))
-from ArchiverAccess.archive_time_period import ArchiveTimePeriod
-from ArchiverAccess.archiver_data_source import ArchiverDataSource, ArchiverDataValue
-from server_common.helpers import motor_in_set_mode
-from server_common.utilities import parse_date_time_arg_exit_on_fail
 
 
 class Severity:
