@@ -9,10 +9,11 @@ from datetime import datetime, timedelta
 from io import TextIOWrapper
 from typing import Dict, List, Optional, TextIO, Tuple
 
-from ArchiverAccess.archive_time_period import ArchiveTimePeriod
-from ArchiverAccess.archiver_data_source import ArchiverDataSource, ArchiverDataValue
 from genie_python import genie as g
 from genie_python.mysql_abstraction_layer import SQLAbstraction
+
+from ArchiverAccess.archive_time_period import ArchiveTimePeriod
+from ArchiverAccess.archiver_data_source import ArchiverDataSource, ArchiverDataValue
 from server_common.helpers import motor_in_set_mode
 from server_common.utilities import parse_date_time_arg_exit_on_fail
 
