@@ -384,4 +384,4 @@ if __name__ == "__main__":
     else:
         prefix = args.prefix
 
-    summarise_and_restore_positions(args.time, prefix, list(args.controller), args.host)
+    summarise_and_restore_positions(args.time, prefix, args.controller, args.host)
