@@ -19,6 +19,7 @@ import json
 import os
 import sys
 import traceback
+from typing import Any, Dict
 
 from server_common.channel_access import ManagerModeRequiredError, verify_manager_mode
 from server_common.channel_access_server import CAServer
@@ -28,18 +29,31 @@ sys.path.insert(0, os.path.abspath(os.path.dirname(__file__)))
 # Standard imports
 import argparse
 import datetime
+from importlib.resources import as_file, files
 from queue import Queue
 from threading import RLock, Thread
 from time import sleep, time
 
 from pcaspy import Driver, SimpleServer
 from pcaspy.driver import Data, manager
+from server_common.channel_access import ChannelAccess
+from server_common.file_path_manager import FILEPATH_MANAGER
+from server_common.helpers import BLOCK_PREFIX, CONTROL_SYSTEM_PREFIX, MACROS, PVPREFIX_MACRO
+from server_common.pv_names import BlockserverPVNames
+from server_common.utilities import (
+    char_waveform,
+    compress_and_hex,
+    convert_from_json,
+    convert_to_json,
+    dehex_and_decompress,
+    print_and_log,
+    set_logger,
+)
 
 from BlockServer.component_switcher.component_switcher import ComponentSwitcher
 from BlockServer.config.json_converter import ConfigurationJsonConverter
 from BlockServer.core.active_config_holder import ActiveConfigHolder
 from BlockServer.core.config_list_manager import ConfigListManager
-from server_common.file_path_manager import FILEPATH_MANAGER
 from BlockServer.core.inactive_config_holder import InactiveConfigHolder
 from BlockServer.core.ioc_control import IocControl
 from BlockServer.devices.devices_manager import DevicesManager
@@ -58,18 +72,6 @@ from ConfigVersionControl.git_version_control import GitVersionControl, RepoFact
 from ConfigVersionControl.version_control_exceptions import (
     NotUnderVersionControl,
     VersionControlException,
-)
-from server_common.channel_access import ChannelAccess
-from server_common.helpers import CONTROL_SYSTEM_PREFIX, MACROS, PVPREFIX_MACRO, BLOCK_PREFIX
-from server_common.pv_names import BlockserverPVNames
-from server_common.utilities import (
-    char_waveform,
-    compress_and_hex,
-    convert_from_json,
-    convert_to_json,
-    dehex_and_decompress,
-    print_and_log,
-    set_logger,
 )
 from WebServer.simple_webserver import Server
 
@@ -266,7 +268,7 @@ class BlockServer(Driver):
             self._active_configserver.clear_config()
             self._initialise_config()
 
-    def read(self, reason: str):
+    def read(self, reason: str) -> str:
         """A method called by SimpleServer when a PV is read from the BlockServer over
          Channel Access.
 
@@ -316,7 +318,7 @@ class BlockServer(Driver):
             print_and_log(str(err), "MAJOR")
         return value
 
-    def write(self, reason: str, value: str):
+    def write(self, reason: str, value: str) -> str:
         """A method called by SimpleServer when a PV is written to the BlockServer over
          Channel Access. The write commands are queued as Channel Access is single-threaded.
 
@@ -490,7 +492,7 @@ class BlockServer(Driver):
         # Note: autostart means the IOC is started when the config is loaded,
         # restart means the IOC should automatically restart if it stops for some reason
         # (e.g. it crashes)
-        def _ioc_from_name(ioc_name: str):
+        def _ioc_from_name(ioc_name: str) -> str:
             return self._active_configserver.get_all_ioc_details()[ioc_name]
 
         def _is_remote(ioc_name: str) -> bool:
@@ -620,7 +622,7 @@ class BlockServer(Driver):
         if config_name == self._active_configserver.get_config_name():
             self.load_config(config_name, full_init=False)
 
-    def _get_inactive_history(self, name: str, is_component: bool = False):
+    def _get_inactive_history(self, name: str, is_component: bool = False) -> list[str | None]:
         # If it already exists load it
         try:
             inactive = InactiveConfigHolder(MACROS, ConfigurationFileManager())
@@ -720,7 +722,7 @@ class BlockServer(Driver):
                 traceback.print_exc()
             self.update_server_status("")
 
-    def get_blank_config(self):
+    def get_blank_config(self) -> Dict[str, Any]:
         """Get a blank configuration which can be used to create a new configuration from scratch.
 
         Returns:
@@ -827,8 +829,7 @@ if __name__ == "__main__":
         "--schema_dir",
         nargs=1,
         type=str,
-        default=["."],
-        help="Directory from which to load the configuration schema (default=current directory)",
+        help="Directory from which to load the configuration schema (default=server_common)",
     )
     parser.add_argument(
         "-od",
@@ -912,7 +913,12 @@ if __name__ == "__main__":
     SCRIPT_DIR = os.path.abspath(args.script_dir[0])
     print_and_log(f"SCRIPTS DIRECTORY {SCRIPT_DIR}")
 
-    SCHEMA_DIR = os.path.abspath(args.schema_dir[0])
+    if not args.schema_dir:
+        with as_file(files("server_common.schema").joinpath("")) as schema_dir:
+            SCHEMA_DIR = schema_dir
+    else:
+        SCHEMA_DIR = os.path.abspath(args.schema_dir[0])
+
     print_and_log(f"SCHEMA DIRECTORY = {SCHEMA_DIR}")
 
     ARCHIVE_UPLOADER = args.archive_uploader[0].replace(

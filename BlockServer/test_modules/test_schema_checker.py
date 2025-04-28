@@ -17,21 +17,22 @@ import os
 import shutil
 import traceback
 import unittest
+from importlib.resources import as_file, files
+
+from server_common.file_path_manager import FILEPATH_MANAGER
+from server_common.helpers import MACROS
 
 from BlockServer.config.configuration import Configuration
 from BlockServer.config.xml_converter import ConfigurationXmlConverter
-from server_common.file_path_manager import FILEPATH_MANAGER
 from BlockServer.core.inactive_config_holder import InactiveConfigHolder
 from BlockServer.fileIO.schema_checker import (
     ConfigurationInvalidUnderSchema,
     ConfigurationSchemaChecker,
 )
 from BlockServer.mocks.mock_file_manager import MockConfigurationFileManager
-from server_common.helpers import MACROS
 
 TEST_DIRECTORY = os.path.abspath("test_configs")
 SCRIPT_DIRECTORY = os.path.abspath("test_scripts")
-SCHEMA_FOLDER = "schema"
 
 TEST_CONFIG = {
     "iocs": [
@@ -103,10 +104,8 @@ def strip_out_whitespace(string):
 class TestSchemaChecker(unittest.TestCase):
     def setUp(self):
         # Find the schema directory
-        dir = os.path.join(".")
-        while SCHEMA_FOLDER not in os.listdir(dir):
-            dir = os.path.join(dir, "..")
-        self.schema_dir = os.path.join(dir, SCHEMA_FOLDER)
+        with as_file(files("server_common.schema").joinpath("")) as _schema_dir:
+            self.schema_dir = _schema_dir
 
         FILEPATH_MANAGER.initialise(TEST_DIRECTORY, SCRIPT_DIRECTORY, self.schema_dir)
         self.cs = InactiveConfigHolder(MACROS, MockConfigurationFileManager())
