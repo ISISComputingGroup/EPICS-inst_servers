@@ -196,7 +196,7 @@ if __name__ == "__main__":
         inst_dictionary("GEM", groups=[DISORDERED, CRYSTALLOGRAPHY], target_station=TS1),
         inst_dictionary("MAPS", groups=[EXCITATIONS], target_station=TS1),
         inst_dictionary("OSIRIS", groups=[MOLSPEC], target_station=TS1),
-        inst_dictionary("INES", groups=[CRYSTALLOGRAPHY], target_station=TS1),
+        inst_dictionary("INES", groups=[ENGINEERING], target_station=TS1),
         inst_dictionary("SXD", groups=[CRYSTALLOGRAPHY], target_station=TS1),
         inst_dictionary("TOSCA", groups=[MOLSPEC], target_station=TS1),
         inst_dictionary("LOQ", groups=[SANS], target_station=TS1),
