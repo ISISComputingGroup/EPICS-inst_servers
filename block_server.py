@@ -15,6 +15,7 @@
 # http://opensource.org/licenses/eclipse-1.0.php
 
 # Add root path for access to server_commons and path for version control module
+import contextlib
 import json
 import os
 import sys
@@ -914,34 +915,35 @@ if __name__ == "__main__":
     print_and_log(f"SCRIPTS DIRECTORY {SCRIPT_DIR}")
 
     if not args.schema_dir:
-        with as_file(files("server_common.schema").joinpath("")) as schema_dir:
-            SCHEMA_DIR = schema_dir
+        schema_cm = as_file(files("server_common.schema"))
     else:
-        SCHEMA_DIR = os.path.abspath(args.schema_dir[0])
+        schema_cm = contextlib.nullcontext(args.schema_dir[0])
 
-    print_and_log(f"SCHEMA DIRECTORY = {SCHEMA_DIR}")
+    with schema_cm as schema_dir:
+        SCHEMA_DIR = schema_dir
+        print_and_log(f"SCHEMA DIRECTORY = {SCHEMA_DIR}")
 
-    ARCHIVE_UPLOADER = args.archive_uploader[0].replace(
-        "%EPICS_KIT_ROOT%", MACROS["$(EPICS_KIT_ROOT)"]
-    )
-    print_and_log(f"ARCHIVE UPLOADER = {ARCHIVE_UPLOADER}")
+        ARCHIVE_UPLOADER = args.archive_uploader[0].replace(
+            "%EPICS_KIT_ROOT%", MACROS["$(EPICS_KIT_ROOT)"]
+        )
+        print_and_log(f"ARCHIVE UPLOADER = {ARCHIVE_UPLOADER}")
 
-    ARCHIVE_SETTINGS = args.archive_settings[0].replace(
-        "%EPICS_KIT_ROOT%", MACROS["$(EPICS_KIT_ROOT)"]
-    )
-    print_and_log(f"ARCHIVE SETTINGS = {ARCHIVE_SETTINGS}")
+        ARCHIVE_SETTINGS = args.archive_settings[0].replace(
+            "%EPICS_KIT_ROOT%", MACROS["$(EPICS_KIT_ROOT)"]
+        )
+        print_and_log(f"ARCHIVE SETTINGS = {ARCHIVE_SETTINGS}")
 
-    PVLIST_FILE = args.pvlist_name[0]
+        PVLIST_FILE = args.pvlist_name[0]
 
-    print_and_log(f"BLOCKSERVER PREFIX = {CONTROL_SYSTEM_PREFIX}")
-    SERVER = SimpleServer()
-    SERVER.createPV(CONTROL_SYSTEM_PREFIX, initial_dbs)
-    DRIVER = BlockServer(SERVER)
+        print_and_log(f"BLOCKSERVER PREFIX = {CONTROL_SYSTEM_PREFIX}")
+        SERVER = SimpleServer()
+        SERVER.createPV(CONTROL_SYSTEM_PREFIX, initial_dbs)
+        DRIVER = BlockServer(SERVER)  # pyright: ignore
 
-    # Process CA transactions
-    while True:
-        try:
-            SERVER.process(0.1)
-        except Exception as err:
-            print_and_log(err, "MAJOR")
-            break
+        # Process CA transactions
+        while True:
+            try:
+                SERVER.process(0.1)
+            except Exception as err:
+                print_and_log(err, "MAJOR")
+                break
