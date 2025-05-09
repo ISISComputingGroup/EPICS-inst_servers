@@ -938,7 +938,7 @@ if __name__ == "__main__":
         print_and_log(f"BLOCKSERVER PREFIX = {CONTROL_SYSTEM_PREFIX}")
         SERVER = SimpleServer()
         SERVER.createPV(CONTROL_SYSTEM_PREFIX, initial_dbs)
-        DRIVER = BlockServer(SERVER)
+        DRIVER = BlockServer(SERVER)  # pyright: ignore
 
         # Process CA transactions
         while True:
