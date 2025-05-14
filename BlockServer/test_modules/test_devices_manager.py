@@ -75,7 +75,7 @@ INVALID_DEVICES = """<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
     </device>
 </devices>"""
 
-SCHEMA_PATH = files("server_common.schema").joinpath("")
+SCHEMA_PATH = files("server_common.schema")
 
 
 def get_expected_devices_file_path():
@@ -99,12 +99,13 @@ class MockDevicesFileIO:
 class TestDevicesManagerSequence(unittest.TestCase):
     def setUp(self):
         # Make directory and fill with fake content
-        with as_file(SCHEMA_PATH) as _schema_path:
-            FILEPATH_MANAGER.initialise(
-                os.path.abspath(CONFIG_PATH),
-                os.path.abspath(SCRIPT_PATH),
-                os.path.abspath(_schema_path),
-            )
+        self._schema_cm = as_file(SCHEMA_PATH)
+        _schema_path = self._schema_cm.__enter__()
+        FILEPATH_MANAGER.initialise(
+            os.path.abspath(CONFIG_PATH),
+            os.path.abspath(SCRIPT_PATH),
+            os.path.abspath(_schema_path),
+        )
         self.dir = SCHEMA_PATH
 
         self.bs = MockBlockServer()
@@ -112,7 +113,7 @@ class TestDevicesManagerSequence(unittest.TestCase):
         self.dm = DevicesManager(self.bs, self.dir, self.file_io)
 
     def tearDown(self):
-        pass
+        self._schema_cm.__exit__(None, None, None)
 
     def test_get_devices_filename_returns_correct_file_name(self):
         # Arrange
