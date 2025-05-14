@@ -104,15 +104,17 @@ def strip_out_whitespace(string):
 class TestSchemaChecker(unittest.TestCase):
     def setUp(self):
         # Find the schema directory
-        with as_file(files("server_common.schema").joinpath("")) as _schema_dir:
-            self.schema_dir = _schema_dir
+        self.schema_cm = as_file(files("server_common.schema"))
+        self.schema_dir = self.schema_cm.__enter__()
 
         FILEPATH_MANAGER.initialise(TEST_DIRECTORY, SCRIPT_DIRECTORY, self.schema_dir)
         self.cs = InactiveConfigHolder(MACROS, MockConfigurationFileManager())
 
     def tearDown(self):
-        if os.path.isdir(TEST_DIRECTORY + os.sep):
-            shutil.rmtree(os.path.abspath(TEST_DIRECTORY + os.sep))
+        try:
+            self.schema_cm.__exit__(None, None, None)
+        except OSError:
+            pass
 
     def test_valid_blocks_xml_matches_schema(self):
         self.cs.set_config_details(TEST_CONFIG)

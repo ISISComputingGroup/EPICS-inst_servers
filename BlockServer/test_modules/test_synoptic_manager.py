@@ -21,6 +21,7 @@ from BlockServer.core.config_list_manager import InvalidDeleteException
 from BlockServer.mocks.mock_block_server import MockBlockServer
 from BlockServer.synoptic.synoptic_file_io import SynopticFileIO
 from BlockServer.synoptic.synoptic_manager import SYNOPTIC_GET, SYNOPTIC_PRE, SynopticManager
+from importlib.resources import as_file, files
 
 TEST_DIR = os.path.abspath(".")
 
@@ -60,15 +61,15 @@ class MockSynopticFileIO(SynopticFileIO):
 class TestSynopticManagerSequence(unittest.TestCase):
     def setUp(self):
         # Find the schema directory
-        dir = os.path.join(".")
-        while SCHEMA_FOLDER not in os.listdir(dir):
-            dir = os.path.join(dir, "..")
-
-        self.dir = dir
+        self.schema_cm = as_file(files("server_common.schema"))
+        self.dir = self.schema_cm.__enter__()
 
         self.fileIO = MockSynopticFileIO()
         self.bs = MockBlockServer()
-        self.sm = SynopticManager(self.bs, os.path.join(self.dir, SCHEMA_FOLDER), None, self.fileIO)
+        self.sm = SynopticManager(self.bs, os.path.join(self.dir), None, self.fileIO)
+
+    def tearDown(self):
+        self.schema_cm.__exit__(None, None, None)
 
     def _create_a_synoptic(self, name, sm):
         sm.save_synoptic_xml(bytes(EXAMPLE_SYNOPTIC.format(name), encoding="utf-8"))

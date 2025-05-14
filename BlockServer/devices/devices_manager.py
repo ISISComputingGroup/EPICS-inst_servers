@@ -170,7 +170,7 @@ class DevicesManager(OnTheFlyPvInterface):
         xml_data_as_bytes = bytes(xml_data, "utf-8")
         try:
             ConfigurationSchemaChecker.check_xml_data_matches_schema(
-                os.path.join(self._schema_folder, SCREENS_SCHEMA), xml_data_as_bytes
+                self._schema_folder / SCREENS_SCHEMA, xml_data_as_bytes
             )
         except ConfigurationInvalidUnderSchema as err:
             print_and_log(err)
@@ -201,8 +201,7 @@ class DevicesManager(OnTheFlyPvInterface):
         """
         if self._schema == b"":
             # Try loading it
-            with open(os.path.join(self._schema_folder, SCREENS_SCHEMA), "rb") as schemafile:
-                self._schema = schemafile.read()
+            self.schema = (self._schema_folder / SCREENS_SCHEMA).read_bytes()
         return self._schema
 
     def get_blank_devices(self) -> bytes:
