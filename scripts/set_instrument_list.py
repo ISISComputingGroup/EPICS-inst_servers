@@ -219,7 +219,7 @@ if __name__ == "__main__":
         inst_dictionary("POLREF", groups=[REFLECTOMETRY], target_station=TS2),
         inst_dictionary("SANS2D", groups=[SANS], target_station=TS2),
         inst_dictionary("MUSR", groups=[MUONS], target_station=MUON_TARGET),
-        inst_dictionary("MUX", groups=[MUONS], target_station=MISC),
+        inst_dictionary("MUX", groups=[MUONS], target_station=MUON_TARGET),
         inst_dictionary("WISH", groups=[CRYSTALLOGRAPHY], target_station=TS2),
         inst_dictionary(
             "WISH_SETUP",
