@@ -14,7 +14,6 @@
 # https://www.eclipse.org/org/documents/epl-v10.php or
 # http://opensource.org/licenses/eclipse-1.0.php
 import os
-import shutil
 import traceback
 import unittest
 from importlib.resources import as_file, files

@@ -16,12 +16,12 @@
 
 import os
 import unittest
+from importlib.resources import as_file, files
 
 from BlockServer.core.config_list_manager import InvalidDeleteException
 from BlockServer.mocks.mock_block_server import MockBlockServer
 from BlockServer.synoptic.synoptic_file_io import SynopticFileIO
 from BlockServer.synoptic.synoptic_manager import SYNOPTIC_GET, SYNOPTIC_PRE, SynopticManager
-from importlib.resources import as_file, files
 
 TEST_DIR = os.path.abspath(".")
 
