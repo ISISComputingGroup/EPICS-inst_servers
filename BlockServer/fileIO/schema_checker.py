@@ -19,26 +19,26 @@ import os
 from lxml import etree
 
 
-class NotConfigFileException(Exception):
-    def __init__(self, message):
+class NotConfigFileException(Exception):  # noqa N818 historic name
+    def __init__(self, message: str) -> None:
         super(Exception, self).__init__(message)
         self.message = message
 
 
-class ConfigurationIncompleteException(Exception):
-    def __init__(self, message):
+class ConfigurationIncompleteException(Exception):  # noqa N818 historic name
+    def __init__(self, message: str) -> None:
         super(Exception, self).__init__(message)
         self.message = message
 
 
-class ConfigurationInvalidUnderSchema(Exception):
-    def __init__(self, message):
+class ConfigurationInvalidUnderSchema(Exception):  # noqa N818 historic name
+    def __init__(self, message: str) -> None:
         super(Exception, self).__init__(message)
         self.message = message
 
 
-class ConfigurationFileBlank(Exception):
-    def __init__(self, message):
+class ConfigurationFileBlank(Exception):  # noqa N818 historic name
+    def __init__(self, message: str) -> None:
         super(Exception, self).__init__(message)
         self.message = message
 
@@ -50,7 +50,7 @@ class ConfigurationSchemaChecker:
     """
 
     @staticmethod
-    def check_xml_data_matches_schema(schema_filepath: str, xml_data: bytes):
+    def check_xml_data_matches_schema(schema_filepath: str, xml_data: bytes) -> None:
         """This method takes xml data and checks it against a given schema.
 
         A ConfigurationInvalidUnderSchema error is raised if the file is incorrect.
@@ -62,7 +62,10 @@ class ConfigurationSchemaChecker:
         if len(xml_data) == 0:
             raise ConfigurationFileBlank("Invalid XML: File is blank.")
 
-        folder, file_name = schema_filepath.rsplit(os.sep, 1)
+        if isinstance(schema_filepath, str):
+            folder, file_name = schema_filepath.rsplit(os.sep, 1)
+        else:
+            folder, file_name = schema_filepath.parent, schema_filepath.name
         schema = ConfigurationSchemaChecker._get_schema(folder, file_name)
 
         try:
@@ -72,7 +75,9 @@ class ConfigurationSchemaChecker:
             raise ConfigurationInvalidUnderSchema(str(err))
 
     @staticmethod
-    def check_xml_matches_schema(schema_filepath, screen_xml_data, object_type):
+    def check_xml_matches_schema(
+        schema_filepath: str, screen_xml_data: bytes, object_type: str
+    ) -> None:
         try:
             ConfigurationSchemaChecker.check_xml_data_matches_schema(
                 schema_filepath, screen_xml_data
@@ -83,7 +88,7 @@ class ConfigurationSchemaChecker:
             )
 
     @staticmethod
-    def _check_file_against_schema(xml_file, schema_folder, schema_file):
+    def _check_file_against_schema(xml_file: str, schema_folder: str, schema_file: str) -> None:
         """This method takes an xml file and checks it against a given schema.
 
         Args:
@@ -104,7 +109,7 @@ class ConfigurationSchemaChecker:
         schema.assertValid(doc)
 
     @staticmethod
-    def _get_schema(schema_folder, schema_file):
+    def _get_schema(schema_folder: str, schema_file: str) -> etree.XMLSchema:
         """This method generates an xml schemaq object for later use in validation.
 
         Args:

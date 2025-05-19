@@ -1,2 +1,2 @@
-epicscorelibs==7.0.7.99.1.2a1
-numpy<2.0  # Numpy 2 breaks some dependencies (at install time) currently. Review and upgrade when possible.
+epicscorelibs @ https://github.com/ISISComputingGroup/epicscorelibs/releases/download/epicscorelibs-7.0.7.99.1.2a1-isis/epicscorelibs-7.0.7.99.1.2a1-cp312-cp312-win_amd64.whl
+numpy>=2

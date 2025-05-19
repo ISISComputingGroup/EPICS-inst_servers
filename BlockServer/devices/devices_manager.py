@@ -22,17 +22,18 @@ from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from block_server import BlockServer
-from BlockServer.core.constants import FILENAME_SCREENS as SCREENS_FILE
+from server_common.common_exceptions import MaxAttemptsExceededException
 from server_common.file_path_manager import FILEPATH_MANAGER
+from server_common.pv_names import BlockserverPVNames
+from server_common.utilities import compress_and_hex, print_and_log
+
+from BlockServer.core.constants import FILENAME_SCREENS as SCREENS_FILE
 from BlockServer.core.on_the_fly_pv_interface import OnTheFlyPvInterface
 from BlockServer.devices.devices_file_io import DevicesFileIO
 from BlockServer.fileIO.schema_checker import (
     ConfigurationInvalidUnderSchema,
     ConfigurationSchemaChecker,
 )
-from server_common.common_exceptions import MaxAttemptsExceededException
-from server_common.pv_names import BlockserverPVNames
-from server_common.utilities import compress_and_hex, print_and_log
 
 SCREENS_SCHEMA = "screens.xsd"
 GET_SCREENS = BlockserverPVNames.GET_SCREENS
@@ -108,7 +109,7 @@ class DevicesManager(OnTheFlyPvInterface):
             self._bs.setParam(GET_SCREENS, compress_and_hex(self._data.decode("utf-8")))
             self._bs.updatePVs()
 
-    def on_config_change(self, full_init=False) -> None:
+    def on_config_change(self, full_init: bool = False) -> None:
         """
         Devices don't need to change with config
 
@@ -141,7 +142,7 @@ class DevicesManager(OnTheFlyPvInterface):
             print_and_log(err.message)
             return
 
-    def get_devices_filename(self):
+    def get_devices_filename(self) -> str:
         """Gets the names of the devices files in the devices directory.
 
         Returns:
@@ -170,7 +171,7 @@ class DevicesManager(OnTheFlyPvInterface):
         xml_data_as_bytes = bytes(xml_data, "utf-8")
         try:
             ConfigurationSchemaChecker.check_xml_data_matches_schema(
-                os.path.join(self._schema_folder, SCREENS_SCHEMA), xml_data_as_bytes
+                self._schema_folder / SCREENS_SCHEMA, xml_data_as_bytes
             )
         except ConfigurationInvalidUnderSchema as err:
             print_and_log(err)
@@ -201,8 +202,7 @@ class DevicesManager(OnTheFlyPvInterface):
         """
         if self._schema == b"":
             # Try loading it
-            with open(os.path.join(self._schema_folder, SCREENS_SCHEMA), "rb") as schemafile:
-                self._schema = schemafile.read()
+            self.schema = (self._schema_folder / SCREENS_SCHEMA).read_bytes()
         return self._schema
 
     def get_blank_devices(self) -> bytes:
