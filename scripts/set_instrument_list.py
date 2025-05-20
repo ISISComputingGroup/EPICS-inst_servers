@@ -131,6 +131,7 @@ CRYSTALLOGRAPHY = "CRYSTALLOGRAPHY"
 SUPPORT = "SUPPORT"
 DISORDERED = "DISORDERED"
 REFLECTOMETRY = "REFLECTOMETRY"
+INDUSTRY = "INDUSTRY"
 
 if __name__ == "__main__":
     set_env()
@@ -146,7 +147,7 @@ if __name__ == "__main__":
         inst_dictionary("ARGUS", groups=[MUONS], target_station=MUON_TARGET),
         inst_dictionary("CHRONUS", groups=[MUONS], target_station=MUON_TARGET),
         inst_dictionary("HIFI", groups=[MUONS], target_station=MUON_TARGET),
-        inst_dictionary("CHIPIR", groups=[EXCITATIONS], target_station=TS2),
+        inst_dictionary("CHIPIR", groups=[INDUSTRY], target_station=TS2),
         inst_dictionary(
             "CRYOLAB_R80",
             groups=[SUPPORT],
