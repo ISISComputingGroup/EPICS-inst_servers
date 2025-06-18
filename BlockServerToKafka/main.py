@@ -20,7 +20,6 @@ import sys
 sys.path.insert(0, os.path.abspath(os.getcwd()))
 from argparse import ArgumentParser
 from os import environ
-
 from time import sleep
 
 from BlockServerToKafka.block_server_monitor import BlockServerMonitor
@@ -34,7 +33,7 @@ if __name__ == "__main__":
         "--data",
         help="Kafka topic to send Block PV data to",
         type=str,
-        default=f"_sampleEnv",
+        default="_sampleEnv",
     )
     parser.add_argument(
         "-c",
@@ -48,7 +47,7 @@ if __name__ == "__main__":
         "--runlog",
         help="Kafka topic to send run log PV data to",
         type=str,
-        default=f"_runLog",
+        default="_runLog",
     )
     parser.add_argument(
         "-b",

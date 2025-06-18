@@ -19,10 +19,10 @@ from typing import Any
 
 import ca
 from CaChannel import CaChannel, CaChannelException
-
 from server_common.helpers import BLOCK_PREFIX
-from BlockServerToKafka.kafka_producer import ProducerWrapper
 from server_common.utilities import dehex_and_decompress, print_and_log
+
+from BlockServerToKafka.kafka_producer import ProducerWrapper
 
 
 class BlockServerMonitor:
