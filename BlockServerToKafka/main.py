@@ -20,7 +20,7 @@ import sys
 sys.path.insert(0, os.path.abspath(os.getcwd()))
 from argparse import ArgumentParser
 from os import environ
-from socket import gethostname
+
 from time import sleep
 
 from BlockServerToKafka.block_server_monitor import BlockServerMonitor
