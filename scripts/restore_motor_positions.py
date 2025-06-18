@@ -201,7 +201,7 @@ def print_summary(
         print_and_log(
             f"{motor_name[:12]:12} {pv_name[-7:]}: {val} {diff_from_current:12.3f}"
             f" - {last_change[:19]:19} "
-            f"{next_change_str:19} {Severity.get(pv_value.severity_id):5}",
+            f"{next_change_str:19} {Severity.get(pv_value.severity_id):5}",  # type: ignore
             log_file,
         )
 
