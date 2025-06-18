@@ -61,7 +61,9 @@ if __name__ == "__main__":
     args = parser.parse_args()
     xml_dir = args.output_dir[0]
 
-    test_suite = unittest.TestLoader().discover(os.path.dirname(__file__), pattern="test_*")
+    test_suite = unittest.TestLoader().discover(
+        os.path.dirname(__file__), pattern="test_*"
+    )
 
     ret_vals = None
 

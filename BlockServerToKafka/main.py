@@ -20,6 +20,7 @@ import sys
 sys.path.insert(0, os.path.abspath(os.getcwd()))
 from argparse import ArgumentParser
 from os import environ
+from socket import gethostname
 from time import sleep
 
 from BlockServerToKafka.block_server_monitor import BlockServerMonitor
@@ -31,18 +32,23 @@ if __name__ == "__main__":
     parser.add_argument(
         "-d",
         "--data",
-        help="Kafka topic to send PV data to",
-        nargs=1,
+        help="Kafka topic to send Block PV data to",
         type=str,
-        default="test_bs_forwarder",
+        default=f"_sampleEnv",
     )
     parser.add_argument(
         "-c",
         "--config",
         help="Kafka topic to send forwarder config to",
-        nargs=1,
         type=str,
-        default="test_bs_forwarder_config",
+        default="forwarder_config",
+    )
+    parser.add_argument(
+        "-r",
+        "--runlog",
+        help="Kafka topic to send run log PV data to",
+        type=str,
+        default=f"_runLog",
     )
     parser.add_argument(
         "-b",
@@ -50,24 +56,43 @@ if __name__ == "__main__":
         help="Location of the Kafka brokers (host:port)",
         nargs="+",
         type=str,
-        default="sakura.isis.cclrc.ac.uk:9092",
+        default="livedata.isis.cclrc.ac.uk:31092",
     )
     parser.add_argument(
         "-p",
         "--pvprefix",
         help="PV Prefix of the block server",
-        nargs=1,
         type=str,
         default=environ["MYPVPREFIX"],
     )
 
     args = parser.parse_args()
-    KAFKA_DATA = args.data[0]
-    KAFKA_CONFIG = args.config[0]
+    KAFKA_DATA = args.data
+    KAFKA_RUNLOG = args.runlog
+    KAFKA_CONFIG = args.config
     KAFKA_BROKER = args.broker
-    PREFIX = args.pvprefix[0]
-    producer = ProducerWrapper(KAFKA_BROKER, KAFKA_CONFIG, KAFKA_DATA)
-    monitor = BlockServerMonitor(f"{PREFIX}CS:BLOCKSERVER:BLOCKNAMES", PREFIX, producer)
+    PREFIX = args.pvprefix
+    block_producer = ProducerWrapper(KAFKA_BROKER, KAFKA_CONFIG, KAFKA_DATA)
+    monitor = BlockServerMonitor(f"{PREFIX}CS:BLOCKSERVER:BLOCKNAMES", PREFIX, block_producer)
+    runlog_producer = ProducerWrapper(KAFKA_BROKER, KAFKA_CONFIG, KAFKA_RUNLOG)
+
+    dae_prefix = f"{PREFIX}DAE:"
+    runlog_producer.add_config(
+        [
+            f"{dae_prefix}COUNTRATE",
+            f"{dae_prefix}BEAMCURRENT",
+            f"{dae_prefix}GOODFRAMES",
+            f"{dae_prefix}RAWFRAMES",
+            f"{dae_prefix}GOODUAH",
+            f"{dae_prefix}MEVENTS",
+            f"{dae_prefix}TOTALCOUNTS",
+            f"{dae_prefix}MONITORCOUNTS",
+            f"{dae_prefix}NPRATIO",
+            f"{dae_prefix}PERIOD",
+            f"{dae_prefix}TOTALUAMPS",
+            # todo how should we do run_status/icp_event/is_running/is_waiting?
+        ]
+    )
 
     while True:
         sleep(0.1)
