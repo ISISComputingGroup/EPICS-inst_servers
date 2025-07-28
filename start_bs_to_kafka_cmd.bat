@@ -11,7 +11,7 @@ set EPICS_CAS_BEACON_ADDR_LIST=127.255.255.255
 set PYTHONUNBUFFERED=TRUE
 
 
-if "%INSTRUMENT%" == "NDXHIFI" (
+if "%INSTRUMENT%" == "HIFI" (
     set "BROKER=130.246.55.29:9092"
 ) else (
     set "BROKER=livedata.isis.cclrc.ac.uk:31092"
