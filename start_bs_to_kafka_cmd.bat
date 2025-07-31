@@ -18,4 +18,4 @@ if "%INSTRUMENT%" == "HIFI" (
 )
 
 @echo %DATE% %TIME% starting BS to Kafka 
-%PYTHON3W% %MYDIRCD%\BlockServerToKafka\main.py -d %INSTRUMENT%_sampleEnv -c %INSTRUMENT%_forwarderConfig -b %BROKER% -p %MYPVPREFIX%
+%PYTHON3W% %MYDIRCD%\BlockServerToKafka\main.py -d %INSTRUMENT%_sampleEnv -r %INSTRUMENT%_runLog -c %INSTRUMENT%_forwarderConfig  -b %BROKER% -p %MYPVPREFIX%

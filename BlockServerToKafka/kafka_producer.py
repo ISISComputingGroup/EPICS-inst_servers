@@ -17,12 +17,12 @@ from time import sleep
 from typing import List
 
 from kafka import KafkaConsumer, KafkaProducer, errors
+from server_common.utilities import SEVERITY, print_and_log
 from streaming_data_types.fbschemas.forwarder_config_update_fc00.Protocol import (
     Protocol,
 )
 
 from BlockServerToKafka.forwarder_config import ForwarderConfig
-from server_common.utilities import SEVERITY, print_and_log
 
 
 class ProducerWrapper:

@@ -78,7 +78,9 @@ class TestBlockServerMonitor(unittest.TestCase):
         arr = [0] * 10
         self.assertEqual("", self.bs_monitor.convert_to_string(bytearray(arr)))
 
-    def test_GIVEN_no_previous_pvs_WHEN_update_config_called_THEN_producer_is_called(self):
+    def test_GIVEN_no_previous_pvs_WHEN_update_config_called_THEN_producer_is_called(
+        self,
+    ):
         self.bs_monitor.update_config(["BLOCK"])
         self.mock_producer.add_config.assert_called_once()
 
