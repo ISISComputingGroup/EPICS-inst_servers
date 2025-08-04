@@ -1,4 +1,3 @@
-import typing
 from threading import Timer
 
 from genie_python.mysql_abstraction_layer import SQLAbstraction
@@ -13,7 +12,7 @@ class InstPVs(object):
     def __init__(
         self, producer: ProducerWrapper, sql_abstraction: SQLAbstraction | None = None
     ) -> None:
-        self._pvs: list[str] = []
+        self._pvs: set[str] = set()
         self._sql = (
             SQLAbstraction(dbid="iocdb", user="report", password="$report", host="localhost")
             if sql_abstraction is None
@@ -30,14 +29,24 @@ class InstPVs(object):
         job.start()
 
     def update_pvs_from_mysql(self) -> None:
-        pvs = self._sql.query('SELECT pvname FROM iocdb.pvinfo WHERE infoname="archive";')
-        if pvs is None:
+        rows = self._sql.query('SELECT pvname, value FROM iocdb.pvinfo WHERE infoname="archive";')
+        if rows is None:
             return
 
-        pvs = typing.cast(list[str], [pv[0] for pv in pvs])
+        pvs = set()
+        for row in rows:
+            basename, fields = row
+            assert isinstance(fields, str)
+            for field in fields.split():
+                if all(c in "0123456789." for c in field):
+                    # This is an archiving time period, e.g. the 5.0 in
+                    # info(archive, "5.0 VAL")
+                    # Ignore it
+                    continue
+                pvs.add(f"{basename}.{field}")
 
-        if set(self._pvs) != set(pvs):
+        if self._pvs != pvs:
             print_and_log(f"Inst configuration changed to: {pvs}")
-            self.producer.remove_config(self._pvs)
-            self.producer.add_config(pvs)
+            self.producer.remove_config(list(self._pvs - pvs))
+            self.producer.add_config(list(pvs - self._pvs))
             self._pvs = pvs
