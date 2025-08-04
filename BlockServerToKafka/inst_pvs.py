@@ -1,3 +1,4 @@
+import typing
 from threading import Timer
 
 from genie_python.mysql_abstraction_layer import SQLAbstraction
@@ -10,7 +11,7 @@ class InstPVs(object):
     def __init__(
         self, producer: ProducerWrapper, sql_abstraction: SQLAbstraction | None = None
     ) -> None:
-        self._pvs = []
+        self._pvs: list[str] = []
         self._sql = (
             SQLAbstraction(dbid="iocdb", user="report", password="$report", host="localhost")
             if sql_abstraction is None
@@ -31,7 +32,7 @@ class InstPVs(object):
         if pvs is None:
             return
 
-        pvs = [pv[0] for pv in pvs]
+        pvs = typing.cast(list[str], [pv[0] for pv in pvs])
 
         if set(self._pvs) != set(pvs):
             print_and_log(f"Inst configuration changed to: {pvs}")
