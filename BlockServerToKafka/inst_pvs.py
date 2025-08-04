@@ -6,6 +6,8 @@ from server_common.utilities import print_and_log
 
 from BlockServerToKafka.kafka_producer import ProducerWrapper
 
+UPDATE_FREQUENCY_S = 30.0
+
 
 class InstPVs(object):
     def __init__(
@@ -24,7 +26,7 @@ class InstPVs(object):
             self.update_pvs_from_mysql()
             self.schedule()
 
-        job = Timer(30.0, action)
+        job = Timer(UPDATE_FREQUENCY_S, action)
         job.start()
 
     def update_pvs_from_mysql(self) -> None:
