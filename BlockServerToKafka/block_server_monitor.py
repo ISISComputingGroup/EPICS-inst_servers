@@ -97,7 +97,7 @@ class BlockServerMonitor:
 
         pvs = [self.block_name_to_pv_name(blk) for blk in blocks]
         if pvs != self.last_pvs:
-            print_and_log(f"Configuration changed to: {pvs}")
+            print_and_log(f"Blocks configuration changed to: {pvs}")
             self.producer.remove_config(self.last_pvs)
             self.producer.add_config(pvs)
             self.last_pvs = pvs

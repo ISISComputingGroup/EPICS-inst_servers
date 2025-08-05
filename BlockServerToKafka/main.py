@@ -23,6 +23,7 @@ from os import environ
 from time import sleep
 
 from BlockServerToKafka.block_server_monitor import BlockServerMonitor
+from BlockServerToKafka.inst_pvs import InstPVs
 from BlockServerToKafka.kafka_producer import ProducerWrapper
 
 if __name__ == "__main__":
@@ -72,6 +73,7 @@ if __name__ == "__main__":
     KAFKA_BROKER = args.broker
     PREFIX = args.pvprefix
     block_producer = ProducerWrapper(KAFKA_BROKER, KAFKA_CONFIG, KAFKA_DATA)
+    inst_producer = ProducerWrapper(KAFKA_BROKER, KAFKA_CONFIG, KAFKA_DATA)
     monitor = BlockServerMonitor(f"{PREFIX}CS:BLOCKSERVER:BLOCKNAMES", PREFIX, block_producer)
     runlog_producer = ProducerWrapper(KAFKA_BROKER, KAFKA_CONFIG, KAFKA_RUNLOG)
 
@@ -92,6 +94,8 @@ if __name__ == "__main__":
             # todo how should we do run_status/icp_event/is_running/is_waiting?
         ]
     )
+
+    InstPVs(inst_producer).schedule()
 
     while True:
         sleep(0.1)
