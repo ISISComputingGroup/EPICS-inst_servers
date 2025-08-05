@@ -7,7 +7,7 @@ call %MYDIRCD%..\..\..\config_env_base.bat
 %HIDEWINDOW% h
 
 set "GETMACRO=%EPICS_KIT_ROOT%\support\icpconfig\master\bin\%EPICS_HOST_ARCH%\icpconfigGetMacro.exe"
-set "MYIOCNAME=BS_TO_KAFKA"
+set "MYIOCNAME=BSKAFKA"
 
 set "KAFKA_BROKER=livedata.isis.cclrc.ac.uk:31092"
 REM allow local config override in globals.txt
