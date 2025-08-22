@@ -191,6 +191,7 @@ if __name__ == "__main__":
         inst_dictionary("MERLIN", groups=[EXCITATIONS], target_station=TS1),
         inst_dictionary("RIKENFE", groups=[MUONS], is_scheduled=False, target_station=MUON_TARGET),
         inst_dictionary("SELAB", groups=[SUPPORT], is_scheduled=False, target_station=MISC),
+        inst_dictionary("SELAB2", groups=[SUPPORT], is_scheduled=False, target_station=MISC),
         inst_dictionary("EMMA-A", groups=[SUPPORT], is_scheduled=False, target_station=TS1),
         inst_dictionary("EMMA-B", groups=[SUPPORT], is_scheduled=False, target_station=TS1),
         inst_dictionary("SANDALS", groups=[DISORDERED], target_station=TS1),
