@@ -236,7 +236,24 @@ class ConfigurationXmlConverter:
 
         set_block_val = ElementTree.SubElement(block_xml, TAG_SET_BLOCK_VAL)
         set_block_val.text = str(block.set_block_val)
-
+        
+        # Alarm Config
+        alarmenabled = ElementTree.SubElement(block_xml, TAG_ALARM_ENABLED)
+        alarmenabled.text = str(block.alarmenabled)
+        alarmlatched = ElementTree.SubElement(block_xml, TAG_ALARM_LATCHED)
+        alarmlatched.text = str(block.alarmlatched)
+        if block.alarmlowlimit is not None:
+            alarmlowlimit = ElementTree.SubElement(block_xml, TAG_ALARM_LOW)
+            alarmlowlimit.text = str(block.alarmlowlimit)
+        if block.alarmhighlimit is not None:
+            alarmhighlimit = ElementTree.SubElement(block_xml, TAG_ALARM_HIGH)
+            alarmhighlimit.text = str(block.alarmhighlimit)
+        if block.alarmdelay is not None:
+            alarmdelay = ElementTree.SubElement(block_xml, TAG_ALARM_DELAY)
+            alarmdelay.text = str(block.alarmdelay)
+        alarmguidance = ElementTree.SubElement(block_xml, TAG_ALARM_GUIDANCE)
+        alarmguidance.text = block.alarmguidance
+        
     @staticmethod
     def _group_to_xml(root_xml: ElementTree, group: Group):
         """Generates the XML for a group"""
@@ -366,6 +383,29 @@ class ConfigurationXmlConverter:
                 )
                 if set_block_val is not None:
                     blocks[name.lower()].set_block_val = set_block_val.text
+                    
+                # Alarm Config
+                alarmenabled = ConfigurationXmlConverter._find_single_node(b, NS_TAG_BLOCK, TAG_ALARM_ENABLED)
+                if alarmenabled is not None:
+                    blocks[name.lower()].alarmenabled = alarmenabled.text == "True"
+                alarmlatched = ConfigurationXmlConverter._find_single_node(b, NS_TAG_BLOCK, TAG_ALARM_LATCHED)
+                if alarmlatched is not None:
+                    blocks[name.lower()].alarmlatched = alarmlatched.text == "True"
+                alarmlowlimit = ConfigurationXmlConverter._find_single_node(b, NS_TAG_BLOCK, TAG_ALARM_LOW)
+                if alarmlowlimit is not None:
+                    blocks[name.lower()].alarmlowlimit = float(alarmlowlimit.text)
+                alarmhighlimit = ConfigurationXmlConverter._find_single_node(b, NS_TAG_BLOCK, TAG_ALARM_HIGH)
+                if alarmhighlimit is not None:
+                    blocks[name.lower()].alarmhighlimit = float(alarmhighlimit.text)
+                alarmdelay = ConfigurationXmlConverter._find_single_node(b, NS_TAG_BLOCK, TAG_ALARM_DELAY)
+                if alarmdelay is not None:
+                    blocks[name.lower()].alarmdelay = float(alarmdelay.text)
+                alarmguidance = ConfigurationXmlConverter._find_single_node(b, NS_TAG_BLOCK, TAG_ALARM_GUIDANCE)
+                if alarmguidance is not None:
+                    blocks[name.lower()].alarmguidance = alarmguidance.text
+                
+
+
 
     @staticmethod
     def groups_from_xml(root_xml: ElementTree.Element, groups: OrderedDict, blocks: OrderedDict):

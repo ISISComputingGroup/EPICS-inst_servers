@@ -44,6 +44,9 @@ BLOCKS_XML = """
         <log_deadband>0</log_deadband>
         <set_block>False</set_block>
 		<set_block_val>None</set_block_val>
+        <alarm_enabled>False</alarm_enabled>
+        <alarm_latched>False</alarm_latched>
+        <alarm_guidance/>
     </block>
     <block>
         <name>TESTBLOCK2</name>
@@ -59,6 +62,9 @@ BLOCKS_XML = """
         <log_deadband>0</log_deadband>
         <set_block>False</set_block>
 		<set_block_val>None</set_block_val>
+        <alarm_enabled>False</alarm_enabled>
+        <alarm_latched>False</alarm_latched>
+        <alarm_guidance/>
     </block>
     <block>
         <name>TESTBLOCK3</name>
@@ -74,6 +80,9 @@ BLOCKS_XML = """
         <log_deadband>0</log_deadband>
         <set_block>False</set_block>
 		<set_block_val>None</set_block_val>
+        <alarm_enabled>False</alarm_enabled>
+        <alarm_latched>False</alarm_latched>
+        <alarm_guidance/>
     </block>
     <block>
         <name>TESTBLOCK4</name>
@@ -89,6 +98,9 @@ BLOCKS_XML = """
         <log_deadband>0</log_deadband>
         <set_block>False</set_block>
 		<set_block_val>None</set_block_val>
+        <alarm_enabled>False</alarm_enabled>
+        <alarm_latched>False</alarm_latched>
+        <alarm_guidance/>
     </block>
 </blocks>"""
 
@@ -243,6 +255,7 @@ class TestConfigurationXmlConverterSequence(unittest.TestCase):
         blocks_xml = strip_out_whitespace(blocks_xml)
 
         # Assert
+        print(blocks_xml)
         self.assertEqual(blocks_xml, BLOCKS_XML)
 
     def test_groups_to_xml_converts_correctly(self):
