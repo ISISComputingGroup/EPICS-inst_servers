@@ -69,10 +69,13 @@ class IOC:
         else:
             self.simlevel = simlevel.lower()
 
-        if macros is None:
-            self.macros = {}
-        else:
-            self.macros = macros
+        self.macros = {}
+        if macros is not None:
+            # Remove macros that are set to use default, they can be gotten from config.xml so there is no need for them to be stored in the config.
+            for name, data in macros.items():
+                if not ("useDefault" in data and data["useDefault"] == True):
+                    self.macros.update({name: data})
+                    self.macros[name].pop("useDefault")
 
         if pvs is None:
             self.pvs = {}
