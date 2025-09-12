@@ -85,7 +85,5 @@ SCHEMA_FOR = [FILENAME_BLOCKS, FILENAME_GROUPS, FILENAME_IOCS, FILENAME_COMPONEN
 # Alarm element nodes
 TAG_ALARM_ENABLED = "alarm_enabled"
 TAG_ALARM_LATCHED = "alarm_latched"
-TAG_ALARM_LOW = "alarm_lowlimit"
-TAG_ALARM_HIGH = "alarm_highlimit"
 TAG_ALARM_DELAY = "alarm_delay"
 TAG_ALARM_GUIDANCE = "alarm_guidance"

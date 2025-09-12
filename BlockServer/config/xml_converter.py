@@ -242,12 +242,6 @@ class ConfigurationXmlConverter:
         alarmenabled.text = str(block.alarmenabled)
         alarmlatched = ElementTree.SubElement(block_xml, TAG_ALARM_LATCHED)
         alarmlatched.text = str(block.alarmlatched)
-        if block.alarmlowlimit is not None:
-            alarmlowlimit = ElementTree.SubElement(block_xml, TAG_ALARM_LOW)
-            alarmlowlimit.text = str(block.alarmlowlimit)
-        if block.alarmhighlimit is not None:
-            alarmhighlimit = ElementTree.SubElement(block_xml, TAG_ALARM_HIGH)
-            alarmhighlimit.text = str(block.alarmhighlimit)
         if block.alarmdelay is not None:
             alarmdelay = ElementTree.SubElement(block_xml, TAG_ALARM_DELAY)
             alarmdelay.text = str(block.alarmdelay)
@@ -391,20 +385,12 @@ class ConfigurationXmlConverter:
                 alarmlatched = ConfigurationXmlConverter._find_single_node(b, NS_TAG_BLOCK, TAG_ALARM_LATCHED)
                 if alarmlatched is not None:
                     blocks[name.lower()].alarmlatched = alarmlatched.text == "True"
-                alarmlowlimit = ConfigurationXmlConverter._find_single_node(b, NS_TAG_BLOCK, TAG_ALARM_LOW)
-                if alarmlowlimit is not None:
-                    blocks[name.lower()].alarmlowlimit = float(alarmlowlimit.text)
-                alarmhighlimit = ConfigurationXmlConverter._find_single_node(b, NS_TAG_BLOCK, TAG_ALARM_HIGH)
-                if alarmhighlimit is not None:
-                    blocks[name.lower()].alarmhighlimit = float(alarmhighlimit.text)
                 alarmdelay = ConfigurationXmlConverter._find_single_node(b, NS_TAG_BLOCK, TAG_ALARM_DELAY)
                 if alarmdelay is not None:
                     blocks[name.lower()].alarmdelay = float(alarmdelay.text)
                 alarmguidance = ConfigurationXmlConverter._find_single_node(b, NS_TAG_BLOCK, TAG_ALARM_GUIDANCE)
                 if alarmguidance is not None:
                     blocks[name.lower()].alarmguidance = alarmguidance.text
-                
-
 
 
     @staticmethod

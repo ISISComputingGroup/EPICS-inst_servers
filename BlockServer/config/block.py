@@ -35,8 +35,6 @@ class Block:
         log_deadband (float): Deadband for the block to be archived
         alarmenabled (bool): Whether the alarm should be enabled
         alarmlatched (bool): Whether the alarm should be latched
-        alarmlowlimit (float): The low limit for alarm
-        alarmhighlimit (float): The high limit for alarm
         alarmdelay (float): The delay for trigerring alarm
         alarmguidance (string): The guidance for the alarm
 
@@ -60,8 +58,6 @@ class Block:
         set_block_val: str = None,
         alarmenabled: bool = False,
         alarmlatched: bool = False,
-        alarmlowlimit: float = None,
-        alarmhighlimit: float = None,
         alarmdelay: float = None,
         alarmguidance: str = None,
     ):
@@ -84,8 +80,6 @@ class Block:
             set_block_val: what the block should be set to upon config change
             alarmenabled (bool): Whether the alarm should be enabled
             alarmlatched (bool): Whether the alarm should be latched
-            alarmlowlimit (float): The low limit for alarm
-            alarmhighlimit (float): The high limit for alarm
             alarmdelay (float): The delay for trigerring alarm
             alarmguidance (string): The guidance for the alarm
         """
@@ -105,8 +99,6 @@ class Block:
         self.set_block_val = set_block_val
         self.alarmenabled = alarmenabled
         self.alarmlatched = alarmlatched
-        self.alarmlowlimit = alarmlowlimit
-        self.alarmhighlimit = alarmhighlimit
         self.alarmdelay = alarmdelay
         self.alarmguidance = alarmguidance
 
@@ -158,8 +150,6 @@ class Block:
             "set_block_val": self.set_block_val,
             "alarmenabled": self.alarmenabled,
             "alarmlatched": self.alarmlatched,
-            "alarmlowlimit": self.alarmlowlimit,
-            "alarmhighlimit": self.alarmhighlimit,
             "alarmdelay": self.alarmdelay,
             "alarmguidance": self.alarmguidance,
         }
