@@ -745,7 +745,7 @@ class BlockServer(Driver):
         # Once all IOC start requests issued, wait for running and apply auto restart as needed
         for i in iocs:
             if i in conf_iocs and conf_iocs[i].restart:
-                if conf_iocs[i].remotePvPrefix not in (None, ""):
+                if conf_iocs[i].remote_pv_prefix not in (None, ""):
                     print_and_log(f"IOC '{i}' is set to run remotely - not applying auto-restart.")
                     continue
                 # Give it time to start as IOC has to be running to be able to set restart property

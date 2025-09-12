@@ -23,8 +23,10 @@ class IOC:
 
     Attributes:
         name (string): The name of the IOC
-        autostart (bool): Whether the IOC should automatically start/restart when the configuration is loaded/changed
-        restart (bool): If auto start is true, then proc serv will restart the IOC if it terminates unexpectedly
+        autostart (bool): Whether the IOC should automatically
+            start/restart when the configuration is loaded/changed
+        restart (bool): If auto start is true, then proc serv will
+            restart the IOC if it terminates unexpectedly
         component (string): The component the IOC belongs to
         macros (dict): The IOC's macros
         pvs (dict): The IOC's PVs
@@ -42,27 +44,29 @@ class IOC:
         pvs: Dict = None,
         pvsets: Dict = None,
         simlevel: str = None,
-        remotePvPrefix: str = None,
-    ):
+        remote_pv_prefix: str = None,
+    ) -> None:
         """Constructor.
 
         Args:
             name: The name of the IOC
-            autostart: Whether the IOC should automatically start/restart when the configuration is
+            autostart: Whether the IOC should automatically
+                start/restart when the configuration is
             loaded/changed
-            restart: If auto start is true, then proc serv will restart the IOC if it terminates unexpectedly
+            restart: If auto start is true, then proc serv will
+                restart the IOC if it terminates unexpectedly
             component: The component the IOC belongs to
             macros: The IOC's macros
             pvs: The IOC's PVs
             pvsets: The IOC's PV sets
             simlevel: The level of simulation
-            remotePvPrefix: The remote pv prefix
+            remote_pv_prefix: The remote pv prefix
         """
         self.name = name
         self.autostart = autostart
         self.restart = restart
         self.component = component
-        self.remotePvPrefix = remotePvPrefix
+        self.remote_pv_prefix = remote_pv_prefix
 
         if simlevel is None:
             self.simlevel = "none"
@@ -71,9 +75,10 @@ class IOC:
 
         self.macros = {}
         if macros is not None:
-            # Remove macros that are set to use default, they can be gotten from config.xml so there is no need for them to be stored in the config.
+            # Remove macros that are set to use default, they can be gotten from config.xml
+            # so there is no need for them to be stored in the config.
             for name, data in macros.items():
-                if not ("useDefault" in data and data["useDefault"] == True):
+                if not ("useDefault" in data and data["useDefault"]):
                     self.macros.update({name: data})
                     self.macros[name].pop("useDefault")
 
@@ -125,11 +130,11 @@ class IOC:
             "pvsets": self._dict_to_list(self.pvsets),
             "macros": self._dict_to_list(self.macros),
             "component": self.component,
-            "remotePvPrefix": self.remotePvPrefix,
+            "remotePvPrefix": self.remote_pv_prefix,
         }
 
-    def get(self, name):
+    def get(self, name: str) -> bool | str | Dict | None:
         return self.__getattribute__(name)
 
-    def __getitem__(self, name):
+    def __getitem__(self, name: str) -> bool | str | Dict | None:
         return self.__getattribute__(name)

@@ -257,8 +257,8 @@ class ConfigurationXmlConverter:
             grp.set(TAG_AUTOSTART, str(ioc.autostart).lower())
         if ioc.restart is not None:
             grp.set(TAG_RESTART, str(ioc.restart).lower())
-        if ioc.remotePvPrefix is not None:
-            grp.set(TAG_REMOTE_PREFIX, str(ioc.remotePvPrefix))
+        if ioc.remote_pv_prefix is not None:
+            grp.set(TAG_REMOTE_PREFIX, str(ioc.remote_pv_prefix))
 
         grp.set(TAG_SIMLEVEL, str(ioc.simlevel))
 
@@ -429,7 +429,7 @@ class ConfigurationXmlConverter:
                     if level in SIMLEVELS:
                         iocs[n.upper()].simlevel = level
                 if TAG_REMOTE_PREFIX in options:
-                    iocs[n.upper()].remotePvPrefix = i.attrib[TAG_REMOTE_PREFIX]
+                    iocs[n.upper()].remote_pv_prefix = i.attrib[TAG_REMOTE_PREFIX]
 
                 try:
                     # Get any macros
