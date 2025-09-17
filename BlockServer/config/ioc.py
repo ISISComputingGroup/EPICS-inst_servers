@@ -39,12 +39,12 @@ class IOC:
         name: str,
         autostart: bool = True,
         restart: bool = True,
-        component: str = None,
-        macros: Dict = None,
-        pvs: Dict = None,
-        pvsets: Dict = None,
-        simlevel: str = None,
-        remote_pv_prefix: str = None,
+        component: str | None = None,
+        macros: Dict | None = None,
+        pvs: Dict | None = None,
+        pvsets: Dict | None = None,
+        simlevel: str | None = None,
+        remotePvPrefix: str | None = None,  # noqa: N803
     ) -> None:
         """Constructor.
 
@@ -60,13 +60,14 @@ class IOC:
             pvs: The IOC's PVs
             pvsets: The IOC's PV sets
             simlevel: The level of simulation
-            remote_pv_prefix: The remote pv prefix
+            remotePvPrefix: The remote pv prefix,
+                has to be formatted like this to be read in properly.
         """
         self.name = name
         self.autostart = autostart
         self.restart = restart
         self.component = component
-        self.remote_pv_prefix = remote_pv_prefix
+        self.remote_pv_prefix = remotePvPrefix
 
         if simlevel is None:
             self.simlevel = "none"
@@ -75,13 +76,18 @@ class IOC:
 
         self.macros = {}
         if macros is not None:
-            # Remove macros that are set to use default, they can be gotten from config.xml
-            # so there is no need for them to be stored in the config.
-            for name, data in macros.items():
-                if not ("useDefault" in data and data["useDefault"]):
-                    self.macros.update({name: data})
-                    self.macros[name].pop("useDefault")
-
+            if isinstance(macros, dict):
+                # Remove macros that are set to use default, they can be gotten from config.xml
+                # so there is no need for them to be stored in the config.
+                print(macros)
+                for name, data in macros.items():
+                    if "useDefault" in data and not data["useDefault"]:
+                        self.macros.update({name: data})
+                        self.macros[name].pop("useDefault")
+                    elif "useDefault" not in data:
+                        self.macros.update({name: data})
+            else:
+                self.macros = macros
         if pvs is None:
             self.pvs = {}
         else:
