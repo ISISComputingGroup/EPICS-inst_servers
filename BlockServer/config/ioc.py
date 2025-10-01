@@ -73,15 +73,13 @@ class IOC:
             self.simlevel = "none"
         else:
             self.simlevel = simlevel.lower()
-
         self.macros = {}
         if macros is not None:
             if isinstance(macros, dict):
                 # Remove macros that are set to use default, they can be gotten from config.xml
                 # so there is no need for them to be stored in the config.
-                print(macros)
                 for name, data in macros.items():
-                    if "useDefault" in data and not data["useDefault"]:
+                    if "useDefault" in data and ((not data["useDefault"]) or data["useDefault"]=="False" ):
                         self.macros.update({name: data})
                         self.macros[name].pop("useDefault")
                     elif "useDefault" not in data:

@@ -440,10 +440,8 @@ class BlockServer(Driver):
              e.g. on loading a new configuration
         """
         new_iocs, changed_iocs, removed_iocs = self._active_configserver.iocs_changed()
-
         self._ioc_control.stop_iocs(removed_iocs)
         self._start_config_iocs(new_iocs, changed_iocs)
-
         if (
             CAEN_DISCRIMINATOR_IOC_NAME in self._active_configserver.get_ioc_names()
             and CAEN_DISCRIMINATOR_IOC_NAME not in new_iocs
@@ -497,7 +495,7 @@ class BlockServer(Driver):
             return self._active_configserver.get_all_ioc_details()[ioc_name]
 
         def _is_remote(ioc_name: str) -> bool:
-            return _ioc_from_name(ioc_name).remotePvPrefix not in (None, "")
+            return _ioc_from_name(ioc_name).remote_pv_prefix not in (None, "")
 
         def _should_start(ioc_name: str) -> bool:
             ioc = _ioc_from_name(ioc_name)
