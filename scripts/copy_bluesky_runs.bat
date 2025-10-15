@@ -2,7 +2,7 @@ echo OFF
 setlocal enabledelayedexpansion
 
 REM In the archive, find the most recent cycle folder to be created, to be used at the end of this file
-for /f "delims=" %%i in ('dir "\\isis.cclrc.ac.uk\inst$\NDXTEST\Instrument\data\" /b /ad-h /t:c /od') do set cycle_folder=%%i
+for /f "delims=" %%i in ('dir "\\isis.cclrc.ac.uk\inst$\%COMPUTERNAME%\Instrument\data\" /b /ad-h /t:c /od') do set cycle_folder=%%i
 
 REM This gets us every file in C:\data\*\bluesky_scans\
 for /r C:\data\ %%i in (bluesky_scans\*) do (
