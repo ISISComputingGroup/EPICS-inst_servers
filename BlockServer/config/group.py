@@ -25,7 +25,7 @@ class Group:
         component (string): The component the group belongs to
     """
 
-    def __init__(self, name: str, component: str = None):
+    def __init__(self, name: str, component: str | None = None) -> None:
         """Constructor.
 
         Args:
@@ -39,7 +39,7 @@ class Group:
     def __str__(self) -> str:
         return f"Name: {self.name}, COMPONENT: {self.component}, Blocks: {self.blocks}"
 
-    def to_dict(self) -> Dict[str, Union[str, List]]:
+    def to_dict(self) -> Dict[str, Union[str, List, None]]:
         """Puts the group's details into a dictionary.
 
         Returns:

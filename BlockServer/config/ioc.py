@@ -23,8 +23,10 @@ class IOC:
 
     Attributes:
         name (string): The name of the IOC
-        autostart (bool): Whether the IOC should automatically start/restart when the configuration is loaded/changed
-        restart (bool): If auto start is true, then proc serv will restart the IOC if it terminates unexpectedly
+        autostart (bool): Whether the IOC should automatically
+            start/restart when the configuration is loaded/changed
+        restart (bool): If auto start is true, then proc serv will
+            restart the IOC if it terminates unexpectedly
         component (string): The component the IOC belongs to
         macros (dict): The IOC's macros
         pvs (dict): The IOC's PVs
@@ -37,43 +39,53 @@ class IOC:
         name: str,
         autostart: bool = True,
         restart: bool = True,
-        component: str = None,
-        macros: Dict = None,
-        pvs: Dict = None,
-        pvsets: Dict = None,
-        simlevel: str = None,
-        remotePvPrefix: str = None,
-    ):
+        component: str | None = None,
+        macros: Dict | None = None,
+        pvs: Dict | None = None,
+        pvsets: Dict | None = None,
+        simlevel: str | None = None,
+        remotePvPrefix: str | None = None,  # noqa: N803
+    ) -> None:
         """Constructor.
 
         Args:
             name: The name of the IOC
-            autostart: Whether the IOC should automatically start/restart when the configuration is
+            autostart: Whether the IOC should automatically
+                start/restart when the configuration is
             loaded/changed
-            restart: If auto start is true, then proc serv will restart the IOC if it terminates unexpectedly
+            restart: If auto start is true, then proc serv will
+                restart the IOC if it terminates unexpectedly
             component: The component the IOC belongs to
             macros: The IOC's macros
             pvs: The IOC's PVs
             pvsets: The IOC's PV sets
             simlevel: The level of simulation
-            remotePvPrefix: The remote pv prefix
+            remotePvPrefix: The remote pv prefix,
+                has to be formatted like this to be read in properly.
         """
         self.name = name
         self.autostart = autostart
         self.restart = restart
         self.component = component
-        self.remotePvPrefix = remotePvPrefix
+        self.remote_pv_prefix = remotePvPrefix
 
         if simlevel is None:
             self.simlevel = "none"
         else:
             self.simlevel = simlevel.lower()
-
-        if macros is None:
-            self.macros = {}
-        else:
-            self.macros = macros
-
+        self.macros = {}
+        if macros is not None:
+            if isinstance(macros, dict):
+                # Remove macros that are set to use default, they can be gotten from config.xml
+                # so there is no need for them to be stored in the config.
+                for name, data in macros.items():
+                    if "useDefault" in data and ((not data["useDefault"]) or data["useDefault"]=="False" ):
+                        self.macros.update({name: data})
+                        self.macros[name].pop("useDefault")
+                    elif "useDefault" not in data:
+                        self.macros.update({name: data})
+            else:
+                self.macros = macros
         if pvs is None:
             self.pvs = {}
         else:
@@ -122,11 +134,11 @@ class IOC:
             "pvsets": self._dict_to_list(self.pvsets),
             "macros": self._dict_to_list(self.macros),
             "component": self.component,
-            "remotePvPrefix": self.remotePvPrefix,
+            "remotePvPrefix": self.remote_pv_prefix,
         }
 
-    def get(self, name):
+    def get(self, name: str) -> bool | str | Dict | None:
         return self.__getattribute__(name)
 
-    def __getitem__(self, name):
+    def __getitem__(self, name: str) -> bool | str | Dict | None:
         return self.__getattribute__(name)
