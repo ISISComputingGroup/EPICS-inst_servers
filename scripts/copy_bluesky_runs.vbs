@@ -1,0 +1,1 @@
+WScript.CreateObject("WScript.Shell").Run "%comspec% /c C:\Instrument\Apps\EPICS\ISIS\inst_servers\master\scripts\copy_bluesky_runs.bat", 0,true
