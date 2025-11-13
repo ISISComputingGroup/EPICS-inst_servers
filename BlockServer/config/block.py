@@ -33,6 +33,11 @@ class Block:
         log_periodic (bool): Whether the block is sampled periodically in the archiver
         log_rate (float): Time between archive samples (in seconds)
         log_deadband (float): Deadband for the block to be archived
+        alarmenabled (bool): Whether the alarm should be enabled
+        alarmlatched (bool): Whether the alarm should be latched
+        alarmdelay (float): The delay for trigerring alarm
+        alarmguidance (string): The guidance for the alarm
+
     """
 
     def __init__(
@@ -51,6 +56,10 @@ class Block:
         log_deadband: float = 0,
         set_block: bool = False,
         set_block_val: str = None,
+        alarmenabled: bool = False,
+        alarmlatched: bool = False,
+        alarmdelay: float = None,
+        alarmguidance: str = None,
     ):
         """Constructor.
 
@@ -69,6 +78,10 @@ class Block:
             log_deadband: Deadband for the block to be archived
             set_block: whether the block should be set upon config change
             set_block_val: what the block should be set to upon config change
+            alarmenabled (bool): Whether the alarm should be enabled
+            alarmlatched (bool): Whether the alarm should be latched
+            alarmdelay (float): The delay for trigerring alarm
+            alarmguidance (string): The guidance for the alarm
         """
         self.name = name
         self.pv = pv
@@ -84,6 +97,11 @@ class Block:
         self.log_deadband = log_deadband
         self.set_block = set_block
         self.set_block_val = set_block_val
+        self.alarmenabled = alarmenabled
+        self.alarmlatched = alarmlatched
+        self.alarmdelay = alarmdelay
+        self.alarmguidance = alarmguidance
+
 
     def _get_pv(self) -> str:
         pv_name = self.pv
@@ -130,4 +148,8 @@ class Block:
             "suspend_on_invalid": self.rc_suspend_on_invalid,
             "set_block": self.set_block,
             "set_block_val": self.set_block_val,
+            "alarmenabled": self.alarmenabled,
+            "alarmlatched": self.alarmlatched,
+            "alarmdelay": self.alarmdelay,
+            "alarmguidance": self.alarmguidance,
         }
