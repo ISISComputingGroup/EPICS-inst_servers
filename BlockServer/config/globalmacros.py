@@ -30,7 +30,7 @@ class Globalmacro:
     def __init__(
         self,
         name: str,
-        macros: Dict = None,
+        macros: Dict[str, str],
     ):
         """Constructor.
 
