@@ -92,7 +92,7 @@ class GlobalmacroHelper:
     """
 
     @staticmethod
-    def row_to_globalmacro(globalmacros: OrderedDict, row: str):
+    def row_to_globalmacro(globalmacros: Dict, row: str):
         """converts a row from the globals file to globalmacro data.
 
         Args:

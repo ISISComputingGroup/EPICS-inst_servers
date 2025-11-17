@@ -142,7 +142,7 @@ class Configuration:
     def add_globalmacro(
         self,
         name: str,
-        macros: Dict = None,
+        macros: Dict,
     ):
         """Add an IOC with its global macros to the configuration.
 
