@@ -138,7 +138,7 @@ class Configuration:
             name: The new name for the configuration
         """
         self.meta.name = name
-        
+
     def add_globalmacro(
         self,
         name: str,

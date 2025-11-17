@@ -18,6 +18,7 @@ import copy
 from typing import Any, Dict, List, Union
 from collections import OrderedDict
 
+
 class Globalmacro:
     """Represents an IOC with its global macros.
 
@@ -43,7 +44,6 @@ class Globalmacro:
             self.macros = {}
         else:
             self.macros = macros
-
 
     @staticmethod
     def _dict_to_list(in_dict: Dict[str, Any]) -> List[Any]:
@@ -84,6 +84,7 @@ class Globalmacro:
     def __getitem__(self, name):
         return self.__getattribute__(name)
 
+
 class GlobalmacroHelper:
     """Converts global macro data to Globalmacro Object.
 
@@ -111,7 +112,7 @@ class GlobalmacroHelper:
             else:
                 ioc = ALL_IOCS
                 macro = ioc_macro
-            
+
             if ioc in globalmacros:
                 to_add_ioc = globalmacros[ioc]
             to_add_ioc[macro] = value.strip()

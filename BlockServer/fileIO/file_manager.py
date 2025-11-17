@@ -167,7 +167,7 @@ class ConfigurationFileManager:
         globals_path = os.path.join(FILEPATH_MANAGER.config_root_dir, FILENAME_GLOBALS)
         globalmacros = {}
         if os.path.isfile(globals_path):
-            with open(globals_path, 'r') as file:
+            with open(globals_path, "r") as file:
                 for line in file:
                     GlobalmacroHelper.row_to_globalmacro(globalmacros, line.strip())
 
@@ -177,7 +177,7 @@ class ConfigurationFileManager:
         configuration.iocs = iocs
         configuration.components = components
         configuration.meta = meta
-        #configuration.globalmacros = globalmacros
+        # configuration.globalmacros = globalmacros
         for key, value in globalmacros.items():
             configuration.add_globalmacro(key, value)
 
