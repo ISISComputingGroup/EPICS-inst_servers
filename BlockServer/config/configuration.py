@@ -20,6 +20,7 @@ from collections import OrderedDict
 from typing import Dict
 
 from BlockServer.config.block import Block
+from BlockServer.config.globalmacros import Globalmacro
 from BlockServer.config.group import Group
 from BlockServer.config.ioc import IOC
 from BlockServer.config.metadata import MetaData
@@ -39,6 +40,7 @@ class Configuration:
         meta (MetaData): The meta-data for the configuration
         components (OrderedDict): The components which are part of the configuration
         is_component (bool): Whether it is actually a component
+        globalmacros (OrderedDict): The globalmacros for the configuration
     """
 
     def __init__(self, macros: Dict):
@@ -55,6 +57,7 @@ class Configuration:
         self.meta = MetaData("")
         self.components = OrderedDict()
         self.is_component = False
+        self.globalmacros = OrderedDict()
 
     def add_block(self, name: str, pv: str, group: str = GRP_NONE, local: bool = True, **kwargs):
         """Add a block to the configuration.
@@ -135,3 +138,26 @@ class Configuration:
             name: The new name for the configuration
         """
         self.meta.name = name
+        
+    def add_globalmacro(
+        self,
+        name: str,
+        macros: Dict = None,
+    ):
+        """Add an IOC with its global macros to the configuration.
+
+        Args:
+            name (string): The name of the IOC to add
+            macros: The macro sets relating to the IOC
+
+        """
+        # Only add it if it has not been added before
+        if name.upper() in self.globalmacros.keys():
+            print_and_log(
+                f"Warning: IOC '{name}' is already part of the configuration. Not adding it again."
+            )
+        else:
+            print_and_log(
+                f"Info: Global macros for IOC '{name}' is being added to the configuration."
+            )
+            self.globalmacros[name.upper()] = Globalmacro(name, macros)

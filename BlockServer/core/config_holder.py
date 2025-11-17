@@ -325,6 +325,16 @@ class ConfigHolder:
                 f"Can't add IOC '{name}' to component '{component}': component does not exist"
             )
 
+    def _globalmacros_to_list(self):
+        print_and_log(f"Retrieving cached _globalmacros_to_list...size is '{len(self._config.globalmacros)}'")
+        #globalmacros = []
+        #for iocname, globalmacro in self._config.globalmacros:
+        #    globalmacros.append(b)
+        #return globalmacros
+        #return copy.deepcopy(self._config.globalmacros)
+        #return self._config.globalmacros
+        return [globalmacro.to_dict() for globalmacro in self._config.globalmacros.values()]
+
     def get_config_details(self) -> Dict[str, Any]:
         """Get the details of the configuration.
 
@@ -332,6 +342,7 @@ class ConfigHolder:
             A dictionary containing all the details of the configuration
         """
         return {
+            "globalmacros": self._globalmacros_to_list(),
             "blocks": self._blocks_to_list(True),
             "groups": self._groups_to_list(),
             "iocs": self._iocs_to_list(),

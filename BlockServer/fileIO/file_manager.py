@@ -21,6 +21,7 @@ from xml.etree import ElementTree
 
 from BlockServer.config.configuration import Configuration, MetaData
 from BlockServer.config.group import Group
+from BlockServer.config.globalmacros import Globalmacro, GlobalmacroHelper
 from BlockServer.config.xml_converter import ConfigurationXmlConverter
 from BlockServer.core.constants import (
     DEFAULT_COMPONENT,
@@ -32,6 +33,7 @@ from BlockServer.core.constants import (
     FILENAME_IOCS,
     FILENAME_META,
     GRP_NONE,
+    FILENAME_GLOBALS,
 )
 from server_common.file_path_manager import FILEPATH_MANAGER
 from BlockServer.fileIO.schema_checker import (
@@ -161,12 +163,24 @@ class ConfigurationFileManager:
                 "Files missing in " + name + " (%s)" % ",".join(list(config_files_missing))
             )
 
+        # Import the Global macros
+        globals_path = os.path.join(FILEPATH_MANAGER.config_root_dir, FILENAME_GLOBALS)
+        globalmacros = {}
+        if os.path.isfile(globals_path):
+            with open(globals_path, 'r') as file:
+                for line in file:
+                    GlobalmacroHelper.row_to_globalmacro(globalmacros, line.strip())
+
         # Set properties in the config
         configuration.blocks = blocks
         configuration.groups = groups
         configuration.iocs = iocs
         configuration.components = components
         configuration.meta = meta
+        #configuration.globalmacros = globalmacros
+        for key, value in globalmacros.items():
+            configuration.add_globalmacro(key, value)
+
         print_and_log(f"Configuration ('{name}') loaded.")
         return configuration
 
