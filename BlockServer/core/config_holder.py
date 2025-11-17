@@ -1,5 +1,5 @@
 # This file is part of the ISIS IBEX application.
-# Copyright (C) 2012-2016 Science & Technology Facilities Council.
+# Copyright (C) 2012-2025 Science & Technology Facilities Council.
 # All rights reserved.
 #
 # This program is distributed in the hope that it will be useful.
@@ -326,13 +326,6 @@ class ConfigHolder:
             )
 
     def _globalmacros_to_list(self):
-        print_and_log(f"Retrieving cached _globalmacros_to_list...size is '{len(self._config.globalmacros)}'")
-        #globalmacros = []
-        #for iocname, globalmacro in self._config.globalmacros:
-        #    globalmacros.append(b)
-        #return globalmacros
-        #return copy.deepcopy(self._config.globalmacros)
-        #return self._config.globalmacros
         return [globalmacro.to_dict() for globalmacro in self._config.globalmacros.values()]
 
     def get_config_details(self) -> Dict[str, Any]:

@@ -1,5 +1,5 @@
 # This file is part of the ISIS IBEX application.
-# Copyright (C) 2012-2016 Science & Technology Facilities Council.
+# Copyright (C) 2012-2025 Science & Technology Facilities Council.
 # All rights reserved.
 #
 # This program is distributed in the hope that it will be useful.
@@ -17,7 +17,6 @@
 import copy
 from typing import Any, Dict, List, Union
 from collections import OrderedDict
-from server_common.utilities import print_and_log
 
 class Globalmacro:
     """Represents an IOC with its global macros.
@@ -57,12 +56,12 @@ class Globalmacro:
             The newly created list
         """
         out_list = []
-        print_and_log(f"Called for dictionary '{in_dict}'")
-        for k, v in in_dict.items():
-            # Take a copy as we do not want to modify the original
-            c = copy.deepcopy(v)
-            c["name"] = k
-            out_list.append(c)
+        if in_dict:
+            for k, v in in_dict.items():
+                # Take a copy as we do not want to modify the original
+                c = copy.deepcopy(v)
+                c["name"] = k
+                out_list.append(c)
         return out_list
 
     def __str__(self) -> str:
