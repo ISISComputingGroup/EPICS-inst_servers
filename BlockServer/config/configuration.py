@@ -43,7 +43,7 @@ class Configuration:
         globalmacros (OrderedDict): The globalmacros for the configuration
     """
 
-    def __init__(self, macros: Dict):
+    def __init__(self, macros: Dict) -> None:
         """Constructor.
 
         Args:
@@ -59,7 +59,14 @@ class Configuration:
         self.is_component = False
         self.globalmacros = OrderedDict()
 
-    def add_block(self, name: str, pv: str, group: str = GRP_NONE, local: bool = True, **kwargs):
+    def add_block(
+        self,
+        name: str,
+        pv: str,
+        group: str = GRP_NONE,
+        local: bool = True,
+        **kwargs: bool | float | None,
+    ) -> None:
         """Add a block to the configuration.
 
         Args:
@@ -95,8 +102,8 @@ class Configuration:
         pvs: Dict = None,
         pvsets: Dict = None,
         simlevel: str = None,
-        remotePvPrefix: str = None,
-    ):
+        remotePvPrefix: str = None,  # Has to match the mapped Java attribute #noqa: N803
+    ) -> None:
         """Add an IOC to the configuration.
 
         Args:
@@ -131,7 +138,7 @@ class Configuration:
             self.meta.name.decode("utf-8") if isinstance(self.meta.name, bytes) else self.meta.name
         )
 
-    def set_name(self, name: str):
+    def set_name(self, name: str) -> None:
         """Sets the configuration's name.
 
         Args:
@@ -139,10 +146,7 @@ class Configuration:
         """
         self.meta.name = name
 
-    def add_globalmacro(
-        self,
-        name: str,
-        macros: Dict) -> None:
+    def add_globalmacro(self, name: str, macros: Dict) -> None:
         """Add an IOC with its global macros to the configuration.
 
         Args:
