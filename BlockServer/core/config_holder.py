@@ -126,7 +126,7 @@ class ConfigHolder:
                     names.append(block.name)
         return names
 
-    def get_block_details(self):
+    def get_block_details(self) -> OrderedDict:
         """Get the configuration details for all the blocks including any in components.
 
         Returns:
@@ -182,7 +182,7 @@ class ConfigHolder:
 
         return groups
 
-    def _set_group_details(self, redefinition) -> None:
+    def _set_group_details(self, redefinition: List) -> None:
         # Any redefinition only affects the main configuration
         homeless_blocks = self.get_blocknames()
         for grp in redefinition:
@@ -244,7 +244,7 @@ class ConfigHolder:
                 iocs.extend(cv.iocs)
         return iocs
 
-    def get_ioc_details(self):
+    def get_ioc_details(self) -> OrderedDict:
         """Get the details of the IOCs in the configuration.
 
         Returns:
@@ -252,7 +252,7 @@ class ConfigHolder:
         """
         return copy.deepcopy(self._config.iocs)
 
-    def get_component_ioc_details(self):
+    def get_component_ioc_details(self) -> Dict:
         """Get the details of the IOCs in any components.
 
         Returns:
@@ -265,7 +265,7 @@ class ConfigHolder:
                     iocs[ioc_name] = ioc
         return iocs
 
-    def get_all_ioc_details(self):
+    def get_all_ioc_details(self) -> Dict:
         """Get the details of the IOCs in the configuration and any components.
 
         Returns:
@@ -367,7 +367,7 @@ class ConfigHolder:
         """
         return self._config.meta.isDynamic
 
-    def configures_block_gateway_and_archiver(self):
+    def configures_block_gateway_and_archiver(self) -> bool:
         """
         Returns:
             (bool): Whether this config has a gwblock.pvlist and block_config.xml to configure the
@@ -375,14 +375,14 @@ class ConfigHolder:
         """
         return self._config.meta.configuresBlockGWAndArchiver
 
-    def _comps_to_list(self):
+    def _comps_to_list(self) -> List:
         comps = []
         for component_name, component_value in self._components.items():
             if component_name.lower() != DEFAULT_COMPONENT.lower():
                 comps.append({"name": component_value.get_name()})
         return comps
 
-    def _blocks_to_list(self, expand_macro: bool = False):
+    def _blocks_to_list(self, expand_macro: bool = False) -> List:
         blocks = self.get_block_details()
         blks = []
         if blocks is not None:
@@ -394,7 +394,7 @@ class ConfigHolder:
                 blks.append(b)
         return blks
 
-    def _groups_to_list(self):
+    def _groups_to_list(self) -> List:
         groups = self.get_group_details()
         grps = []
         if groups is not None:
@@ -407,10 +407,10 @@ class ConfigHolder:
                 grps.append(groups[GRP_NONE.lower()].to_dict())
         return grps
 
-    def _iocs_to_list(self):
+    def _iocs_to_list(self) -> List:
         return [ioc.to_dict() for ioc in self._config.iocs.values()]
 
-    def _iocs_to_list_with_components(self):
+    def _iocs_to_list_with_components(self) -> List:
         ioc_list = self._iocs_to_list()
 
         for component in self._components.values():
@@ -418,7 +418,7 @@ class ConfigHolder:
                 ioc_list.append(ioc.to_dict())
         return ioc_list
 
-    def _to_dict(self, data_list):
+    def _to_dict(self, data_list: List) -> Dict:
         return None if data_list is None else {item["name"]: item for item in data_list}
 
     def set_config(self, config: Configuration, is_component: bool = False) -> None:
