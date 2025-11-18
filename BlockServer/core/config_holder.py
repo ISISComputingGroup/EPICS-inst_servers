@@ -19,6 +19,9 @@
 import copy
 import re
 from collections import OrderedDict
+from server_common.file_path_manager import FILEPATH_MANAGER
+from server_common.helpers import PVPREFIX_MACRO
+from server_common.utilities import print_and_log
 from typing import Any, Dict, List
 
 from BlockServer.config.configuration import Configuration
@@ -26,9 +29,6 @@ from BlockServer.config.group import Group
 from BlockServer.config.metadata import MetaData
 from BlockServer.core.constants import DEFAULT_COMPONENT, GRP_NONE
 from BlockServer.fileIO.file_manager import ConfigurationFileManager
-from server_common.file_path_manager import FILEPATH_MANAGER
-from server_common.helpers import PVPREFIX_MACRO
-from server_common.utilities import print_and_log
 
 
 class ConfigHolder:

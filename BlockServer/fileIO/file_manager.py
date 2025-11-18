@@ -17,6 +17,9 @@ import os
 import re
 import shutil
 from collections import OrderedDict
+from server_common.common_exceptions import MaxAttemptsExceededException
+from server_common.file_path_manager import FILEPATH_MANAGER
+from server_common.utilities import print_and_log, retry
 from xml.etree import ElementTree
 
 from BlockServer.config.configuration import Configuration, MetaData
@@ -39,9 +42,6 @@ from BlockServer.fileIO.schema_checker import (
     ConfigurationIncompleteException,
     ConfigurationSchemaChecker,
 )
-from server_common.common_exceptions import MaxAttemptsExceededException
-from server_common.file_path_manager import FILEPATH_MANAGER
-from server_common.utilities import print_and_log, retry
 
 RETRY_MAX_ATTEMPTS = 20
 RETRY_INTERVAL = 0.5
