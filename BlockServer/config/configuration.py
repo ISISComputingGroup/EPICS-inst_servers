@@ -142,8 +142,7 @@ class Configuration:
     def add_globalmacro(
         self,
         name: str,
-        macros: Dict,
-    ):
+        macros: Dict) -> None:
         """Add an IOC with its global macros to the configuration.
 
         Args:
@@ -157,7 +156,4 @@ class Configuration:
                 f"Warning: IOC '{name}' is already part of the configuration. Not adding it again."
             )
         else:
-            print_and_log(
-                f"Info: Global macros for IOC '{name}' is being added to the configuration."
-            )
             self.globalmacros[name.upper()] = Globalmacro(name, macros)

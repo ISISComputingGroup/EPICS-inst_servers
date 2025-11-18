@@ -16,7 +16,6 @@
 
 import copy
 from typing import Any, Dict, List
-from collections import OrderedDict
 
 
 class Globalmacro:
@@ -31,7 +30,7 @@ class Globalmacro:
         self,
         name: str,
         macros: Dict[str, str],
-    ):
+    ) -> None:
         """Constructor.
 
         Args:
@@ -78,10 +77,10 @@ class Globalmacro:
             "macros": self.macros,
         }
 
-    def get(self, name):
+    def get(self, name: str) -> None:
         return self.__getattribute__(name)
 
-    def __getitem__(self, name):
+    def __getitem__(self, name: str) -> None:
         return self.__getattribute__(name)
 
 
@@ -92,25 +91,25 @@ class GlobalmacroHelper:
     """
 
     @staticmethod
-    def row_to_globalmacro(globalmacros: Dict, row: str):
+    def row_to_globalmacro(globalmacros: Dict, row: str) -> None:
         """converts a row from the globals file to globalmacro data.
 
         Args:
             globalmacros: The current list of global macros
             row: The IOC's (or All IOCs) global macro record
         """
-        IOC_SEPARATOR = "__"
-        EQUAL_TO = "="
-        ALL_IOCS = IOC_SEPARATOR
+        ioc_separator = "__"
+        equal_to = "="
+        all_iocs = ioc_separator
         # Each record is of the form IOC__MACRO=VALUE
         # Where there is no __ the Macro is applicable for all IOCs
-        if EQUAL_TO in row:
-            ioc_macro, value = row.rsplit(EQUAL_TO, maxsplit=1)
+        if equal_to in row:
+            ioc_macro, value = row.rsplit(equal_to, maxsplit=1)
             to_add_ioc = {}
-            if IOC_SEPARATOR in ioc_macro:
-                ioc, macro = ioc_macro.split(IOC_SEPARATOR, maxsplit=1)
+            if ioc_separator in ioc_macro:
+                ioc, macro = ioc_macro.split(ioc_separator, maxsplit=1)
             else:
-                ioc = ALL_IOCS
+                ioc = all_iocs
                 macro = ioc_macro
 
             if ioc in globalmacros:

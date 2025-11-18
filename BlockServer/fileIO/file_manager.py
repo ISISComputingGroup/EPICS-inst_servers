@@ -20,8 +20,8 @@ from collections import OrderedDict
 from xml.etree import ElementTree
 
 from BlockServer.config.configuration import Configuration, MetaData
+from BlockServer.config.globalmacros import GlobalmacroHelper
 from BlockServer.config.group import Group
-from BlockServer.config.globalmacros import Globalmacro, GlobalmacroHelper
 from BlockServer.config.xml_converter import ConfigurationXmlConverter
 from BlockServer.core.constants import (
     DEFAULT_COMPONENT,
@@ -29,18 +29,18 @@ from BlockServer.core.constants import (
     FILENAME_BANNER,
     FILENAME_BLOCKS,
     FILENAME_COMPONENTS,
+    FILENAME_GLOBALS,
     FILENAME_GROUPS,
     FILENAME_IOCS,
     FILENAME_META,
     GRP_NONE,
-    FILENAME_GLOBALS,
 )
-from server_common.file_path_manager import FILEPATH_MANAGER
 from BlockServer.fileIO.schema_checker import (
     ConfigurationIncompleteException,
     ConfigurationSchemaChecker,
 )
 from server_common.common_exceptions import MaxAttemptsExceededException
+from server_common.file_path_manager import FILEPATH_MANAGER
 from server_common.utilities import print_and_log, retry
 
 RETRY_MAX_ATTEMPTS = 20
@@ -177,7 +177,6 @@ class ConfigurationFileManager:
         configuration.iocs = iocs
         configuration.components = components
         configuration.meta = meta
-        # configuration.globalmacros = globalmacros
         for key, value in globalmacros.items():
             configuration.add_globalmacro(key, value)
 
