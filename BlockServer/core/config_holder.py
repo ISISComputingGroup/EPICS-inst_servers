@@ -418,7 +418,7 @@ class ConfigHolder:
                 ioc_list.append(ioc.to_dict())
         return ioc_list
 
-    def _to_dict(self, data_list: List) -> Dict:
+    def _to_dict(self, data_list: List) -> dict | None:
         return None if data_list is None else {item["name"]: item for item in data_list}
 
     def set_config(self, config: Configuration, is_component: bool = False) -> None:

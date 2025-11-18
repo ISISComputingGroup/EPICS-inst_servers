@@ -335,7 +335,7 @@ class ConfigurationFileManager:
     @staticmethod
     def get_banner_config() -> dict:
         """
-        Parses the banner config file into a dictionary of lists of dictionaries 
+        Parses the banner config file into a dictionary of lists of dictionaries
         containing the items and buttons.
         Returns:
             Dictionary containing information about banner items and buttons,
