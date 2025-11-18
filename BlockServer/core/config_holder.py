@@ -324,7 +324,7 @@ class ConfigHolder:
                 f"Can't add IOC '{name}' to component '{component}': component does not exist"
             )
 
-    def _globalmacros_to_list(self) -> Dict[str, str | Dict[str, str]]:
+    def _globalmacros_to_list(self) -> List[Any]:
         return [globalmacro.to_dict() for globalmacro in self._config.globalmacros.values()]
 
     def get_config_details(self) -> Dict[str, Any]:
