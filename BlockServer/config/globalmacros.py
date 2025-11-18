@@ -15,7 +15,7 @@
 # http://opensource.org/licenses/eclipse-1.0.php
 
 import copy
-from typing import Any, Dict, List, Union
+from typing import Any, Dict, List
 from collections import OrderedDict
 
 
