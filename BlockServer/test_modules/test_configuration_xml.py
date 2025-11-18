@@ -255,7 +255,6 @@ class TestConfigurationXmlConverterSequence(unittest.TestCase):
         blocks_xml = strip_out_whitespace(blocks_xml)
 
         # Assert
-        print(blocks_xml)
         self.assertEqual(blocks_xml, BLOCKS_XML)
 
     def test_groups_to_xml_converts_correctly(self):
