@@ -67,7 +67,7 @@ class Globalmacro:
     def __str__(self) -> str:
         return f"{self.__class__.__name__}(name={self.name})"
 
-    def to_dict(self) -> Dict[str, Dict[str, str]]:
+    def to_dict(self) -> Dict[str, str | Dict[str, str]]:
         """Puts the IOC-globalmacro's details into a dictionary.
 
         Returns:
