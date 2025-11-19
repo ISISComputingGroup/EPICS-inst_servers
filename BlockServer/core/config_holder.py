@@ -15,7 +15,7 @@
 # http://opensource.org/licenses/eclipse-1.0.php
 
 """Contains the code for the ConfigHolder class"""
-#noqa: I001
+# ruff: noqa: I001
 import copy
 import re
 from collections import OrderedDict
