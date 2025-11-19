@@ -15,7 +15,7 @@
 # http://opensource.org/licenses/eclipse-1.0.php
 
 """Contains all the code for defining a configuration or component"""
-# noqa: I001
+#noqa: I001
 from collections import OrderedDict
 from typing import Dict
 
