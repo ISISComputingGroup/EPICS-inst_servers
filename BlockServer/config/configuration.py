@@ -1,5 +1,5 @@
 # This file is part of the ISIS IBEX application.
-# Copyright (C) 2012-2016 Science & Technology Facilities Council.
+# Copyright (C) 2012-2025 Science & Technology Facilities Council.
 # All rights reserved.
 #
 # This program is distributed in the hope that it will be useful.
@@ -16,10 +16,12 @@
 
 """Contains all the code for defining a configuration or component"""
 
+# ruff: noqa: I001
 from collections import OrderedDict
 from typing import Dict
 
 from BlockServer.config.block import Block
+from BlockServer.config.globalmacros import Globalmacro
 from BlockServer.config.group import Group
 from BlockServer.config.ioc import IOC
 from BlockServer.config.metadata import MetaData
@@ -39,9 +41,10 @@ class Configuration:
         meta (MetaData): The meta-data for the configuration
         components (OrderedDict): The components which are part of the configuration
         is_component (bool): Whether it is actually a component
+        globalmacros (OrderedDict): The globalmacros for the configuration
     """
 
-    def __init__(self, macros: Dict):
+    def __init__(self, macros: Dict) -> None:
         """Constructor.
 
         Args:
@@ -55,8 +58,16 @@ class Configuration:
         self.meta = MetaData("")
         self.components = OrderedDict()
         self.is_component = False
+        self.globalmacros = OrderedDict()
 
-    def add_block(self, name: str, pv: str, group: str = GRP_NONE, local: bool = True, **kwargs):
+    def add_block(
+        self,
+        name: str,
+        pv: str,
+        group: str = GRP_NONE,
+        local: bool = True,
+        **kwargs: bool | float | None,
+    ) -> None:
         """Add a block to the configuration.
 
         Args:
@@ -92,8 +103,8 @@ class Configuration:
         pvs: Dict = None,
         pvsets: Dict = None,
         simlevel: str = None,
-        remotePvPrefix: str = None,
-    ):
+        remotePvPrefix: str = None,  # Has to match the mapped Java attribute #noqa: N803
+    ) -> None:
         """Add an IOC to the configuration.
 
         Args:
@@ -128,10 +139,26 @@ class Configuration:
             self.meta.name.decode("utf-8") if isinstance(self.meta.name, bytes) else self.meta.name
         )
 
-    def set_name(self, name: str):
+    def set_name(self, name: str) -> None:
         """Sets the configuration's name.
 
         Args:
             name: The new name for the configuration
         """
         self.meta.name = name
+
+    def add_globalmacro(self, name: str, macros: Dict) -> None:
+        """Add an IOC with its global macros to the configuration.
+
+        Args:
+            name (string): The name of the IOC to add
+            macros: The macro sets relating to the IOC
+
+        """
+        # Only add it if it has not been added before
+        if name.upper() in self.globalmacros.keys():
+            print_and_log(
+                f"Warning: IOC '{name}' is already part of the configuration. Not adding it again."
+            )
+        else:
+            self.globalmacros[name.upper()] = Globalmacro(name, macros)

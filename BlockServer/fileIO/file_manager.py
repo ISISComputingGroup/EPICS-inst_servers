@@ -1,5 +1,5 @@
 # This file is part of the ISIS IBEX application.
-# Copyright (C) 2012-2016 Science & Technology Facilities Council.
+# Copyright (C) 2012-2025 Science & Technology Facilities Council.
 # All rights reserved.
 #
 # This program is distributed in the hope that it will be useful.
@@ -13,6 +13,7 @@
 # along with this program; if not, you can obtain a copy from
 # https://www.eclipse.org/org/documents/epl-v10.php or
 # http://opensource.org/licenses/eclipse-1.0.php
+# ruff: noqa: I001
 import os
 import re
 import shutil
@@ -20,6 +21,7 @@ from collections import OrderedDict
 from xml.etree import ElementTree
 
 from BlockServer.config.configuration import Configuration, MetaData
+from BlockServer.config.globalmacros import GlobalmacroHelper
 from BlockServer.config.group import Group
 from BlockServer.config.xml_converter import ConfigurationXmlConverter
 from BlockServer.core.constants import (
@@ -28,17 +30,18 @@ from BlockServer.core.constants import (
     FILENAME_BANNER,
     FILENAME_BLOCKS,
     FILENAME_COMPONENTS,
+    FILENAME_GLOBALS,
     FILENAME_GROUPS,
     FILENAME_IOCS,
     FILENAME_META,
     GRP_NONE,
 )
-from server_common.file_path_manager import FILEPATH_MANAGER
 from BlockServer.fileIO.schema_checker import (
     ConfigurationIncompleteException,
     ConfigurationSchemaChecker,
 )
 from server_common.common_exceptions import MaxAttemptsExceededException
+from server_common.file_path_manager import FILEPATH_MANAGER
 from server_common.utilities import print_and_log, retry
 
 RETRY_MAX_ATTEMPTS = 20
@@ -51,7 +54,7 @@ class ConfigurationFileManager:
     Contains utilities to save and load configurations.
     """
 
-    def find_ci(self, root_path, name):
+    def find_ci(self, root_path: str, name: str) -> str:
         """find a file with a case insensitive match"""
         res = ""
         for f in os.listdir(root_path):
@@ -59,7 +62,7 @@ class ConfigurationFileManager:
                 res = f
         return res
 
-    def load_config(self, name, macros, is_component):
+    def load_config(self, name: str, macros: dict, is_component: bool) -> Configuration:
         """Loads the configuration from the specified folder.
 
         Args:
@@ -161,23 +164,34 @@ class ConfigurationFileManager:
                 "Files missing in " + name + " (%s)" % ",".join(list(config_files_missing))
             )
 
+        # Import the Global macros
+        globals_path = os.path.join(FILEPATH_MANAGER.config_root_dir, FILENAME_GLOBALS)
+        globalmacros = {}
+        if os.path.isfile(globals_path):
+            with open(globals_path, "r") as file:
+                for line in file:
+                    GlobalmacroHelper.row_to_globalmacro(globalmacros, line.strip())
+
         # Set properties in the config
         configuration.blocks = blocks
         configuration.groups = groups
         configuration.iocs = iocs
         configuration.components = components
         configuration.meta = meta
+        for key, value in globalmacros.items():
+            configuration.add_globalmacro(key, value)
+
         print_and_log(f"Configuration ('{name}') loaded.")
         return configuration
 
     @staticmethod
-    def _check_against_schema(xml, filename):
+    def _check_against_schema(xml: bytes, filename: str) -> None:
         regex = re.compile(re.escape(".xml"), re.IGNORECASE)
         name = regex.sub(".xsd", filename)
         schema_path = os.path.join(FILEPATH_MANAGER.schema_dir, name)
         ConfigurationSchemaChecker.check_xml_data_matches_schema(schema_path, xml)
 
-    def save_config(self, configuration, is_component):
+    def save_config(self, configuration: Configuration, is_component: bool) -> None:
         """Saves the current configuration with the specified name.
 
         Args:
@@ -198,7 +212,7 @@ class ConfigurationFileManager:
         meta_xml = ConfigurationXmlConverter.meta_to_xml(configuration.meta)
         try:
             components_xml = ConfigurationXmlConverter.components_to_xml(configuration.components)
-        except:
+        except Exception:
             # Is a component, so no components
             components_xml = ConfigurationXmlConverter.components_to_xml(dict())
 
@@ -223,14 +237,14 @@ class ConfigurationFileManager:
         self._write_to_file(current_file, meta_xml)
 
     @retry(RETRY_MAX_ATTEMPTS, RETRY_INTERVAL, (OSError, IOError))
-    def delete(self, name, is_component):
+    def delete(self, name: str, is_component: bool) -> None:
         path = self.get_path(name, is_component)
         if not os.path.exists(path):
             print_and_log(f"Directory {path} not found on filesystem.", "MINOR")
             return
         shutil.rmtree(path)
 
-    def component_exists(self, root_path, name):
+    def component_exists(self, root_path: str, name: str) -> None:
         """Checks to see if a component exists.
 
         root_path (string): The root folder where components are stored
@@ -243,7 +257,7 @@ class ConfigurationFileManager:
             raise Exception("Component does not exist")
 
     @staticmethod
-    def copy_default(dest_path):
+    def copy_default(dest_path: str) -> None:
         """Copies the default/base component in if it does exist.
 
         Args:
@@ -255,7 +269,7 @@ class ConfigurationFileManager:
         )
 
     @staticmethod
-    def _read_element_tree(file_path):
+    def _read_element_tree(file_path: str) -> ElementTree.Element:
         try:
             return ConfigurationFileManager._attempt_read(file_path)
         except MaxAttemptsExceededException:
@@ -264,7 +278,7 @@ class ConfigurationFileManager:
                 f"is not in use by another process."
             )
 
-    def _write_to_file(self, file_path, data):
+    def _write_to_file(self, file_path: str, data: str) -> None:
         try:
             return self._attempt_write(file_path, data)
         except MaxAttemptsExceededException:
@@ -275,7 +289,7 @@ class ConfigurationFileManager:
 
     @staticmethod
     @retry(RETRY_MAX_ATTEMPTS, RETRY_INTERVAL, (OSError, IOError))
-    def _attempt_read(file_path):
+    def _attempt_read(file_path: str) -> ElementTree.Element:
         """Read and return the element tree from a given xml file.
 
         Args:
@@ -285,7 +299,7 @@ class ConfigurationFileManager:
 
     @staticmethod
     @retry(RETRY_MAX_ATTEMPTS, RETRY_INTERVAL, (OSError, IOError))
-    def _attempt_write(file_path, data):
+    def _attempt_write(file_path: str, data: str) -> None:
         """Write xml data to a given configuration file.
 
         Args:
@@ -311,7 +325,7 @@ class ConfigurationFileManager:
         return files
 
     @staticmethod
-    def get_path(name, is_component):
+    def get_path(name: str, is_component: bool) -> str:
         if is_component:
             path = FILEPATH_MANAGER.get_component_path(name)
         else:
@@ -320,10 +334,10 @@ class ConfigurationFileManager:
         return path
 
     @staticmethod
-    def get_banner_config():
+    def get_banner_config() -> dict:
         """
-        Parses the banner config file into a dictionary of lists of dictionaries containing the items and buttons.
-
+        Parses the banner config file into a dictionary of lists of dictionaries
+        containing the items and buttons.
         Returns:
             Dictionary containing information about banner items and buttons,
             empty dictionary if it doesn't exist or fails to parse.
