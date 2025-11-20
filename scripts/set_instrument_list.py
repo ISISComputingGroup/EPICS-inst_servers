@@ -158,7 +158,6 @@ if __name__ == "__main__":
         inst_dictionary("DCLAB", groups=[SUPPORT], is_scheduled=False, target_station=MISC),
         inst_dictionary("LARMOR", groups=[SANS], target_station=TS2),
         inst_dictionary("ALF", groups=[EXCITATIONS], target_station=TS1),
-        inst_dictionary("DEMO", groups=[], is_scheduled=False, target_station=MISC),
         inst_dictionary("IMAT", groups=[ENGINEERING], target_station=TS2),
         inst_dictionary("MUONFE", groups=[MUONS], is_scheduled=False, target_station=MUON_TARGET),
         inst_dictionary("ZOOM", groups=[SANS], target_station=TS2),
@@ -191,6 +190,7 @@ if __name__ == "__main__":
         inst_dictionary("MERLIN", groups=[EXCITATIONS], target_station=TS1),
         inst_dictionary("RIKENFE", groups=[MUONS], is_scheduled=False, target_station=MUON_TARGET),
         inst_dictionary("SELAB", groups=[SUPPORT], is_scheduled=False, target_station=MISC),
+        inst_dictionary("SELAB2", groups=[SUPPORT], is_scheduled=False, target_station=MISC),
         inst_dictionary("EMMA-A", groups=[SUPPORT], is_scheduled=False, target_station=TS1),
         inst_dictionary("EMMA-B", groups=[SUPPORT], is_scheduled=False, target_station=TS1),
         inst_dictionary("SANDALS", groups=[DISORDERED], target_station=TS1),
@@ -254,6 +254,9 @@ if __name__ == "__main__":
             is_scheduled=False,
             target_station=MISC,
         ),
+        inst_dictionary("DETECT1", groups=[SUPPORT], is_scheduled=False, target_station=MISC),
+        inst_dictionary("DETECT2", groups=[SUPPORT], is_scheduled=False, target_station=MISC),
+        inst_dictionary("DETECT3", groups=[SUPPORT], is_scheduled=False, target_station=MISC),
     ]
 
     set_instlist(instruments_list, pv_address)
@@ -266,4 +269,7 @@ if __name__ == "__main__":
     for g in sorted(groups):
         pv_address = f"CS:INSTLIST:{g}"
         inst_list = [x for x in instruments_list if g in x["groups"]]
-        set_instlist(inst_list, pv_address)
+        try:
+            set_instlist(inst_list, pv_address)
+        except Exception:
+            print(f"Failed to set {pv_address}")
