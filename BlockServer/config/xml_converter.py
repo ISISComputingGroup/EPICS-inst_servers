@@ -13,7 +13,7 @@
 # along with this program; if not, you can obtain a copy from
 # https://www.eclipse.org/org/documents/epl-v10.php or
 # http://opensource.org/licenses/eclipse-1.0.php
-# ruff: noqa: F403, F405, N802, N806, I001 
+# ruff: noqa: F403, F405, N802, N806, I001
 # pyright: reportUndefinedVariable=false
 # pyright: reportMissingImports=false
 from typing import Dict, OrderedDict
@@ -388,22 +388,22 @@ class ConfigurationXmlConverter:
                     b, NS_TAG_BLOCK, TAG_ALARM_ENABLED
                 )
                 if alarmenabled is not None:
-                    blocks[name.lower()].alarmenabled=alarmenabled.text == "True" # pyright: ignore
+                    blocks[name.lower()].alarmenabled = alarmenabled.text == "True"  # pyright: ignore
                 alarmlatched = ConfigurationXmlConverter._find_single_node(
                     b, NS_TAG_BLOCK, TAG_ALARM_LATCHED
                 )
                 if alarmlatched is not None:
-                    blocks[name.lower()].alarmlatched=alarmlatched.text == "True" # pyright: ignore
+                    blocks[name.lower()].alarmlatched = alarmlatched.text == "True"  # pyright: ignore
                 alarmdelay = ConfigurationXmlConverter._find_single_node(
                     b, NS_TAG_BLOCK, TAG_ALARM_DELAY
                 )
                 if alarmdelay is not None:
-                    blocks[name.lower()].alarmdelay = float(alarmdelay.text) # pyright: ignore
+                    blocks[name.lower()].alarmdelay = float(alarmdelay.text)  # pyright: ignore
                 alarmguidance = ConfigurationXmlConverter._find_single_node(
                     b, NS_TAG_BLOCK, TAG_ALARM_GUIDANCE
                 )
                 if alarmguidance is not None:
-                    blocks[name.lower()].alarmguidance = alarmguidance.text # pyright: ignore
+                    blocks[name.lower()].alarmguidance = alarmguidance.text  # pyright: ignore
 
     @staticmethod
     def groups_from_xml(
@@ -637,7 +637,7 @@ class ConfigurationXmlConverter:
         }
 
     @staticmethod
-    def banner_config_from_xml(root: None | ElementTree.Element) -> list[Any] | dict[str, list]:
+    def banner_config_from_xml(root: None | ElementTree.Element) -> list | dict[str, list]:
         """
         Parses the banner config XML to produce a banner config dictionary
 
