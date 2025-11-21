@@ -13,7 +13,7 @@
 # Along with this program; if not, you can obtain a copy from
 # https://www.eclipse.org/org/documents/epl-v10.php or
 # http://opensource.org/licenses/eclipse-1.0.php
-
+# ruff: noqa: I001
 import re
 import unittest
 from collections import OrderedDict
@@ -44,6 +44,9 @@ BLOCKS_XML = """
         <log_deadband>0</log_deadband>
         <set_block>False</set_block>
 		<set_block_val>None</set_block_val>
+        <alarm_enabled>False</alarm_enabled>
+        <alarm_latched>False</alarm_latched>
+        <alarm_guidance/>
     </block>
     <block>
         <name>TESTBLOCK2</name>
@@ -59,6 +62,9 @@ BLOCKS_XML = """
         <log_deadband>0</log_deadband>
         <set_block>False</set_block>
 		<set_block_val>None</set_block_val>
+        <alarm_enabled>False</alarm_enabled>
+        <alarm_latched>False</alarm_latched>
+        <alarm_guidance/>
     </block>
     <block>
         <name>TESTBLOCK3</name>
@@ -74,6 +80,9 @@ BLOCKS_XML = """
         <log_deadband>0</log_deadband>
         <set_block>False</set_block>
 		<set_block_val>None</set_block_val>
+        <alarm_enabled>False</alarm_enabled>
+        <alarm_latched>False</alarm_latched>
+        <alarm_guidance/>
     </block>
     <block>
         <name>TESTBLOCK4</name>
@@ -89,6 +98,9 @@ BLOCKS_XML = """
         <log_deadband>0</log_deadband>
         <set_block>False</set_block>
 		<set_block_val>None</set_block_val>
+        <alarm_enabled>False</alarm_enabled>
+        <alarm_latched>False</alarm_latched>
+        <alarm_guidance/>
     </block>
 </blocks>"""
 

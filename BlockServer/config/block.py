@@ -13,6 +13,7 @@
 # along with this program; if not, you can obtain a copy from
 # https://www.eclipse.org/org/documents/epl-v10.php or
 # http://opensource.org/licenses/eclipse-1.0.php
+# pyright: reportMissingImports=false
 from typing import Dict, Union
 
 from server_common.helpers import PVPREFIX_MACRO
@@ -33,6 +34,11 @@ class Block:
         log_periodic (bool): Whether the block is sampled periodically in the archiver
         log_rate (float): Time between archive samples (in seconds)
         log_deadband (float): Deadband for the block to be archived
+        alarmenabled (bool): Whether the alarm should be enabled
+        alarmlatched (bool): Whether the alarm should be latched
+        alarmdelay (float): The delay for trigerring alarm
+        alarmguidance (string): The guidance for the alarm
+
     """
 
     def __init__(
@@ -41,17 +47,21 @@ class Block:
         pv: str,
         local: bool = True,
         visible: bool = True,
-        component: str = None,
+        component: str | None = None,
         runcontrol: bool = False,
-        lowlimit: float = None,
-        highlimit: float = None,
+        lowlimit: float | None = None,
+        highlimit: float | None = None,
         suspend_on_invalid: bool = False,
         log_periodic: bool = False,
         log_rate: float = 5,
         log_deadband: float = 0,
         set_block: bool = False,
-        set_block_val: str = None,
-    ):
+        set_block_val: str | None = None,
+        alarmenabled: bool = False,
+        alarmlatched: bool = False,
+        alarmdelay: float | None = None,
+        alarmguidance: str | None = None,
+    ) -> None:
         """Constructor.
 
         Args:
@@ -69,6 +79,10 @@ class Block:
             log_deadband: Deadband for the block to be archived
             set_block: whether the block should be set upon config change
             set_block_val: what the block should be set to upon config change
+            alarmenabled (bool): Whether the alarm should be enabled
+            alarmlatched (bool): Whether the alarm should be latched
+            alarmdelay (float): The delay for trigerring alarm
+            alarmguidance (string): The guidance for the alarm
         """
         self.name = name
         self.pv = pv
@@ -84,6 +98,10 @@ class Block:
         self.log_deadband = log_deadband
         self.set_block = set_block
         self.set_block_val = set_block_val
+        self.alarmenabled = alarmenabled
+        self.alarmlatched = alarmlatched
+        self.alarmdelay = alarmdelay
+        self.alarmguidance = alarmguidance
 
     def _get_pv(self) -> str:
         pv_name = self.pv
@@ -92,7 +110,7 @@ class Block:
             pv_name = PVPREFIX_MACRO + self.pv
         return pv_name
 
-    def set_visibility(self, visible: bool):
+    def set_visibility(self, visible: bool) -> None:
         """Toggle the visibility of the block.
 
         Args:
@@ -100,16 +118,17 @@ class Block:
         """
         self.visible = visible
 
-    def __str__(self):
+    def __str__(self) -> str:
         set_block_str = ""
         if self.set_block:
             set_block_str = f", SetBlockVal: {self.set_block_val}"
         return (
-            f"Name: {self.name}, PV: {self.pv}, Local: {self.local}, Visible: {self.visible}, Component: {self.component}"
-            f", RCEnabled: {self.rc_enabled}, RCLow: {self.rc_lowlimit}, RCHigh: {self.rc_highlimit}{set_block_str}"
+            f"Name: {self.name}, PV: {self.pv}, Local: {self.local}, Visible: {self.visible}, "
+            f"Component: {self.component}, RCEnabled: {self.rc_enabled}, RCLow: {self.rc_lowlimit}"
+            f", RCHigh: {self.rc_highlimit}{set_block_str}"
         )
 
-    def to_dict(self) -> Dict[str, Union[str, float, bool]]:
+    def to_dict(self) -> Dict[str, Union[str, float, bool, None]]:
         """Puts the block's details into a dictionary.
 
         Returns:
@@ -130,4 +149,8 @@ class Block:
             "suspend_on_invalid": self.rc_suspend_on_invalid,
             "set_block": self.set_block,
             "set_block_val": self.set_block_val,
+            "alarmenabled": self.alarmenabled,
+            "alarmlatched": self.alarmlatched,
+            "alarmdelay": self.alarmdelay,
+            "alarmguidance": self.alarmguidance,
         }
