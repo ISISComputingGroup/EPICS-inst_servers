@@ -10,8 +10,8 @@ from io import TextIOWrapper
 from typing import Dict, List, Optional, TextIO, Tuple
 
 from genie_python import genie as g
+from genie_python.genie_advanced import motor_in_set_mode
 from genie_python.mysql_abstraction_layer import SQLAbstraction
-from server_common.helpers import motor_in_set_mode
 from server_common.utilities import parse_date_time_arg_exit_on_fail
 
 from ArchiverAccess.archive_time_period import ArchiveTimePeriod
