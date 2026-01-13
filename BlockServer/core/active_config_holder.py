@@ -265,8 +265,12 @@ class ActiveConfigHolder(ConfigHolder):
             # cached config or components
             if ioc_name in iocs_in_current_config:
                 continue
-
-            if self._ioc_control.get_ioc_status(ioc_name) == "RUNNING":
+            try:
+                ioc_status = self._ioc_control.get_ioc_status(ioc_name)
+            except Exception as e:
+                print_and_log(f"WARNING: IOC {ioc_name} status UNKNOWN: {e} - has IOC been removed?")
+                ioc_status = "UNKNOWN"
+            if ioc_status == "RUNNING":
                 if ioc_name in iocs_in_new_config:
                     # If the IOC is in the new config, we need to restart it as the new config
                     # may have macros which were not used when the IOC was manually
