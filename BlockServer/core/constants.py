@@ -1,5 +1,5 @@
 # This file is part of the ISIS IBEX application.
-# Copyright (C) 2012-2016 Science & Technology Facilities Council.
+# Copyright (C) 2012-2025 Science & Technology Facilities Council.
 # All rights reserved.
 #
 # This program is distributed in the hope that it will be useful.
@@ -79,5 +79,6 @@ FILENAME_COMPONENTS = "components.xml"
 FILENAME_META = "meta.xml"
 FILENAME_SCREENS = "screens.xml"
 FILENAME_BANNER = "banner.xml"
+FILENAME_GLOBALS = "globals.txt"
 
 SCHEMA_FOR = [FILENAME_BLOCKS, FILENAME_GROUPS, FILENAME_IOCS, FILENAME_COMPONENTS, FILENAME_META]
