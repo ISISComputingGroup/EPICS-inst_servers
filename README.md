@@ -9,8 +9,7 @@ Contains:
 1. [Archive Access](https://github.com/ISISComputingGroup/ibex_developers_manual/wiki/Logging-from-the-archive)
 1. [Blocks Server](https://github.com/ISISComputingGroup/ibex_developers_manual/wiki/BlockServer)
 1. [Database Server](https://github.com/ISISComputingGroup/ibex_developers_manual/wiki/The-DatabaseServer)
-1. [Reflectometry Server](https://github.com/ISISComputingGroup/ibex_developers_manual/wiki/Reflectometers)
 
-For more details see the [developer wiki](https://github.com/ISISComputingGroup/ibex_developers_manual/wiki//System-components)
+For more details see the [developer wiki](https://isiscomputinggroup.github.io/ibex_developers_manual/System-components.html)
 
 To run tests use `pytest`
