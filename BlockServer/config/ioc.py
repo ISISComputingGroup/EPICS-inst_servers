@@ -75,17 +75,14 @@ class IOC:
             self.simlevel = simlevel.lower()
         self.macros = {}
         if macros is not None:
-            if isinstance(macros, dict):
-                # Remove macros that are set to use default, they can be gotten from config.xml
-                # so there is no need for them to be stored in the config.
-                for name, data in macros.items():
-                    if "useDefault" in data and ((not data["useDefault"]) or data["useDefault"]=="False" ):
-                        self.macros.update({name: data})
-                        self.macros[name].pop("useDefault")
-                    elif "useDefault" not in data:
-                        self.macros.update({name: data})
-            else:
-                self.macros = macros
+            for name, data in macros.items():
+                if "useDefault" in data and (
+                    (not data["useDefault"]) or data["useDefault"] == "False"
+                ):
+                    self.macros.update({name: data})
+                    self.macros[name].pop("useDefault")
+                elif "useDefault" not in data:
+                    self.macros.update({name: data})
         if pvs is None:
             self.pvs = {}
         else:
@@ -119,7 +116,7 @@ class IOC:
     def __str__(self) -> str:
         return f"{self.__class__.__name__}(name={self.name}, component={self.component})"
 
-    def to_dict(self) -> Dict[str, Union[str, bool, List[Any]]]:
+    def to_dict(self) -> Dict[str, Union[str, bool, List[Any], None]]:
         """Puts the IOC's details into a dictionary.
 
         Returns:

@@ -15,10 +15,12 @@
 # http://opensource.org/licenses/eclipse-1.0.php
 
 import json
-from collections import OrderedDict
-from typing import Any, Dict, List
+from typing import TYPE_CHECKING, Any, Dict, List
 
 from BlockServer.core.constants import GRP_NONE
+
+if TYPE_CHECKING:
+    from BlockServer.config.group import Group
 
 
 class ConfigurationJsonConverter:
@@ -29,7 +31,7 @@ class ConfigurationJsonConverter:
     """
 
     @staticmethod
-    def _groups_to_list(groups: OrderedDict) -> List[Dict[str, Any]]:
+    def _groups_to_list(groups: Dict[str, "Group"]) -> List[Dict[str, Any]]:
         grps = []
         if groups is not None:
             for group in groups.values():
@@ -46,7 +48,7 @@ class ConfigurationJsonConverter:
         return grps
 
     @staticmethod
-    def groups_to_json(groups: OrderedDict) -> str:
+    def groups_to_json(groups: Dict[str, "Group"]) -> str:
         """Converts the groups dictionary to a JSON list
 
         Args:

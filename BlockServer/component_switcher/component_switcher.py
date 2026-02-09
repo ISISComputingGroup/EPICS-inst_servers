@@ -2,18 +2,19 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 import json
 import os
-import types
 from queue import Queue
-from typing import Any, Dict, Iterable, List, Set, Type
+from typing import Any, Callable, Dict, Iterable, List, Optional, Set
 
-from BlockServer.core.config_list_manager import ConfigListManager
+from genie_python.genie import PVValue
 from server_common.channel_access import ChannelAccess
 from server_common.helpers import MACROS, PVPREFIX_MACRO
 from server_common.utilities import SEVERITY
 from server_common.utilities import print_and_log as _common_print_and_log
 
+from BlockServer.core.config_list_manager import ConfigListManager
 
-def print_and_log(message: str, *args, **kwargs) -> None:
+
+def print_and_log(message: str, *args: str, **kwargs: str) -> None:
     _common_print_and_log(f"ComponentSwitcher: {message}", *args, **kwargs)
 
 
@@ -43,9 +44,9 @@ class ComponentSwitcher(object):
         self,
         config_list: ConfigListManager,
         blockserver_write_queue: Queue,
-        reload_current_config_func: types.FunctionType,
-        file_manager: ComponentSwitcherConfigFileManager = None,
-        channel_access_class: Type[ChannelAccess] = None,
+        reload_current_config_func: Callable[[], None],
+        file_manager: Optional[ComponentSwitcherConfigFileManager] = None,
+        channel_access_class: Optional[ChannelAccess] = None,
     ) -> None:
         self._config_list = config_list
         self._blockserver_write_queue = blockserver_write_queue
@@ -89,7 +90,7 @@ class ComponentSwitcher(object):
 
             print_and_log("Adding monitor to PV {}".format(pv))
 
-            def callback(val: Any, stat: int, sevr: int) -> None:
+            def callback(val: PVValue, stat: int, sevr: int) -> None:
                 """
                 Callback function called when the monitored PV changes.
 

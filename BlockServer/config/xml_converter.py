@@ -429,8 +429,6 @@ class ConfigurationXmlConverter:
         grps = ConfigurationXmlConverter._find_all_nodes(root_xml, NS_TAG_GROUP, TAG_GROUP)
         for g in grps:
             gname = g.attrib[TAG_NAME]
-            if gname is None:
-                raise NodeNotPresentError(TAG_NAME, g)
             try:
                 gcomp = g.attrib[TAG_COMPONENT]
             except KeyError:

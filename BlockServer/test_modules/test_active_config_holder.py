@@ -20,6 +20,8 @@ import unittest
 import mock.mock
 from mock import Mock
 from parameterized import parameterized
+from server_common.constants import IS_LINUX
+from server_common.helpers import MACROS
 
 from BlockServer.config.block import Block
 from BlockServer.config.configuration import Configuration
@@ -33,8 +35,6 @@ from BlockServer.core.active_config_holder import (
 from BlockServer.mocks.mock_file_manager import MockConfigurationFileManager
 from BlockServer.mocks.mock_ioc_control import MockIocControl
 from BlockServer.test_modules.helpers import modify_active
-from server_common.constants import IS_LINUX
-from server_common.helpers import MACROS
 
 CONFIG_PATH = "./test_configs/"
 BASE_PATH = "./example_base/"
@@ -698,9 +698,9 @@ class TestActiveConfigHolderSequence(unittest.TestCase):
 
     @parameterized.expand(
         [
-            ({"a": IOC("a", macros=True)}, {"a": IOC("a", macros=False)}),
-            ({"a": IOC("a", pvs=True)}, {"a": IOC("a", pvs=False)}),
-            ({"a": IOC("a", pvsets=True)}, {"a": IOC("a", pvsets=False)}),
+            ({"a": IOC("a", macros={"A_MACRO": "VALUE1"})}, {"a": IOC("a", macros=None)}),
+            ({"a": IOC("a", pvs={"A_PV": "VALUE1"})}, {"a": IOC("a", pvs={})}),
+            ({"a": IOC("a", pvsets={"A_PV": "VALUE1"})}, {"a": IOC("a", pvsets={})}),
             ({"a": IOC("a", simlevel="recsim")}, {"a": IOC("a", simlevel="devsim")}),
             ({"a": IOC("a", restart=True)}, {"a": IOC("a", restart=False)}),
             ({"a": IOC("a", autostart=True)}, {"a": IOC("a", autostart=False)}),
@@ -715,14 +715,14 @@ class TestActiveConfigHolderSequence(unittest.TestCase):
 
     def test_WHEN_compare_ioc_properties_called_with_new_ioc_then_starts_new_ioc(self):
         old_iocs = {}
-        new_iocs = {"a": IOC("a", macros=True)}
+        new_iocs = {"a": IOC("a", macros={})}
 
         start, restart, stop = _compare_ioc_properties(old_iocs, new_iocs)
         self.assertEqual(len(start), 1)
         self.assertEqual(len(restart), 0)
 
     def test_WHEN_compare_ioc_properties_called_with_new_ioc_then_stops_old_ioc(self):
-        old_iocs = {"a": IOC("a", macros=True)}
+        old_iocs = {"a": IOC("a", macros={})}
         new_iocs = {}
 
         start, restart, stop = _compare_ioc_properties(old_iocs, new_iocs)
