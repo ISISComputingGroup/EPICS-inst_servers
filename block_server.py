@@ -20,7 +20,7 @@ import json
 import os
 import sys
 import traceback
-from typing import Any, Dict
+from typing import TYPE_CHECKING, Any, Dict
 
 from server_common.channel_access import ManagerModeRequiredError, verify_manager_mode
 from server_common.channel_access_server import CAServer
@@ -75,6 +75,9 @@ from ConfigVersionControl.version_control_exceptions import (
     VersionControlException,
 )
 from WebServer.simple_webserver import Server
+
+if TYPE_CHECKING:
+    from BlockServer.config.ioc import IOC
 
 CURR_CONFIG_NAME_SEVR_VALUE = 0
 CONFIG_PUSH_TIME = 300  # 5 minutes
@@ -211,7 +214,6 @@ class BlockServer(Driver):
         write_thread.start()
 
         self.write_queue.put((self.initialise_configserver, (FACILITY,), "INITIALISING"))
-
         # Starts the Web Server
         self.server = Server()
         self.server.start()
@@ -247,13 +249,13 @@ class BlockServer(Driver):
 
         # Import all the synoptic data and create PVs
         print_and_log("Creating synoptic manager...")
-        self._syn = SynopticManager(self, SCHEMA_DIR, self._active_configserver)
+        self._syn = SynopticManager(self, str(SCHEMA_DIR), self._active_configserver)
         self.on_the_fly_handlers.append(self._syn)
         print_and_log("Finished creating synoptic manager")
 
         # Import all the devices data and create PVs
         print_and_log("Creating devices manager...")
-        self._devices = DevicesManager(self, SCHEMA_DIR)
+        self._devices = DevicesManager(self, str(SCHEMA_DIR))
         self.on_the_fly_handlers.append(self._devices)
         print_and_log("Finished creating devices manager")
 
@@ -282,6 +284,8 @@ class BlockServer(Driver):
             If an Exception is thrown in the reading of the information this is returned
              in compressed and hexed JSON.
         """
+        if self._active_configserver is None:
+            raise RuntimeError
         try:
             if reason == BlockserverPVNames.GROUPS:
                 grps = ConfigurationJsonConverter.groups_to_json(
@@ -317,19 +321,19 @@ class BlockServer(Driver):
         except Exception as err:
             value = compress_and_hex(convert_to_json("Error: " + str(err)))
             print_and_log(str(err), "MAJOR")
-        return value
+        return str(value)
 
-    def write(self, reason: str, value: str) -> str:
+    def write(self, reason: str, value: str) -> bool:  # type: ignore
         """A method called by SimpleServer when a PV is written to the BlockServer over
          Channel Access. The write commands are queued as Channel Access is single-threaded.
+         Stores the result of the write or any exception caused in a parameter.
 
         Args:
             reason (string): The PV that is being requested (without the PV prefix)
             value (string): The data being written to the 'reason' PV
 
         Returns:
-            string : "OK" in compressed and hexed JSON if function succeeds.
-             Otherwise returns the Exception in compressed and hexed JSON.
+            bool : True if the new value is accepted, False if rejected
         """
         status = True
         try:
@@ -382,11 +386,11 @@ class BlockServer(Driver):
                         break
 
         except Exception as err:
-            value = compress_and_hex(convert_to_json("Error: " + str(err)))
+            value = str(compress_and_hex(convert_to_json("Error: " + str(err))))
             print_and_log(str(err), "MAJOR")
         else:
             if status:
-                value = compress_and_hex(convert_to_json("OK"))
+                value = str(compress_and_hex(convert_to_json("OK")))
 
         # store the values
         if status:
@@ -398,6 +402,8 @@ class BlockServer(Driver):
 
         The information is saved in a text file.
         """
+        if self._active_configserver is None:
+            raise RuntimeError
         last = self._active_configserver.load_last_config()
         if last is None:
             print_and_log("Could not retrieve last configuration - starting blank configuration")
@@ -413,7 +419,8 @@ class BlockServer(Driver):
         Args:
             details (string): the configuration JSON
         """
-
+        if self._active_configserver is None:
+            raise RuntimeError
         current_name = self._active_configserver.get_config_name()
         details_name = convert_from_json(details)["name"]
 
@@ -439,11 +446,11 @@ class BlockServer(Driver):
             full_init (bool, optional): whether this requires a full initialisation,
              e.g. on loading a new configuration
         """
+        if self._active_configserver is None:
+            raise RuntimeError
         new_iocs, changed_iocs, removed_iocs = self._active_configserver.iocs_changed()
-
-        self._ioc_control.stop_iocs(removed_iocs)
-        self._start_config_iocs(new_iocs, changed_iocs)
-
+        self._ioc_control.stop_iocs(list(removed_iocs))
+        self._start_config_iocs(list(new_iocs), list(changed_iocs))
         if (
             CAEN_DISCRIMINATOR_IOC_NAME in self._active_configserver.get_ioc_names()
             and CAEN_DISCRIMINATOR_IOC_NAME not in new_iocs
@@ -493,11 +500,12 @@ class BlockServer(Driver):
         # Note: autostart means the IOC is started when the config is loaded,
         # restart means the IOC should automatically restart if it stops for some reason
         # (e.g. it crashes)
-        def _ioc_from_name(ioc_name: str) -> str:
+        def _ioc_from_name(ioc_name: str) -> IOC:
+            assert self._active_configserver is not None
             return self._active_configserver.get_all_ioc_details()[ioc_name]
 
         def _is_remote(ioc_name: str) -> bool:
-            return _ioc_from_name(ioc_name).remotePvPrefix not in (None, "")
+            return _ioc_from_name(ioc_name).remote_pv_prefix not in (None, "")
 
         def _should_start(ioc_name: str) -> bool:
             ioc = _ioc_from_name(ioc_name)
@@ -532,6 +540,8 @@ class BlockServer(Driver):
             full_init (bool): True to restart all IOCs/services or False to
              restart only those required
         """
+        if self._active_configserver is None:
+            raise RuntimeError
         print_and_log(f"Loading configuration '{config}'")
         try:
             self._active_configserver.load_active(config)
@@ -543,6 +553,8 @@ class BlockServer(Driver):
 
     def reload_current_config(self) -> None:
         """Reload the current configuration."""
+        if self._active_configserver is None:
+            raise RuntimeError
         try:
             print_and_log("Reloading current configuration")
             self._active_configserver.reload_current_config()
@@ -614,12 +626,15 @@ class BlockServer(Driver):
                 f"Problem occurred saving configuration: {traceback.format_exc()}", "MAJOR"
             )
 
+        if self._active_configserver is None:
+            raise RuntimeError
         # Reload configuration if a component has changed
         if as_comp and new_details["name"] in self._active_configserver.get_component_names():
             self.load_last_config()
 
         # If the configuration we are trying to save is the currently active one,
         # we need to reload it.
+
         if config_name == self._active_configserver.get_config_name():
             self.load_config(config_name, full_init=False)
 
@@ -640,6 +655,8 @@ class BlockServer(Driver):
 
     def update_blocks_monitors(self) -> None:
         """Updates the PV monitors for the blocks and groups, so the clients can see any changes."""
+        if self._active_configserver is None:
+            raise RuntimeError
         with self.monitor_lock:
             block_names = convert_to_json(self._active_configserver.get_blocknames())
             self.setParam(BlockserverPVNames.BLOCKNAMES, compress_and_hex(block_names))
@@ -657,16 +674,19 @@ class BlockServer(Driver):
         Args:
             status (string): The status to set
         """
-        if self._active_configserver is not None:
-            with self.monitor_lock:
-                self.setParam(
-                    BlockserverPVNames.SERVER_STATUS,
-                    compress_and_hex(convert_to_json({"status": status})),
-                )
-                self.updatePVs()
+        if self._active_configserver is None:
+            raise RuntimeError
+        with self.monitor_lock:
+            self.setParam(
+                BlockserverPVNames.SERVER_STATUS,
+                compress_and_hex(convert_to_json({"status": status})),
+            )
+            self.updatePVs()
 
     def update_get_details_monitors(self) -> None:
         """Updates the monitor for the active configuration, so the clients can see any changes."""
+        if self._active_configserver is None:
+            raise RuntimeError
         with self.monitor_lock:
             config_details_json = convert_to_json(self._active_configserver.get_config_details())
             self.setParam(
@@ -677,6 +697,8 @@ class BlockServer(Driver):
     def update_wd_details_monitors(self) -> None:
         """Updates the monitor for the active configuration,
         so the web dashboard can see any changes."""
+        if self._active_configserver is None:
+            raise RuntimeError
         with self.monitor_lock:
             config_details_json = convert_to_json(
                 {
@@ -691,6 +713,8 @@ class BlockServer(Driver):
     def update_curr_config_name_monitors(self) -> None:
         """Updates the monitor for the active configuration name,
         so the clients can see any changes."""
+        if self._active_configserver is None:
+            raise RuntimeError
         with self.monitor_lock:
             self.setParam(
                 BlockserverPVNames.CURR_CONFIG_NAME, self._active_configserver.get_config_name()
@@ -736,6 +760,8 @@ class BlockServer(Driver):
         # If the IOC is in the config and auto-restart is set to true then
         # reapply the auto-restart setting after starting.
         # This is because stopping an IOC via procServ turns auto-restart off.
+        if self._active_configserver is None:
+            raise RuntimeError
         conf_iocs = self._active_configserver.get_all_ioc_details()
 
         # Request IOCs to start
@@ -745,7 +771,7 @@ class BlockServer(Driver):
         # Once all IOC start requests issued, wait for running and apply auto restart as needed
         for i in iocs:
             if i in conf_iocs and conf_iocs[i].restart:
-                if conf_iocs[i].remotePvPrefix not in (None, ""):
+                if conf_iocs[i].remote_pv_prefix not in (None, ""):
                     print_and_log(f"IOC '{i}' is set to run remotely - not applying auto-restart.")
                     continue
                 # Give it time to start as IOC has to be running to be able to set restart property
@@ -759,6 +785,8 @@ class BlockServer(Driver):
 
     # Code for handling block-sets
     def set_config_block_values(self) -> None:
+        if self._active_configserver is None:
+            raise RuntimeError
         blocks = {
             block_details
             for block_details in self._active_configserver.get_block_details().values()

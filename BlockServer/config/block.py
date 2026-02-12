@@ -13,7 +13,7 @@
 # along with this program; if not, you can obtain a copy from
 # https://www.eclipse.org/org/documents/epl-v10.php or
 # http://opensource.org/licenses/eclipse-1.0.php
-from typing import Dict, Union
+from typing import Dict, TypedDict, Union
 
 from server_common.helpers import PVPREFIX_MACRO
 
@@ -41,17 +41,17 @@ class Block:
         pv: str,
         local: bool = True,
         visible: bool = True,
-        component: str = None,
+        component: str | None = None,
         runcontrol: bool = False,
-        lowlimit: float = None,
-        highlimit: float = None,
+        lowlimit: float | None = None,
+        highlimit: float | None = None,
         suspend_on_invalid: bool = False,
         log_periodic: bool = False,
         log_rate: float = 5,
         log_deadband: float = 0,
         set_block: bool = False,
-        set_block_val: str = None,
-    ):
+        set_block_val: str | None = None,
+    ) -> None:
         """Constructor.
 
         Args:
@@ -92,7 +92,7 @@ class Block:
             pv_name = PVPREFIX_MACRO + self.pv
         return pv_name
 
-    def set_visibility(self, visible: bool):
+    def set_visibility(self, visible: bool) -> None:
         """Toggle the visibility of the block.
 
         Args:
@@ -100,16 +100,18 @@ class Block:
         """
         self.visible = visible
 
-    def __str__(self):
+    def __str__(self) -> str:
         set_block_str = ""
         if self.set_block:
             set_block_str = f", SetBlockVal: {self.set_block_val}"
         return (
-            f"Name: {self.name}, PV: {self.pv}, Local: {self.local}, Visible: {self.visible}, Component: {self.component}"
-            f", RCEnabled: {self.rc_enabled}, RCLow: {self.rc_lowlimit}, RCHigh: {self.rc_highlimit}{set_block_str}"
+            f"Name: {self.name}, PV: {self.pv}, Local: {self.local}, "
+            f"Visible: {self.visible}, Component: {self.component}"
+            f", RCEnabled: {self.rc_enabled}, RCLow: {self.rc_lowlimit}, "
+            f"RCHigh: {self.rc_highlimit}{set_block_str}"
         )
 
-    def to_dict(self) -> Dict[str, Union[str, float, bool]]:
+    def to_dict(self) -> Dict[str, Union[str, float, bool, None]]:
         """Puts the block's details into a dictionary.
 
         Returns:
@@ -131,3 +133,17 @@ class Block:
             "set_block": self.set_block,
             "set_block_val": self.set_block_val,
         }
+
+
+class BlockKwargs(TypedDict, total=False):
+    visible: bool
+    component: str | None
+    runcontrol: bool
+    lowlimit: float | None
+    highlimit: float | None
+    suspend_on_invalid: bool
+    log_periodic: bool
+    log_rate: float
+    log_deadband: float
+    set_block: bool
+    set_block_val: str | None
