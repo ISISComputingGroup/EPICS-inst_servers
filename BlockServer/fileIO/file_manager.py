@@ -354,7 +354,7 @@ class ConfigurationFileManager:
         else:
             banner = {}
         return banner
-        
+
     def get_global_macros(self) -> dict:
         # Import the Global macros
         globals_path = os.path.join(FILEPATH_MANAGER.config_root_dir, FILENAME_GLOBALS)
@@ -366,4 +366,3 @@ class ConfigurationFileManager:
         for key, value in globalmacros.items():
             GlobalmacroHelper.add_globalmacro(key, value)
         return GlobalmacroHelper.globalmacros
-
