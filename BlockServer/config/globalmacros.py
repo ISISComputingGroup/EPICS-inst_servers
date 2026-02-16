@@ -80,6 +80,7 @@ class Globalmacro:
             "macros": self.macros,
         }
 
+
 class GlobalmacroHelper:
     """Converts global macro data to Globalmacro Object."""
 
