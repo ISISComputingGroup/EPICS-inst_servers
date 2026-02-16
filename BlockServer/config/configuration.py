@@ -1,5 +1,5 @@
 # This file is part of the ISIS IBEX application.
-# Copyright (C) 2012-2016 Science & Technology Facilities Council.
+# Copyright (C) 2012-2025 Science & Technology Facilities Council.
 # All rights reserved.
 #
 # This program is distributed in the hope that it will be useful.
@@ -19,13 +19,14 @@
 from collections import OrderedDict
 from typing import Dict
 
+from server_common.helpers import PVPREFIX_MACRO
+from server_common.utilities import print_and_log
+
 from BlockServer.config.block import Block
 from BlockServer.config.group import Group
 from BlockServer.config.ioc import IOC
 from BlockServer.config.metadata import MetaData
 from BlockServer.core.constants import GRP_NONE
-from server_common.helpers import PVPREFIX_MACRO
-from server_common.utilities import print_and_log
 
 
 class Configuration:
@@ -39,9 +40,10 @@ class Configuration:
         meta (MetaData): The meta-data for the configuration
         components (OrderedDict): The components which are part of the configuration
         is_component (bool): Whether it is actually a component
+        globalmacros (OrderedDict): The globalmacros for the configuration
     """
 
-    def __init__(self, macros: Dict):
+    def __init__(self, macros: Dict) -> None:
         """Constructor.
 
         Args:
@@ -55,8 +57,16 @@ class Configuration:
         self.meta = MetaData("")
         self.components = OrderedDict()
         self.is_component = False
+        self.globalmacros = OrderedDict()
 
-    def add_block(self, name: str, pv: str, group: str = GRP_NONE, local: bool = True, **kwargs):
+    def add_block(
+        self,
+        name: str,
+        pv: str,
+        group: str = GRP_NONE,
+        local: bool = True,
+        **kwargs: bool | float | None,
+    ) -> None:
         """Add a block to the configuration.
 
         Args:
@@ -92,8 +102,8 @@ class Configuration:
         pvs: Dict = None,
         pvsets: Dict = None,
         simlevel: str = None,
-        remotePvPrefix: str = None,
-    ):
+        remotePvPrefix: str = None,  # Has to match the mapped Java attribute #noqa: N803
+    ) -> None:
         """Add an IOC to the configuration.
 
         Args:
@@ -128,7 +138,7 @@ class Configuration:
             self.meta.name.decode("utf-8") if isinstance(self.meta.name, bytes) else self.meta.name
         )
 
-    def set_name(self, name: str):
+    def set_name(self, name: str) -> None:
         """Sets the configuration's name.
 
         Args:
