@@ -80,13 +80,6 @@ class Globalmacro:
             "macros": self.macros,
         }
 
-    # def get(self, name: str) -> None:
-    #   return self.__getattribute__(name)
-
-    # def __getitem__(self, name: str) -> None:
-    #   return self.__getattribute__(name)
-
-
 class GlobalmacroHelper:
     """Converts global macro data to Globalmacro Object."""
 
