@@ -284,9 +284,10 @@ class BlockServer(Driver):
             If an Exception is thrown in the reading of the information this is returned
              in compressed and hexed JSON.
         """
-        if self._active_configserver is None:
-            raise RuntimeError
+
         try:
+            if self._active_configserver is None:
+                raise RuntimeError
             if reason == BlockserverPVNames.GROUPS:
                 grps = ConfigurationJsonConverter.groups_to_json(
                     self._active_configserver.get_group_details()

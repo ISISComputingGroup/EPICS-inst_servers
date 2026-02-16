@@ -5,13 +5,16 @@ import os
 from queue import Queue
 from typing import Any, Callable, Dict, Iterable, List, Optional, Set
 
-from genie_python.genie import PVValue
+import numpy.typing as npt
 from server_common.channel_access import ChannelAccess
 from server_common.helpers import MACROS, PVPREFIX_MACRO
 from server_common.utilities import SEVERITY
 from server_common.utilities import print_and_log as _common_print_and_log
 
 from BlockServer.core.config_list_manager import ConfigListManager
+
+type PVBaseValue = bool | int | float | str
+type PVValue = PVBaseValue | list[PVBaseValue] | npt.NDArray | None
 
 
 def print_and_log(message: str, *args: str, **kwargs: str) -> None:
