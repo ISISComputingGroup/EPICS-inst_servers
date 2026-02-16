@@ -13,7 +13,7 @@
 # along with this program; if not, you can obtain a copy from
 # https://www.eclipse.org/org/documents/epl-v10.php or
 # http://opensource.org/licenses/eclipse-1.0.php
-# ruff: noqa: I001
+
 import os
 import re
 import shutil
@@ -164,22 +164,13 @@ class ConfigurationFileManager:
                 "Files missing in " + name + " (%s)" % ",".join(list(config_files_missing))
             )
 
-        # Import the Global macros
-        globals_path = os.path.join(FILEPATH_MANAGER.config_root_dir, FILENAME_GLOBALS)
-        globalmacros = {}
-        if os.path.isfile(globals_path):
-            with open(globals_path, "r") as file:
-                for line in file:
-                    GlobalmacroHelper.row_to_globalmacro(globalmacros, line.strip())
-
         # Set properties in the config
         configuration.blocks = blocks
         configuration.groups = groups
         configuration.iocs = iocs
         configuration.components = components
         configuration.meta = meta
-        for key, value in globalmacros.items():
-            configuration.add_globalmacro(key, value)
+        configuration.globalmacros = self.get_global_macros()
 
         print_and_log(f"Configuration ('{name}') loaded.")
         return configuration
@@ -362,3 +353,16 @@ class ConfigurationFileManager:
         else:
             banner = {}
         return banner
+        
+    def get_global_macros(self) -> dict:
+        # Import the Global macros
+        globals_path = os.path.join(FILEPATH_MANAGER.config_root_dir, FILENAME_GLOBALS)
+        globalmacros = {}
+        if os.path.isfile(globals_path):
+            with open(globals_path, "r") as file:
+                for line in file:
+                    GlobalmacroHelper.row_to_globalmacro(globalmacros, line.strip())
+        for key, value in globalmacros.items():
+            GlobalmacroHelper.add_globalmacro(key, value)
+        return GlobalmacroHelper.globalmacros
+

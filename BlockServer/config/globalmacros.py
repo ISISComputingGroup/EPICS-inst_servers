@@ -15,7 +15,10 @@
 # http://opensource.org/licenses/eclipse-1.0.php
 
 import copy
-from typing import Any, Dict, List
+from collections import OrderedDict
+from typing import Any
+
+from server_common.utilities import print_and_log
 
 
 class Globalmacro:
@@ -29,7 +32,7 @@ class Globalmacro:
     def __init__(
         self,
         name: str,
-        macros: Dict[str, str],
+        macros: dict[str, str] | None,
     ) -> None:
         """Constructor.
 
@@ -45,7 +48,7 @@ class Globalmacro:
             self.macros = macros
 
     @staticmethod
-    def _dict_to_list(in_dict: Dict[str, Any]) -> List[Any]:
+    def _dict_to_list(in_dict: dict[str, Any]) -> list[Any]:
         """Converts into a format better for the GUI to parse, namely a list.
 
         Args:
@@ -66,7 +69,7 @@ class Globalmacro:
     def __str__(self) -> str:
         return f"{self.__class__.__name__}(name={self.name})"
 
-    def to_dict(self) -> Dict[str, str | Dict[str, str]]:
+    def to_dict(self) -> dict[str, str | dict[str, str]]:
         """Puts the IOC-globalmacro's details into a dictionary.
 
         Returns:
@@ -77,21 +80,20 @@ class Globalmacro:
             "macros": self.macros,
         }
 
-    def get(self, name: str) -> None:
-        return self.__getattribute__(name)
+    #def get(self, name: str) -> None:
+     #   return self.__getattribute__(name)
 
-    def __getitem__(self, name: str) -> None:
-        return self.__getattribute__(name)
+    #def __getitem__(self, name: str) -> None:
+     #   return self.__getattribute__(name)
 
 
 class GlobalmacroHelper:
     """Converts global macro data to Globalmacro Object.
 
-    Consists of static methods only.
     """
-
+    globalmacros = OrderedDict()
     @staticmethod
-    def row_to_globalmacro(globalmacros: Dict, row: str) -> None:
+    def row_to_globalmacro(globalmacros: dict, row: str) -> None:
         """converts a row from the globals file to globalmacro data.
 
         Args:
@@ -100,7 +102,7 @@ class GlobalmacroHelper:
         """
         ioc_separator = "__"
         equal_to = "="
-        all_iocs = ioc_separator
+        all_iocs = "<ALL IOCS>"
         # Each record is of the form IOC__MACRO=VALUE
         # Where there is no __ the Macro is applicable for all IOCs
         if equal_to in row:
@@ -116,3 +118,20 @@ class GlobalmacroHelper:
                 to_add_ioc = globalmacros[ioc]
             to_add_ioc[macro] = value.strip()
             globalmacros[ioc] = to_add_ioc
+
+    @staticmethod
+    def add_globalmacro(name: str, macros: dict) -> None:
+        """Add an IOC with its global macros to the configuration.
+
+        Args:
+            name (string): The name of the IOC to add
+            macros: The macro sets relating to the IOC
+
+        """
+        # Only add it if it has not been added before
+        if name.upper() in GlobalmacroHelper.globalmacros.keys():
+            print_and_log(
+                f"Warning: IOC '{name}' is already part of the configuration. Not adding it again."
+            )
+        else:
+            GlobalmacroHelper.globalmacros[name.upper()] = Globalmacro(name, macros)

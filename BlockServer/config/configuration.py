@@ -16,7 +16,6 @@
 
 """Contains all the code for defining a configuration or component"""
 
-# ruff: noqa: I001
 from collections import OrderedDict
 from typing import Dict
 
@@ -147,18 +146,3 @@ class Configuration:
         """
         self.meta.name = name
 
-    def add_globalmacro(self, name: str, macros: Dict) -> None:
-        """Add an IOC with its global macros to the configuration.
-
-        Args:
-            name (string): The name of the IOC to add
-            macros: The macro sets relating to the IOC
-
-        """
-        # Only add it if it has not been added before
-        if name.upper() in self.globalmacros.keys():
-            print_and_log(
-                f"Warning: IOC '{name}' is already part of the configuration. Not adding it again."
-            )
-        else:
-            self.globalmacros[name.upper()] = Globalmacro(name, macros)
