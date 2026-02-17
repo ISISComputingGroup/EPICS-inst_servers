@@ -326,7 +326,7 @@ class SynopticManager(OnTheFlyPvInterface):
 
         self.update_monitors()
 
-    def get_synoptic_schema(self)->str:
+    def get_synoptic_schema(self) -> str:
         """Gets the XSD data for the synoptic.
 
         Returns:
