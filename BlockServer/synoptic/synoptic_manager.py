@@ -96,7 +96,7 @@ class SynopticManager(OnTheFlyPvInterface):
         except Exception as err:
             print_and_log(f"Error writing to PV {pv}: {err}", "MAJOR")
 
-    def handle_pv_read(self, pv) -> None:
+    def handle_pv_read(self, pv: str) -> None:
         # Nothing to do as it is all handled by monitors
         pass
 
@@ -112,7 +112,7 @@ class SynopticManager(OnTheFlyPvInterface):
             self._bs.updatePVs()
             print_and_log("Finished updating synoptic monitors")
 
-    def on_config_change(self, full_init=False) -> None:
+    def on_config_change(self, full_init: bool = False) -> None:
         # If the config has a default synoptic then set the PV to that
         default = self._activech.get_config_meta().synoptic
         self.set_default_synoptic(default)
@@ -156,10 +156,12 @@ class SynopticManager(OnTheFlyPvInterface):
                 print_and_log(f"Error creating synoptic PV: {err}", "MAJOR")
 
     def _create_pv(self, data: bytes) -> None:
-        """Creates a single PV based on a name and data. Adds this PV to the dictionary returned on get_synoptic_list
+        """Creates a single PV based on a name and data.
+        Adds this PV to the dictionary returned on get_synoptic_list
 
         Args:
-            data (bytes): Starting data for the pv, the pv name is derived from the name tag of this
+            data (bytes): Starting data for the pv,
+            the pv name is derived from the name tag of this
         """
         name = self._get_synoptic_name_from_xml(data)
         if name not in self._synoptic_pvs:
@@ -178,7 +180,7 @@ class SynopticManager(OnTheFlyPvInterface):
             compress_and_hex(str(data, encoding="utf-8")),
         )
 
-    def update_pv_value(self, name, data) -> None:
+    def update_pv_value(self, name: str, data: bytes) -> None:
         """Updates value of a PV holding synoptic information with new data
 
         Args:
@@ -188,11 +190,12 @@ class SynopticManager(OnTheFlyPvInterface):
         self._bs.setParam(name, data)
         self._bs.updatePVs()
 
-    def get_synoptic_list(self):
+    def get_synoptic_list(self) -> List[str]:
         """Gets the names and associated pvs of the synoptic files in the synoptics directory.
 
         Returns:
-            list : Alphabetical list of synoptics files on the server, along with their associated pvs
+            list : Alphabetical list of synoptics files on the server,
+            along with their associated pvs
         """
         syn_list = []
         default_is_none_synoptic = True
@@ -209,7 +212,7 @@ class SynopticManager(OnTheFlyPvInterface):
         )
         return ans
 
-    def set_default_synoptic(self, name) -> None:
+    def set_default_synoptic(self, name: str) -> None:
         """Sets the default synoptic.
 
         Args:
@@ -241,7 +244,7 @@ class SynopticManager(OnTheFlyPvInterface):
         """
         return self._default_syn_xml
 
-    def _get_synoptic_name_from_xml(self, xml_data: bytes):
+    def _get_synoptic_name_from_xml(self, xml_data: bytes) -> str:
         name = None
         root = etree.fromstring(xml_data)
         for child in root:
