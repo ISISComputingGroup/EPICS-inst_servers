@@ -13,6 +13,9 @@
 # along with this program; if not, you can obtain a copy from
 # https://www.eclipse.org/org/documents/epl-v10.php or
 # http://opensource.org/licenses/eclipse-1.0.php
+# ruff: noqa: F403, F405, N802, N806, I001
+# pyright: reportUndefinedVariable=false
+# pyright: reportMissingImports=false
 from typing import Dict, OrderedDict
 from xml.dom import minidom
 
@@ -63,7 +66,7 @@ class ConfigurationXmlConverter:
     """
 
     @staticmethod
-    def blocks_to_xml(blocks: OrderedDict, macros: Dict):
+    def blocks_to_xml(blocks: OrderedDict, macros: Dict) -> str:
         """Generates an XML representation for a supplied dictionary of blocks.
 
         Args:
@@ -110,7 +113,7 @@ class ConfigurationXmlConverter:
         return minidom.parseString(ElementTree.tostring(root)).toprettyxml()
 
     @staticmethod
-    def iocs_to_xml(iocs: OrderedDict):
+    def iocs_to_xml(iocs: OrderedDict) -> str:
         """Generates an XML representation for a supplied list of iocs.
 
         Args:
@@ -130,7 +133,7 @@ class ConfigurationXmlConverter:
         return minidom.parseString(ElementTree.tostring(root)).toprettyxml()
 
     @staticmethod
-    def components_to_xml(comps: OrderedDict):
+    def components_to_xml(comps: OrderedDict) -> str:
         """Generates an XML representation for a supplied dictionary of components.
 
         Args:
@@ -148,7 +151,7 @@ class ConfigurationXmlConverter:
         return minidom.parseString(ElementTree.tostring(root)).toprettyxml()
 
     @staticmethod
-    def meta_to_xml(data: MetaData):
+    def meta_to_xml(data: MetaData) -> str:
         """Generates an XML representation of the meta data for each configuration.
 
         Args:
@@ -184,7 +187,7 @@ class ConfigurationXmlConverter:
         return minidom.parseString(ElementTree.tostring(root)).toprettyxml()
 
     @staticmethod
-    def _block_to_xml(root_xml: ElementTree.Element, block: Block, macros: Dict):
+    def _block_to_xml(root_xml: ElementTree.Element, block: Block, macros: Dict) -> None:
         """Generates the XML for a block"""
         name = block.name
         read_pv = block.pv
@@ -237,8 +240,19 @@ class ConfigurationXmlConverter:
         set_block_val = ElementTree.SubElement(block_xml, TAG_SET_BLOCK_VAL)
         set_block_val.text = str(block.set_block_val)
 
+        # Alarm Config
+        alarmenabled = ElementTree.SubElement(block_xml, TAG_ALARM_ENABLED)
+        alarmenabled.text = str(block.alarmenabled)
+        alarmlatched = ElementTree.SubElement(block_xml, TAG_ALARM_LATCHED)
+        alarmlatched.text = str(block.alarmlatched)
+        if block.alarmdelay is not None:
+            alarmdelay = ElementTree.SubElement(block_xml, TAG_ALARM_DELAY)
+            alarmdelay.text = str(block.alarmdelay)
+        alarmguidance = ElementTree.SubElement(block_xml, TAG_ALARM_GUIDANCE)
+        alarmguidance.text = block.alarmguidance
+
     @staticmethod
-    def _group_to_xml(root_xml: ElementTree, group: Group):
+    def _group_to_xml(root_xml: ElementTree, group: Group) -> None:
         """Generates the XML for a group"""
         grp = ElementTree.SubElement(root_xml, TAG_GROUP)
         grp.set(TAG_NAME, group.name)
@@ -249,7 +263,7 @@ class ConfigurationXmlConverter:
             b.set(TAG_NAME, blk)
 
     @staticmethod
-    def _ioc_to_xml(root_xml: ElementTree.Element, ioc: IOC):
+    def _ioc_to_xml(root_xml: ElementTree.Element, ioc: IOC) -> None:
         """Generates the XML for an ioc"""
         grp = ElementTree.SubElement(root_xml, TAG_IOC)
         grp.set(TAG_NAME, ioc.name)
@@ -272,13 +286,15 @@ class ConfigurationXmlConverter:
         value_list_to_xml(ioc.pvsets, grp, TAG_PVSETS, TAG_PVSET)
 
     @staticmethod
-    def _component_to_xml(root_xml: ElementTree.Element, name: str):
+    def _component_to_xml(root_xml: ElementTree.Element, name: str) -> None:
         """Generates the XML for a component"""
         grp = ElementTree.SubElement(root_xml, TAG_COMPONENT)
         grp.set(TAG_NAME, name)
 
     @staticmethod
-    def blocks_from_xml(root_xml: ElementTree.Element, blocks: OrderedDict, groups: OrderedDict):
+    def blocks_from_xml(
+        root_xml: ElementTree.Element, blocks: OrderedDict, groups: OrderedDict
+    ) -> None:
         """Populates the supplied dictionary of blocks and groups based on an XML tree.
 
         Args:
@@ -367,8 +383,32 @@ class ConfigurationXmlConverter:
                 if set_block_val is not None:
                     blocks[name.lower()].set_block_val = set_block_val.text
 
+                # Alarm Config
+                alarmenabled = ConfigurationXmlConverter._find_single_node(
+                    b, NS_TAG_BLOCK, TAG_ALARM_ENABLED
+                )
+                if alarmenabled is not None:
+                    blocks[name.lower()].alarmenabled = alarmenabled.text == "True"  # pyright: ignore
+                alarmlatched = ConfigurationXmlConverter._find_single_node(
+                    b, NS_TAG_BLOCK, TAG_ALARM_LATCHED
+                )
+                if alarmlatched is not None:
+                    blocks[name.lower()].alarmlatched = alarmlatched.text == "True"  # pyright: ignore
+                alarmdelay = ConfigurationXmlConverter._find_single_node(
+                    b, NS_TAG_BLOCK, TAG_ALARM_DELAY
+                )
+                if alarmdelay is not None:
+                    blocks[name.lower()].alarmdelay = float(alarmdelay.text)  # pyright: ignore
+                alarmguidance = ConfigurationXmlConverter._find_single_node(
+                    b, NS_TAG_BLOCK, TAG_ALARM_GUIDANCE
+                )
+                if alarmguidance is not None:
+                    blocks[name.lower()].alarmguidance = alarmguidance.text  # pyright: ignore
+
     @staticmethod
-    def groups_from_xml(root_xml: ElementTree.Element, groups: OrderedDict, blocks: OrderedDict):
+    def groups_from_xml(
+        root_xml: ElementTree.Element, groups: OrderedDict, blocks: OrderedDict
+    ) -> None:
         """Populates the supplied dictionary of groups and assign blocks based on an XML tree
 
         Args:
@@ -395,7 +435,8 @@ class ConfigurationXmlConverter:
             for b in blks:
                 name = b.attrib[TAG_NAME]
 
-                # Check block is not already in the group. Unlikely, but may be a config was edited by hand...
+                # Check block is not already in the group.
+                # Unlikely, but may be a config was edited by hand...
                 if name not in groups[gname_low].blocks:
                     groups[gname_low].blocks.append(name)
                 if name.lower() in blocks.keys():
@@ -406,7 +447,7 @@ class ConfigurationXmlConverter:
                     groups[KEY_NONE].blocks.remove(name)
 
     @staticmethod
-    def ioc_from_xml(root_xml: ElementTree.Element, iocs: OrderedDict):
+    def ioc_from_xml(root_xml: ElementTree.Element, iocs: OrderedDict) -> None:
         """Populates the supplied dictionary of IOCs based on an XML tree.
 
         Args:
@@ -458,7 +499,7 @@ class ConfigurationXmlConverter:
                     raise Exception("Tag not found in ioc.xml (" + str(err) + ")")
 
     @staticmethod
-    def components_from_xml(root_xml: ElementTree.Element, components: OrderedDict):
+    def components_from_xml(root_xml: ElementTree.Element, components: OrderedDict) -> None:
         """Populates the supplied dictionary of components based on an XML tree.
 
         Args:
@@ -485,7 +526,7 @@ class ConfigurationXmlConverter:
             return False
 
     @staticmethod
-    def meta_from_xml(root_xml: ElementTree.Element, data: MetaData):
+    def meta_from_xml(root_xml: ElementTree.Element, data: MetaData) -> None:
         """Populates the supplied MetaData object based on an XML tree.
 
         Args:
@@ -522,10 +563,13 @@ class ConfigurationXmlConverter:
         data.history = [e.text for e in edits]
 
     @staticmethod
-    def _find_all_nodes(root: ElementTree.Element, tag: str, name: str):
+    def _find_all_nodes(
+        root: ElementTree.Element, tag: str, name: str
+    ) -> list[ElementTree.Element]:
         """Finds all the nodes regardless of whether it has a namespace or not.
 
-        For example the name space for IOCs is xmlns:ioc="http://epics.isis.rl.ac.uk/schema/iocs/1.0"
+        For example the name space for IOCs is
+        xmlns:ioc="http://epics.isis.rl.ac.uk/schema/iocs/1.0"
 
         Args:
             root: The XML tree object
@@ -562,7 +606,7 @@ class ConfigurationXmlConverter:
         return node
 
     @staticmethod
-    def _display(child, index):
+    def _display(child: ElementTree.Element, index: int) -> dict:
         return {
             "index": index,
             "name": ConfigurationXmlConverter._find_single_node(child, "banner", "name").text,
@@ -572,7 +616,7 @@ class ConfigurationXmlConverter:
         }
 
     @staticmethod
-    def _button(child, index):
+    def _button(child: ElementTree.Element, index: int) -> dict:
         return {
             "index": index,
             "name": ConfigurationXmlConverter._find_single_node(child, "banner", "name").text,
@@ -593,7 +637,7 @@ class ConfigurationXmlConverter:
         }
 
     @staticmethod
-    def banner_config_from_xml(root):
+    def banner_config_from_xml(root: None | ElementTree.Element) -> list | dict[str, list]:
         """
         Parses the banner config XML to produce a banner config dictionary
 
@@ -603,7 +647,8 @@ class ConfigurationXmlConverter:
         Returns:
             A dictionary with two entries, the banner items and the banner buttons.
             The items have the properties name, pv, local.
-            The buttons have the properties name, pv, local, pvValue, textColour, buttonColour, width, height.
+            The buttons have the properties name, pv, local, pvValue, textColour, buttonColour,
+            width, height.
         """
         if root is None:
             return []
