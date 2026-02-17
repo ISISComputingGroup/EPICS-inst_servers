@@ -13,11 +13,13 @@
 # Along with this program; if not, you can obtain a copy from
 # https://www.eclipse.org/org/documents/epl-v10.php or
 # http://opensource.org/licenses/eclipse-1.0.php
-# ruff: noqa: I001
+
 import re
 import unittest
 from collections import OrderedDict
 from xml.etree import ElementTree
+
+from server_common.helpers import MACROS
 
 from BlockServer.config.block import Block
 from BlockServer.config.configuration import Configuration
@@ -25,7 +27,6 @@ from BlockServer.config.group import Group
 from BlockServer.config.ioc import IOC
 from BlockServer.config.metadata import MetaData
 from BlockServer.config.xml_converter import ConfigurationXmlConverter
-from server_common.helpers import MACROS
 
 BLOCKS_XML = """
 <?xml version="1.0" ?>
