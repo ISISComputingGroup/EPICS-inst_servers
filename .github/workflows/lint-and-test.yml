@@ -7,7 +7,7 @@ jobs:
       compare-branch: origin/master
       runs-on: windows-latest
       python-ver: '3.12'
-      requirements-path: requirements-dev.txt
+      requirements-path: "requirements-dev.txt --constraint constraints.txt --build-constraint constraints.txt"
   tests:
     runs-on: "windows-latest"
     steps:

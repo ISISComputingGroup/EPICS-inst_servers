@@ -1,10 +1,8 @@
-ess-streaming-data-types
 genie-python
 git+https://github.com/ISISComputingGroup/pcaspy
 git+https://github.com/ISISComputingGroup/CaChannel.git
 contextlib2
 GitPython
-kafka_python
 lxml
 pysnmp
 tornado
