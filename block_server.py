@@ -35,6 +35,7 @@ from queue import Queue
 from threading import RLock, Thread
 from time import sleep, time
 
+from ibex_non_ca_helpers.compress_hex import compress_and_hex, dehex_and_decompress
 from pcaspy import Driver, SimpleServer
 from pcaspy.driver import Data, manager
 from server_common.channel_access import ChannelAccess
@@ -43,10 +44,8 @@ from server_common.helpers import BLOCK_PREFIX, CONTROL_SYSTEM_PREFIX, MACROS, P
 from server_common.pv_names import BlockserverPVNames
 from server_common.utilities import (
     char_waveform,
-    compress_and_hex,
     convert_from_json,
     convert_to_json,
-    dehex_and_decompress,
     print_and_log,
     set_logger,
 )
@@ -321,7 +320,7 @@ class BlockServer(Driver):
             except Exception as err:
                 value = compress_and_hex(convert_to_json("Error: " + str(err)))
                 print_and_log(str(err), "MAJOR")
-            return str(value)
+            return bytes.decode(value, "utf-8") if type(value) is bytes else str(value)
         else:
             return ""
 
@@ -690,7 +689,7 @@ class BlockServer(Driver):
                 )
                 self.setParam(
                     BlockserverPVNames.GET_CURR_CONFIG_DETAILS,
-                    compress_and_hex(config_details_json),
+                    bytes.decode(compress_and_hex(config_details_json), "utf-8"),
                 )
                 self.updatePVs()
 
