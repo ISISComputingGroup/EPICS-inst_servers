@@ -13,7 +13,11 @@
 # along with this program; if not, you can obtain a copy from
 # https://www.eclipse.org/org/documents/epl-v10.php or
 # http://opensource.org/licenses/eclipse-1.0.php
+from typing import Dict
+
+from BlockServer.config.configuration import Configuration
 from BlockServer.core.config_holder import ConfigHolder
+from BlockServer.fileIO.file_manager import ConfigurationFileManager
 
 
 class InactiveConfigHolder(ConfigHolder):
@@ -21,7 +25,12 @@ class InactiveConfigHolder(ConfigHolder):
     Class to hold a individual inactive configuration or component.
     """
 
-    def __init__(self, macros, file_manager, test_config=None):
+    def __init__(
+        self,
+        macros: Dict,
+        file_manager: ConfigurationFileManager,
+        test_config: Configuration | None = None,
+    ) -> None:
         """
         Constructor.
 
@@ -31,7 +40,7 @@ class InactiveConfigHolder(ConfigHolder):
         """
         super(InactiveConfigHolder, self).__init__(macros, file_manager, test_config=test_config)
 
-    def save_inactive(self, name=None, as_comp=False):
+    def save_inactive(self, name: str | None = None, as_comp: bool = False) -> None:
         """Saves a configuration or component that is not currently in use.
 
         Args:
@@ -43,7 +52,7 @@ class InactiveConfigHolder(ConfigHolder):
 
         self.save_configuration(name, as_comp)
 
-    def load_inactive(self, name, is_component=False):
+    def load_inactive(self, name: str, is_component: bool = False) -> None:
         """
         Loads a configuration or component into memory for editing only.
 
@@ -54,7 +63,7 @@ class InactiveConfigHolder(ConfigHolder):
         config = self.load_configuration(name, is_component, False)
         self.set_config(config, is_component)
 
-    def set_config_details(self, details):
+    def set_config_details(self, details: Dict) -> None:
         """Set the details of the configuration from a dictionary.
 
         Args:
@@ -75,7 +84,7 @@ class InactiveConfigHolder(ConfigHolder):
                     if ioc.get("component") is not None:
                         raise ValueError("Cannot override iocs from components")
 
-                    remotePvPrefix = ioc.get("remotePvPrefix")
+                    remote_pv_prefix = ioc.get("remote_pv_prefix")
 
                     self._add_ioc(
                         ioc["name"],
@@ -85,7 +94,7 @@ class InactiveConfigHolder(ConfigHolder):
                         pvs=pvs,
                         pvsets=pvsets,
                         simlevel=ioc.get("simlevel"),
-                        remotePvPrefix=remotePvPrefix,
+                        remotePvPrefix=remote_pv_prefix,
                     )
 
             if "blocks" in details:
