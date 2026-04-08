@@ -13,19 +13,60 @@
 # along with this program; if not, you can obtain a copy from
 # https://www.eclipse.org/org/documents/epl-v10.php or
 # http://opensource.org/licenses/eclipse-1.0.php
-# ruff: noqa: F403, F405, N802, N806, I001
-# pyright: reportUndefinedVariable=false
-# pyright: reportMissingImports=false
+
 from typing import Dict, OrderedDict
 from xml.dom import minidom
+from xml.etree import ElementTree
+
+from server_common.helpers import PVPREFIX_MACRO
+from server_common.utilities import parse_boolean, value_list_to_xml
 
 from BlockServer.config.block import Block
 from BlockServer.config.group import Group
 from BlockServer.config.ioc import IOC
 from BlockServer.config.metadata import MetaData
-from BlockServer.core.constants import *
-from server_common.helpers import PVPREFIX_MACRO
-from server_common.utilities import *
+from BlockServer.core.constants import (
+    GRP_NONE,
+    SIMLEVELS,
+    TAG_ALARM_DELAY,
+    TAG_ALARM_ENABLED,
+    TAG_ALARM_GUIDANCE,
+    TAG_ALARM_LATCHED,
+    TAG_AUTOSTART,
+    TAG_BLOCK,
+    TAG_BLOCKS,
+    TAG_COMPONENT,
+    TAG_COMPONENTS,
+    TAG_EDIT,
+    TAG_EDITS,
+    TAG_GROUP,
+    TAG_GROUPS,
+    TAG_IOC,
+    TAG_IOCS,
+    TAG_LOCAL,
+    TAG_LOG_DEADBAND,
+    TAG_LOG_PERIODIC,
+    TAG_LOG_RATE,
+    TAG_MACRO,
+    TAG_MACROS,
+    TAG_NAME,
+    TAG_PV,
+    TAG_PVS,
+    TAG_PVSET,
+    TAG_PVSETS,
+    TAG_READ_PV,
+    TAG_REMOTE_PREFIX,
+    TAG_RESTART,
+    TAG_RUNCONTROL_ENABLED,
+    TAG_RUNCONTROL_HIGH,
+    TAG_RUNCONTROL_LOW,
+    TAG_RUNCONTROL_SUSPEND_ON_INVALID,
+    TAG_SET_BLOCK,
+    TAG_SET_BLOCK_VAL,
+    TAG_SIMLEVEL,
+    TAG_VALUE,
+    TAG_VISIBLE,
+)
 
 KEY_NONE = GRP_NONE.lower()
 TAG_ENABLED = "enabled"
@@ -388,22 +429,22 @@ class ConfigurationXmlConverter:
                     b, NS_TAG_BLOCK, TAG_ALARM_ENABLED
                 )
                 if alarmenabled is not None:
-                    blocks[name.lower()].alarmenabled = alarmenabled.text == "True"  # pyright: ignore
+                    blocks[name.lower()].alarmenabled = alarmenabled.text == "True" 
                 alarmlatched = ConfigurationXmlConverter._find_single_node(
                     b, NS_TAG_BLOCK, TAG_ALARM_LATCHED
                 )
                 if alarmlatched is not None:
-                    blocks[name.lower()].alarmlatched = alarmlatched.text == "True"  # pyright: ignore
+                    blocks[name.lower()].alarmlatched = alarmlatched.text == "True"  
                 alarmdelay = ConfigurationXmlConverter._find_single_node(
                     b, NS_TAG_BLOCK, TAG_ALARM_DELAY
                 )
                 if alarmdelay is not None:
-                    blocks[name.lower()].alarmdelay = float(alarmdelay.text)  # pyright: ignore
+                    blocks[name.lower()].alarmdelay = float(alarmdelay.text)  
                 alarmguidance = ConfigurationXmlConverter._find_single_node(
                     b, NS_TAG_BLOCK, TAG_ALARM_GUIDANCE
                 )
                 if alarmguidance is not None:
-                    blocks[name.lower()].alarmguidance = alarmguidance.text  # pyright: ignore
+                    blocks[name.lower()].alarmguidance = alarmguidance.text  
 
     @staticmethod
     def groups_from_xml(
@@ -515,13 +556,13 @@ class ConfigurationXmlConverter:
                 components[n.lower()] = n
 
     @staticmethod
-    def get_configuresBlockGWAndArchiver_from_xml(root_xml: ElementTree.Element) -> bool:
-        configuresBlockGWAndArchiver = root_xml.find("./" + TAG_CONFIGURES_BLOCK_GW_AND_ARCHIVER)
+    def get_configures_block_gw_and_archiver_from_xml(root_xml: ElementTree.Element) -> bool:
+        configureblock_gw_and_archiver = root_xml.find("./" + TAG_CONFIGURES_BLOCK_GW_AND_ARCHIVER)
         if (
-            configuresBlockGWAndArchiver is not None
-            and configuresBlockGWAndArchiver.text is not None
+            configureblock_gw_and_archiver is not None
+            and configureblock_gw_and_archiver.text is not None
         ):
-            return configuresBlockGWAndArchiver.text.lower() == "true"
+            return configureblock_gw_and_archiver.text.lower() == "true"
         else:
             return False
 
@@ -541,21 +582,21 @@ class ConfigurationXmlConverter:
         if synoptic is not None:
             data.synoptic = synoptic.text if synoptic.text is not None else ""
 
-        isProtected = root_xml.find("./" + TAG_PROTECTED)
-        if isProtected is not None:
-            if isProtected.text is not None:
-                data.isProtected = isProtected.text.lower() == "true"
+        protected = root_xml.find("./" + TAG_PROTECTED)
+        if protected is not None:
+            if protected.text is not None:
+                data.isProtected = protected.text.lower() == "true"
             else:
                 data.isProtected = False
 
         data.configuresBlockGWAndArchiver = (
-            ConfigurationXmlConverter.get_configuresBlockGWAndArchiver_from_xml(root_xml)
+            ConfigurationXmlConverter.get_configures_block_gw_and_archiver_from_xml(root_xml)
         )
 
-        isDynamic = root_xml.find("./" + TAG_DYNAMIC)
-        if isDynamic is not None:
-            if isDynamic.text is not None:
-                data.isDynamic = isDynamic.text.lower() == "true"
+        dynamic = root_xml.find("./" + TAG_DYNAMIC)
+        if dynamic is not None:
+            if dynamic.text is not None:
+                data.isDynamic = dynamic.text.lower() == "true"
             else:
                 data.isDynamic = False
 
