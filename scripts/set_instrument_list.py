@@ -254,9 +254,6 @@ if __name__ == "__main__":
             is_scheduled=False,
             target_station=MISC,
         ),
-        inst_dictionary("DETECT1", groups=[SUPPORT], is_scheduled=False, target_station=MISC),
-        inst_dictionary("DETECT2", groups=[SUPPORT], is_scheduled=False, target_station=MISC),
-        inst_dictionary("DETECT3", groups=[SUPPORT], is_scheduled=False, target_station=MISC),
     ]
 
     set_instlist(instruments_list, pv_address)
