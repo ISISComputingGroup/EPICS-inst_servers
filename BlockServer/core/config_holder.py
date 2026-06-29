@@ -43,7 +43,7 @@ class ConfigHolder:
         macros: Dict,
         file_manager: ConfigurationFileManager,
         is_component: bool = False,
-        test_config: Configuration = None,
+        test_config: Configuration | None = None,
     ) -> None:
         """Constructor.
 
@@ -127,7 +127,7 @@ class ConfigHolder:
                     names.append(block.name)
         return names
 
-    def get_block_details(self) -> OrderedDict:
+    def get_block_details(self) -> Dict:
         """Get the configuration details for all the blocks including any in components.
 
         Returns:
@@ -183,7 +183,7 @@ class ConfigHolder:
 
         return groups
 
-    def _set_group_details(self, redefinition: List) -> None:
+    def _set_group_details(self, redefinition: List[Dict]) -> None:
         # Any redefinition only affects the main configuration
         homeless_blocks = self.get_blocknames()
         for grp in redefinition:
@@ -245,7 +245,7 @@ class ConfigHolder:
                 iocs.extend(cv.iocs)
         return iocs
 
-    def get_ioc_details(self) -> OrderedDict:
+    def get_ioc_details(self) -> Dict:
         """Get the details of the IOCs in the configuration.
 
         Returns:
@@ -408,10 +408,10 @@ class ConfigHolder:
                 grps.append(groups[GRP_NONE.lower()].to_dict())
         return grps
 
-    def _iocs_to_list(self) -> List:
+    def _iocs_to_list(self) -> List[Dict]:
         return [ioc.to_dict() for ioc in self._config.iocs.values()]
 
-    def _iocs_to_list_with_components(self) -> List:
+    def _iocs_to_list_with_components(self) -> List[Dict]:
         ioc_list = self._iocs_to_list()
 
         for component in self._components.values():
@@ -419,7 +419,7 @@ class ConfigHolder:
                 ioc_list.append(ioc.to_dict())
         return ioc_list
 
-    def _to_dict(self, data_list: List) -> dict | None:
+    def _to_dict(self, data_list: List) -> None | Dict:
         return None if data_list is None else {item["name"]: item for item in data_list}
 
     def set_config(self, config: Configuration, is_component: bool = False) -> None:

@@ -17,12 +17,12 @@
 """Contains all the code for defining a configuration or component"""
 
 from collections import OrderedDict
-from typing import Dict
+from typing import Dict, Unpack
 
 from server_common.helpers import PVPREFIX_MACRO
 from server_common.utilities import print_and_log
 
-from BlockServer.config.block import Block
+from BlockServer.config.block import Block, BlockKwargs
 from BlockServer.config.group import Group
 from BlockServer.config.ioc import IOC
 from BlockServer.config.metadata import MetaData
@@ -65,7 +65,7 @@ class Configuration:
         pv: str,
         group: str = GRP_NONE,
         local: bool = True,
-        **kwargs: bool | float | None,
+        **kwargs: Unpack[BlockKwargs],
     ) -> None:
         """Add a block to the configuration.
 
@@ -95,14 +95,14 @@ class Configuration:
     def add_ioc(
         self,
         name: str,
-        component: str = None,
-        autostart: bool = None,
-        restart: bool = None,
-        macros: Dict = None,
-        pvs: Dict = None,
-        pvsets: Dict = None,
-        simlevel: str = None,
-        remotePvPrefix: str = None,  # Has to match the mapped Java attribute #noqa: N803
+        component: str | None = None,
+        autostart: bool | None = None,
+        restart: bool | None = None,
+        macros: Dict | None = None,
+        pvs: Dict | None = None,
+        pvsets: Dict | None = None,
+        simlevel: str | None = None,
+        remote_pv_prefix: str | None = None,  # Has to match the mapped Java attribute #noqa: N803
     ) -> None:
         """Add an IOC to the configuration.
 
@@ -115,7 +115,7 @@ class Configuration:
             pvs:
             pvsets: Any PV values that should be set at start up
             simlevel: Sets the simulation level
-            remotePvPrefix: Sets the remote PV prefix to use for this IOC
+            remote_pv_prefix: Sets the remote PV prefix to use for this IOC
 
         """
         # Only add it if it has not been added before
@@ -125,7 +125,15 @@ class Configuration:
             )
         else:
             self.iocs[name.upper()] = IOC(
-                name, autostart, restart, component, macros, pvs, pvsets, simlevel, remotePvPrefix
+                name,
+                autostart if autostart is not None else True,
+                restart if restart is not None else True,
+                component,
+                macros,
+                pvs,
+                pvsets,
+                simlevel,
+                remote_pv_prefix,
             )
 
     def get_name(self) -> str:
