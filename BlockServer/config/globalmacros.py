@@ -98,8 +98,9 @@ class GlobalmacroHelper:
         equal_to = "="
         all_iocs = "<ALL IOCS>"
         # Each record is of the form IOC__MACRO=VALUE
+        # Skip commented lines
         # Where there is no __ the Macro is applicable for all IOCs
-        if equal_to in row:
+        if not row.lstrip().startswith("#") and equal_to in row:
             ioc_macro, value = row.rsplit(equal_to, maxsplit=1)
             to_add_ioc = {}
             if ioc_separator in ioc_macro:
