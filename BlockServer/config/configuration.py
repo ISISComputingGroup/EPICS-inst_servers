@@ -1,5 +1,5 @@
 # This file is part of the ISIS IBEX application.
-# Copyright (C) 2012-2016 Science & Technology Facilities Council.
+# Copyright (C) 2012-2025 Science & Technology Facilities Council.
 # All rights reserved.
 #
 # This program is distributed in the hope that it will be useful.
@@ -40,6 +40,7 @@ class Configuration:
         meta (MetaData): The meta-data for the configuration
         components (OrderedDict): The components which are part of the configuration
         is_component (bool): Whether it is actually a component
+        globalmacros (OrderedDict): The globalmacros for the configuration
     """
 
     def __init__(self, macros: Dict) -> None:
@@ -56,6 +57,7 @@ class Configuration:
         self.meta = MetaData("")
         self.components = OrderedDict()
         self.is_component = False
+        self.globalmacros = OrderedDict()
 
     def add_block(
         self,
@@ -100,7 +102,7 @@ class Configuration:
         pvs: Dict | None = None,
         pvsets: Dict | None = None,
         simlevel: str | None = None,
-        remote_pv_prefix: str | None = None,
+        remote_pv_prefix: str | None = None,  # Has to match the mapped Java attribute #noqa: N803
     ) -> None:
         """Add an IOC to the configuration.
 
@@ -113,7 +115,7 @@ class Configuration:
             pvs:
             pvsets: Any PV values that should be set at start up
             simlevel: Sets the simulation level
-            remotePvPrefix: Sets the remote PV prefix to use for this IOC
+            remote_pv_prefix: Sets the remote PV prefix to use for this IOC
 
         """
         # Only add it if it has not been added before

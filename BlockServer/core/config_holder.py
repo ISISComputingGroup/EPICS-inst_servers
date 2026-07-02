@@ -1,5 +1,5 @@
 # This file is part of the ISIS IBEX application.
-# Copyright (C) 2012-2016 Science & Technology Facilities Council.
+# Copyright (C) 2012-2025 Science & Technology Facilities Council.
 # All rights reserved.
 #
 # This program is distributed in the hope that it will be useful.
@@ -16,20 +16,20 @@
 
 """Contains the code for the ConfigHolder class"""
 
+# ruff: noqa: I001
 import copy
 import re
 from collections import OrderedDict
 from typing import Any, Dict, List
-
-from server_common.file_path_manager import FILEPATH_MANAGER
-from server_common.helpers import PVPREFIX_MACRO
-from server_common.utilities import print_and_log
 
 from BlockServer.config.configuration import Configuration
 from BlockServer.config.group import Group
 from BlockServer.config.metadata import MetaData
 from BlockServer.core.constants import DEFAULT_COMPONENT, GRP_NONE
 from BlockServer.fileIO.file_manager import ConfigurationFileManager
+from server_common.file_path_manager import FILEPATH_MANAGER
+from server_common.helpers import PVPREFIX_MACRO
+from server_common.utilities import print_and_log
 
 
 class ConfigHolder:
@@ -325,6 +325,9 @@ class ConfigHolder:
                 f"Can't add IOC '{name}' to component '{component}': component does not exist"
             )
 
+    def _globalmacros_to_list(self) -> List[Any]:
+        return [globalmacro.to_dict() for globalmacro in self._config.globalmacros.values()]
+
     def get_config_details(self) -> Dict[str, Any]:
         """Get the details of the configuration.
 
@@ -332,6 +335,7 @@ class ConfigHolder:
             A dictionary containing all the details of the configuration
         """
         return {
+            "globalmacros": self._globalmacros_to_list(),
             "blocks": self._blocks_to_list(True),
             "groups": self._groups_to_list(),
             "iocs": self._iocs_to_list(),
