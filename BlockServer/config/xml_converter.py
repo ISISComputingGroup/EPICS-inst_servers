@@ -572,6 +572,7 @@ class ConfigurationXmlConverter:
         ):
             return configureblock_gw_and_archiver.text.lower() == "true"
 
+    @staticmethod
     def get_configures_block_g_w_and_archiver(root_xml: ElementTree.Element) -> bool:
         configures_block_g_w_and_archiver = root_xml.find(
             "./" + TAG_CONFIGURES_BLOCK_GW_AND_ARCHIVER
