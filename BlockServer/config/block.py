@@ -14,7 +14,7 @@
 # https://www.eclipse.org/org/documents/epl-v10.php or
 # http://opensource.org/licenses/eclipse-1.0.php
 
-from typing import Dict, Union
+from typing import Dict, TypedDict, Union
 
 from server_common.helpers import PVPREFIX_MACRO
 
@@ -123,9 +123,10 @@ class Block:
         if self.set_block:
             set_block_str = f", SetBlockVal: {self.set_block_val}"
         return (
-            f"Name: {self.name}, PV: {self.pv}, Local: {self.local}, Visible: {self.visible}, "
-            f"Component: {self.component}, RCEnabled: {self.rc_enabled}, RCLow: {self.rc_lowlimit}"
-            f", RCHigh: {self.rc_highlimit}{set_block_str}"
+            f"Name: {self.name}, PV: {self.pv}, Local: {self.local}, "
+            f"Visible: {self.visible}, Component: {self.component}"
+            f", RCEnabled: {self.rc_enabled}, RCLow: {self.rc_lowlimit}, "
+            f"RCHigh: {self.rc_highlimit}{set_block_str}"
         )
 
     def to_dict(self) -> Dict[str, Union[str, float, bool, None]]:
@@ -154,3 +155,17 @@ class Block:
             "alarmdelay": self.alarmdelay,
             "alarmguidance": self.alarmguidance,
         }
+
+
+class BlockKwargs(TypedDict, total=False):
+    visible: bool
+    component: str | None
+    runcontrol: bool
+    lowlimit: float | None
+    highlimit: float | None
+    suspend_on_invalid: bool
+    log_periodic: bool
+    log_rate: float
+    log_deadband: float
+    set_block: bool
+    set_block_val: str | None

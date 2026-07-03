@@ -18,7 +18,8 @@ Device screen manager for pvs
 # http://opensource.org/licenses/eclipse-1.0.php
 
 import os
-from typing import TYPE_CHECKING
+from pathlib import Path
+from typing import TYPE_CHECKING, Optional
 
 if TYPE_CHECKING:
     from block_server import BlockServer
@@ -47,7 +48,7 @@ class DevicesManager(OnTheFlyPvInterface):
     def __init__(
         self,
         block_server: "BlockServer",
-        schema_folder: str,
+        schema_folder: Path,
         file_io: DevicesFileIO = DevicesFileIO(),
     ) -> None:
         """Constructor.
@@ -92,7 +93,7 @@ class DevicesManager(OnTheFlyPvInterface):
                     "MINOR",
                 )
 
-    def handle_pv_read(self, _: str) -> None:
+    def handle_pv_read(self, pv: str) -> None:
         """
         Nothing to do as it is all handled by monitors
         """
@@ -151,7 +152,7 @@ class DevicesManager(OnTheFlyPvInterface):
 
         return os.path.join(FILEPATH_MANAGER.devices_dir, SCREENS_FILE)
 
-    def update(self, xml_data: bytes, message: str = None) -> None:
+    def update(self, xml_data: bytes, message: Optional[str] = None) -> None:
         """Updates the current device screens with new data.
 
         Args:
@@ -171,7 +172,7 @@ class DevicesManager(OnTheFlyPvInterface):
         xml_data_as_bytes = bytes(xml_data, "utf-8")
         try:
             ConfigurationSchemaChecker.check_xml_data_matches_schema(
-                self._schema_folder / SCREENS_SCHEMA, xml_data_as_bytes
+                str(self._schema_folder / SCREENS_SCHEMA), xml_data_as_bytes
             )
         except ConfigurationInvalidUnderSchema as err:
             print_and_log(err)

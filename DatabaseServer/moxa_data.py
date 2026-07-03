@@ -9,7 +9,6 @@ from genie_python.mysql_abstraction_layer import (  # type: ignore
     AbstractSQLCommands,
     ParamsSequenceOrDictType,
 )
-
 from server_common.snmpWalker import walk
 from server_common.utilities import SEVERITY, print_and_log
 
@@ -112,10 +111,14 @@ class MoxaDataSource(object):
     def insert_mappings(self, moxa_ip_name_dict: dict, moxa_ports_dict: dict) -> None:
         print_and_log("inserting moxa mappings to SQL")
         self._delete_all()
+        if len(moxa_ip_name_dict) == 0:
+            print_and_log("No Moxa names defined in registry - was that expected?")
         for moxa_name, moxa_ip in moxa_ip_name_dict.items():
             print_and_log(f"moxa name: {moxa_name} - IP: {moxa_ip}")
             self.mysql_abstraction_layer.update(INSERT_TO_IPS, (moxa_name, moxa_ip))
 
+        if len(moxa_ports_dict) == 0:
+            print_and_log("No Moxa COM mappings found in registry - was that expected?")
         for moxa_name, ports in moxa_ports_dict.items():
             for phys_port, com_port in ports:
                 # phys_port = ports[0]
@@ -256,7 +259,6 @@ class MoxaData:
                     moxa_ports_dict[hostname].append((port_num_respective + 1, com_num))
             except FileNotFoundError:
                 print_and_log("using old style registry for moxas", severity=SEVERITY.MINOR)
-            else:
                 try:
                     # This is what Nport Administrator uses. It lays out each Moxa that is added to
                     # "Servers" which contains a few bytes and lays things out in a subkey for each.

@@ -14,7 +14,7 @@
 # https://www.eclipse.org/org/documents/epl-v10.php or
 # http://opensource.org/licenses/eclipse-1.0.php
 
-from typing import Dict, OrderedDict
+from typing import Dict, List, OrderedDict
 from xml.dom import minidom
 from xml.etree import ElementTree
 
@@ -293,7 +293,7 @@ class ConfigurationXmlConverter:
         alarmguidance.text = block.alarmguidance
 
     @staticmethod
-    def _group_to_xml(root_xml: ElementTree, group: Group) -> None:
+    def _group_to_xml(root_xml: ElementTree.Element, group: Group) -> None:
         """Generates the XML for a group"""
         grp = ElementTree.SubElement(root_xml, TAG_GROUP)
         grp.set(TAG_NAME, group.name)
@@ -312,8 +312,8 @@ class ConfigurationXmlConverter:
             grp.set(TAG_AUTOSTART, str(ioc.autostart).lower())
         if ioc.restart is not None:
             grp.set(TAG_RESTART, str(ioc.restart).lower())
-        if ioc.remotePvPrefix is not None:
-            grp.set(TAG_REMOTE_PREFIX, str(ioc.remotePvPrefix))
+        if ioc.remote_pv_prefix is not None:
+            grp.set(TAG_REMOTE_PREFIX, str(ioc.remote_pv_prefix))
 
         grp.set(TAG_SIMLEVEL, str(ioc.simlevel))
 
@@ -350,7 +350,13 @@ class ConfigurationXmlConverter:
         for b in blks:
             n = ConfigurationXmlConverter._find_single_node(b, NS_TAG_BLOCK, TAG_NAME)
             read = ConfigurationXmlConverter._find_single_node(b, NS_TAG_BLOCK, TAG_READ_PV)
-            if n is not None and n.text != "" and read is not None and read.text is not None:
+            if (
+                n is not None
+                and n.text is not None
+                and n.text != ""
+                and read is not None
+                and read.text is not None
+            ):
                 name = n.text
 
                 # Blocks automatically get assigned to the NONE group
@@ -371,18 +377,18 @@ class ConfigurationXmlConverter:
                 rc_enabled = ConfigurationXmlConverter._find_single_node(
                     b, NS_TAG_BLOCK, TAG_RUNCONTROL_ENABLED
                 )
-                if rc_enabled is not None:
+                if rc_enabled is not None and rc_enabled.text is not None:
                     blocks[name.lower()].rc_enabled = rc_enabled.text == "True"
 
                 rc_low = ConfigurationXmlConverter._find_single_node(
                     b, NS_TAG_BLOCK, TAG_RUNCONTROL_LOW
                 )
-                if rc_low is not None:
+                if rc_low is not None and rc_low.text is not None:
                     blocks[name.lower()].rc_lowlimit = float(rc_low.text)
                 rc_high = ConfigurationXmlConverter._find_single_node(
                     b, NS_TAG_BLOCK, TAG_RUNCONTROL_HIGH
                 )
-                if rc_high is not None:
+                if rc_high is not None and rc_high.text is not None:
                     blocks[name.lower()].rc_highlimit = float(rc_high.text)
 
                 rc_suspend_on_invalid = ConfigurationXmlConverter._find_single_node(
@@ -397,25 +403,25 @@ class ConfigurationXmlConverter:
                 log_periodic = ConfigurationXmlConverter._find_single_node(
                     b, NS_TAG_BLOCK, TAG_LOG_PERIODIC
                 )
-                if log_periodic is not None:
+                if log_periodic is not None and log_periodic.text is not None:
                     blocks[name.lower()].log_periodic = log_periodic.text == "True"
 
                 log_rate = ConfigurationXmlConverter._find_single_node(
                     b, NS_TAG_BLOCK, TAG_LOG_RATE
                 )
-                if log_rate is not None:
+                if log_rate is not None and log_rate.text is not None:
                     blocks[name.lower()].log_rate = float(log_rate.text)
 
                 log_deadband = ConfigurationXmlConverter._find_single_node(
                     b, NS_TAG_BLOCK, TAG_LOG_DEADBAND
                 )
-                if log_deadband is not None:
+                if log_deadband is not None and log_deadband.text is not None:
                     blocks[name.lower()].log_deadband = float(log_deadband.text)
 
                 set_block = ConfigurationXmlConverter._find_single_node(
                     b, NS_TAG_BLOCK, TAG_SET_BLOCK
                 )
-                if set_block is not None:
+                if set_block is not None and set_block.text is not None:
                     blocks[name.lower()].set_block = eval(set_block.text)
 
                 set_block_val = ConfigurationXmlConverter._find_single_node(
@@ -511,11 +517,11 @@ class ConfigurationXmlConverter:
                     if level in SIMLEVELS:
                         iocs[n.upper()].simlevel = level
                 if TAG_REMOTE_PREFIX in options:
-                    iocs[n.upper()].remotePvPrefix = i.attrib[TAG_REMOTE_PREFIX]
+                    iocs[n.upper()].remote_pv_prefix = i.attrib[TAG_REMOTE_PREFIX]
 
                 try:
                     # Get any macros
-                    macros_xml = ConfigurationXmlConverter._find_single_node(
+                    macros_xml = ConfigurationXmlConverter._find_single_node_with_none_check(
                         i, NS_TAG_IOC, TAG_MACROS
                     )
                     for m in macros_xml:
@@ -523,13 +529,15 @@ class ConfigurationXmlConverter:
                             TAG_VALUE: str(m.attrib[TAG_VALUE])
                         }
                     # Get any pvs
-                    pvs_xml = ConfigurationXmlConverter._find_single_node(i, NS_TAG_IOC, TAG_PVS)
+                    pvs_xml = ConfigurationXmlConverter._find_single_node_with_none_check(
+                        i, NS_TAG_IOC, TAG_PVS
+                    )
                     for p in pvs_xml:
                         iocs[n.upper()].pvs[p.attrib[TAG_NAME]] = {
                             TAG_VALUE: str(p.attrib[TAG_VALUE])
                         }
                     # Get any pvsets
-                    pvsets_xml = ConfigurationXmlConverter._find_single_node(
+                    pvsets_xml = ConfigurationXmlConverter._find_single_node_with_none_check(
                         i, NS_TAG_IOC, TAG_PVSETS
                     )
                     for ps in pvsets_xml:
@@ -563,6 +571,16 @@ class ConfigurationXmlConverter:
             and configureblock_gw_and_archiver.text is not None
         ):
             return configureblock_gw_and_archiver.text.lower() == "true"
+
+    def get_configures_block_g_w_and_archiver(root_xml: ElementTree.Element) -> bool:
+        configures_block_g_w_and_archiver = root_xml.find(
+            "./" + TAG_CONFIGURES_BLOCK_GW_AND_ARCHIVER
+        )
+        if (
+            configures_block_g_w_and_archiver is not None
+            and configures_block_g_w_and_archiver.text is not None
+        ):
+            return configures_block_g_w_and_archiver.text.lower() == "true"
         else:
             return False
 
@@ -586,6 +604,10 @@ class ConfigurationXmlConverter:
         if protected is not None:
             if protected.text is not None:
                 data.isProtected = protected.text.lower() == "true"
+        is_protected = root_xml.find("./" + TAG_PROTECTED)
+        if is_protected is not None:
+            if is_protected.text is not None:
+                data.isProtected = is_protected.text.lower() == "true"
             else:
                 data.isProtected = False
 
@@ -597,6 +619,12 @@ class ConfigurationXmlConverter:
         if dynamic is not None:
             if dynamic.text is not None:
                 data.isDynamic = dynamic.text.lower() == "true"
+            ConfigurationXmlConverter.get_configures_block_g_w_and_archiver(root_xml)
+
+        is_dynamic = root_xml.find("./" + TAG_DYNAMIC)
+        if is_dynamic is not None:
+            if is_dynamic.text is not None:
+                data.isDynamic = is_dynamic.text.lower() == "true"
             else:
                 data.isDynamic = False
 
@@ -606,7 +634,7 @@ class ConfigurationXmlConverter:
     @staticmethod
     def _find_all_nodes(
         root: ElementTree.Element, tag: str, name: str
-    ) -> list[ElementTree.Element]:
+    ) -> List[ElementTree.Element]:
         """Finds all the nodes regardless of whether it has a namespace or not.
 
         For example the name space for IOCs is
@@ -627,7 +655,9 @@ class ConfigurationXmlConverter:
         return nodes
 
     @staticmethod
-    def _find_single_node(root: ElementTree.Element, tag: str, name: str) -> ElementTree.Element:
+    def _find_single_node(
+        root: ElementTree.Element, tag: str, name: str
+    ) -> ElementTree.Element | None:
         """Finds a single node regardless of whether it has a namespace or not.
 
         For example the name space for IOCs is xmlns:ioc="http://epics.isis.rl.ac.uk/schema/iocs/1.0"
@@ -644,41 +674,84 @@ class ConfigurationXmlConverter:
         if node is None:
             # Try without namespace
             node = root.find(name)
+
         return node
 
     @staticmethod
-    def _display(child: ElementTree.Element, index: int) -> dict:
+    def _find_single_node_with_none_check(
+        root: ElementTree.Element, tag: str, name: str
+    ) -> ElementTree.Element:
+        """Finds a single node regardless of whether it has a namespace or not.
+
+        For example the name space for IOCs is xmlns:ioc="http://epics.isis.rl.ac.uk/schema/iocs/1.0"
+
+        Args:
+            root: The XML tree object
+            tag: The namespace tag
+            name: The item we are looking for
+
+        Returns: The found node
+        """
+        node = ConfigurationXmlConverter._find_single_node(root, tag, name)
+        if node is None:
+            raise NodeNotPresentError(name, root)
+        return node
+
+    @staticmethod
+    def _display(child: ElementTree.Element, index: int) -> Dict[str, str | int | None]:
         return {
             "index": index,
-            "name": ConfigurationXmlConverter._find_single_node(child, "banner", "name").text,
-            "pv": ConfigurationXmlConverter._find_single_node(child, "banner", "pv").text,
-            "local": ConfigurationXmlConverter._find_single_node(child, "banner", "local").text,
-            "width": ConfigurationXmlConverter._find_single_node(child, "banner", "width").text,
+            "name": ConfigurationXmlConverter._find_single_node_with_none_check(
+                child, "banner", "name"
+            ).text,
+            "pv": ConfigurationXmlConverter._find_single_node_with_none_check(
+                child, "banner", "pv"
+            ).text,
+            "local": ConfigurationXmlConverter._find_single_node_with_none_check(
+                child, "banner", "local"
+            ).text,
+            "width": ConfigurationXmlConverter._find_single_node_with_none_check(
+                child, "banner", "width"
+            ).text,
         }
 
     @staticmethod
-    def _button(child: ElementTree.Element, index: int) -> dict:
+    def _button(child: ElementTree.Element, index: int) -> Dict[str, str | int | None]:
         return {
             "index": index,
-            "name": ConfigurationXmlConverter._find_single_node(child, "banner", "name").text,
-            "pv": ConfigurationXmlConverter._find_single_node(child, "banner", "pv").text,
-            "local": ConfigurationXmlConverter._find_single_node(child, "banner", "local").text,
-            "pvValue": ConfigurationXmlConverter._find_single_node(child, "banner", "pvValue").text,
-            "textColour": ConfigurationXmlConverter._find_single_node(
+            "name": ConfigurationXmlConverter._find_single_node_with_none_check(
+                child, "banner", "name"
+            ).text,
+            "pv": ConfigurationXmlConverter._find_single_node_with_none_check(
+                child, "banner", "pv"
+            ).text,
+            "local": ConfigurationXmlConverter._find_single_node_with_none_check(
+                child, "banner", "local"
+            ).text,
+            "pvValue": ConfigurationXmlConverter._find_single_node_with_none_check(
+                child, "banner", "pvValue"
+            ).text,
+            "textColour": ConfigurationXmlConverter._find_single_node_with_none_check(
                 child, "banner", "textColour"
             ).text,
-            "buttonColour": ConfigurationXmlConverter._find_single_node(
+            "buttonColour": ConfigurationXmlConverter._find_single_node_with_none_check(
                 child, "banner", "buttonColour"
             ).text,
-            "fontSize": ConfigurationXmlConverter._find_single_node(
+            "fontSize": ConfigurationXmlConverter._find_single_node_with_none_check(
                 child, "banner", "fontSize"
             ).text,
-            "width": ConfigurationXmlConverter._find_single_node(child, "banner", "width").text,
-            "height": ConfigurationXmlConverter._find_single_node(child, "banner", "height").text,
+            "width": ConfigurationXmlConverter._find_single_node_with_none_check(
+                child, "banner", "width"
+            ).text,
+            "height": ConfigurationXmlConverter._find_single_node_with_none_check(
+                child, "banner", "height"
+            ).text,
         }
 
     @staticmethod
-    def banner_config_from_xml(root: None | ElementTree.Element) -> list | dict[str, list]:
+    def banner_config_from_xml(
+        root: ElementTree.Element,
+    ) -> Dict[str, List[Dict[str, str | int | None]]]:
         """
         Parses the banner config XML to produce a banner config dictionary
 
@@ -688,27 +761,37 @@ class ConfigurationXmlConverter:
         Returns:
             A dictionary with two entries, the banner items and the banner buttons.
             The items have the properties name, pv, local.
-            The buttons have the properties name, pv, local, pvValue, textColour, buttonColour,
-            width, height.
+            The buttons have the properties name, pv, local, pvValue,
+                textColour, buttonColour, width, height.
         """
         if root is None:
-            return []
+            return {}
 
         banner_displays = []
         banner_buttons = []
 
-        items = ConfigurationXmlConverter._find_single_node(root, "banner", "items")
+        items = ConfigurationXmlConverter._find_single_node_with_none_check(root, "banner", "items")
         index = 0
 
         for item in items:
             child = item.find("./")
-            if "display" in child.tag:
-                banner_displays.append(ConfigurationXmlConverter._display(child, index))
-            else:
-                banner_buttons.append(ConfigurationXmlConverter._button(child, index))
+            if child is not None:
+                if "display" in child.tag:
+                    banner_displays.append(ConfigurationXmlConverter._display(child, index))
+                else:
+                    banner_buttons.append(ConfigurationXmlConverter._button(child, index))
             index += 1
 
         return {
             "items": banner_displays,
             "buttons": banner_buttons,
         }
+
+
+class NodeNotPresentError(LookupError):
+    def __init__(self, name: str, root: ElementTree.Element) -> None:
+        self.name = name
+        self.root = root
+
+    def __str__(self) -> str:
+        return f"Node {self.name} not found in {self.root}."
