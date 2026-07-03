@@ -435,22 +435,22 @@ class ConfigurationXmlConverter:
                     b, NS_TAG_BLOCK, TAG_ALARM_ENABLED
                 )
                 if alarmenabled is not None:
-                    blocks[name.lower()].alarmenabled = alarmenabled.text == "True" 
+                    blocks[name.lower()].alarmenabled = alarmenabled.text == "True"
                 alarmlatched = ConfigurationXmlConverter._find_single_node(
                     b, NS_TAG_BLOCK, TAG_ALARM_LATCHED
                 )
                 if alarmlatched is not None:
-                    blocks[name.lower()].alarmlatched = alarmlatched.text == "True"  
+                    blocks[name.lower()].alarmlatched = alarmlatched.text == "True"
                 alarmdelay = ConfigurationXmlConverter._find_single_node(
                     b, NS_TAG_BLOCK, TAG_ALARM_DELAY
                 )
                 if alarmdelay is not None:
-                    blocks[name.lower()].alarmdelay = float(alarmdelay.text)  
+                    blocks[name.lower()].alarmdelay = float(alarmdelay.text)
                 alarmguidance = ConfigurationXmlConverter._find_single_node(
                     b, NS_TAG_BLOCK, TAG_ALARM_GUIDANCE
                 )
                 if alarmguidance is not None:
-                    blocks[name.lower()].alarmguidance = alarmguidance.text  
+                    blocks[name.lower()].alarmguidance = alarmguidance.text
 
     @staticmethod
     def groups_from_xml(
