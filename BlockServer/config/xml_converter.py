@@ -444,7 +444,7 @@ class ConfigurationXmlConverter:
                 alarmdelay = ConfigurationXmlConverter._find_single_node(
                     b, NS_TAG_BLOCK, TAG_ALARM_DELAY
                 )
-                if alarmdelay is not None:
+                if alarmdelay is not None and alarmdelay.text is not None:
                     blocks[name.lower()].alarmdelay = float(alarmdelay.text)
                 alarmguidance = ConfigurationXmlConverter._find_single_node(
                     b, NS_TAG_BLOCK, TAG_ALARM_GUIDANCE
@@ -572,7 +572,7 @@ class ConfigurationXmlConverter:
         ):
             return configureblock_gw_and_archiver.text.lower() == "true"
         else:
-            return False            
+            return False
 
     @staticmethod
     def get_configures_block_g_w_and_archiver(root_xml: ElementTree.Element) -> bool:
