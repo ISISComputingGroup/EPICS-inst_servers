@@ -571,6 +571,8 @@ class ConfigurationXmlConverter:
             and configureblock_gw_and_archiver.text is not None
         ):
             return configureblock_gw_and_archiver.text.lower() == "true"
+        else:
+            return False            
 
     @staticmethod
     def get_configures_block_g_w_and_archiver(root_xml: ElementTree.Element) -> bool:
