@@ -282,15 +282,15 @@ class ConfigurationXmlConverter:
         set_block_val.text = str(block.set_block_val)
 
         # Alarm Config
-        alarmenabled = ElementTree.SubElement(block_xml, TAG_ALARM_ENABLED)
-        alarmenabled.text = str(block.alarmenabled)
-        alarmlatched = ElementTree.SubElement(block_xml, TAG_ALARM_LATCHED)
-        alarmlatched.text = str(block.alarmlatched)
-        if block.alarmdelay is not None:
-            alarmdelay = ElementTree.SubElement(block_xml, TAG_ALARM_DELAY)
-            alarmdelay.text = str(block.alarmdelay)
-        alarmguidance = ElementTree.SubElement(block_xml, TAG_ALARM_GUIDANCE)
-        alarmguidance.text = block.alarmguidance
+        alarm_enabled = ElementTree.SubElement(block_xml, TAG_ALARM_ENABLED)
+        alarm_enabled.text = str(block.alarm_enabled)
+        alarm_latched = ElementTree.SubElement(block_xml, TAG_ALARM_LATCHED)
+        alarm_latched.text = str(block.alarm_latched)
+        if block.alarm_delay is not None:
+            alarm_delay = ElementTree.SubElement(block_xml, TAG_ALARM_DELAY)
+            alarm_delay.text = str(block.alarm_delay)
+        alarm_guidance = ElementTree.SubElement(block_xml, TAG_ALARM_GUIDANCE)
+        alarm_guidance.text = block.alarm_guidance
 
     @staticmethod
     def _group_to_xml(root_xml: ElementTree.Element, group: Group) -> None:
@@ -431,26 +431,26 @@ class ConfigurationXmlConverter:
                     blocks[name.lower()].set_block_val = set_block_val.text
 
                 # Alarm Config
-                alarmenabled = ConfigurationXmlConverter._find_single_node(
+                alarm_enabled = ConfigurationXmlConverter._find_single_node(
                     b, NS_TAG_BLOCK, TAG_ALARM_ENABLED
                 )
-                if alarmenabled is not None:
-                    blocks[name.lower()].alarmenabled = alarmenabled.text == "True"
-                alarmlatched = ConfigurationXmlConverter._find_single_node(
+                if alarm_enabled is not None:
+                    blocks[name.lower()].alarm_enabled = alarm_enabled.text == "True"
+                alarm_latched = ConfigurationXmlConverter._find_single_node(
                     b, NS_TAG_BLOCK, TAG_ALARM_LATCHED
                 )
-                if alarmlatched is not None:
-                    blocks[name.lower()].alarmlatched = alarmlatched.text == "True"
-                alarmdelay = ConfigurationXmlConverter._find_single_node(
+                if alarm_latched is not None:
+                    blocks[name.lower()].alarmlatched = alarm_latched.text == "True"
+                alarm_delay = ConfigurationXmlConverter._find_single_node(
                     b, NS_TAG_BLOCK, TAG_ALARM_DELAY
                 )
-                if alarmdelay is not None and alarmdelay.text is not None:
-                    blocks[name.lower()].alarmdelay = float(alarmdelay.text)
-                alarmguidance = ConfigurationXmlConverter._find_single_node(
+                if alarm_delay is not None and alarm_delay.text is not None:
+                    blocks[name.lower()].alarm_delay = float(alarm_delay.text)
+                alarm_guidance = ConfigurationXmlConverter._find_single_node(
                     b, NS_TAG_BLOCK, TAG_ALARM_GUIDANCE
                 )
-                if alarmguidance is not None:
-                    blocks[name.lower()].alarmguidance = alarmguidance.text
+                if alarm_guidance is not None:
+                    blocks[name.lower()].alarm_guidance = alarm_guidance.text
 
     @staticmethod
     def groups_from_xml(
@@ -564,17 +564,6 @@ class ConfigurationXmlConverter:
                 components[n.lower()] = n
 
     @staticmethod
-    def get_configures_block_gw_and_archiver_from_xml(root_xml: ElementTree.Element) -> bool:
-        configureblock_gw_and_archiver = root_xml.find("./" + TAG_CONFIGURES_BLOCK_GW_AND_ARCHIVER)
-        if (
-            configureblock_gw_and_archiver is not None
-            and configureblock_gw_and_archiver.text is not None
-        ):
-            return configureblock_gw_and_archiver.text.lower() == "true"
-        else:
-            return False
-
-    @staticmethod
     def get_configures_block_g_w_and_archiver(root_xml: ElementTree.Element) -> bool:
         configures_block_g_w_and_archiver = root_xml.find(
             "./" + TAG_CONFIGURES_BLOCK_GW_AND_ARCHIVER
@@ -603,10 +592,6 @@ class ConfigurationXmlConverter:
         if synoptic is not None:
             data.synoptic = synoptic.text if synoptic.text is not None else ""
 
-        protected = root_xml.find("./" + TAG_PROTECTED)
-        if protected is not None:
-            if protected.text is not None:
-                data.isProtected = protected.text.lower() == "true"
         is_protected = root_xml.find("./" + TAG_PROTECTED)
         if is_protected is not None:
             if is_protected.text is not None:
@@ -615,14 +600,8 @@ class ConfigurationXmlConverter:
                 data.isProtected = False
 
         data.configuresBlockGWAndArchiver = (
-            ConfigurationXmlConverter.get_configures_block_gw_and_archiver_from_xml(root_xml)
-        )
-
-        dynamic = root_xml.find("./" + TAG_DYNAMIC)
-        if dynamic is not None:
-            if dynamic.text is not None:
-                data.isDynamic = dynamic.text.lower() == "true"
             ConfigurationXmlConverter.get_configures_block_g_w_and_archiver(root_xml)
+        )
 
         is_dynamic = root_xml.find("./" + TAG_DYNAMIC)
         if is_dynamic is not None:
