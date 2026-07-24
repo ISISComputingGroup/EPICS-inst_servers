@@ -47,7 +47,6 @@ BLOCKS_XML = """
 		<set_block_val>None</set_block_val>
         <alarm_enabled>False</alarm_enabled>
         <alarm_latched>False</alarm_latched>
-        <alarm_delay>5.0</alarm_delay>
         <alarm_guidance/>
     </block>
     <block>
@@ -66,7 +65,6 @@ BLOCKS_XML = """
 		<set_block_val>None</set_block_val>
         <alarm_enabled>False</alarm_enabled>
         <alarm_latched>False</alarm_latched>
-        <alarm_delay>5.0</alarm_delay>
         <alarm_guidance/>
     </block>
     <block>
@@ -85,7 +83,6 @@ BLOCKS_XML = """
 		<set_block_val>None</set_block_val>
         <alarm_enabled>False</alarm_enabled>
         <alarm_latched>False</alarm_latched>
-        <alarm_delay>5.0</alarm_delay>
         <alarm_guidance/>
     </block>
     <block>
@@ -104,7 +101,6 @@ BLOCKS_XML = """
 		<set_block_val>None</set_block_val>
         <alarm_enabled>False</alarm_enabled>
         <alarm_latched>False</alarm_latched>
-        <alarm_delay>5.0</alarm_delay>
         <alarm_guidance/>
     </block>
 </blocks>"""
