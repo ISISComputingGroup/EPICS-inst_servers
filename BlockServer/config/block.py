@@ -14,7 +14,7 @@
 # https://www.eclipse.org/org/documents/epl-v10.php or
 # http://opensource.org/licenses/eclipse-1.0.php
 
-from typing import Dict, TypedDict, Union
+from typing import TypedDict, Union
 
 from server_common.helpers import PVPREFIX_MACRO
 
@@ -129,7 +129,7 @@ class Block:
             f"RCHigh: {self.rc_highlimit}{set_block_str}"
         )
 
-    def to_dict(self) -> Dict[str, Union[str, float, bool, None]]:
+    def to_dict(self) -> dict[str, Union[str, float, bool, None]]:
         """Puts the block's details into a dictionary.
 
         Returns:
