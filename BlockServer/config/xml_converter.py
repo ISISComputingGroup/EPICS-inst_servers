@@ -121,7 +121,7 @@ class ConfigurationXmlConverter:
         root.attrib["xmlns"] = SCHEMA_PATH + BLOCK_SCHEMA
         root.attrib["xmlns:blk"] = SCHEMA_PATH + BLOCK_SCHEMA
         root.attrib["xmlns:xi"] = "http://www.w3.org/2001/XInclude"
-        for block in blocks.items():
+        for block in blocks.values():
             # Don't save if in component
             if block.component is None or block.component is False:
                 ConfigurationXmlConverter._block_to_xml(root, block, macros)
