@@ -121,7 +121,7 @@ class ConfigurationXmlConverter:
         root.attrib["xmlns"] = SCHEMA_PATH + BLOCK_SCHEMA
         root.attrib["xmlns:blk"] = SCHEMA_PATH + BLOCK_SCHEMA
         root.attrib["xmlns:xi"] = "http://www.w3.org/2001/XInclude"
-        for name, block in blocks.items():
+        for block in blocks.items():
             # Don't save if in component
             if block.component is None or block.component is False:
                 ConfigurationXmlConverter._block_to_xml(root, block, macros)
@@ -187,7 +187,7 @@ class ConfigurationXmlConverter:
         root.attrib["xmlns"] = SCHEMA_PATH + COMPONENT_SCHEMA
         root.attrib["xmlns:comp"] = SCHEMA_PATH + COMPONENT_SCHEMA
         root.attrib["xmlns:xi"] = "http://www.w3.org/2001/XInclude"
-        for name, case_sensitve_name in comps.items():
+        for case_sensitve_name in comps.items():
             ConfigurationXmlConverter._component_to_xml(root, case_sensitve_name)
         return minidom.parseString(ElementTree.tostring(root)).toprettyxml()
 
@@ -544,8 +544,8 @@ class ConfigurationXmlConverter:
                         iocs[n.upper()].pvsets[ps.attrib[TAG_NAME]] = {
                             TAG_ENABLED: parse_boolean(str(ps.attrib[TAG_ENABLED]))
                         }
-                except Exception as err:
-                    raise Exception("Tag not found in ioc.xml (" + str(err) + ")")
+                except (NodeNotPresentError, KeyError, ValueError, SyntaxError) as err:
+                    raise ValueError("Tag not found in ioc.xml (" + str(err) + ")")
 
     @staticmethod
     def components_from_xml(root_xml: ElementTree.Element, components: OrderedDict) -> None:
@@ -753,16 +753,14 @@ class ConfigurationXmlConverter:
         banner_buttons = []
 
         items = ConfigurationXmlConverter._find_single_node_with_none_check(root, "banner", "items")
-        index = 0
 
-        for item in items:
+        for index, item in enumerate(items):
             child = item.find("./")
             if child is not None:
                 if "display" in child.tag:
                     banner_displays.append(ConfigurationXmlConverter._display(child, index))
                 else:
                     banner_buttons.append(ConfigurationXmlConverter._button(child, index))
-            index += 1
 
         return {
             "items": banner_displays,

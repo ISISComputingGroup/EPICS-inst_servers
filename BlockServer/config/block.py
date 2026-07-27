@@ -129,7 +129,7 @@ class Block:
             f"RCHigh: {self.rc_highlimit}{set_block_str}"
         )
 
-    def to_dict(self) -> dict[str, Union[str, float, bool, None]]:
+    def to_dict(self) -> dict[str, str | float | bool | None]:
         """Puts the block's details into a dictionary.
 
         Returns:
