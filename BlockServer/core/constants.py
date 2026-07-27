@@ -82,3 +82,9 @@ FILENAME_BANNER = "banner.xml"
 FILENAME_GLOBALS = "globals.txt"
 
 SCHEMA_FOR = [FILENAME_BLOCKS, FILENAME_GROUPS, FILENAME_IOCS, FILENAME_COMPONENTS, FILENAME_META]
+
+# Alarm element nodes
+TAG_ALARM_ENABLED = "alarm_enabled"
+TAG_ALARM_LATCHED = "alarm_latched"
+TAG_ALARM_DELAY = "alarm_delay"
+TAG_ALARM_GUIDANCE = "alarm_guidance"

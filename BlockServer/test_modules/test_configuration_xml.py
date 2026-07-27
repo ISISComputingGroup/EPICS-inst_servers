@@ -19,13 +19,14 @@ import unittest
 from collections import OrderedDict
 from xml.etree import ElementTree
 
+from server_common.helpers import MACROS
+
 from BlockServer.config.block import Block
 from BlockServer.config.configuration import Configuration
 from BlockServer.config.group import Group
 from BlockServer.config.ioc import IOC
 from BlockServer.config.metadata import MetaData
 from BlockServer.config.xml_converter import ConfigurationXmlConverter
-from server_common.helpers import MACROS
 
 BLOCKS_XML = """
 <?xml version="1.0" ?>
@@ -44,6 +45,9 @@ BLOCKS_XML = """
         <log_deadband>0</log_deadband>
         <set_block>False</set_block>
 		<set_block_val>None</set_block_val>
+        <alarm_enabled>False</alarm_enabled>
+        <alarm_latched>False</alarm_latched>
+        <alarm_guidance/>
     </block>
     <block>
         <name>TESTBLOCK2</name>
@@ -59,6 +63,9 @@ BLOCKS_XML = """
         <log_deadband>0</log_deadband>
         <set_block>False</set_block>
 		<set_block_val>None</set_block_val>
+        <alarm_enabled>False</alarm_enabled>
+        <alarm_latched>False</alarm_latched>
+        <alarm_guidance/>
     </block>
     <block>
         <name>TESTBLOCK3</name>
@@ -74,6 +81,9 @@ BLOCKS_XML = """
         <log_deadband>0</log_deadband>
         <set_block>False</set_block>
 		<set_block_val>None</set_block_val>
+        <alarm_enabled>False</alarm_enabled>
+        <alarm_latched>False</alarm_latched>
+        <alarm_guidance/>
     </block>
     <block>
         <name>TESTBLOCK4</name>
@@ -89,6 +99,9 @@ BLOCKS_XML = """
         <log_deadband>0</log_deadband>
         <set_block>False</set_block>
 		<set_block_val>None</set_block_val>
+        <alarm_enabled>False</alarm_enabled>
+        <alarm_latched>False</alarm_latched>
+        <alarm_guidance/>
     </block>
 </blocks>"""
 

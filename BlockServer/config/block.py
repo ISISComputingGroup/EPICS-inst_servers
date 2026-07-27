@@ -13,7 +13,8 @@
 # along with this program; if not, you can obtain a copy from
 # https://www.eclipse.org/org/documents/epl-v10.php or
 # http://opensource.org/licenses/eclipse-1.0.php
-from typing import Dict, TypedDict, Union
+
+from typing import TypedDict
 
 from server_common.helpers import PVPREFIX_MACRO
 
@@ -33,6 +34,11 @@ class Block:
         log_periodic (bool): Whether the block is sampled periodically in the archiver
         log_rate (float): Time between archive samples (in seconds)
         log_deadband (float): Deadband for the block to be archived
+        alarm_enabled (bool): Whether the alarm should be enabled
+        alarm_latched (bool): Whether the alarm should be latched
+        alarm_delay (float): The delay for triggering alarm
+        alarm_guidance (string): The guidance for the alarm
+
     """
 
     def __init__(
@@ -51,6 +57,10 @@ class Block:
         log_deadband: float = 0,
         set_block: bool = False,
         set_block_val: str | None = None,
+        alarm_enabled: bool = False,
+        alarm_latched: bool = False,
+        alarm_delay: float | None = None,
+        alarm_guidance: str | None = None,
     ) -> None:
         """Constructor.
 
@@ -69,6 +79,10 @@ class Block:
             log_deadband: Deadband for the block to be archived
             set_block: whether the block should be set upon config change
             set_block_val: what the block should be set to upon config change
+            alarm_enabled: Whether the alarm should be enabled
+            alarm_latched: Whether the alarm should be latched
+            alarm_delay: The delay for triggering alarm
+            alarm_guidance: The guidance for the alarm
         """
         self.name = name
         self.pv = pv
@@ -84,6 +98,10 @@ class Block:
         self.log_deadband = log_deadband
         self.set_block = set_block
         self.set_block_val = set_block_val
+        self.alarm_enabled = alarm_enabled
+        self.alarm_latched = alarm_latched
+        self.alarm_delay = alarm_delay
+        self.alarm_guidance = alarm_guidance
 
     def _get_pv(self) -> str:
         pv_name = self.pv
@@ -111,7 +129,7 @@ class Block:
             f"RCHigh: {self.rc_highlimit}{set_block_str}"
         )
 
-    def to_dict(self) -> Dict[str, Union[str, float, bool, None]]:
+    def to_dict(self) -> dict[str, str | float | bool | None]:
         """Puts the block's details into a dictionary.
 
         Returns:
@@ -132,6 +150,10 @@ class Block:
             "suspend_on_invalid": self.rc_suspend_on_invalid,
             "set_block": self.set_block,
             "set_block_val": self.set_block_val,
+            "alarm_enabled": self.alarm_enabled,
+            "alarm_latched": self.alarm_latched,
+            "alarm_delay": self.alarm_delay,
+            "alarm_guidance": self.alarm_guidance,
         }
 
 
@@ -147,3 +169,7 @@ class BlockKwargs(TypedDict, total=False):
     log_deadband: float
     set_block: bool
     set_block_val: str | None
+    alarm_enabled: bool | None
+    alarm_latched: bool | None
+    alarm_delay: float | None
+    alarm_guidance: str | None
