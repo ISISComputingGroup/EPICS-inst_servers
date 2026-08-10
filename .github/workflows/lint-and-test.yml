@@ -16,9 +16,7 @@ jobs:
         with:
           python-version: '3.12'
       - name: install requirements
-        run: pip install -r requirements-dev.txt
-        env:
-          PIP_CONSTRAINT: "constraints.txt"
+        run: pip install -r requirements-dev.txt --constraint constraints.txt --build-constraint constraints.txt
       - name: run tests (windows)
         run: python -m pytest --cov
  
