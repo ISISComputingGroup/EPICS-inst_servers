@@ -34,7 +34,7 @@ def set_env() -> None:
     epics_ca_addr_list = "EPICS_CA_ADDR_LIST"
     """ If we're not in an EPICS terminal, add the address list to the set of
     environment keys """
-    if epics_ca_addr_list not in os.environ.keys():
+    if epics_ca_addr_list not in os.environ:
         os.environ[epics_ca_addr_list] = "127.255.255.255 130.246.51.255"
     print(epics_ca_addr_list + " = " + str(os.environ.get(epics_ca_addr_list)))
 
@@ -86,7 +86,7 @@ def inst_dictionary(
     if pv_prefix is not None:
         pv_prefix_to_use = pv_prefix
     else:
-        pv_prefix_to_use = "IN:{0}:".format(instrument_name)
+        pv_prefix_to_use = f"IN:{instrument_name}:"
 
     if groups is None:
         groups_to_use = []
@@ -115,11 +115,11 @@ def set_instlist(instruments_list: list[Instrument], pv_address: str) -> None:
     result = dehex_and_decompress(bytes(result_compr, encoding="utf8")).decode("utf-8")
 
     if result != new_value:
-        print("Warning! Entered value does not match new value for {0}".format(pv_address))
+        print(f"Warning! Entered value does not match new value for {pv_address}")
         print("Entered value: " + new_value)
         print("Actual value: " + result)
     else:
-        print("Success! Updated value for {0}".format(pv_address))
+        print(f"Success! Updated value for {pv_address}")
 
 
 MUONS = "MUONS"
@@ -274,5 +274,5 @@ if __name__ == "__main__":
         inst_list = [x for x in instruments_list if g in x["groups"]]
         try:
             set_instlist(inst_list, pv_address)
-        except Exception:
+        except Exception:  # ruff:ignore[BLE001]
             print(f"Failed to set {pv_address}")
