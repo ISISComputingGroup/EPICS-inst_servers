@@ -19,9 +19,9 @@ from typing import Dict
 from BlockServer.config.ioc import IOC
 from BlockServer.core.config_holder import ConfigHolder
 from BlockServer.core.database_client import get_iocs
-from server_common.file_path_manager import FILEPATH_MANAGER
 from server_common.constants import IOCS_NOT_TO_STOP
-from server_common.helpers import CONTROL_SYSTEM_PREFIX, MACROS, BLOCK_PREFIX
+from server_common.file_path_manager import FILEPATH_MANAGER
+from server_common.helpers import BLOCK_PREFIX, CONTROL_SYSTEM_PREFIX, MACROS
 from server_common.utilities import print_and_log
 
 
@@ -133,7 +133,7 @@ class ActiveConfigHolder(ConfigHolder):
         self._ioc_control = ioc_control
         self._config_dir = config_dir
 
-    def save_active(self, name, as_comp=False) -> None:
+    def save_active(self, name: str, as_comp:bool=False) -> None:
         """Save the active configuration.
 
         Args:
@@ -146,7 +146,7 @@ class ActiveConfigHolder(ConfigHolder):
             self.save_configuration(name, False)
             self.set_last_config(name)
 
-    def load_active(self, name) -> None:
+    def load_active(self, name: str) -> None:
         """Load a configuration as the active configuration.
         Cannot load a component as the active configuration.
 
@@ -156,7 +156,7 @@ class ActiveConfigHolder(ConfigHolder):
         self.set_config(self.load_configuration(name))
         self.set_last_config(name)
 
-    def update_archiver(self, full_init=False) -> None:
+    def update_archiver(self, full_init:bool=False) -> None:
         """Update the archiver configuration.
 
         Args:
@@ -170,7 +170,7 @@ class ActiveConfigHolder(ConfigHolder):
                 os.path.join(self._config_dir, "configurations", self.get_config_name()),
             )
 
-    def set_last_config(self, config_name) -> None:
+    def set_last_config(self, config_name:str) -> None:
         """Save the last configuration used to file.
 
         The last configuration is saved without any file path.
@@ -265,8 +265,14 @@ class ActiveConfigHolder(ConfigHolder):
             # cached config or components
             if ioc_name in iocs_in_current_config:
                 continue
-
-            if self._ioc_control.get_ioc_status(ioc_name) == "RUNNING":
+            try:
+                ioc_status = self._ioc_control.get_ioc_status(ioc_name)
+            except Exception as e:
+                print_and_log(
+                    f"WARNING: IOC {ioc_name} status UNKNOWN: {e} - has IOC been removed?"
+                )
+                ioc_status = "UNKNOWN"
+            if ioc_status == "RUNNING":
                 if ioc_name in iocs_in_new_config:
                     # If the IOC is in the new config, we need to restart it as the new config
                     # may have macros which were not used when the IOC was manually
