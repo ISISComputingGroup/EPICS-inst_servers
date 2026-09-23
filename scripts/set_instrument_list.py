@@ -260,6 +260,13 @@ if __name__ == "__main__":
             is_scheduled=False,
             target_station=MISC,
         ),
+        inst_dictionary(
+            "DETECT2",
+            groups=[SUPPORT],
+            pv_prefix="IN:DETECT2:",
+            is_scheduled=False,
+            target_station=MISC,
+        ),
     ]
 
     set_instlist(instruments_list, pv_address)
