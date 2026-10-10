@@ -5,10 +5,10 @@ contextlib2
 GitPython
 lxml
 pysnmp
+pysmi
 tornado
-pysnmp-lextudio==5.0.34
-snmpsim-lextudio==1.0.5
-pyasn1==0.6.0
+snmpsim
+pyasn1
 pysnmp-mibs
 server_common@git+https://github.com/ISISComputingGroup/server_common.git
 ibex-non-ca-helpers
