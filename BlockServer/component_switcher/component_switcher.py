@@ -1,11 +1,10 @@
-from __future__ import absolute_import, division, print_function, unicode_literals
-
 import json
 import os
+from collections.abc import Callable, Iterable
 from queue import Queue
-from typing import Any, Callable, Dict, Iterable, List, Optional, Set
+from typing import Any
 
-import numpy.typing as npt
+from ibex_non_ca_helpers.typing import PVValue
 from server_common.channel_access import ChannelAccess
 from server_common.helpers import MACROS, PVPREFIX_MACRO
 from server_common.utilities import SEVERITY
@@ -13,20 +12,17 @@ from server_common.utilities import print_and_log as _common_print_and_log
 
 from BlockServer.core.config_list_manager import ConfigListManager
 
-type PVBaseValue = bool | int | float | str
-type PVValue = PVBaseValue | list[PVBaseValue] | npt.NDArray | None
-
 
 def print_and_log(message: str, *args: str, **kwargs: str) -> None:
     _common_print_and_log(f"ComponentSwitcher: {message}", *args, **kwargs)
 
 
-class ComponentSwitcherConfigFileManager(object):
+class ComponentSwitcherConfigFileManager:
     CONF_FILE_PATH = os.path.join(
         MACROS["$(ICPCONFIGROOT)"], "ComponentSwitcher", "component_switcher.json"
     )
 
-    def read_config(self) -> List[Dict[str, Any]]:
+    def read_config(self) -> list[dict[str, Any]]:
         """
         Reads a config file from JSON on disk and returns it as a python object
         """
@@ -42,14 +38,14 @@ class ComponentSwitcherConfigFileManager(object):
             return []
 
 
-class ComponentSwitcher(object):
+class ComponentSwitcher:
     def __init__(
         self,
         config_list: ConfigListManager,
         blockserver_write_queue: Queue,
         reload_current_config_func: Callable[[], None],
-        file_manager: Optional[ComponentSwitcherConfigFileManager] = None,
-        channel_access_class: Optional[ChannelAccess] = None,
+        file_manager: ComponentSwitcherConfigFileManager | None = None,
+        channel_access_class: ChannelAccess | None = None,
     ) -> None:
         self._config_list = config_list
         self._blockserver_write_queue = blockserver_write_queue
@@ -67,7 +63,7 @@ class ComponentSwitcher(object):
                 if not loaded_comp.is_dynamic():
                     print_and_log(f"Component is not dynamic: {comp}")
                     return False
-            except Exception as e:
+            except Exception as e:  # ruff: ignore[BLE001]
                 print_and_log(f"Error while checking whether component {comp} is dynamic: {e}")
                 return False
         return True
@@ -91,9 +87,15 @@ class ComponentSwitcher(object):
                 )
                 continue
 
-            print_and_log("Adding monitor to PV {}".format(pv))
+            print_and_log(f"Adding monitor to PV {pv}")
 
-            def callback(val: PVValue, stat: int, sevr: int) -> None:
+            def callback(
+                val: PVValue,
+                stat: int,
+                sevr: int,
+                pv: str = pv,
+                value_to_component_map: dict[str, Any] = value_to_component_map,
+            ) -> None:
                 """
                 Callback function called when the monitored PV changes.
 
@@ -101,6 +103,8 @@ class ComponentSwitcher(object):
                     val: the value that this monitor returned
                     stat: the epics status of the monitored PV
                     sevr: the epics severity of the monitored PV
+                    pv: the PV to monitor
+                    value_to_component_map: the map of component names to values
                 """
                 val = str(val)
 
@@ -144,7 +148,7 @@ class ComponentSwitcher(object):
             self._ca_class.add_monitor(pv, callback)
 
     def _edit_all_configurations(
-        self, components_to_be_removed: Set[str], components_to_be_added: Set[str]
+        self, components_to_be_removed: set[str], components_to_be_added: set[str]
     ) -> None:
         """
         Edits all configurations by adding or removing the specified components.
