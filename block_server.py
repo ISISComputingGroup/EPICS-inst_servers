@@ -20,7 +20,7 @@ import json
 import os
 import sys
 import traceback
-from typing import TYPE_CHECKING, Any, Dict
+from typing import TYPE_CHECKING, Any, Dict, List
 
 from server_common.channel_access import ManagerModeRequiredError, verify_manager_mode
 from server_common.channel_access_server import CAServer
@@ -41,7 +41,7 @@ from pcaspy.driver import Data, manager
 from server_common.channel_access import ChannelAccess
 from server_common.file_path_manager import FILEPATH_MANAGER
 from server_common.helpers import BLOCK_PREFIX, CONTROL_SYSTEM_PREFIX, MACROS, PVPREFIX_MACRO
-from server_common.pv_names import BlockserverPVNames
+from server_common.pv_names import BlockserverPVNames, DatabasePVNames
 from server_common.utilities import (
     char_waveform,
     convert_from_json,
@@ -117,6 +117,7 @@ initial_dbs = {
         "value": CURR_CONFIG_NAME_SEVR_VALUE,
         "enums": ["NO_ALARM"],
     },
+    BlockserverPVNames.RESTART_PR_IOC: char_waveform(1000),
 }
 
 
@@ -357,6 +358,14 @@ class BlockServer(Driver):
                         "RESTART_IOCS",
                     )
                 )
+            elif reason == BlockserverPVNames.RESTART_PR_IOC:
+                self.write_queue.put(
+                    (
+                        self.restart_protected_ioc,
+                        (convert_from_json(data), True),
+                        "PROTECTED_RESTART_IOC",
+                    )
+                )
             elif reason == BlockserverPVNames.SET_CURR_CONFIG_DETAILS:
                 self.write_queue.put((self._set_curr_config, (data,), "SETTING_CONFIG"))
             elif reason == BlockserverPVNames.SAVE_NEW_CONFIG:
@@ -397,6 +406,45 @@ class BlockServer(Driver):
         if status:
             self.setParam(reason, value)
         return status
+
+    def restart_protected_ioc(self, iocs: List[str], reapply_auto: bool = False) -> None:
+        """Restart protected IOCs.
+
+        Args:
+            iocs (list): The protected IOCs to restart
+            reapply_auto (bool): Whether to reapply auto restart settings automatically
+        """
+
+        for ioc in iocs:
+            # auto = self._ioc_control.get_autorestart(ioc)
+
+            #if not ioc.startswith(IOCS_NOT_TO_STOP):
+                #continue
+            # TODO other checks
+
+            verify_manager_mode(
+                message=f"Attempting to restart a protected IOC')",
+            )
+
+            match ioc:
+                case "BLOCKSVR":
+                    print_and_log("Restarting BlockServer process")
+                    sys.stdout.flush()
+                    sys.stderr.flush()
+                    os._exit(0)
+                case "GWBLOCK":
+                    self._gateway.reload()
+                case "DBSRV":
+                    ChannelAccess.caput(
+                        CONTROL_SYSTEM_PREFIX + DatabasePVNames.RESTART, 1,
+                    )
+                case _:
+                    self._ioc_control.restart_ioc(ioc, force=True)
+
+            # Reapply auto-restart settings
+            #if reapply_auto:
+                #self._ioc_control.waitfor_running(ioc)
+                #self._ioc_control.set_autorestart(ioc, auto)
 
     def load_last_config(self) -> None:
         """Loads the last configuration used.

@@ -121,7 +121,7 @@ class Gateway:
         """
         return ChannelAccess.caget(self._gateway_prefix + "pvtotal") is not None
 
-    def _reload(self) -> None:
+    def reload(self) -> None:
         print_and_log("Reloading gateway")
         try:
             # Have to wait after put as the gateway does not do completion callbacks
@@ -194,4 +194,4 @@ class Gateway:
             self._generate_alias_file(blocks)
         else:
             self._generate_alias_file(blocks)
-        self._reload()
+        self.reload()

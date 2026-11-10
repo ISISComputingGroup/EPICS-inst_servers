@@ -25,7 +25,7 @@ import traceback
 from functools import partial
 from threading import RLock, Thread
 from time import sleep
-from typing import Callable, Literal
+from typing import Callable
 
 from pcaspy import Driver
 
@@ -39,6 +39,7 @@ from DatabaseServer.moxa_data import MoxaData, MoxaDataSource
 from DatabaseServer.options_holder import OptionsHolder
 from DatabaseServer.options_loader import OptionsLoader
 from DatabaseServer.procserv_utils import ProcServWrapper
+from server_common.channel_access import ManagerModeRequiredError, verify_manager_mode
 from server_common.channel_access_server import CAServer
 from server_common.constants import IOCS_NOT_TO_STOP
 from server_common.ioc_data import IOCData
@@ -72,6 +73,8 @@ class DatabaseServer(Driver):
     """
     The class for handling all the static PV access and monitors etc.
     """
+
+    RESTART_PV = {DbPVNames.RESTART: {"type": "int"}}
 
     def __init__(
         self,
@@ -209,7 +212,7 @@ class DatabaseServer(Driver):
             else self.getParam(reason)
         )
 
-    def write(self, reason: str, value: str) -> Literal[True]:
+    def write(self, reason: str, value: str) -> bool:
         """
         A method called by SimpleServer when a PV is written to the DatabaseServer over Channel
         Access.
@@ -219,8 +222,11 @@ class DatabaseServer(Driver):
             value: The data being written to the 'reason' PV
 
         Returns:
-            True
+            True if the value was accepted, False if the put was rejected
         """
+        if reason == DbPVNames.RESTART:
+            return self._restart()
+
         try:
             if reason == "ED:RBNUMBER:SP":
                 self._ed.update_experiment_id(value)
@@ -238,6 +244,21 @@ class DatabaseServer(Driver):
         # store the values
         self.setParam(reason, value)
         return True
+
+    def _restart(self) -> bool:
+        """
+        Exits the process so that the parent procServ restarts it. os._exit is used rather than
+        sys.exit as non-daemon threads would otherwise keep the process alive.
+
+        Returns:
+            False if manager mode is not enabled (the put is rejected); otherwise does not return
+        """
+        verify_manager_mode(message="Attempting to restart the database server")
+        print_and_log("Restarting Database Server process", INFO_MSG, LOG_TARGET)
+
+        sys.stdout.flush()
+        sys.stderr.flush()
+        os._exit(0)
 
     def _update_ioc_monitors(self) -> None:
         """
@@ -434,6 +455,7 @@ if __name__ == "__main__":
 
     SERVER = CAServer(BLOCKSERVER_PREFIX)
     SERVER.createPV(BLOCKSERVER_PREFIX, DatabaseServer.generate_pv_info())
+    SERVER.createPV(BLOCKSERVER_PREFIX, DatabaseServer.RESTART_PV)
     SERVER.createPV(MACROS["$(MYPVPREFIX)"], ExpData.EDPV)
     SERVER.createPV(MACROS["$(MYPVPREFIX)"], MoxaData.MDPV)
 
