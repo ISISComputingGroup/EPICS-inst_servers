@@ -24,6 +24,7 @@ from typing import TYPE_CHECKING, Any, Dict, List
 
 from server_common.channel_access import ManagerModeRequiredError, verify_manager_mode
 from server_common.channel_access_server import CAServer
+from server_common.constants import IOCS_NOT_TO_STOP
 
 sys.path.insert(0, os.path.abspath(os.path.dirname(__file__)))
 
@@ -117,7 +118,7 @@ initial_dbs = {
         "value": CURR_CONFIG_NAME_SEVR_VALUE,
         "enums": ["NO_ALARM"],
     },
-    BlockserverPVNames.RESTART_PR_IOC: char_waveform(1000),
+    BlockserverPVNames.RESTART_PROTECTED_IOC: char_waveform(1000),
 }
 
 
@@ -158,6 +159,7 @@ class BlockServer(Driver):
         self.group_rules = GroupRules(self)
         self.config_desc = ConfigurationDescriptionRules(self)
         self.spangle_banner = json.dumps(ConfigurationFileManager.get_banner_config())
+        self._service_iocs = tuple(set(IOCS_NOT_TO_STOP) - {"PSCTRL"})
 
         # Connect to version control
         try:
@@ -358,7 +360,7 @@ class BlockServer(Driver):
                         "RESTART_IOCS",
                     )
                 )
-            elif reason == BlockserverPVNames.RESTART_PR_IOC:
+            elif reason == BlockserverPVNames.RESTART_PROTECTED_IOC:
                 self.write_queue.put(
                     (
                         self.restart_protected_ioc,
@@ -416,11 +418,9 @@ class BlockServer(Driver):
         """
 
         for ioc in iocs:
-            # auto = self._ioc_control.get_autorestart(ioc)
 
-            #if not ioc.startswith(IOCS_NOT_TO_STOP):
-                #continue
-            # TODO other checks
+            if not ioc.startswith(self._service_iocs):
+                continue
 
             verify_manager_mode(
                 message=f"Attempting to restart a protected IOC')",
@@ -440,11 +440,6 @@ class BlockServer(Driver):
                     )
                 case _:
                     self._ioc_control.restart_ioc(ioc, force=True)
-
-            # Reapply auto-restart settings
-            #if reapply_auto:
-                #self._ioc_control.waitfor_running(ioc)
-                #self._ioc_control.set_autorestart(ioc, auto)
 
     def load_last_config(self) -> None:
         """Loads the last configuration used.
