@@ -428,10 +428,7 @@ class BlockServer(Driver):
 
             match ioc:
                 case "BLOCKSVR":
-                    print_and_log("Restarting BlockServer process")
-                    sys.stdout.flush()
-                    sys.stderr.flush()
-                    os._exit(0)
+                    self._restart()
                 case "GWBLOCK":
                     self._gateway.reload()
                 case "DBSVR":
@@ -440,6 +437,15 @@ class BlockServer(Driver):
                     )
                 case _:
                     self._ioc_control.restart_ioc(ioc, force=True)
+
+    def _restart(self) -> None:
+        """Restart the blockserver.
+
+        Assumes it is set up to autorestart by its parent procserv process."""
+        print_and_log("Restarting BlockServer process")
+        sys.stdout.flush()
+        sys.stderr.flush()
+        os._exit(0)
 
     def load_last_config(self) -> None:
         """Loads the last configuration used.
