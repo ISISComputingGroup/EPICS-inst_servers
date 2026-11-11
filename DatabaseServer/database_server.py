@@ -25,7 +25,7 @@ import traceback
 from functools import partial
 from threading import RLock, Thread
 from time import sleep
-from typing import Callable
+from typing import Callable, Literal
 
 from pcaspy import Driver
 
@@ -212,7 +212,7 @@ class DatabaseServer(Driver):
             else self.getParam(reason)
         )
 
-    def write(self, reason: str, value: str) -> bool:
+    def write(self, reason: str, value: str) -> Literal[True]:
         """
         A method called by SimpleServer when a PV is written to the DatabaseServer over Channel
         Access.
@@ -222,10 +222,11 @@ class DatabaseServer(Driver):
             value: The data being written to the 'reason' PV
 
         Returns:
-            True if the value was accepted, False if the put was rejected
+            True
         """
         if reason == DbPVNames.RESTART:
-            return self._restart()
+            self._restart()
+            return True
 
         try:
             if reason == "ED:RBNUMBER:SP":
@@ -245,13 +246,9 @@ class DatabaseServer(Driver):
         self.setParam(reason, value)
         return True
 
-    def _restart(self) -> bool:
+    def _restart(self) -> None:
         """
-        Exits the process so that the parent procServ restarts it. os._exit is used rather than
-        sys.exit as non-daemon threads would otherwise keep the process alive.
-
-        Returns:
-            False if manager mode is not enabled (the put is rejected); otherwise does not return
+        Exits the process so that the parent procServ restarts it.
         """
         verify_manager_mode(message="Attempting to restart the database server")
         print_and_log("Restarting Database Server process", INFO_MSG, LOG_TARGET)

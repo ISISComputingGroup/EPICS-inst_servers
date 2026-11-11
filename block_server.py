@@ -24,7 +24,7 @@ from typing import TYPE_CHECKING, Any, Dict, List
 
 from server_common.channel_access import ManagerModeRequiredError, verify_manager_mode
 from server_common.channel_access_server import CAServer
-from server_common.constants import IOCS_NOT_TO_STOP
+from server_common.constants import SERVICE_IOCS
 
 sys.path.insert(0, os.path.abspath(os.path.dirname(__file__)))
 
@@ -118,7 +118,7 @@ initial_dbs = {
         "value": CURR_CONFIG_NAME_SEVR_VALUE,
         "enums": ["NO_ALARM"],
     },
-    BlockserverPVNames.RESTART_PROTECTED_IOC: char_waveform(1000),
+    BlockserverPVNames.RESTART_SERVICE_IOC: char_waveform(1000),
 }
 
 
@@ -159,7 +159,7 @@ class BlockServer(Driver):
         self.group_rules = GroupRules(self)
         self.config_desc = ConfigurationDescriptionRules(self)
         self.spangle_banner = json.dumps(ConfigurationFileManager.get_banner_config())
-        self._service_iocs = tuple(set(IOCS_NOT_TO_STOP) - {"PSCTRL"})
+        self._service_iocs = SERVICE_IOCS
 
         # Connect to version control
         try:
@@ -360,12 +360,12 @@ class BlockServer(Driver):
                         "RESTART_IOCS",
                     )
                 )
-            elif reason == BlockserverPVNames.RESTART_PROTECTED_IOC:
+            elif reason == BlockserverPVNames.RESTART_SERVICE_IOC:
                 self.write_queue.put(
                     (
-                        self.restart_protected_ioc,
+                        self.restart_service_ioc,
                         (convert_from_json(data), True),
-                        "PROTECTED_RESTART_IOC",
+                        "RESTART_SERVICE_IOC",
                     )
                 )
             elif reason == BlockserverPVNames.SET_CURR_CONFIG_DETAILS:
@@ -409,11 +409,11 @@ class BlockServer(Driver):
             self.setParam(reason, value)
         return status
 
-    def restart_protected_ioc(self, iocs: List[str], reapply_auto: bool = False) -> None:
-        """Restart protected IOCs.
+    def restart_service_ioc(self, iocs: List[str], reapply_auto: bool = False) -> None:
+        """Restart service IOCs.
 
         Args:
-            iocs (list): The protected IOCs to restart
+            iocs (list): The service IOCs to restart
             reapply_auto (bool): Whether to reapply auto restart settings automatically
         """
 
@@ -423,7 +423,7 @@ class BlockServer(Driver):
                 continue
 
             verify_manager_mode(
-                message=f"Attempting to restart a protected IOC')",
+                message=f"Attempting to restart a service IOC')",
             )
 
             match ioc:
@@ -434,7 +434,7 @@ class BlockServer(Driver):
                     os._exit(0)
                 case "GWBLOCK":
                     self._gateway.reload()
-                case "DBSRV":
+                case "DBSVR":
                     ChannelAccess.caput(
                         CONTROL_SYSTEM_PREFIX + DatabasePVNames.RESTART, 1,
                     )
