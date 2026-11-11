@@ -13,11 +13,8 @@
 # along with this program; if not, you can obtain a copy from
 # https://www.eclipse.org/org/documents/epl-v10.php or
 # http://opensource.org/licenses/eclipse-1.0.php
-import sys
 from time import sleep, time
 from typing import List
-
-from server_common.channel_access import verify_manager_mode, ChannelAccess
 
 from BlockServer.alarm.load_alarm_config import AlarmConfigLoader
 from BlockServer.epics.procserv_utils import ProcServWrapper

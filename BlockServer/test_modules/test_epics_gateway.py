@@ -167,7 +167,7 @@ class TestEpicsGateway(unittest.TestCase):
         self._assert_lines_correct(lines, expected_lines)
 
     @patch("BlockServer.epics.gateway.copyfile")
-    @patch("BlockServer.epics.gateway.Gateway._reload")
+    @patch("BlockServer.epics.gateway.Gateway.reload")
     @patch("builtins.open", new_callable=mock_open, mock=FileStub)
     def test_GIVEN_configuration_has_pvlist_WHEN_set_new_aliases_THEN_pvlist_copied(
         self, mock_file, reload_mock, copyfile_mock
@@ -186,7 +186,7 @@ class TestEpicsGateway(unittest.TestCase):
         assert_that(mock_file.file_contents, empty())
 
     @patch("BlockServer.epics.gateway.copyfile")
-    @patch("BlockServer.epics.gateway.Gateway._reload")
+    @patch("BlockServer.epics.gateway.Gateway.reload")
     @patch("builtins.open", new_callable=mock_open, mock=FileStub)
     def test_GIVEN_configuration_claims_has_pvlist_BUT_does_not_WHEN_set_new_aliases_THEN_pvlist_copied(
         self, mock_file, reload_mock, copyfile_mock
