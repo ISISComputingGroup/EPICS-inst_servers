@@ -23,6 +23,8 @@ from server_common.channel_access import ChannelAccess
 from server_common.helpers import CONTROL_SYSTEM_PREFIX
 from server_common.utilities import print_and_log
 
+from BlockServer.config.block import Block
+
 ALIAS_HEADER = """\
 ##
 EVALUATION ORDER ALLOW, DENY
@@ -30,11 +32,13 @@ EVALUATION ORDER ALLOW, DENY
 """
 
 ALIAS_FOOTER = r"""
-## serve blockserver internal variables, including Flag variables needed by blockserver process to restart gateway
+## serve blockserver internal variables, including Flag variables needed by
+## blockserver process to restart gateway
 {0}CS:GATEWAY:BLOCKSERVER:.*    				    ALLOW	ANYBODY	    1
 ## allow anybody to generate gateway reports
 {0}CS:GATEWAY:BLOCKSERVER:report[1-9]Flag		ALLOW	ANYBODY		1
-## ignore any request related to run control/alerts etc. (RC,AC,DC) on blocks, these are handled by RUNCTRL ioc
+## ignore any request related to run control/alerts etc. (RC,AC,DC) on blocks,
+## these are handled by RUNCTRL ioc
 {0}CS:SB:[^:]*:[ADR]C:.*                     DENY
 ## ignore any request not related to local blocks or gateway itself
 !{0}CS:\(SB\|GATEWAY\):.*                    DENY
@@ -137,7 +141,7 @@ class Gateway:
         except OSError as err:
             print_and_log(f"Problem with reloading the gateway {err}")
 
-    def _generate_alias_file(self, blocks=None) -> None:
+    def _generate_alias_file(self, blocks: dict[str, Block] | None = None) -> None:
         # Generate blocks.pvlist for gateway
         with open(self._pvlist_file, "w") as f:
             header = ALIAS_HEADER.format(self._inst_prefix)
@@ -150,9 +154,7 @@ class Gateway:
             # Add a blank line at the end!
             f.write("\n")
 
-    def generate_alias(
-        self, block_name: str, underlying_pv: str, local: bool
-    ) -> list[str]:
+    def generate_alias(self, block_name: str, underlying_pv: str, local: bool) -> list[str]:
         print_and_log(f"Creating block: {block_name} for {underlying_pv}")
 
         underlying_pv = underlying_pv.replace(".VAL", "")
@@ -172,20 +174,16 @@ class Gateway:
 
         # Create a case insensitive alias so clients don't have to worry about getting case right
         if full_block_pv != full_block_pv.upper():
-            lines.append(
-                "## Add full caps equivalent so clients need not be case sensitive"
-            )
+            lines.append("## Add full caps equivalent so clients need not be case sensitive")
             lines.extend(
-                build_block_alias_lines(
-                    full_block_pv.upper(), pv_suffix, underlying_pv, False
-                )
+                build_block_alias_lines(full_block_pv.upper(), pv_suffix, underlying_pv, False)
             )
 
         lines.append("")  # New line to seperate out each block
         return lines
 
     def set_new_aliases(
-        self, blocks, configures_block_gateway: bool, config_dir: str
+        self, blocks: dict[str, Block] | None, configures_block_gateway: bool, config_dir: str
     ) -> None:
         """Creates the aliases for the blocks and restarts the gateway.
 

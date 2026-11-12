@@ -32,9 +32,7 @@ class TestEpicsGateway(unittest.TestCase):
         self.prefix = "INST:"
         self.block_prefix = self.prefix + "BLOCK:"
         self.control_sys_prefix = self.prefix + "CONTROL:"
-        self.config_dir = os.path.join(
-            os.path.dirname(os.path.realpath(__file__)), "settings"
-        )
+        self.config_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)), "settings")
 
         self.gateway = Gateway(
             self.gateway_prefix,
@@ -53,9 +51,7 @@ class TestEpicsGateway(unittest.TestCase):
         channel_access.caget.assert_called_with(self.gateway_prefix + "pvtotal")
 
     @patch("BlockServer.epics.gateway.ChannelAccess")
-    def test_GIVEN_gateway_pv_exists_WHEN_exist_called_THEN_returns_true(
-        self, channel_access
-    ):
+    def test_GIVEN_gateway_pv_exists_WHEN_exist_called_THEN_returns_true(self, channel_access):
         channel_access.caget = MagicMock(return_value="Hi")
         self.assertTrue(self.gateway.exists())
         channel_access.caget.assert_called_with(self.gateway_prefix + "pvtotal")
@@ -188,15 +184,15 @@ class TestEpicsGateway(unittest.TestCase):
         config_dir = os.path.join(self.config_dir, "non_empty")
         expected_name = "block"
         expected_pv = "pv"
-        blocks = [
-            Block(
+        blocks = {
+            expected_name: Block(
                 expected_name,
                 expected_pv,
                 log_periodic=True,
                 log_rate=0,
                 log_deadband=1,
             )
-        ]
+        }
 
         self.gateway.set_new_aliases(blocks, True, config_dir)
 
@@ -254,6 +250,4 @@ class TestEpicsGateway(unittest.TestCase):
         print("Expected Lines")
         for line in expected_lines:
             print(line)
-        self._assert_lines_correct(
-            mock_file.file_contents[self.gateway_file_path], expected_lines
-        )
+        self._assert_lines_correct(mock_file.file_contents[self.gateway_file_path], expected_lines)

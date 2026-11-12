@@ -128,24 +128,14 @@ class DatabaseServer(Driver):
         """
         enhanced_info = DatabaseServer.generate_pv_info()
 
-        def add_get_method(
-            pv: str, get_function: Callable[[], list | str | dict]
-        ) -> None:
+        def add_get_method(pv: str, get_function: Callable[[], list | str | dict]) -> None:
             enhanced_info[pv]["get"] = get_function
 
         add_get_method(DbPVNames.IOCS, self._get_iocs_info)
-        add_get_method(
-            DbPVNames.HIGH_INTEREST, partial(self._get_interesting_pvs, "HIGH")
-        )
-        add_get_method(
-            DbPVNames.MEDIUM_INTEREST, partial(self._get_interesting_pvs, "MEDIUM")
-        )
-        add_get_method(
-            DbPVNames.LOW_INTEREST, partial(self._get_interesting_pvs, "LOW")
-        )
-        add_get_method(
-            DbPVNames.FACILITY, partial(self._get_interesting_pvs, "FACILITY")
-        )
+        add_get_method(DbPVNames.HIGH_INTEREST, partial(self._get_interesting_pvs, "HIGH"))
+        add_get_method(DbPVNames.MEDIUM_INTEREST, partial(self._get_interesting_pvs, "MEDIUM"))
+        add_get_method(DbPVNames.LOW_INTEREST, partial(self._get_interesting_pvs, "LOW"))
+        add_get_method(DbPVNames.FACILITY, partial(self._get_interesting_pvs, "FACILITY"))
         add_get_method(DbPVNames.ACTIVE_PVS, self._get_active_pvs)
         add_get_method(DbPVNames.ALL_PVS, partial(self._get_interesting_pvs, ""))
         add_get_method(DbPVNames.SAMPLE_PARS, self._get_sample_par_names)
@@ -219,11 +209,7 @@ class DatabaseServer(Driver):
             A compressed and hexed JSON formatted string that gives the desired information based on
             reason.
         """
-        return (
-            self.get_data_for_pv(reason)
-            if reason in self._pv_info
-            else self.getParam(reason)
-        )
+        return self.get_data_for_pv(reason) if reason in self._pv_info else self.getParam(reason)
 
     def write(self, reason: str, value: str) -> Literal[True]:
         """
@@ -306,7 +292,8 @@ class DatabaseServer(Driver):
         """
         if size > self._pv_info[pv]["count"]:
             print_and_log(
-                f"Too much data to encode PV {prefix + pv}. Current size is {self._pv_info[pv]['count']} characters "
+                f"Too much data to encode PV {prefix + pv}. "
+                f"Current size is {self._pv_info[pv]['count']} characters "
                 f"but {size} are required",
                 MAJOR_MSG,
                 LOG_TARGET,
@@ -457,9 +444,7 @@ if __name__ == "__main__":
     BLOCKSERVER_PREFIX = args.blockserver_prefix[0]
     if not BLOCKSERVER_PREFIX.endswith(":"):
         BLOCKSERVER_PREFIX += ":"
-    BLOCKSERVER_PREFIX = BLOCKSERVER_PREFIX.replace(
-        "%MYPVPREFIX%", MACROS["$(MYPVPREFIX)"]
-    )
+    BLOCKSERVER_PREFIX = BLOCKSERVER_PREFIX.replace("%MYPVPREFIX%", MACROS["$(MYPVPREFIX)"])
     print_and_log(f"BLOCKSERVER PREFIX = {BLOCKSERVER_PREFIX}", INFO_MSG, LOG_TARGET)
 
     OPTIONS_DIR = os.path.abspath(args.options_dir[0])
@@ -499,12 +484,11 @@ if __name__ == "__main__":
         if exp_data is None:
             try:
                 exp_data = ExpData(MACROS["$(MYPVPREFIX)"], ExpDataSource())
-                print_and_log(
-                    "Connected to experimental details database", INFO_MSG, LOG_TARGET
-                )
+                print_and_log("Connected to experimental details database", INFO_MSG, LOG_TARGET)
             except (OSError, mysql.connector.Error):
                 print_and_log(
-                    f"Problem connecting to experimental details database: {traceback.format_exc()}",
+                    f"Problem connecting to experimental details database: "
+                    f"{traceback.format_exc()}",
                     MAJOR_MSG,
                     LOG_TARGET,
                 )
@@ -515,9 +499,7 @@ if __name__ == "__main__":
                     MoxaDataSource(SQLAbstraction("moxa_details", "moxas", "$moxas")),
                     MACROS["$(MYPVPREFIX)"],
                 )
-                print_and_log(
-                    "Connected to moxa details database", INFO_MSG, LOG_TARGET
-                )
+                print_and_log("Connected to moxa details database", INFO_MSG, LOG_TARGET)
             except (OSError, mysql.connector.Error):
                 print_and_log(
                     f"Problem connecting to moxa details database: {traceback.format_exc()}",
@@ -531,9 +513,7 @@ if __name__ == "__main__":
         else:
             sleep(15)
 
-    DRIVER = DatabaseServer(
-        SERVER, ioc_data, exp_data, moxa_data, OPTIONS_DIR, BLOCKSERVER_PREFIX
-    )
+    DRIVER = DatabaseServer(SERVER, ioc_data, exp_data, moxa_data, OPTIONS_DIR, BLOCKSERVER_PREFIX)
 
     # Process CA transactions
     while True:

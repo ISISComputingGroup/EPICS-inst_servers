@@ -72,9 +72,7 @@ class ExpDataSource:
                 return []
             team = [list(element) for element in result]
             if len(team) == 0:
-                raise ValueError(
-                    f"unable to find team details for experiment ID {experiment_id}"
-                )
+                raise ValueError(f"unable to find team details for experiment ID {experiment_id}")
             else:
                 return team
         except (OSError, ValueError, AssertionError):
@@ -279,6 +277,4 @@ class ExpData:
         nlist = ",".join(names)
         nfkd_form = unicodedata.normalize("NFKD", nlist)
         nlist_no_sc = "".join([c for c in nfkd_form if not unicodedata.combining(c)])
-        return nlist_no_sc.translate(ExpData._make_ascii_mappings()).encode(
-            "ascii", "ignore"
-        )
+        return nlist_no_sc.translate(ExpData._make_ascii_mappings()).encode("ascii", "ignore")

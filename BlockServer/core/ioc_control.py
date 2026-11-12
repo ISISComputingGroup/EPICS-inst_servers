@@ -48,9 +48,7 @@ class IocControl:
         except OSError as err:
             print_and_log(f"Could not start IOC {ioc}: {err}", "MAJOR")
 
-    def restart_ioc(
-        self, ioc: str, force: bool = False, restart_alarm_server: bool = True
-    ) -> None:
+    def restart_ioc(self, ioc: str, force: bool = False, restart_alarm_server: bool = True) -> None:
         """Restart an IOC.
 
         Note: restarting an IOC automatically sets the IOC to auto-restart,
@@ -179,9 +177,7 @@ class IocControl:
                     return
                 print_and_log(f"Auto-restart for IOC {ioc} is already {enable}")
             else:
-                print_and_log(
-                    f"Auto-restart for IOC {ioc} unchanged as IOC is not running"
-                )
+                print_and_log(f"Auto-restart for IOC {ioc} unchanged as IOC is not running")
         except MaxAttemptsExceededException as err:
             print_and_log(f"Could not set auto-restart IOC {ioc}: {err}", "MAJOR")
 
@@ -197,9 +193,7 @@ class IocControl:
         try:
             return self._proc.get_autorestart(ioc)
         except MaxAttemptsExceededException as err:
-            print_and_log(
-                f"Could not get auto-restart setting for IOC {ioc}: {err}", "MAJOR"
-            )
+            print_and_log(f"Could not get auto-restart setting for IOC {ioc}: {err}", "MAJOR")
             return False
 
     def waitfor_running(self, ioc: str, timeout: int = 15) -> None:
@@ -214,9 +208,7 @@ class IocControl:
         """
         if self.ioc_exists(ioc):
             start = time()
-            while (
-                self.ioc_restart_pending(ioc) or self.get_ioc_status(ioc) != "RUNNING"
-            ):
+            while self.ioc_restart_pending(ioc) or self.get_ioc_status(ioc) != "RUNNING":
                 sleep(0.5)
                 if time() - start >= timeout:
                     print_and_log(
