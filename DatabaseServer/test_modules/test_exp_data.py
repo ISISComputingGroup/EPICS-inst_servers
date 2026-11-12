@@ -1,4 +1,3 @@
-
 import json
 
 # This file is part of the ISIS IBEX application.
