@@ -1,4 +1,3 @@
-from __future__ import absolute_import, division, print_function, unicode_literals
 
 import json
 
@@ -20,12 +19,13 @@ import json
 import typing
 import unittest
 
-from DatabaseServer.exp_data import ExpData
 from server_common.mocks.mock_ca import MockChannelAccess
 from server_common.utilities import dehex_and_decompress
 
+from DatabaseServer.exp_data import ExpData
 
-class MockExpDataSource(object):
+
+class MockExpDataSource:
     def __init__(self):
         self.valid_experiments = {
             "123456": [["Matt", "ESS", "PI"], ["Dom", "ISIS", ""], ["Jack", "ISIS", "Contact"]]
