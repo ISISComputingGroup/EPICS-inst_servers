@@ -659,7 +659,7 @@ class BlockServer(Driver):
                         "component" if as_comp else "config", config_name
                     )
                 )
-        except OSError:
+        except IOError:
             pass  # IOError thrown if config we're overwriting didn't exist, i.e.
             # this is a brand new config/component.
 
@@ -707,7 +707,7 @@ class BlockServer(Driver):
             inactive.load_inactive(name, is_component)
             # Get previous history
             history = inactive.get_history()
-        except OSError:
+        except IOError:
             # Config doesn't exist therefore start new history
             history = []
         return history

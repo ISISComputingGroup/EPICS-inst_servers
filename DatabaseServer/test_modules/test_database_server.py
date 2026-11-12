@@ -17,8 +17,9 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 # http://opensource.org/licenses/eclipse-1.0.php
 import json
 import os
-
+from unittest.mock import patch
 import mock
+from server_common import channel_access
 
 os.environ["MYDIRBLOCK"] = os.path.abspath("..")
 os.environ["MYPVPREFIX"] = ""
@@ -123,3 +124,33 @@ class TestDatabaseServer(unittest.TestCase):
             self.assertTrue(
                 name in pv_data, msg="{name} in {pv_names}".format(name=name, pv_names=pv_data)
             )
+    @unittest.skipIf(IS_LINUX, "DB server not configured to run properly on Linux build")
+    def test_GIVEN_manager_mode_WHEN_restart_pv_written_THEN_process_restarts(self):
+        """Writing to DatabasePVNames.RESTART calls os._exit(0) (patched)."""
+
+        with (
+            patch(
+                "DatabaseServer.database_server.verify_manager_mode",
+            ) as mock_verify_manager_mode,
+            patch.object(os, "_exit") as mock_exit,
+        ):
+            self.db_server.write(reason=DatabasePVNames.RESTART, value="1")
+
+            mock_verify_manager_mode.assert_called_once()
+            mock_exit.assert_called_with(0)
+
+    @unittest.skipIf(IS_LINUX, "DB server not configured to run properly on Linux build")
+    def test_GIVEN_not_manager_mode_WHEN_restart_pv_written_THEN_process_does_not_restart(self):
+        """ManagerModeRequiredError is raised and os._exit is not called."""
+        with (
+            patch(
+                "DatabaseServer.database_server.verify_manager_mode",
+                side_effect=channel_access.ManagerModeRequiredError("not manager"),
+            ) as mock_verify_manager_mode,
+            patch.object(os, "_exit") as mock_exit,
+        ):
+            with self.assertRaises(channel_access.ManagerModeRequiredError):
+                self.db_server.write(reason=DatabasePVNames.RESTART, value="1")
+
+            mock_verify_manager_mode.assert_called_once()
+            mock_exit.assert_not_called()
