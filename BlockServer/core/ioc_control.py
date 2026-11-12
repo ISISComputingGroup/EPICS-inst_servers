@@ -14,12 +14,13 @@
 # https://www.eclipse.org/org/documents/epl-v10.php or
 # http://opensource.org/licenses/eclipse-1.0.php
 from time import sleep, time
-from typing import List
+
+from server_common.common_exceptions import MaxAttemptsExceededException
+from server_common.constants import IOCS_NOT_TO_STOP
+from server_common.utilities import print_and_log
 
 from BlockServer.alarm.load_alarm_config import AlarmConfigLoader
 from BlockServer.epics.procserv_utils import ProcServWrapper
-from server_common.constants import IOCS_NOT_TO_STOP
-from server_common.utilities import print_and_log
 
 
 class IocControl:
@@ -44,10 +45,12 @@ class IocControl:
             self._proc.start_ioc(ioc)
             if ioc != "ALARM" and restart_alarm_server:
                 AlarmConfigLoader.restart_alarm_server(self)
-        except Exception as err:
+        except OSError as err:
             print_and_log(f"Could not start IOC {ioc}: {err}", "MAJOR")
 
-    def restart_ioc(self, ioc: str, force: bool = False, restart_alarm_server: bool = True) -> None:
+    def restart_ioc(
+        self, ioc: str, force: bool = False, restart_alarm_server: bool = True
+    ) -> None:
         """Restart an IOC.
 
         Note: restarting an IOC automatically sets the IOC to auto-restart,
@@ -65,7 +68,7 @@ class IocControl:
             self._proc.restart_ioc(ioc)
             if ioc != "ALARM" and restart_alarm_server:
                 AlarmConfigLoader.restart_alarm_server(self)
-        except Exception as err:
+        except OSError as err:
             print_and_log(f"Could not restart IOC {ioc}: {err}", "MAJOR")
 
     def stop_ioc(self, ioc: str, force: bool = False) -> None:
@@ -82,7 +85,7 @@ class IocControl:
             self._proc.stop_ioc(ioc)
             if ioc != "ALARM":
                 AlarmConfigLoader.restart_alarm_server(self)
-        except Exception as err:
+        except OSError as err:
             print_and_log(f"Could not stop IOC {ioc}: {err}", "MAJOR")
 
     def get_ioc_status(self, ioc: str) -> str:
@@ -107,7 +110,7 @@ class IocControl:
         """
         return self._proc.ioc_restart_pending(ioc)
 
-    def start_iocs(self, iocs: List[str]) -> None:
+    def start_iocs(self, iocs: list[str]) -> None:
         """Start a number of IOCs.
 
         Args:
@@ -116,14 +119,14 @@ class IocControl:
         for ioc in iocs:
             self.start_ioc(ioc)
 
-    def restart_iocs(self, iocs: List[str], reapply_auto: bool = False) -> None:
+    def restart_iocs(self, iocs: list[str], reapply_auto: bool = False) -> None:
         """Restart a number of IOCs.
 
         Args:
             iocs (list): The IOCs to restart
             reapply_auto (bool): Whether to reapply auto restart settings automatically
         """
-        auto = dict()
+        auto = {}
         for ioc in iocs:
             auto[ioc] = self.get_autorestart(ioc)
             self.restart_ioc(ioc)
@@ -134,7 +137,7 @@ class IocControl:
                 self.waitfor_running(ioc)
                 self.set_autorestart(ioc, auto[ioc])
 
-    def stop_iocs(self, iocs: List[str]) -> None:
+    def stop_iocs(self, iocs: list[str]) -> None:
         """Stop a number of IOCs.
 
         Args:
@@ -155,7 +158,7 @@ class IocControl:
         try:
             self.get_ioc_status(ioc)
             return True
-        except Exception:
+        except OSError:
             return False
 
     def set_autorestart(self, ioc: str, enable: bool) -> None:
@@ -176,8 +179,10 @@ class IocControl:
                     return
                 print_and_log(f"Auto-restart for IOC {ioc} is already {enable}")
             else:
-                print_and_log(f"Auto-restart for IOC {ioc} unchanged as IOC is not running")
-        except Exception as err:
+                print_and_log(
+                    f"Auto-restart for IOC {ioc} unchanged as IOC is not running"
+                )
+        except MaxAttemptsExceededException as err:
             print_and_log(f"Could not set auto-restart IOC {ioc}: {err}", "MAJOR")
 
     def get_autorestart(self, ioc: str) -> bool:
@@ -191,8 +196,11 @@ class IocControl:
         """
         try:
             return self._proc.get_autorestart(ioc)
-        except Exception as err:
-            print_and_log(f"Could not get auto-restart setting for IOC {ioc}: {err}", "MAJOR")
+        except MaxAttemptsExceededException as err:
+            print_and_log(
+                f"Could not get auto-restart setting for IOC {ioc}: {err}", "MAJOR"
+            )
+            return False
 
     def waitfor_running(self, ioc: str, timeout: int = 15) -> None:
         """Waits for the IOC to start running.
@@ -206,7 +214,9 @@ class IocControl:
         """
         if self.ioc_exists(ioc):
             start = time()
-            while self.ioc_restart_pending(ioc) or self.get_ioc_status(ioc) != "RUNNING":
+            while (
+                self.ioc_restart_pending(ioc) or self.get_ioc_status(ioc) != "RUNNING"
+            ):
                 sleep(0.5)
                 if time() - start >= timeout:
                     print_and_log(

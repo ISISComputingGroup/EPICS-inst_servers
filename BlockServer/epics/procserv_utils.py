@@ -13,6 +13,8 @@
 # along with this program; if not, you can obtain a copy from
 # https://www.eclipse.org/org/documents/epl-v10.php or
 # http://opensource.org/licenses/eclipse-1.0.php
+import typing
+
 from server_common.channel_access import ChannelAccess
 from server_common.utilities import ioc_restart_pending, print_and_log, retry
 
@@ -75,9 +77,9 @@ class ProcServWrapper:
             string : The status
         """
         pv_name = f"{self.procserv_prefix}{ioc}:STATUS"
-        ans = ChannelAccess.caget(pv_name, as_string=True)
+        ans = typing.cast(str, ChannelAccess.caget(pv_name, as_string=True))
         if ans is None:
-            raise Exception(f"Could not find IOC {ioc} (using pv {pv_name})")
+            raise OSError(f"Could not find IOC {ioc} (using pv {pv_name})")
         return ans.upper()
 
     def toggle_autorestart(self, ioc: str):

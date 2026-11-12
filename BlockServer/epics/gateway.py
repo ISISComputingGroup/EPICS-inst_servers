@@ -38,13 +38,16 @@ ALIAS_FOOTER = r"""
 {0}CS:SB:[^:]*:[ADR]C:.*                     DENY
 ## ignore any request not related to local blocks or gateway itself
 !{0}CS:\(SB\|GATEWAY\):.*                    DENY
-"""  # noqa: E501
+"""
 
 
 def build_block_alias_lines(
-    full_block_pv: str, pv_suffix: str, underlying_pv: str, include_comments: bool = True
+    full_block_pv: str,
+    pv_suffix: str | None,
+    underlying_pv: str,
+    include_comments: bool = True,
 ) -> list[str]:
-    lines = list()
+    lines = []
     if underlying_pv.endswith(":SP"):
         # The block points at a setpoint
         if include_comments:
@@ -53,7 +56,7 @@ def build_block_alias_lines(
                 "genie_python will append an additional :SP"
             )
 
-        full_block_pv = r"{}\(:SP\)?".format(full_block_pv)
+        full_block_pv = rf"{full_block_pv}\(:SP\)?"
 
         # Pattern match is for picking up any extras like :RBV or .EGU
         lines.append(f"{full_block_pv}\\([.:].*\\)    ALIAS    {underlying_pv}\\2")
@@ -131,7 +134,7 @@ class Gateway:
             while ChannelAccess.caget(self._gateway_prefix + "newAsFlag") == 1:
                 time.sleep(1)
             print_and_log("Gateway reloaded")
-        except Exception as err:
+        except OSError as err:
             print_and_log(f"Problem with reloading the gateway {err}")
 
     def _generate_alias_file(self, blocks=None) -> None:
@@ -140,14 +143,16 @@ class Gateway:
             header = ALIAS_HEADER.format(self._inst_prefix)
             f.write(header)
             if blocks is not None:
-                for name, value in blocks.items():
+                for value in blocks.values():
                     lines = self.generate_alias(value.name, value.pv, value.local)
                     f.write("\n".join(lines) + "\n")
             f.write(ALIAS_FOOTER.format(self._inst_prefix))
             # Add a blank line at the end!
             f.write("\n")
 
-    def generate_alias(self, block_name: str, underlying_pv: str, local: bool) -> list[str]:
+    def generate_alias(
+        self, block_name: str, underlying_pv: str, local: bool
+    ) -> list[str]:
         print_and_log(f"Creating block: {block_name} for {underlying_pv}")
 
         underlying_pv = underlying_pv.replace(".VAL", "")
@@ -167,15 +172,21 @@ class Gateway:
 
         # Create a case insensitive alias so clients don't have to worry about getting case right
         if full_block_pv != full_block_pv.upper():
-            lines.append("## Add full caps equivalent so clients need not be case sensitive")
+            lines.append(
+                "## Add full caps equivalent so clients need not be case sensitive"
+            )
             lines.extend(
-                build_block_alias_lines(full_block_pv.upper(), pv_suffix, underlying_pv, False)
+                build_block_alias_lines(
+                    full_block_pv.upper(), pv_suffix, underlying_pv, False
+                )
             )
 
         lines.append("")  # New line to seperate out each block
         return lines
 
-    def set_new_aliases(self, blocks, configures_block_gateway: bool, config_dir: str) -> None:
+    def set_new_aliases(
+        self, blocks, configures_block_gateway: bool, config_dir: str
+    ) -> None:
         """Creates the aliases for the blocks and restarts the gateway.
 
         Args:
@@ -187,10 +198,10 @@ class Gateway:
         """
         pvlist_file = os.path.join(config_dir, "gwblock.pvlist")
         if configures_block_gateway and os.path.exists(pvlist_file):
-            print_and_log("Using {} to configure block gateway".format(pvlist_file))
+            print_and_log(f"Using {pvlist_file} to configure block gateway")
             copyfile(pvlist_file, self._pvlist_file)
         elif configures_block_gateway:
-            print_and_log("File: {} not found generating gwblock.pvlist".format(pvlist_file))
+            print_and_log(f"File: {pvlist_file} not found generating gwblock.pvlist")
             self._generate_alias_file(blocks)
         else:
             self._generate_alias_file(blocks)
