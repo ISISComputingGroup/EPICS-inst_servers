@@ -137,9 +137,7 @@ initial_dbs = {
 class BlockServer(Driver):
     """The class for handling all the static PV access and monitors etc."""
 
-    def __init__(
-        self, ca_server: CAServer | MockCAServer, test_mode: bool = False
-    ) -> None:
+    def __init__(self, ca_server: CAServer | MockCAServer, test_mode: bool = False) -> None:
         """Constructor.
 
         Args:
@@ -194,9 +192,7 @@ class BlockServer(Driver):
             print_and_log(f"Configurations not under version control: {err}", "MINOR")
             self._config_vc = MockVersionControl()
         except VersionControlException as err:
-            print_and_log(
-                f"Unable to initialise config version control: {err}", "MINOR"
-            )
+            print_and_log(f"Unable to initialise config version control: {err}", "MINOR")
             self._config_vc = MockVersionControl()
 
         try:
@@ -212,14 +208,10 @@ class BlockServer(Driver):
             print_and_log(f"Scripts not under version control: {err}", "MINOR")
             self._script_vc = MockVersionControl()
         except VersionControlException as err:
-            print_and_log(
-                f"Unable to initialise script version control: {err}", "MINOR"
-            )
+            print_and_log(f"Unable to initialise script version control: {err}", "MINOR")
             self._script_vc = MockVersionControl()
         except Exception as err:  # noqa: BLE001 deliberate fallback to MockVersionControl
-            print_and_log(
-                f"Unable to initialise script version control: {err}", "MINOR"
-            )
+            print_and_log(f"Unable to initialise script version control: {err}", "MINOR")
             self._script_vc = MockVersionControl()
 
         # Import data about all configs
@@ -228,8 +220,7 @@ class BlockServer(Driver):
         except OSError as err:
             print_and_log(
                 "Error creating inactive config list. "
-                "Configuration list changes will not be stored "
-                + f"in version control: {err!s} ",
+                "Configuration list changes will not be stored " + f"in version control: {err!s} ",
                 "MINOR",
             )
             self._config_list = ConfigListManager(self, ConfigurationFileManager())
@@ -239,9 +230,7 @@ class BlockServer(Driver):
         write_thread.daemon = True  # Daemonise thread
         write_thread.start()
 
-        self.write_queue.put(
-            (self.initialise_configserver, (FACILITY,), "INITIALISING")
-        )
+        self.write_queue.put((self.initialise_configserver, (FACILITY,), "INITIALISING"))
         # Starts the Web Server
         self.server = Server()
         self.server.start()
@@ -278,9 +267,7 @@ class BlockServer(Driver):
         # Import all the synoptic data and create PVs
         print_and_log("Creating synoptic manager...")
         if SCHEMA_DIR is not None:
-            self._syn = SynopticManager(
-                self, Path(SCHEMA_DIR), self._active_configserver
-            )
+            self._syn = SynopticManager(self, Path(SCHEMA_DIR), self._active_configserver)
             self.on_the_fly_handlers.append(self._syn)
             print_and_log("Finished creating synoptic manager")
 
@@ -298,9 +285,7 @@ class BlockServer(Driver):
                 print_and_log("Could not connect to gateway - is it running?")
                 self.load_last_config()
         except Exception as err:  # noqa: BLE001 Call chain can cause many types of exceptions
-            print_and_log(
-                f"Could not load last configuration. Message was: {err}", "MAJOR"
-            )
+            print_and_log(f"Could not load last configuration. Message was: {err}", "MAJOR")
             self._active_configserver.clear_config()
             self._initialise_config()
 
@@ -325,13 +310,9 @@ class BlockServer(Driver):
                     )
                     value = compress_and_hex(grps)
                 elif reason == BlockserverPVNames.CONFIGS:
-                    value = compress_and_hex(
-                        convert_to_json(self._config_list.get_configs())
-                    )
+                    value = compress_and_hex(convert_to_json(self._config_list.get_configs()))
                 elif reason == BlockserverPVNames.COMPS:
-                    value = compress_and_hex(
-                        convert_to_json(self._config_list.get_components())
-                    )
+                    value = compress_and_hex(convert_to_json(self._config_list.get_components()))
                 elif reason == BlockserverPVNames.BLANK_CONFIG:
                     js = convert_to_json(self.get_blank_config())
                     value = compress_and_hex(js)
@@ -375,21 +356,13 @@ class BlockServer(Driver):
         """
         status = True
         try:
-            data = (
-                dehex_and_decompress(bytes(value, encoding="utf-8"))
-                .strip(b'"')
-                .decode("utf-8")
-            )
+            data = dehex_and_decompress(bytes(value, encoding="utf-8")).strip(b'"').decode("utf-8")
             if reason == BlockserverPVNames.LOAD_CONFIG:
                 self.write_queue.put((self.load_config, (data,), "LOADING_CONFIG"))
             elif reason == BlockserverPVNames.RELOAD_CURRENT_CONFIG:
-                self.write_queue.put(
-                    (self.reload_current_config, (), "RELOAD_CURRENT_CONFIG")
-                )
+                self.write_queue.put((self.reload_current_config, (), "RELOAD_CURRENT_CONFIG"))
             elif reason == BlockserverPVNames.START_IOCS:
-                self.write_queue.put(
-                    (self.start_iocs, (convert_from_json(data),), "START_IOCS")
-                )
+                self.write_queue.put((self.start_iocs, (convert_from_json(data),), "START_IOCS"))
             elif reason == BlockserverPVNames.STOP_IOCS:
                 self.write_queue.put(
                     (
@@ -419,9 +392,7 @@ class BlockServer(Driver):
             elif reason == BlockserverPVNames.SAVE_NEW_CONFIG:
                 self.write_queue.put((self.save_config, (data,), "SAVING_NEW_CONFIG"))
             elif reason == BlockserverPVNames.SAVE_NEW_COMPONENT:
-                self.write_queue.put(
-                    (self.save_config, (data, True), "SAVING_NEW_COMP")
-                )
+                self.write_queue.put((self.save_config, (data, True), "SAVING_NEW_COMP"))
             elif reason == BlockserverPVNames.DELETE_CONFIGS:
                 self.write_queue.put(
                     (
@@ -549,9 +520,7 @@ class BlockServer(Driver):
              e.g. on loading a new configuration
         """
         if self._active_configserver is not None:
-            new_iocs, changed_iocs, removed_iocs = (
-                self._active_configserver.iocs_changed()
-            )
+            new_iocs, changed_iocs, removed_iocs = self._active_configserver.iocs_changed()
             self._ioc_control.stop_iocs(list(removed_iocs))
             self._start_config_iocs(list(new_iocs), list(changed_iocs))
             if (
@@ -560,18 +529,13 @@ class BlockServer(Driver):
             ):
                 # See https://github.com/ISISComputingGroup/IBEX/issues/5590 for
                 # justification of why this ioc gets special treatment.
-                ioc = self._active_configserver.get_all_ioc_details()[
-                    CAEN_DISCRIMINATOR_IOC_NAME
-                ]
+                ioc = self._active_configserver.get_all_ioc_details()[CAEN_DISCRIMINATOR_IOC_NAME]
                 if ioc.autostart:
                     print_and_log(
                         f"{CAEN_DISCRIMINATOR_IOC_NAME} present in configuration and set "
                         f"to autostart - restarting it"
                     )
-                    if (
-                        self._ioc_control.get_ioc_status(CAEN_DISCRIMINATOR_IOC_NAME)
-                        == "RUNNING"
-                    ):
+                    if self._ioc_control.get_ioc_status(CAEN_DISCRIMINATOR_IOC_NAME) == "RUNNING":
                         self._ioc_control.restart_iocs(
                             [CAEN_DISCRIMINATOR_IOC_NAME], reapply_auto=True
                         )
@@ -590,12 +554,8 @@ class BlockServer(Driver):
                     ),
                 )
 
-            self._config_list.active_config_name = (
-                self._active_configserver.get_config_name()
-            )
-            self._config_list.active_components = (
-                self._active_configserver.get_component_names()
-            )
+            self._config_list.active_config_name = self._active_configserver.get_config_name()
+            self._config_list.active_components = self._active_configserver.get_component_names()
             self._config_list.update_monitors()
 
             self.update_blocks_monitors()
@@ -608,16 +568,10 @@ class BlockServer(Driver):
                 handler.on_config_change(full_init=full_init)
 
             # Update Web Server text
-            self.server.set_config(
-                convert_to_json(self._active_configserver.get_config_details())
-            )
-            self.write_queue.put(
-                (self.set_config_block_values, (), "LOADING_BLOCK_SETS")
-            )
+            self.server.set_config(convert_to_json(self._active_configserver.get_config_details()))
+            self.write_queue.put((self.set_config_block_values, (), "LOADING_BLOCK_SETS"))
 
-    def _start_config_iocs(
-        self, iocs_to_start: list[str], iocs_to_restart: list[str]
-    ) -> None:
+    def _start_config_iocs(self, iocs_to_start: list[str], iocs_to_restart: list[str]) -> None:
         # Start the IOCs, if they are available and if they are flagged for autostart
         # Note: autostart means the IOC is started when the config is loaded,
         # restart means the IOC should automatically restart if it stops for some reason
@@ -633,12 +587,8 @@ class BlockServer(Driver):
             ioc = _ioc_from_name(ioc_name)
             return ioc.autostart and not _is_remote(ioc_name)
 
-        self._ioc_control.start_iocs(
-            [ioc for ioc in iocs_to_start if _should_start(ioc)]
-        )
-        self._ioc_control.restart_iocs(
-            [ioc for ioc in iocs_to_restart if _should_start(ioc)]
-        )
+        self._ioc_control.start_iocs([ioc for ioc in iocs_to_start if _should_start(ioc)])
+        self._ioc_control.restart_iocs([ioc for ioc in iocs_to_restart if _should_start(ioc)])
 
         for ioc in iocs_to_start:
             self._ioc_control.waitfor_running(ioc)
@@ -673,9 +623,7 @@ class BlockServer(Driver):
                 # If we get this far then assume the config is okay
                 self._initialise_config(full_init=full_init)
             except Exception as err:  # noqa: BLE001 Call chain can cause many types of exceptions
-                print_and_log(
-                    f"Exception while loading configuration '{config}': {err}", "MAJOR"
-                )
+                print_and_log(f"Exception while loading configuration '{config}': {err}", "MAJOR")
                 traceback.print_exc()
 
     def reload_current_config(self) -> None:
@@ -756,11 +704,7 @@ class BlockServer(Driver):
 
         if self._active_configserver is not None:
             # Reload configuration if a component has changed
-            if (
-                as_comp
-                and new_details["name"]
-                in self._active_configserver.get_component_names()
-            ):
+            if as_comp and new_details["name"] in self._active_configserver.get_component_names():
                 self.load_last_config()
 
             # If the configuration we are trying to save is the currently active one,
@@ -769,9 +713,7 @@ class BlockServer(Driver):
             if config_name == self._active_configserver.get_config_name():
                 self.load_config(config_name, full_init=False)
 
-    def _get_inactive_history(
-        self, name: str, is_component: bool = False
-    ) -> list[str | None]:
+    def _get_inactive_history(self, name: str, is_component: bool = False) -> list[str | None]:
         # If it already exists load it
         try:
             inactive = InactiveConfigHolder(MACROS, ConfigurationFileManager())
@@ -792,12 +734,8 @@ class BlockServer(Driver):
         """Updates the PV monitors for the blocks and groups, so the clients can see any changes."""
         if self._active_configserver is not None:
             with self.monitor_lock:
-                block_names = convert_to_json(
-                    self._active_configserver.get_blocknames()
-                )
-                self.setParam(
-                    BlockserverPVNames.BLOCKNAMES, compress_and_hex(block_names)
-                )
+                block_names = convert_to_json(self._active_configserver.get_blocknames())
+                self.setParam(BlockserverPVNames.BLOCKNAMES, compress_and_hex(block_names))
 
                 groups = ConfigurationJsonConverter.groups_to_json(
                     self._active_configserver.get_group_details()

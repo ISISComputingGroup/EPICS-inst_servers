@@ -34,9 +34,7 @@ class TestBlockServerRestartServiceIoc(unittest.TestCase):
         self.mock_gateway = gateway_patcher.start()
         self.addCleanup(gateway_patcher.stop)
 
-        ioc_control_patcher = patch.object(
-            self.block_server, "_ioc_control", create=True
-        )
+        ioc_control_patcher = patch.object(self.block_server, "_ioc_control", create=True)
         self.mock_ioc_control = ioc_control_patcher.start()
         self.addCleanup(ioc_control_patcher.stop)
 
@@ -109,9 +107,7 @@ class TestBlockServerRestartServiceIoc(unittest.TestCase):
     def test_GIVEN_not_manager_mode_WHEN_service_ioc_restarted_THEN_nothing_restarted(
         self,
     ):
-        self.mock_verify_manager_mode.side_effect = ManagerModeRequiredError(
-            "not manager"
-        )
+        self.mock_verify_manager_mode.side_effect = ManagerModeRequiredError("not manager")
 
         with self.assertRaises(ManagerModeRequiredError):
             self.block_server.restart_service_ioc(["INSTETC"])

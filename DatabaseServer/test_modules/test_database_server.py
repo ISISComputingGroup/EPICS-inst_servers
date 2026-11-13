@@ -1,5 +1,3 @@
-from __future__ import absolute_import, division, print_function, unicode_literals
-
 # This file is part of the ISIS IBEX application.
 # Copyright (C) 2012-2016 Science & Technology Facilities Council.
 # All rights reserved.
@@ -17,8 +15,9 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 # http://opensource.org/licenses/eclipse-1.0.php
 import json
 import os
+from unittest import mock
 from unittest.mock import patch
-import mock
+
 from server_common import channel_access
 
 os.environ["MYDIRBLOCK"] = os.path.abspath("..")
@@ -27,8 +26,6 @@ os.environ["EPICS_KIT_ROOT"] = ""
 os.environ["ICPCONFIGROOT"] = ""
 import unittest
 
-from DatabaseServer.database_server import DatabaseServer
-from DatabaseServer.mocks.mock_exp_data import MockExpData
 from server_common.constants import IS_LINUX
 from server_common.ioc_data import IOCData
 from server_common.loggers.logger import Logger
@@ -43,6 +40,9 @@ from server_common.test_modules.test_ioc_data import (
     MEDIUM_PV_NAMES,
 )
 from server_common.utilities import dehex_and_decompress, set_logger
+
+from DatabaseServer.database_server import DatabaseServer
+from DatabaseServer.mocks.mock_exp_data import MockExpData
 
 # Use a dummy logger during tests as real logger requires log server
 set_logger(Logger())
@@ -79,9 +79,7 @@ class TestDatabaseServer(unittest.TestCase):
         pv_names = [item[0] for item in pv_data if len(item) > 0]
 
         for name in HIGH_PV_NAMES:
-            self.assertTrue(
-                name in pv_names, msg="{name} in {pv_names}".format(name=name, pv_names=pv_names)
-            )
+            self.assertTrue(name in pv_names, msg=f"{name} in {pv_names}")
 
     @unittest.skipIf(IS_LINUX, "DB server not configured to run properly on Linux build")
     def test_interest_medium_pvs_correct(self):
@@ -91,9 +89,7 @@ class TestDatabaseServer(unittest.TestCase):
         pv_names = [item[0] for item in pv_data if len(item) > 0]
 
         for name in MEDIUM_PV_NAMES:
-            self.assertTrue(
-                name in pv_names, msg="{name} in {pv_names}".format(name=name, pv_names=pv_names)
-            )
+            self.assertTrue(name in pv_names, msg=f"{name} in {pv_names}")
 
     @unittest.skipIf(IS_LINUX, "DB server not configured to run properly on Linux build")
     def test_WHEN_asked_for_low_THEN_get_low_pvs(self):
@@ -103,9 +99,7 @@ class TestDatabaseServer(unittest.TestCase):
         pv_names = [item[0] for item in pv_data if len(item) > 0]
 
         for name in LOW_PV_NAMES:
-            self.assertTrue(
-                name in pv_names, msg="{name} in {pv_names}".format(name=name, pv_names=pv_names)
-            )
+            self.assertTrue(name in pv_names, msg=f"{name} in {pv_names}")
 
     @unittest.skipIf(IS_LINUX, "DB server not configured to run properly on Linux build")
     def test_interest_facility_pvs_correct(self):
@@ -113,17 +107,14 @@ class TestDatabaseServer(unittest.TestCase):
         pv_names = [item[0] for item in pv_data if len(item) > 0]
 
         for name in FACILITY_PV_NAMES:
-            self.assertTrue(
-                name in pv_names, msg="{name} in {pv_names}".format(name=name, pv_names=pv_names)
-            )
+            self.assertTrue(name in pv_names, msg=f"{name} in {pv_names}")
 
     @unittest.skipIf(IS_LINUX, "DB server not configured to run properly on Linux build")
     def test_iocs_pvs_correct(self):
         pv_data = json.loads(dehex_and_decompress(self.db_server.read(DatabasePVNames.IOCS)))
         for name in IOCS:
-            self.assertTrue(
-                name in pv_data, msg="{name} in {pv_names}".format(name=name, pv_names=pv_data)
-            )
+            self.assertTrue(name in pv_data, msg=f"{name} in {pv_data}")
+
     @unittest.skipIf(IS_LINUX, "DB server not configured to run properly on Linux build")
     def test_GIVEN_manager_mode_WHEN_restart_pv_written_THEN_process_restarts(self):
         """Writing to DatabasePVNames.RESTART calls os._exit(0) (patched)."""
