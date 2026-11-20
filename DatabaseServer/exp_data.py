@@ -1,5 +1,3 @@
-from __future__ import absolute_import, division, print_function, unicode_literals
-
 # This file is part of the ISIS IBEX application.
 # Copyright (C) 2012-2016 Science & Technology Facilities Council.
 # All rights reserved.
@@ -17,11 +15,11 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 # http://opensource.org/licenses/eclipse-1.0.php
 import json
 import traceback
+import typing
 import unicodedata
 from typing import TYPE_CHECKING, Union
 
 from genie_python.mysql_abstraction_layer import SQLAbstraction
-
 from server_common.channel_access import ChannelAccess
 from server_common.mocks.mock_ca import MockChannelAccess
 from server_common.utilities import char_waveform, compress_and_hex, print_and_log
@@ -30,7 +28,7 @@ if TYPE_CHECKING:
     from DatabaseServer.test_modules.test_exp_data import MockExpDataSource
 
 
-class User(object):
+class User:
     """
     A user class to allow for easier conversions from database to json.
     """
@@ -43,7 +41,7 @@ class User(object):
         self.role = role
 
 
-class ExpDataSource(object):
+class ExpDataSource:
     """
     This is a humble object containing all the code for accessing the database.
     """
@@ -74,12 +72,10 @@ class ExpDataSource(object):
                 return []
             team = [list(element) for element in result]
             if len(team) == 0:
-                raise ValueError(
-                    "unable to find team details for experiment ID {}".format(experiment_id)
-                )
+                raise ValueError(f"unable to find team details for experiment ID {experiment_id}")
             else:
                 return team
-        except Exception:
+        except (OSError, ValueError, AssertionError):
             print_and_log(traceback.format_exc())
             return []
 
@@ -101,25 +97,21 @@ class ExpDataSource(object):
             if id is None:
                 return False
             return len(id) >= 1
-        except Exception:
+        except (OSError, AssertionError):
             print_and_log(traceback.format_exc())
             return False
 
 
-class ExpData(object):
+class ExpData:
     """
     A wrapper to connect to the IOC database via MySQL.
     """
-
-    EDPV = {"ED:RBNUMBER:SP": char_waveform(16000), "ED:USERNAME:SP": char_waveform(16000)}
-
-    _to_ascii = {}
 
     def __init__(
         self,
         prefix: str,
         db: Union[ExpDataSource, "MockExpDataSource"],
-        ca: Union[ChannelAccess, MockChannelAccess] = ChannelAccess(),
+        ca: ChannelAccess | MockChannelAccess | None = None,
     ) -> None:
         """
         Constructor.
@@ -138,13 +130,17 @@ class ExpData(object):
         self._orgspv = prefix + "ED:ORGS"
 
         # Set the channel access server to use
-        self.ca = ca
+        self.ca = typing.cast(ChannelAccess, ca if not None else ChannelAccess())
 
         # Set the data source to use
         self._db = db
 
-        # Create ascii mappings
-        ExpData._to_ascii = self._make_ascii_mappings()
+    @staticmethod
+    def edpv() -> dict[str, dict[str, str | list[int] | typing.Any]]:
+        return {
+            "ED:RBNUMBER:SP": char_waveform(16000),
+            "ED:USERNAME:SP": char_waveform(16000),
+        }
 
     @staticmethod
     def _make_ascii_mappings() -> dict:
@@ -173,7 +169,7 @@ class ExpData(object):
     def _get_surname_from_fullname(self, fullname: str) -> str:
         try:
             return fullname.split(" ")[-1]
-        except ValueError | IndexError:
+        except (ValueError, IndexError):
             return fullname
 
     def update_experiment_id(self, experiment_id: str) -> None:
@@ -201,7 +197,7 @@ class ExpData(object):
             self.ca.caput(self._simnames, self.encode_for_return(names))
             self.ca.caput(self._surnamepv, self.encode_for_return(surnames))
             self.ca.caput(self._orgspv, self.encode_for_return(orgs))
-            raise Exception("error finding the experiment: %s" % experiment_id)
+            raise OSError(f"error finding the experiment: {experiment_id}")
 
         # Get the user information from the database and update the associated PVs
         if self._db is not None:
@@ -211,7 +207,7 @@ class ExpData(object):
                 fullname = str(member[0])
                 org = str(member[1])
                 role = str(member[2])
-                if not role == "Contact":
+                if role != "Contact":
                     surnames.append(self._get_surname_from_fullname(fullname))
                 orgs.append(org)
                 name = User(fullname, org, role.lower())
@@ -250,7 +246,7 @@ class ExpData(object):
             else:
                 org = team_member["institute"]
                 role = team_member["role"]
-                if not role == "Contact":
+                if role != "Contact":
                     surnames.append(self._get_surname_from_fullname(fullname))
                 orgs.append(org)
                 name = User(fullname, org, role.lower())
@@ -281,4 +277,4 @@ class ExpData(object):
         nlist = ",".join(names)
         nfkd_form = unicodedata.normalize("NFKD", nlist)
         nlist_no_sc = "".join([c for c in nfkd_form if not unicodedata.combining(c)])
-        return nlist_no_sc.translate(ExpData._to_ascii).encode("ascii", "ignore")
+        return nlist_no_sc.translate(ExpData._make_ascii_mappings()).encode("ascii", "ignore")

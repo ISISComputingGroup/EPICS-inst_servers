@@ -16,9 +16,9 @@
 
 import os
 import unittest
+from unittest.mock import MagicMock, mock_open, patch
 
-from hamcrest import *
-from mock import MagicMock, mock_open, patch
+from hamcrest import assert_that, empty
 
 from ArchiverAccess.test_modules.stubs import FileStub
 from BlockServer.config.block import Block
@@ -57,18 +57,20 @@ class TestEpicsGateway(unittest.TestCase):
         channel_access.caget.assert_called_with(self.gateway_prefix + "pvtotal")
 
     def _assert_lines_correct(self, actual_lines, expected_lines):
-        sanitised_lines = list()
+        sanitised_lines = []
         for line in actual_lines:
             if not line.startswith("##") and line != "":
                 sanitised_lines.append(line.split())
 
         self.assertListEqual(sanitised_lines, expected_lines)
 
-    def test_GIVEN_local_PV_without_suffix_or_SP_WHEN_alias_generated_THEN_lines_as_expected(self):
+    def test_GIVEN_local_PV_without_suffix_or_SP_WHEN_alias_generated_THEN_lines_as_expected(
+        self,
+    ):
         blockname, block_pv = "MY_BLOCK", "MY_PV"
         alias = "INST:BLOCK:MY_BLOCK"
         expected_lines = [
-            [r"{}\([.:].*\)".format(alias), "ALIAS", "INST:MY_PV\\1"],
+            [rf"{alias}\([.:].*\)", "ALIAS", "INST:MY_PV\\1"],
             [alias, "ALIAS", "INST:MY_PV"],
         ]
 
@@ -76,11 +78,13 @@ class TestEpicsGateway(unittest.TestCase):
 
         self._assert_lines_correct(lines, expected_lines)
 
-    def test_GIVEN_remote_PV_without_suffix_or_SP_WHEN_alias_generated_THEN_lines_as_expected(self):
+    def test_GIVEN_remote_PV_without_suffix_or_SP_WHEN_alias_generated_THEN_lines_as_expected(
+        self,
+    ):
         blockname, block_pv = "MY_BLOCK", "MY_PV"
         alias = "INST:BLOCK:MY_BLOCK"
         expected_lines = [
-            [r"{}\([.:].*\)".format(alias), "ALIAS", "MY_PV\\1"],
+            [rf"{alias}\([.:].*\)", "ALIAS", "MY_PV\\1"],
             [alias, "ALIAS", "MY_PV"],
         ]
 
@@ -88,12 +92,14 @@ class TestEpicsGateway(unittest.TestCase):
 
         self._assert_lines_correct(lines, expected_lines)
 
-    def test_GIVEN_local_PV_with_suffix_WHEN_alias_generated_THEN_lines_as_expected(self):
+    def test_GIVEN_local_PV_with_suffix_WHEN_alias_generated_THEN_lines_as_expected(
+        self,
+    ):
         blockname, block_pv = "MY_BLOCK", "MY_PV.EGU"
         alias = "INST:BLOCK:MY_BLOCK"
         expected_lines = [
-            [r"{}\([.:].*\)".format(alias), "ALIAS", "INST:MY_PV\\1"],
-            ["{}[.]VAL".format(alias), "ALIAS", "INST:MY_PV.EGU"],
+            [rf"{alias}\([.:].*\)", "ALIAS", "INST:MY_PV\\1"],
+            [f"{alias}[.]VAL", "ALIAS", "INST:MY_PV.EGU"],
             [alias, "ALIAS", "INST:MY_PV.EGU"],
         ]
 
@@ -101,12 +107,14 @@ class TestEpicsGateway(unittest.TestCase):
 
         self._assert_lines_correct(lines, expected_lines)
 
-    def test_GIVEN_remote_PV_with_suffix_WHEN_alias_generated_THEN_lines_as_expected(self):
+    def test_GIVEN_remote_PV_with_suffix_WHEN_alias_generated_THEN_lines_as_expected(
+        self,
+    ):
         blockname, block_pv = "MY_BLOCK", "MY_PV.RBV"
         alias = "INST:BLOCK:MY_BLOCK"
         expected_lines = [
-            [r"{}\([.:].*\)".format(alias), "ALIAS", "MY_PV\\1"],
-            ["{}[.]VAL".format(alias), "ALIAS", "MY_PV.RBV"],
+            [rf"{alias}\([.:].*\)", "ALIAS", "MY_PV\\1"],
+            [f"{alias}[.]VAL", "ALIAS", "MY_PV.RBV"],
             [alias, "ALIAS", "MY_PV.RBV"],
         ]
 
@@ -118,8 +126,8 @@ class TestEpicsGateway(unittest.TestCase):
         blockname, block_pv = "MY_BLOCK", "MY_PV:SP"
         alias = "INST:BLOCK:MY_BLOCK"
         expected_lines = [
-            [r"{}\(:SP\)?\([.:].*\)".format(alias), "ALIAS", "INST:MY_PV:SP\\2"],
-            [r"{}\(:SP\)?".format(alias), "ALIAS", "INST:MY_PV:SP"],
+            [rf"{alias}\(:SP\)?\([.:].*\)", "ALIAS", "INST:MY_PV:SP\\2"],
+            [rf"{alias}\(:SP\)?", "ALIAS", "INST:MY_PV:SP"],
         ]
 
         lines = self.gateway.generate_alias(blockname, block_pv, True)
@@ -130,8 +138,8 @@ class TestEpicsGateway(unittest.TestCase):
         blockname, block_pv = "MY_BLOCK", "MY_PV:SP"
         alias = "INST:BLOCK:MY_BLOCK"
         expected_lines = [
-            [r"{}\(:SP\)?\([.:].*\)".format(alias), "ALIAS", "MY_PV:SP\\2"],
-            [r"{}\(:SP\)?".format(alias), "ALIAS", "MY_PV:SP"],
+            [rf"{alias}\(:SP\)?\([.:].*\)", "ALIAS", "MY_PV:SP\\2"],
+            [rf"{alias}\(:SP\)?", "ALIAS", "MY_PV:SP"],
         ]
 
         lines = self.gateway.generate_alias(blockname, block_pv, False)
@@ -142,8 +150,8 @@ class TestEpicsGateway(unittest.TestCase):
         blockname, block_pv = "MY_BLOCK", "MY_TEST.VAL"
         alias = "INST:BLOCK:MY_BLOCK"
         expected_lines = [
-            [r"{}\([.:].*\)".format(alias), "ALIAS", "MY_TEST\\1"],
-            ["{}".format(alias), "ALIAS", "MY_TEST"],
+            [rf"{alias}\([.:].*\)", "ALIAS", "MY_TEST\\1"],
+            [f"{alias}", "ALIAS", "MY_TEST"],
         ]
 
         lines = self.gateway.generate_alias(blockname, block_pv, False)
@@ -156,9 +164,9 @@ class TestEpicsGateway(unittest.TestCase):
         blockname, block_pv = "My_Block", "MY_PV"
         alias = "INST:BLOCK:My_Block"
         expected_lines = [
-            [r"{}\([.:].*\)".format(alias), "ALIAS", "MY_PV\\1"],
+            [rf"{alias}\([.:].*\)", "ALIAS", "MY_PV\\1"],
             [alias, "ALIAS", "MY_PV"],
-            [r"{}\([.:].*\)".format(alias.upper()), "ALIAS", "MY_PV\\1"],
+            [rf"{alias.upper()}\([.:].*\)", "ALIAS", "MY_PV\\1"],
             [alias.upper(), "ALIAS", "MY_PV"],
         ]
 
@@ -167,7 +175,7 @@ class TestEpicsGateway(unittest.TestCase):
         self._assert_lines_correct(lines, expected_lines)
 
     @patch("BlockServer.epics.gateway.copyfile")
-    @patch("BlockServer.epics.gateway.Gateway._reload")
+    @patch("BlockServer.epics.gateway.Gateway.reload")
     @patch("builtins.open", new_callable=mock_open, mock=FileStub)
     def test_GIVEN_configuration_has_pvlist_WHEN_set_new_aliases_THEN_pvlist_copied(
         self, mock_file, reload_mock, copyfile_mock
@@ -176,7 +184,15 @@ class TestEpicsGateway(unittest.TestCase):
         config_dir = os.path.join(self.config_dir, "non_empty")
         expected_name = "block"
         expected_pv = "pv"
-        blocks = [Block(expected_name, expected_pv, log_periodic=True, log_rate=0, log_deadband=1)]
+        blocks = {
+            expected_name: Block(
+                expected_name,
+                expected_pv,
+                log_periodic=True,
+                log_rate=0,
+                log_deadband=1,
+            )
+        }
 
         self.gateway.set_new_aliases(blocks, True, config_dir)
 
@@ -186,7 +202,7 @@ class TestEpicsGateway(unittest.TestCase):
         assert_that(mock_file.file_contents, empty())
 
     @patch("BlockServer.epics.gateway.copyfile")
-    @patch("BlockServer.epics.gateway.Gateway._reload")
+    @patch("BlockServer.epics.gateway.Gateway.reload")
     @patch("builtins.open", new_callable=mock_open, mock=FileStub)
     def test_GIVEN_configuration_claims_has_pvlist_BUT_does_not_WHEN_set_new_aliases_THEN_pvlist_copied(
         self, mock_file, reload_mock, copyfile_mock
@@ -197,7 +213,11 @@ class TestEpicsGateway(unittest.TestCase):
         expected_pv = "pv"
         blocks = {
             expected_name: Block(
-                expected_name, expected_pv, log_periodic=True, log_rate=0, log_deadband=1
+                expected_name,
+                expected_pv,
+                log_periodic=True,
+                log_rate=0,
+                log_deadband=1,
             )
         }
         alias = "INST:BLOCK:block"
@@ -206,9 +226,13 @@ class TestEpicsGateway(unittest.TestCase):
             for line in ALIAS_HEADER.format("INST:").splitlines()
             if not line.startswith("##") and line != ""
         ] + [
-            [r"{}\([.:].*\)".format(alias), "ALIAS", "INST:{}\\1".format(expected_pv)],
+            [rf"{alias}\([.:].*\)", "ALIAS", f"INST:{expected_pv}\\1"],
             [alias, "ALIAS", "INST:" + expected_pv],
-            [r"{}\([.:].*\)".format(alias.upper()), "ALIAS", "INST:{}\\1".format(expected_pv)],
+            [
+                rf"{alias.upper()}\([.:].*\)",
+                "ALIAS",
+                f"INST:{expected_pv}\\1",
+            ],
             [alias.upper(), "ALIAS", "INST:" + expected_pv],
             ["INST:CS:GATEWAY:BLOCKSERVER:.*", "ALLOW", "ANYBODY", "1"],
             ["INST:CS:GATEWAY:BLOCKSERVER:report[1-9]Flag", "ALLOW", "ANYBODY", "1"],

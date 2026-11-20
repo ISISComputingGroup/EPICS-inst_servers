@@ -23,6 +23,8 @@ from server_common.channel_access import ChannelAccess
 from server_common.helpers import CONTROL_SYSTEM_PREFIX
 from server_common.utilities import print_and_log
 
+from BlockServer.config.block import Block
+
 ALIAS_HEADER = """\
 ##
 EVALUATION ORDER ALLOW, DENY
@@ -30,21 +32,26 @@ EVALUATION ORDER ALLOW, DENY
 """
 
 ALIAS_FOOTER = r"""
-## serve blockserver internal variables, including Flag variables needed by blockserver process to restart gateway
+## serve blockserver internal variables, including Flag variables needed by
+## blockserver process to restart gateway
 {0}CS:GATEWAY:BLOCKSERVER:.*    				    ALLOW	ANYBODY	    1
 ## allow anybody to generate gateway reports
 {0}CS:GATEWAY:BLOCKSERVER:report[1-9]Flag		ALLOW	ANYBODY		1
-## ignore any request related to run control/alerts etc. (RC,AC,DC) on blocks, these are handled by RUNCTRL ioc
+## ignore any request related to run control/alerts etc. (RC,AC,DC) on blocks,
+## these are handled by RUNCTRL ioc
 {0}CS:SB:[^:]*:[ADR]C:.*                     DENY
 ## ignore any request not related to local blocks or gateway itself
 !{0}CS:\(SB\|GATEWAY\):.*                    DENY
-"""  # noqa: E501
+"""
 
 
 def build_block_alias_lines(
-    full_block_pv: str, pv_suffix: str, underlying_pv: str, include_comments: bool = True
+    full_block_pv: str,
+    pv_suffix: str | None,
+    underlying_pv: str,
+    include_comments: bool = True,
 ) -> list[str]:
-    lines = list()
+    lines = []
     if underlying_pv.endswith(":SP"):
         # The block points at a setpoint
         if include_comments:
@@ -53,7 +60,7 @@ def build_block_alias_lines(
                 "genie_python will append an additional :SP"
             )
 
-        full_block_pv = r"{}\(:SP\)?".format(full_block_pv)
+        full_block_pv = rf"{full_block_pv}\(:SP\)?"
 
         # Pattern match is for picking up any extras like :RBV or .EGU
         lines.append(f"{full_block_pv}\\([.:].*\\)    ALIAS    {underlying_pv}\\2")
@@ -121,7 +128,7 @@ class Gateway:
         """
         return ChannelAccess.caget(self._gateway_prefix + "pvtotal") is not None
 
-    def _reload(self) -> None:
+    def reload(self) -> None:
         print_and_log("Reloading gateway")
         try:
             # Have to wait after put as the gateway does not do completion callbacks
@@ -131,16 +138,16 @@ class Gateway:
             while ChannelAccess.caget(self._gateway_prefix + "newAsFlag") == 1:
                 time.sleep(1)
             print_and_log("Gateway reloaded")
-        except Exception as err:
+        except OSError as err:
             print_and_log(f"Problem with reloading the gateway {err}")
 
-    def _generate_alias_file(self, blocks=None) -> None:
+    def _generate_alias_file(self, blocks: dict[str, Block] | None = None) -> None:
         # Generate blocks.pvlist for gateway
         with open(self._pvlist_file, "w") as f:
             header = ALIAS_HEADER.format(self._inst_prefix)
             f.write(header)
             if blocks is not None:
-                for name, value in blocks.items():
+                for value in blocks.values():
                     lines = self.generate_alias(value.name, value.pv, value.local)
                     f.write("\n".join(lines) + "\n")
             f.write(ALIAS_FOOTER.format(self._inst_prefix))
@@ -175,7 +182,9 @@ class Gateway:
         lines.append("")  # New line to seperate out each block
         return lines
 
-    def set_new_aliases(self, blocks, configures_block_gateway: bool, config_dir: str) -> None:
+    def set_new_aliases(
+        self, blocks: dict[str, Block] | None, configures_block_gateway: bool, config_dir: str
+    ) -> None:
         """Creates the aliases for the blocks and restarts the gateway.
 
         Args:
@@ -187,11 +196,11 @@ class Gateway:
         """
         pvlist_file = os.path.join(config_dir, "gwblock.pvlist")
         if configures_block_gateway and os.path.exists(pvlist_file):
-            print_and_log("Using {} to configure block gateway".format(pvlist_file))
+            print_and_log(f"Using {pvlist_file} to configure block gateway")
             copyfile(pvlist_file, self._pvlist_file)
         elif configures_block_gateway:
-            print_and_log("File: {} not found generating gwblock.pvlist".format(pvlist_file))
+            print_and_log(f"File: {pvlist_file} not found generating gwblock.pvlist")
             self._generate_alias_file(blocks)
         else:
             self._generate_alias_file(blocks)
-        self._reload()
+        self.reload()
