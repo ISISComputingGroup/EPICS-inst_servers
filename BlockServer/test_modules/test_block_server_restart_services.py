@@ -50,6 +50,11 @@ class TestBlockServerRestartServiceIoc(unittest.TestCase):
         self.mock_exit = exit_patcher.start()
         self.addCleanup(exit_patcher.stop)
 
+    def _process_write_queue(self):
+        while not self.block_server.write_queue.empty():
+            func, args, _ = self.block_server.write_queue.get_nowait()
+            func(*args)
+
     def test_WHEN_restart_service_ioc_pv_written_THEN_restart_queued_with_iocs(self):
         value = compress_and_hex('["DBSVR"]').decode("utf-8")
 
@@ -66,13 +71,17 @@ class TestBlockServerRestartServiceIoc(unittest.TestCase):
         )
 
     def test_GIVEN_manager_mode_WHEN_blocksvr_restarted_THEN_blockserver_restarts(self):
-        self.block_server.restart_service_ioc(["BLOCKSVR"])
+        value = compress_and_hex('["BLOCKSVR"]').decode("utf-8")
+        self.block_server.write(BlockserverPVNames.RESTART_SERVICE_IOC, value)
+        self._process_write_queue()
 
         self.mock_verify_manager_mode.assert_called_once()
         self.mock_exit.assert_called_once_with(0)
 
     def test_GIVEN_manager_mode_WHEN_gwblock_restarted_THEN_gateway_reloaded(self):
-        self.block_server.restart_service_ioc(["GWBLOCK"])
+        value = compress_and_hex('["GWBLOCK"]').decode("utf-8")
+        self.block_server.write(BlockserverPVNames.RESTART_SERVICE_IOC, value)
+        self._process_write_queue()
 
         self.mock_verify_manager_mode.assert_called_once()
         self.mock_gateway.reload.assert_called_once()
@@ -80,7 +89,9 @@ class TestBlockServerRestartServiceIoc(unittest.TestCase):
     def test_GIVEN_manager_mode_WHEN_dbsvr_restarted_THEN_database_server_restart_pv_written(
         self,
     ):
-        self.block_server.restart_service_ioc(["DBSVR"])
+        value = compress_and_hex('["DBSVR"]').decode("utf-8")
+        self.block_server.write(BlockserverPVNames.RESTART_SERVICE_IOC, value)
+        self._process_write_queue()
 
         self.mock_verify_manager_mode.assert_called_once()
         self.mock_channel_access.caput.assert_called_once_with(
@@ -90,15 +101,21 @@ class TestBlockServerRestartServiceIoc(unittest.TestCase):
     def test_GIVEN_manager_mode_WHEN_other_service_ioc_restarted_THEN_restarted_via_ioc_control(
         self,
     ):
-        self.block_server.restart_service_ioc(["INSTETC"])
+        value = compress_and_hex('["INSTETC"]').decode("utf-8")
+        self.block_server.write(BlockserverPVNames.RESTART_SERVICE_IOC, value)
+        self._process_write_queue()
 
         self.mock_verify_manager_mode.assert_called_once()
-        self.mock_ioc_control.restart_ioc.assert_called_once_with("INSTETC", force=True)
+        self.mock_ioc_control.restart_ioc.assert_called_once_with(
+            "INSTETC", force=True, restart_alarm_server=False
+        )
 
     def test_GIVEN_ioc_not_in_service_list_WHEN_restarted_THEN_nothing_restarted(self):
-        self.block_server.restart_service_ioc(["SIMPLE"])
+        value = compress_and_hex('["SIMPLE"]').decode("utf-8")
+        self.block_server.write(BlockserverPVNames.RESTART_SERVICE_IOC, value)
+        self._process_write_queue()
 
-        self.mock_verify_manager_mode.assert_not_called()
+        self.mock_verify_manager_mode.assert_called()
         self.mock_exit.assert_not_called()
         self.mock_channel_access.caput.assert_not_called()
         self.mock_gateway.reload.assert_not_called()
@@ -109,8 +126,8 @@ class TestBlockServerRestartServiceIoc(unittest.TestCase):
     ):
         self.mock_verify_manager_mode.side_effect = ManagerModeRequiredError("not manager")
 
-        with self.assertRaises(ManagerModeRequiredError):
-            self.block_server.restart_service_ioc(["INSTETC"])
+        value = compress_and_hex('["INSTETC"]').decode("utf-8")
+        assert not self.block_server.write(BlockserverPVNames.RESTART_SERVICE_IOC, value)
 
         self.mock_ioc_control.restart_ioc.assert_not_called()
 

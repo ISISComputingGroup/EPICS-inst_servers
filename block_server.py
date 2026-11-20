@@ -380,13 +380,21 @@ class BlockServer(Driver):
                     )
                 )
             elif reason == BlockserverPVNames.RESTART_SERVICE_IOC:
-                self.write_queue.put(
-                    (
-                        self.restart_service_ioc,
-                        (convert_from_json(data), True),
-                        "RESTART_SERVICE_IOC",
+                status = False
+                try:
+                    verify_manager_mode(
+                        message="Attempting to restart a service IOC')",
                     )
-                )
+                    self.write_queue.put(
+                        (
+                            self.restart_service_ioc,
+                            (convert_from_json(data), True),
+                            "RESTART_SERVICE_IOC",
+                        )
+                    )
+                    status = True
+                except ManagerModeRequiredError as err:
+                    print_and_log(str(err), "MAJOR")
             elif reason == BlockserverPVNames.SET_CURR_CONFIG_DETAILS:
                 self.write_queue.put((self._set_curr_config, (data,), "SETTING_CONFIG"))
             elif reason == BlockserverPVNames.SAVE_NEW_CONFIG:
@@ -444,10 +452,6 @@ class BlockServer(Driver):
             if not ioc.startswith(self._service_iocs):
                 continue
 
-            verify_manager_mode(
-                message="Attempting to restart a service IOC')",
-            )
-
             match ioc:
                 case "BLOCKSVR":
                     self._restart()
@@ -459,7 +463,7 @@ class BlockServer(Driver):
                         1,
                     )
                 case _:
-                    self._ioc_control.restart_ioc(ioc, force=True)
+                    self._ioc_control.restart_ioc(ioc, force=True, restart_alarm_server=False)
 
     def _restart(self) -> None:
         """Restart the blockserver.
