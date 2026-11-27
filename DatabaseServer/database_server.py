@@ -1,5 +1,3 @@
-from __future__ import absolute_import, division, print_function, unicode_literals
-
 import argparse
 import json
 
@@ -22,23 +20,17 @@ import json
 import os
 import sys
 import traceback
+from collections.abc import Callable
 from functools import partial
 from threading import RLock, Thread
 from time import sleep
-from typing import Callable, Literal
+from typing import Literal
 
 from pcaspy import Driver
 
 sys.path.insert(0, os.path.abspath(os.environ["MYDIRBLOCK"]))
 
 from genie_python.mysql_abstraction_layer import SQLAbstraction
-
-from DatabaseServer.exp_data import ExpData, ExpDataSource
-from DatabaseServer.mocks.mock_exp_data import MockExpData
-from DatabaseServer.moxa_data import MoxaData, MoxaDataSource
-from DatabaseServer.options_holder import OptionsHolder
-from DatabaseServer.options_loader import OptionsLoader
-from DatabaseServer.procserv_utils import ProcServWrapper
 from server_common.channel_access_server import CAServer
 from server_common.constants import IOCS_NOT_TO_STOP
 from server_common.ioc_data import IOCData
@@ -54,6 +46,13 @@ from server_common.utilities import (
     print_and_log,
     set_logger,
 )
+
+from DatabaseServer.exp_data import ExpData, ExpDataSource
+from DatabaseServer.mocks.mock_exp_data import MockExpData
+from DatabaseServer.moxa_data import MoxaData, MoxaDataSource
+from DatabaseServer.options_holder import OptionsHolder
+from DatabaseServer.options_loader import OptionsLoader
+from DatabaseServer.procserv_utils import ProcServWrapper
 
 set_logger(IsisLogger())
 
@@ -96,7 +95,7 @@ class DatabaseServer(Driver):
             test_mode: Enables starting the server in a mode suitable for unit tests
         """
         if not test_mode:
-            super(DatabaseServer, self).__init__()
+            super().__init__()
 
         self._blockserver_prefix = blockserver_prefix
         self._ca_server = ca_server
@@ -203,11 +202,7 @@ class DatabaseServer(Driver):
             A compressed and hexed JSON formatted string that gives the desired information based on
             reason.
         """
-        return (
-            self.get_data_for_pv(reason)
-            if reason in self._pv_info.keys()
-            else self.getParam(reason)
-        )
+        return self.get_data_for_pv(reason) if reason in self._pv_info else self.getParam(reason)
 
     def write(self, reason: str, value: str) -> Literal[True]:
         """
@@ -230,7 +225,7 @@ class DatabaseServer(Driver):
                 )
             elif reason == "UPDATE_MM":
                 self._moxa_data.update_mappings()
-        except Exception as e:
+        except Exception as e:  # noqa: BLE001
             value_bytes = compress_and_hex(convert_to_json("Error: " + str(e)))
             print_and_log(str(e), MAJOR_MSG)
             self.setParam(reason, value_bytes)
@@ -257,7 +252,7 @@ class DatabaseServer(Driver):
                 ]:
                     encoded_data = self.get_data_for_pv(pv)
                     # No need to update monitors if data hasn't changed
-                    if not self.getParam(pv) == encoded_data:
+                    if self.getParam(pv) != encoded_data:
                         self.setParam(pv, encoded_data)
                 # Update them
                 with self.monitor_lock:
@@ -275,8 +270,8 @@ class DatabaseServer(Driver):
         """
         if size > self._pv_info[pv]["count"]:
             print_and_log(
-                "Too much data to encode PV {0}. Current size is {1} characters "
-                "but {2} are required".format(prefix + pv, self._pv_info[pv]["count"], size),
+                "Too much data to encode PV {}. Current size is {} characters "
+                "but {} are required".format(prefix + pv, self._pv_info[pv]["count"], size),
                 MAJOR_MSG,
                 LOG_TARGET,
             )
@@ -284,7 +279,7 @@ class DatabaseServer(Driver):
     def _get_iocs_info(self) -> dict:
         iocs = self._iocs.get_iocs()
         options = self._options_holder.get_config_options()
-        for iocname in iocs.keys():
+        for iocname in iocs:
             if iocname in options:
                 iocs[iocname].update(options[iocname])
         return iocs
@@ -405,7 +400,7 @@ if __name__ == "__main__":
         nargs=1,
         type=str,
         default=[MACROS["$(MYPVPREFIX)"] + "CS:"],
-        help="The prefix for PVs served by the blockserver(default=%MYPVPREFIX%CS:)",
+        help="The prefix for PVs served by the blockserver(default=<MYPVPREFIX>:CS:)",
     )
 
     parser.add_argument(
@@ -424,10 +419,10 @@ if __name__ == "__main__":
     if not BLOCKSERVER_PREFIX.endswith(":"):
         BLOCKSERVER_PREFIX += ":"
     BLOCKSERVER_PREFIX = BLOCKSERVER_PREFIX.replace("%MYPVPREFIX%", MACROS["$(MYPVPREFIX)"])
-    print_and_log("BLOCKSERVER PREFIX = %s" % BLOCKSERVER_PREFIX, INFO_MSG, LOG_TARGET)
+    print_and_log(f"BLOCKSERVER PREFIX = {BLOCKSERVER_PREFIX}", INFO_MSG, LOG_TARGET)
 
     OPTIONS_DIR = os.path.abspath(args.options_dir[0])
-    print_and_log("OPTIONS DIRECTORY = %s" % OPTIONS_DIR, INFO_MSG, LOG_TARGET)
+    print_and_log(f"OPTIONS DIRECTORY = {OPTIONS_DIR}", INFO_MSG, LOG_TARGET)
     if not os.path.isdir(os.path.abspath(OPTIONS_DIR)):
         # Create it then
         os.makedirs(os.path.abspath(OPTIONS_DIR))
@@ -451,9 +446,9 @@ if __name__ == "__main__":
                     MACROS["$(MYPVPREFIX)"],
                 )
                 print_and_log("Connected to IOCData database", INFO_MSG, LOG_TARGET)
-            except Exception:
+            except Exception:  # noqa: BLE001
                 print_and_log(
-                    "Problem initialising IOCData DB connection: {}".format(traceback.format_exc()),
+                    f"Problem initialising IOCData DB connection: {traceback.format_exc()}",
                     MAJOR_MSG,
                     LOG_TARGET,
                 )
@@ -463,11 +458,10 @@ if __name__ == "__main__":
             try:
                 exp_data = ExpData(MACROS["$(MYPVPREFIX)"], ExpDataSource())
                 print_and_log("Connected to experimental details database", INFO_MSG, LOG_TARGET)
-            except Exception:
+            except Exception:  # noqa: BLE001
                 print_and_log(
-                    "Problem connecting to experimental details database: {}".format(
-                        traceback.format_exc()
-                    ),
+                    f"Problem connecting to experimental details database: "
+                    f"{traceback.format_exc()}",
                     MAJOR_MSG,
                     LOG_TARGET,
                 )
@@ -479,11 +473,9 @@ if __name__ == "__main__":
                     MACROS["$(MYPVPREFIX)"],
                 )
                 print_and_log("Connected to moxa details database", INFO_MSG, LOG_TARGET)
-            except Exception:
+            except Exception:  # noqa: BLE001
                 print_and_log(
-                    "Problem connecting to moxa details database: {}".format(
-                        traceback.format_exc()
-                    ),
+                    f"Problem connecting to moxa details database: {traceback.format_exc()}",
                     MAJOR_MSG,
                     LOG_TARGET,
                 )
@@ -500,6 +492,6 @@ if __name__ == "__main__":
     while True:
         try:
             SERVER.process(0.1)
-        except Exception:
+        except Exception:  # noqa: BLE001
             print_and_log(traceback.format_exc(), MAJOR_MSG)
             break
