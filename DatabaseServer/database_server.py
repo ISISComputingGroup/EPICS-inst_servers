@@ -405,7 +405,7 @@ if __name__ == "__main__":
         nargs=1,
         type=str,
         default=[MACROS["$(MYPVPREFIX)"] + "CS:"],
-        help="The prefix for PVs served by the blockserver(default=%MYPVPREFIX%CS:)",
+        help="The prefix for PVs served by the blockserver(default=<MYPVPREFIX>:CS:)",
     )
 
     parser.add_argument(
